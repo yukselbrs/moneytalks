@@ -18,13 +18,19 @@ export default function WaitlistCTA() {
     setError("");
     setIsLoading(true);
     try {
-      // TODO: Connect to waitlist API before launch.
-      // Options: Resend Audiences, Loops, Supabase table, or custom /api/waitlist route.
-      // Example: await fetch("/api/waitlist", { method: "POST", body: JSON.stringify({ email }) });
-      await new Promise((r) => setTimeout(r, 600)); // simulated latency, remove after API connection
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Bir hata oluştu. Lütfen tekrar deneyin.");
+        return;
+      }
       setSubmitted(true);
     } catch {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setError("Bağlantı hatası. Lütfen tekrar deneyin.");
     } finally {
       setIsLoading(false);
     }
@@ -50,18 +56,18 @@ export default function WaitlistCTA() {
         }}
       />
 
-      <div className="relative z-10 max-w-2xl mx-auto text-center">
+      <div className="relative z-10 max-w-3xl mx-auto text-center">
         <p
           className="text-[10px] tracking-[0.3em] font-medium mb-5"
           style={{ color: "#60A5FA", fontFamily: "var(--font-manrope)" }}
         >
-          ERKEN ERİŞİM
+          ERKEN ERIŞIM
         </p>
         <h2
           className="text-4xl lg:text-5xl font-bold tracking-tight mb-5"
           style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
         >
-          Erken erişim fırsatını 
+          Erken erişim fırsatını
           <br />
           kaçırmayın
         </h2>
