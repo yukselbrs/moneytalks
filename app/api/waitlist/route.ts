@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
 
     try {
       await resend.emails.send({
-        from: "ParaKonusur <noreply@parakonusur.com>",
+        from: "ParaKonusur <hello@parakonusur.com>",
         to: email,
         subject: WELCOME_SUBJECT,
         html: WELCOME_HTML,
