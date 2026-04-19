@@ -13,11 +13,25 @@ const manrope = Manrope({
   subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
 });
-
 export const metadata: Metadata = {
   title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
   description:
-    "Yapay zekâ destekli analiz motorumuz BIST'teki her hisseyi saniyede değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik sinyalleri birleştirip size tek bir net yanıt verir.",
+    "Yapay zekâ destekli analiz motorumuz BIST'teki 500+ hisseyi saniyede değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik sinyalleri birleştirip size net içgörüler sunar.",
+  openGraph: {
+    title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
+    description: "500+ BIST hissesi için yapay zekâ destekli analiz. Erken erişim açık.",
+    url: "https://parakonusur.com",
+    siteName: "ParaKonusur",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    locale: "tr_TR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
+    description: "500+ BIST hissesi için yapay zekâ destekli analiz.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
