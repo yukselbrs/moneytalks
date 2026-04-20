@@ -7,6 +7,7 @@ import { supabase } from "@/components/lib/supabase";
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [ticker, setTicker] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +20,13 @@ export default function DashboardPage() {
       }
     });
   }, []);
+
+  function handleAnaliz(e: React.FormEvent) {
+    e.preventDefault();
+    if (ticker.trim()) {
+      router.push(`/hisse/${ticker.trim().toUpperCase()}`);
+    }
+  }
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -54,16 +62,18 @@ export default function DashboardPage() {
 
         <div className="bg-[#1E293B] rounded-2xl border border-[#334155] p-6">
           <h2 className="text-white font-semibold mb-4">Hisse Ara</h2>
-          <div className="flex gap-3">
+          <form onSubmit={handleAnaliz} className="flex gap-3">
             <input
               type="text"
+              value={ticker}
+              onChange={(e) => setTicker(e.target.value)}
               placeholder="THYAO, GARAN, ASELS..."
               className="flex-1 px-4 py-3 rounded-lg bg-[#0F172A] border border-[#334155] text-white focus:outline-none focus:border-[#3B82F6]"
             />
             <button className="px-6 py-3 rounded-lg bg-[#1E40AF] hover:bg-[#2563EB] text-white font-medium transition-colors">
               Analiz Et
             </button>
-          </div>
+          </form>
         </div>
       </main>
     </div>
