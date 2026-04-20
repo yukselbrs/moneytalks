@@ -145,7 +145,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           >
             {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
-          <p style={{ fontSize: 10, color: "#334155" }}>Analiz her kullanım sonrası 2 saatte bir yenilenir.</p>
+          <p style={{ fontSize: 10, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>
           </div>
 
         </div>
