@@ -46,10 +46,30 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const router = useRouter();
 
   useEffect(() => {
-    handleAnaliz();
+    fetchVeri();
   }, [ticker]);
 
+  async function fetchVeri() {
+    const res = await fetch("/api/analiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker, veriOnly: true }),
+    });
+    const data = await res.json();
+    if (data.veri) setVeri(data.veri);
+  }
+
   async function handleAnaliz() {
+    const cacheKey = `pk_analiz_${ticker}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      const { analiz: cachedAnaliz, veri: cachedVeri, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp < 2 * 60 * 60 * 1000) {
+        setAnaliz(cachedAnaliz);
+        if (cachedVeri) setVeri(cachedVeri);
+        return;
+      }
+    }
     setLoading(true);
     setAnaliz("");
     const res = await fetch("/api/analiz", {
@@ -60,6 +80,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     const data = await res.json();
     setAnaliz(data.analiz);
     if (data.veri) setVeri(data.veri);
+    localStorage.setItem(`pk_analiz_${ticker}`, JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: Date.now() }));
     const entry = { ticker, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
     const stored = localStorage.getItem("pk_recent");
     const recent = stored ? JSON.parse(stored) : [];

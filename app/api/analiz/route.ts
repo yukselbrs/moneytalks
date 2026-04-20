@@ -26,8 +26,12 @@ async function getHisseVerisi(ticker: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const { ticker } = await req.json();
+  const { ticker, veriOnly } = await req.json();
   const veri = await getHisseVerisi(ticker);
+
+  if (veriOnly) {
+    return NextResponse.json({ veri });
+  }
 
   const veriMetni = veri
     ? `Guncel piyasa verisi:
