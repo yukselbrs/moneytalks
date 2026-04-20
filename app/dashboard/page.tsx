@@ -104,9 +104,9 @@ export default function DashboardPage() {
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
       {/* Navbar */}
       <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC" }}>
+        <a href="/dashboard" style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
           para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
-        </span>
+        </a>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "#475569", letterSpacing: "0.06em" }}>
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#1D9E75" }} />

@@ -108,9 +108,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   return (
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC" }}>
+        <a href="/dashboard" style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
           para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
-        </span>
+        </a>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <a href="/dashboard" style={{ fontSize: 12, color: "#475569", textDecoration: "none" }}>← Dashboard</a>
           <button onClick={handleLogout} style={{ fontSize: 12, color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "5px 13px", background: "transparent", cursor: "pointer" }}>
