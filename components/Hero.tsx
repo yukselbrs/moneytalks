@@ -58,7 +58,7 @@ export default function Hero({ heroVideo }: HeroProps) {
     <section
       ref={sectionRef}
       className="relative w-full flex items-start justify-center"
-      style={{ minHeight: "150vh" }}
+      style={{ minHeight: "150vh", paddingTop: "64px" }}
     >
       <div className="sticky top-0 w-full h-screen flex items-center overflow-hidden">
         {/* Background glow */}
