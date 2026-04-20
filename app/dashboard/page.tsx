@@ -112,7 +112,7 @@ export default function DashboardPage() {
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#1D9E75" }} />
             CANLI
           </div>
-          <span style={{ fontSize: 12, color: "#475569" }}>{user?.email}</span>
+          <a href="/profile" style={{ fontSize: 12, color: "#475569", textDecoration: "none" }}>{user?.email}</a>
           <button onClick={handleLogout} style={{ fontSize: 12, color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "5px 13px", background: "transparent", cursor: "pointer" }}>
             Çıkış Yap
           </button>
