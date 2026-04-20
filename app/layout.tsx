@@ -14,6 +14,7 @@ const manrope = Manrope({
   weight: ["400", "500", "600"],
 });
 export const metadata: Metadata = {
+  icons: { icon: "/favicon.svg" },
   title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
   description:
     "Yapay zekâ destekli analiz motorumuz BIST'teki 500+ hisseyi saniyede değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik sinyalleri birleştirip size net içgörüler sunar.",
