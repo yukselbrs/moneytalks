@@ -81,7 +81,10 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <a
+        <div className="hidden md:flex items-center gap-3">
+          <a href="/login" className="px-4 py-2 text-sm font-medium" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>Giriş Yap</a>
+          <a href="/register" className="px-4 py-2 text-sm font-medium" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>Kayıt Ol</a>
+          <a
           href="/#waitlist"
           className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
           style={{
@@ -92,7 +95,8 @@ export default function Navbar() {
           }}
         >
           Erken Erişim
-        </a>
+          </a>
+        </div>
 
         <button
           className="md:hidden p-2"
@@ -127,7 +131,7 @@ export default function Navbar() {
             </a>
           ))}
           <a
-            href="/#waitlist"
+            href="/register"
             className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium"
             style={{
               background: "linear-gradient(135deg, #1E40AF, #3B82F6)",
