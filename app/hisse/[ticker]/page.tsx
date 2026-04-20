@@ -60,6 +60,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     const data = await res.json();
     setAnaliz(data.analiz);
     if (data.veri) setVeri(data.veri);
+    const entry = { ticker, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
+    const stored = localStorage.getItem("pk_recent");
+    const recent = stored ? JSON.parse(stored) : [];
+    const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
+    localStorage.setItem("pk_recent", JSON.stringify(updated));
     setLoading(false);
   }
 

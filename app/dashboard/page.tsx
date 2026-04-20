@@ -46,8 +46,13 @@ export default function DashboardPage() {
       setLoading(false);
     });
     fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
-    const stored = localStorage.getItem("pk_recent");
-    if (stored) setRecent(JSON.parse(stored));
+    const loadRecent = () => {
+      const stored = localStorage.getItem("pk_recent");
+      if (stored) setRecent(JSON.parse(stored));
+    };
+    loadRecent();
+    window.addEventListener("focus", loadRecent);
+    return () => window.removeEventListener("focus", loadRecent);
   }, [router]);
 
   async function addToWatchlist(t: string) {

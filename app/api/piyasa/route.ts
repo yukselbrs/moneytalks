@@ -8,9 +8,18 @@ export async function GET() {
     });
     const text = await res.text();
     const data = JSON.parse(text);
+    
+    const usdObj = data["USD"] || {};
+    const eurObj = data["EUR"] || {};
+    
+    const usdValue = usdObj["Sat\u0131\u015f"] || usdObj["Satis"] || "-";
+    const usdChange = usdObj["De\u011fi\u015fim"] || usdObj["Degisim"] || "-";
+    const eurValue = eurObj["Sat\u0131\u015f"] || eurObj["Satis"] || "-";
+    const eurChange = eurObj["De\u011fi\u015fim"] || eurObj["Degisim"] || "-";
+
     return NextResponse.json({
-      usd: { value: data["USD"]["Satis"] ?? data["USD"]["Sat\u0131\u015f"] ?? "-", change: data["USD"]["Degisim"] ?? data["USD"]["De\u011fi\u015fim"] ?? "-" },
-      eur: { value: data["EUR"]["Satis"] ?? data["EUR"]["Sat\u0131\u015f"] ?? "-", change: data["EUR"]["Degisim"] ?? data["EUR"]["De\u011fi\u015fim"] ?? "-" },
+      usd: { value: usdValue, change: usdChange },
+      eur: { value: eurValue, change: eurChange },
     });
   } catch (e) {
     console.error("Piyasa API error:", e);
