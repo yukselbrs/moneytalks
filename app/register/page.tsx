@@ -11,8 +11,17 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  function validatePassword(pw: string) {
+    if (pw.length < 6) return "Şifre en az 6 karakter olmalıdır.";
+    if (!/[A-Z]/.test(pw)) return "Şifre en az bir büyük harf içermelidir.";
+    if (!/[0-9]/.test(pw)) return "Şifre en az bir rakam içermelidir.";
+    return null;
+  }
+
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
+    const pwError = validatePassword(password);
+    if (pwError) { setError(pwError); return; }
     setLoading(true);
     setError("");
     const { error } = await supabase.auth.signUp({
@@ -71,8 +80,9 @@ export default function RegisterPage() {
             </div>
             <div>
               <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>Şifre</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="En az 6 karakter"
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••"
                 style={{ width: "100%", background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 14, color: "#94A3B8", padding: "6px 0" }} />
+              <p style={{ fontSize: 11, color: "#475569", marginTop: 6 }}>En az 6 karakter, 1 büyük harf ve 1 rakam içermelidir.</p>
             </div>
             {error && <p style={{ fontSize: 12, color: "#E24B4A" }}>{error}</p>}
             <button type="submit" disabled={loading}
