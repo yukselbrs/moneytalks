@@ -6,6 +6,8 @@ import { supabase } from "@/components/lib/supabase";
 
 interface HisseVeri {
   fiyat: number;
+  oncekiKapanis: number;
+  degisim: number | null;
   hacim: number;
   yillikYuksek: number;
   yillikDusuk: number;
@@ -97,10 +99,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const sections = analiz ? renderMarkdown(analiz) : [];
 
   const kartlar = veri ? [
-    { label: "52 Hafta Yüksek", value: `₺${veri.yillikYuksek}` },
-    { label: "52 Hafta Düşük", value: `₺${veri.yillikDusuk}` },
-    { label: "Günlük Hacim (Adet)", value: veri.hacim.toLocaleString("tr-TR") },
-    { label: "Günlük Hacim (₺)", value: "₺" + (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0 }) },
+    { label: "52 Hafta En Yüksek", value: `${veri.yillikYuksek} ₺` },
+    { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
+    { label: "Günlük Hacim", value: veri.hacim.toLocaleString("tr-TR") + " adet" },
+    { label: "İşlem Hacmi", value: (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0 }) + " ₺" },
   ] : [];
 
   return (
@@ -140,7 +142,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             disabled={loading}
             style={{ height: 38, padding: "0 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1, marginTop: 8, whiteSpace: "nowrap" }}
           >
-            {loading ? "Analiz ediliyor..." : "AI Özet Üret"}
+            {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
         </div>
 
@@ -149,7 +151,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             {kartlar.map((k) => (
               <div key={k.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 4 }}>{k.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: "#E2E8F0" }}>{k.value}</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: k.up === true ? "#1D9E75" : k.up === false ? "#E24B4A" : "#E2E8F0" }}>{k.value}</div>
               </div>
             ))}
           </div>
