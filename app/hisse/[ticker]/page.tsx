@@ -137,6 +137,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
               </p>
             )}
           </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, marginTop: 8 }}>
           <button
             onClick={handleAnaliz}
             disabled={loading}
@@ -144,6 +145,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           >
             {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
+          <p style={{ fontSize: 10, color: "#334155" }}>Analiz her kullanım sonrası 2 saatte bir yenilenir.</p>
+          </div>
+
         </div>
 
         {veri && (
