@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const [ticker, setTicker] = useState("");
   const [recent, setRecent] = useState<{ ticker: string; time: string }[]>([]);
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
+  const [fullName, setFullName] = useState("");
   const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" } });
   const router = useRouter();
 
@@ -37,6 +38,7 @@ export default function DashboardPage() {
         return;
       }
       setUser(session.user);
+      setFullName(session.user.user_metadata?.full_name || "");
       const { data } = await supabase
         .from("watchlist")
         .select("ticker")
@@ -112,7 +114,12 @@ export default function DashboardPage() {
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#1D9E75" }} />
             CANLI
           </div>
-          <a href="/profile" style={{ fontSize: 12, color: "#475569", textDecoration: "none" }}>{user?.email}</a>
+          <a href="/profile" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "#3B82F6" }}>
+              {fullName ? fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : user?.email?.slice(0, 2).toUpperCase()}
+            </div>
+            <span style={{ fontSize: 12, color: "#475569" }}>{user?.email}</span>
+          </a>
           <button onClick={handleLogout} style={{ fontSize: 12, color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "5px 13px", background: "transparent", cursor: "pointer" }}>
             Çıkış Yap
           </button>
