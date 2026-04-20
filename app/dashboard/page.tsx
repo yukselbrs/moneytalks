@@ -49,15 +49,14 @@ export default function DashboardPage() {
     });
     const fetchPiyasa = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
     fetchPiyasa();
-    const interval = setInterval(fetchPiyasa, 15000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchPiyasa, 300000);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
       if (stored) setRecent(JSON.parse(stored));
     };
     loadRecent();
     window.addEventListener("focus", loadRecent);
-    return () => window.removeEventListener("focus", loadRecent);
+    return () => { clearInterval(interval); window.removeEventListener("focus", loadRecent); };
   }, [router]);
 
   async function addToWatchlist(t: string) {
