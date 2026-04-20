@@ -47,7 +47,10 @@ export default function DashboardPage() {
       if (data) setWatchlist(data);
       setLoading(false);
     });
-    fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
+    const fetchPiyasa = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
+    fetchPiyasa();
+    const interval = setInterval(fetchPiyasa, 15000);
+    return () => clearInterval(interval);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
       if (stored) setRecent(JSON.parse(stored));
