@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 
 export default function RegisterPage() {
@@ -11,22 +10,16 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const router = useRouter();
- 
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { full_name: fullName },
-      },
+      options: { data: { full_name: fullName } },
     });
-
     if (error) {
       setError("Kayıt sırasında hata oluştu: " + error.message);
       setLoading(false);
@@ -38,86 +31,61 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
-        <div className="w-full max-w-md p-8 rounded-2xl bg-[#1E293B] border border-[#334155] text-center">
-          <div className="text-4xl mb-4">✉️</div>
-          <h1 className="text-2xl font-bold text-white mb-2">E-postanı doğrula</h1>
-          <p className="text-[#94A3B8]">
-            {email} adresine doğrulama linki gönderdik. Lütfen e-postanı kontrol et.
-          </p>
-          <a href="/login" className="mt-6 inline-block text-[#3B82F6] hover:underline">
-            Giriş sayfasına dön
+      <div style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-manrope, sans-serif)" }}>
+        <div style={{ width: "100%", maxWidth: 400, padding: "0 24px", textAlign: "center" }}>
+          <a href="/" style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
+            para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
           </a>
+          <div style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "36px 24px", background: "rgba(255,255,255,0.02)", marginTop: 32 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(29,158,117,0.12)", border: "1px solid rgba(29,158,117,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 20 }}>✉</div>
+            <h1 style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC", marginBottom: 8 }}>E-postanı doğrula</h1>
+            <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{email} adresine doğrulama linki gönderdik. Lütfen e-postanı kontrol et.</p>
+            <a href="/login" style={{ display: "inline-block", marginTop: 20, fontSize: 12, color: "#3B82F6", textDecoration: "none" }}>Giriş sayfasına dön →</a>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
-      <div className="w-full max-w-md p-8 rounded-2xl bg-[#1E293B] border border-[#334155]">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-white">Kayıt Ol</h1>
-          <p className="text-[#94A3B8] mt-2">Ücretsiz hesap oluştur</p>
+    <div style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <div style={{ width: "100%", maxWidth: 400, padding: "0 24px" }}>
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <a href="/" style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
+            para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
+          </a>
+          <p style={{ fontSize: 13, color: "#334155", marginTop: 8 }}>Ücretsiz hesap oluştur</p>
         </div>
 
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div>
-            <label className="block text-sm text-[#94A3B8] mb-1">Ad Soyad</label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-lg bg-[#0F172A] border border-[#334155] text-white focus:outline-none focus:border-[#3B82F6]"
-              placeholder="Adın Soyadın"
-            />
-          </div>
+        <div style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "28px 24px", background: "rgba(255,255,255,0.02)" }}>
+          <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div>
+              <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>Ad Soyad</label>
+              <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Adın Soyadın"
+                style={{ width: "100%", background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 14, color: "#94A3B8", padding: "6px 0" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>E-posta</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com"
+                style={{ width: "100%", background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 14, color: "#94A3B8", padding: "6px 0" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>Şifre</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="En az 6 karakter"
+                style={{ width: "100%", background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 14, color: "#94A3B8", padding: "6px 0" }} />
+            </div>
+            {error && <p style={{ fontSize: 12, color: "#E24B4A" }}>{error}</p>}
+            <button type="submit" disabled={loading}
+              style={{ marginTop: 8, height: 40, background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }}>
+              {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
+            </button>
+          </form>
+        </div>
 
-          <div>
-            <label className="block text-sm text-[#94A3B8] mb-1">E-posta</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-lg bg-[#0F172A] border border-[#334155] text-white focus:outline-none focus:border-[#3B82F6]"
-              placeholder="ornek@email.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-[#94A3B8] mb-1">Şifre</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full px-4 py-3 rounded-lg bg-[#0F172A] border border-[#334155] text-white focus:outline-none focus:border-[#3B82F6]"
-              placeholder="En az 6 karakter"
-            />
-          </div>
-
-          {error && (
-            <p className="text-red-400 text-sm">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-lg bg-[#1E40AF] hover:bg-[#2563EB] text-white font-medium transition-colors disabled:opacity-50"
-          >
-            {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
-          </button>
-
-          <p className="text-center text-[#94A3B8] text-sm">
-            Zaten hesabın var mı?{" "}
-            <a href="/login" className="text-[#3B82F6] hover:underline">
-              Giriş yap
-            </a>
-          </p>
-        </form>
+        <p style={{ textAlign: "center", fontSize: 12, color: "#334155", marginTop: 20 }}>
+          Zaten hesabın var mı?{" "}
+          <a href="/login" style={{ color: "#3B82F6", textDecoration: "none" }}>Giriş yap</a>
+        </p>
       </div>
     </div>
   );

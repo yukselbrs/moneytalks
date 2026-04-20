@@ -3,19 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   const { ticker } = await req.json();
 
-  const mockAnaliz = `**Sirket Profili**
-${ticker}, Borsa Istanbul'da islem goren koklü sirketlerden biridir. Sektorunde guclu bir konuma sahip olup yurt ici ve yurt disi pazarlarda faaliyet gostermektedir.
+  const mockAnaliz = `**Şirket Profili**
+${ticker}, Borsa İstanbul'da işlem gören köklü şirketlerden biridir. Sektöründe güçlü bir konuma sahip olup yurt içi ve yurt dışı pazarlarda faaliyet göstermektedir.
 
 **Finansal Durum**
-Temel finansal gostergeler analiz ediliyor. Guncel veriler icin sirketin kamuya acik finansal raporlarini incelemenizi oneririz.
+Temel finansal göstergeler analiz ediliyor. Güncel veriler için şirketin kamuya açık finansal raporlarını incelemenizi öneririz.
 
 **Piyasa Konumu**
-Sektor icindeki rekabet ortami ve sirketin konumlanmasi degerlendiriliyor.
+Sektör içindeki rekabet ortamı ve şirketin konumlanması değerlendiriliyor.
 
-**Dikkat Noktalari**
-Yatirim karari almadan once guncel gelismeleri takip ediniz.
-
-Bu analiz yalnizca bilgilendirme amaclidir ve yatirim tavsiyesi niteligini tasimazHer turlu yatirim karari yatirimcinin kendi sorumlulugunadadir.`;
+**Dikkat Noktaları**
+Yatırım kararı almadan önce güncel gelişmeleri takip ediniz.`;
 
   return NextResponse.json({ analiz: mockAnaliz });
 }
