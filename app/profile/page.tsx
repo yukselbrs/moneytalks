@@ -47,9 +47,8 @@ export default function ProfilePage() {
   }
 
   async function handleDeleteAccount() {
-    if (!confirm("Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")) return;
-    await supabase.auth.signOut();
-    router.push("/");
+    setError("");
+    setMessage("Hesabınızı silmek için hello@parakonusur.com adresine yazın.");
   }
 
   async function handleLogout() {
