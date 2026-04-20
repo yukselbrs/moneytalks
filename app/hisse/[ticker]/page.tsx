@@ -28,7 +28,13 @@ function renderMarkdown(text: string) {
     }
   }
   if (current) sections.push(current);
-  return sections;
+  const map: Record<string, string> = {
+    "Sirket Profili": "Şirket Profili",
+    "Finansal Durum": "Finansal Durum",
+    "Piyasa Konumu": "Piyasa Konumu",
+    "Dikkat Noktalari": "Dikkat Noktaları",
+  };
+  return sections.map(s => ({ ...s, title: map[s.title] || s.title }));
 }
 
 export default function HissePage({ params }: { params: Promise<{ ticker: string }> }) {
@@ -64,6 +70,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   const sections = analiz ? renderMarkdown(analiz) : [];
 
+  const kartlar = veri ? [
+    { label: "52 Hafta Yüksek", value: `₺${veri.yillikYuksek}` },
+    { label: "52 Hafta Düşük", value: `₺${veri.yillikDusuk}` },
+    { label: "Günlük Hacim (Adet)", value: veri.hacim.toLocaleString("tr-TR") },
+    { label: "Günlük Hacim (₺)", value: "₺" + (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0 }) },
+  ] : [];
+
   return (
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -79,7 +92,6 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       </nav>
 
       <main style={{ maxWidth: 800, margin: "0 auto", padding: "36px 24px" }}>
-        {/* Başlık + Fiyat */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
@@ -87,13 +99,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
               <h1 style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
               {veri && (
                 <span style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC" }}>
-                  {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TRY
+                  ₺{veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
                 </span>
               )}
             </div>
             {veri && (
               <p style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
-                Günlük: {veri.gunlukDusuk} – {veri.gunlukYuksek} TRY
+                Günlük: ₺{veri.gunlukDusuk} – ₺{veri.gunlukYuksek}
               </p>
             )}
           </div>
@@ -106,23 +118,17 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           </button>
         </div>
 
-        {/* Piyasa Verileri */}
         {veri && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 24 }}>
-            {[
-              { label: "52 Hafta Yüksek", value: `${veri.yillikYuksek} TRY` },
-              { label: "52 Hafta Düşük", value: `${veri.yillikDusuk} TRY` },
-              { label: "Günlük Hacim", value: veri.hacim.toLocaleString("tr-TR") },
-            ].map((item) => (
-              <div key={item.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px" }}>
-                <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 4 }}>{item.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: "#E2E8F0" }}>{item.value}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
+            {kartlar.map((k) => (
+              <div key={k.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px" }}>
+                <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 4 }}>{k.label}</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: "#E2E8F0" }}>{k.value}</div>
               </div>
             ))}
           </div>
         )}
 
-        {/* AI Analizi */}
         {sections.length > 0 && (
           <>
             <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>AI Analiz Özeti</p>
