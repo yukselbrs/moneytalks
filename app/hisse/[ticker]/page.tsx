@@ -4,16 +4,27 @@ import { useState, use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 
+interface HisseVeri {
+  fiyat: number;
+  hacim: number;
+  yillikYuksek: number;
+  yillikDusuk: number;
+  gunlukYuksek: number;
+  gunlukDusuk: number;
+}
+
 function renderMarkdown(text: string) {
   const sections: { title: string; body: string }[] = [];
   const lines = text.split("\n");
   let current: { title: string; body: string } | null = null;
   for (const line of lines) {
-    if (line.startsWith("**") && line.endsWith("**")) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("#")) continue;
+    if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
       if (current) sections.push(current);
-      current = { title: line.replace(/\*\*/g, ""), body: "" };
-    } else if (line.trim() && current) {
-      current.body += (current.body ? " " : "") + line.trim();
+      current = { title: trimmed.replace(/\*\*/g, ""), body: "" };
+    } else if (trimmed && current) {
+      current.body += (current.body ? " " : "") + trimmed;
     }
   }
   if (current) sections.push(current);
@@ -24,6 +35,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const { ticker: tickerParam } = use(params);
   const ticker = tickerParam.toUpperCase();
   const [analiz, setAnaliz] = useState("");
+  const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -41,6 +53,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     });
     const data = await res.json();
     setAnaliz(data.analiz);
+    if (data.veri) setVeri(data.veri);
     setLoading(false);
   }
 
@@ -66,10 +79,23 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       </nav>
 
       <main style={{ maxWidth: 800, margin: "0 auto", padding: "36px 24px" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32 }}>
+        {/* Başlık + Fiyat */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
-            <h1 style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px", marginBottom: 4 }}>{ticker}</h1>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <h1 style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
+              {veri && (
+                <span style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC" }}>
+                  {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TRY
+                </span>
+              )}
+            </div>
+            {veri && (
+              <p style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
+                Günlük: {veri.gunlukDusuk} – {veri.gunlukYuksek} TRY
+              </p>
+            )}
           </div>
           <button
             onClick={handleAnaliz}
@@ -80,6 +106,23 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           </button>
         </div>
 
+        {/* Piyasa Verileri */}
+        {veri && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 24 }}>
+            {[
+              { label: "52 Hafta Yüksek", value: `${veri.yillikYuksek} TRY` },
+              { label: "52 Hafta Düşük", value: `${veri.yillikDusuk} TRY` },
+              { label: "Günlük Hacim", value: veri.hacim.toLocaleString("tr-TR") },
+            ].map((item) => (
+              <div key={item.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px" }}>
+                <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 4 }}>{item.label}</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: "#E2E8F0" }}>{item.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* AI Analizi */}
         {sections.length > 0 && (
           <>
             <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>AI Analiz Özeti</p>
@@ -87,7 +130,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
               {sections.map((s, i) => (
                 <div key={i} style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, overflow: "hidden" }}>
                   <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.07)", display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: s.title === "Dikkat Noktaları" ? "#E24B4A" : "#3B82F6", flexShrink: 0 }} />
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: s.title === "Dikkat Noktalari" || s.title === "Dikkat Noktaları" ? "#E24B4A" : "#3B82F6", flexShrink: 0 }} />
                     <span style={{ fontSize: 13, fontWeight: 500, color: "#94A3B8" }}>{s.title}</span>
                   </div>
                   <div style={{ padding: "12px 16px" }}>
@@ -98,7 +141,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             </div>
             <div style={{ marginTop: 16, padding: "12px 16px", border: "1px solid rgba(59,130,246,0.06)", borderRadius: 8 }}>
               <p style={{ fontSize: 11, color: "#1E293B", lineHeight: 1.6 }}>
-                Bu analiz yalnizca bilgilendirme amaclidir ve yatirim tavsiyesi niteligini tasimaz. Her turlu yatirim karari yatirimcinin kendi sorumlulugunadadir.
+                Bu analiz yalnızca bilgilendirme amaçlıdır ve yatırım tavsiyesi niteliği taşımaz. Her türlü yatırım kararı yatırımcının kendi sorumluluğundadır.
               </p>
             </div>
           </>
