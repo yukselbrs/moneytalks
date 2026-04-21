@@ -66,6 +66,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <a href="/dashboard" style={{ width: 32, height: 32, background: "#3B82F6", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "white", textDecoration: "none", marginBottom: 12, flexShrink: 0 }}>PK</a>
 
+        {/* Geri butonu - hisse sayfasında göster */}
+        {pathname.startsWith("/hisse/") && (
+          <a href="/dashboard" title="Dashboard'a Dön"
+            style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", textDecoration: "none", color: "#3B82F6", background: "rgba(59,130,246,0.1)", marginBottom: 4 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5"/><path d="m12 5-7 7 7 7"/>
+            </svg>
+          </a>
+        )}
         {/* Nav Items */}
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -97,6 +106,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div style={{ marginLeft: 56, flex: 1, display: "flex", flexDirection: "column" }}>
+        {/* Topbar */}
+        <div style={{ borderBottom: "0.5px solid rgba(255,255,255,0.04)", padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#080F1E", position: "sticky", top: 0, zIndex: 40 }}>
+          <a href="/" style={{ fontSize: 14, fontWeight: 500, color: "#F8FAFC", textDecoration: "none", letterSpacing: "-0.3px" }}>
+            para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
+          </a>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "#F97316", letterSpacing: "0.06em" }}>
+              <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#F97316" }} />
+              DEMO
+            </div>
+            <span style={{ fontSize: 11, color: "#1E293B" }}>
+              {new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "short" })} · {new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+            </span>
+            <span style={{ fontSize: 12, color: "#475569" }}>{email}</span>
+          </div>
+        </div>
         {children}
       </div>
     </div>
