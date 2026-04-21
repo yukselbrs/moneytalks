@@ -14,6 +14,7 @@ async function getHisseVerisi(ticker: string) {
     if (!meta) return null;
     return {
       fiyat: meta.regularMarketPrice,
+      oncekiKapanis: meta.chartPreviousClose || meta.previousClose,
       hacim: meta.regularMarketVolume,
       yillikYuksek: meta.fiftyTwoWeekHigh,
       yillikDusuk: meta.fiftyTwoWeekLow,

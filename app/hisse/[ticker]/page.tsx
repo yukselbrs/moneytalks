@@ -136,6 +136,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   const sections = analiz ? renderMarkdown(analiz) : [];
 
+  const gunlukDegisim = veri ? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDusuk)) / (veri.oncekiKapanis || veri.gunlukDusuk) * 100) : 0;
   const kartlar = veri ? [
     { label: "52 Hafta En Yüksek", value: `${veri.yillikYuksek} ₺` },
     { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
@@ -174,6 +175,12 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
                   </span>
                   {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+                  {veri.oncekiKapanis && (
+                    <span style={{ fontSize: 14, fontWeight: 500, color: veri.fiyat >= veri.oncekiKapanis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 3 }}>
+                      <span>{veri.fiyat >= veri.oncekiKapanis ? "▲" : "▼"}</span>
+                      <span>%{Math.abs(((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
+                    </span>
+                  )}
                 </span>
               )}
             </div>
