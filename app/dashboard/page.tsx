@@ -29,7 +29,7 @@ const BIST_HISSELER = [
   { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
   { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
   { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
-  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ", domain: "koc.com.tr" },
+  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
   { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
   { ticker: "TUPRS", name: "Tüpraş", domain: "tupras.com.tr" },
   { ticker: "SAHOL", name: "Sabancı Holding", domain: "sabanci.com" },
@@ -82,7 +82,7 @@ const POPULAR = [
   { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
   { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
   { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
-  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ", domain: "koc.com.tr" },
+  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
   { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
 ];
 
@@ -316,7 +316,13 @@ export default function DashboardPage() {
             {POPULAR.map((s) => (
               <div key={s.ticker} onClick={() => router.push(`/hisse/${s.ticker}`)}
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 12px", cursor: "pointer", position: "relative" }}>
-                <div style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{s.ticker}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  {(() => { const h = BIST_HISSELER.find(b => b.ticker === s.ticker); return (h as any)?.domain ? (
+                    <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }}
+                      onError={(e) => { const el = e.target as HTMLImageElement; el.style.display="none"; const span = document.createElement("span"); span.style.cssText=`font-size:9px;font-weight:700;color:${tickerRenk(s.ticker)}`; span.innerText=s.ticker.slice(0,3); el.parentNode?.appendChild(span); }} />
+                  ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(s.ticker) }}>{s.ticker.slice(0,3)}</span>; })()}
+                  <div style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{s.ticker}</div>
+                </div>
                 <div style={{ fontSize: 10, color: "#334155", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
                 <button onClick={(ev) => { ev.stopPropagation(); addToWatchlist(s.ticker); }}
                   style={{ position: "absolute", top: 8, right: 8, fontSize: 10, color: "#1E40AF", background: "none", border: "none", cursor: "pointer" }}>
