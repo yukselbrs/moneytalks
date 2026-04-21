@@ -23,42 +23,42 @@ function tickerRenk(ticker: string) {
 }
 
 const BIST_HISSELER = [
-  { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY" },
-  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ" },
+  { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY", domain: "turkishairlines.com" },
+  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
   { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
   { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
   { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
-  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK" },
-  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
-  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM" },
-  { ticker: "TUPRS", name: "Tüpraş" },
-  { ticker: "SAHOL", name: "Sabancı Holding" },
-  { ticker: "YKBNK", name: "Yapı Kredi Bankası" },
-  { ticker: "TCELL", name: "Turkcell" },
-  { ticker: "FROTO", name: "Ford Otosan" },
-  { ticker: "TOASO", name: "Tofaş Otomobil" },
-  { ticker: "PETKM", name: "Petkim" },
-  { ticker: "ARCLK", name: "Arçelik" },
+  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
+  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ", domain: "koc.com.tr" },
+  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
+  { ticker: "TUPRS", name: "Tüpraş", domain: "tupras.com.tr" },
+  { ticker: "SAHOL", name: "Sabancı Holding", domain: "sabanci.com" },
+  { ticker: "YKBNK", name: "Yapı Kredi Bankası", domain: "yapikredi.com.tr" },
+  { ticker: "TCELL", name: "Turkcell", domain: "turkcell.com.tr" },
+  { ticker: "FROTO", name: "Ford Otosan", domain: "fordotosan.com.tr" },
+  { ticker: "TOASO", name: "Tofaş Otomobil", domain: "tofas.com.tr" },
+  { ticker: "PETKM", name: "Petkim", domain: "petkim.com.tr" },
+  { ticker: "ARCLK", name: "Arçelik", domain: "arcelik.com" },
   { ticker: "KOZAL", name: "Koza Altın" },
   { ticker: "KOZAA", name: "Koza Anadolu Metal" },
   { ticker: "EKGYO", name: "Emlak Konut GYO" },
   { ticker: "ISGYO", name: "İş GYO" },
-  { ticker: "HALKB", name: "Halkbank" },
-  { ticker: "VAKBN", name: "Vakıfbank" },
-  { ticker: "ISCTR", name: "İş Bankası" },
-  { ticker: "ENKAI", name: "Enka İnşaat" },
+  { ticker: "HALKB", name: "Halkbank", domain: "halkbank.com.tr" },
+  { ticker: "VAKBN", name: "Vakıfbank", domain: "vakifbank.com.tr" },
+  { ticker: "ISCTR", name: "İş Bankası", domain: "isbank.com.tr" },
+  { ticker: "ENKAI", name: "Enka İnşaat", domain: "enka.com" },
   { ticker: "DOHOL", name: "Doğan Holding" },
-  { ticker: "TAVHL", name: "TAV Havalimanları" },
-  { ticker: "PGSUS", name: "Pegasus Hava Yolları" },
+  { ticker: "TAVHL", name: "TAV Havalimanları", domain: "tav.aero" },
+  { ticker: "PGSUS", name: "Pegasus Hava Yolları", domain: "flypgs.com" },
   { ticker: "LOGO", name: "Logo Yazılım" },
   { ticker: "NETAS", name: "Netaş Telekom" },
   { ticker: "VESBE", name: "Vestel Beyaz Eşya" },
   { ticker: "VESTL", name: "Vestel" },
-  { ticker: "MGROS", name: "Migros" },
-  { ticker: "SOKM", name: "Şok Marketler" },
-  { ticker: "ULKER", name: "Ülker Bisküvi" },
+  { ticker: "MGROS", name: "Migros", domain: "migros.com.tr" },
+  { ticker: "SOKM", name: "Şok Marketler", domain: "sokmarket.com.tr" },
+  { ticker: "ULKER", name: "Ülker Bisküvi", domain: "ulker.com.tr" },
   { ticker: "AEFES", name: "Anadolu Efes" },
-  { ticker: "TTKOM", name: "Türk Telekom" },
+  { ticker: "TTKOM", name: "Türk Telekom", domain: "turktelekom.com.tr" },
   { ticker: "TTRAK", name: "Türk Traktör" },
   { ticker: "OTKAR", name: "Otokar" },
   { ticker: "GUBRF", name: "Gübre Fabrikaları" },
@@ -69,21 +69,21 @@ const BIST_HISSELER = [
   { ticker: "EREGL", name: "Ereğli Demir Çelik" },
   { ticker: "KRDMD", name: "Kardemir" },
   { ticker: "ISDMR", name: "İskenderun Demir Çelik" },
-  { ticker: "SASA", name: "Sasa Polyester" },
+  { ticker: "SASA", name: "Sasa Polyester", domain: "sasa.com.tr" },
   { ticker: "BRYAT", name: "Borusan Yatırım" },
-  { ticker: "BRISA", name: "Brisa" },
-  { ticker: "DOAS", name: "Doğuş Otomotiv" },
+  { ticker: "BRISA", name: "Brisa", domain: "brisa.com.tr" },
+  { ticker: "DOAS", name: "Doğuş Otomotiv", domain: "dogusotomotiv.com.tr" },
 ];
 
 const POPULAR = [
   { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY" },
-  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ" },
+  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
   { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
   { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
   { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
-  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK" },
-  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
-  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM" },
+  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
+  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ", domain: "koc.com.tr" },
+  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
 ];
 
 const KAP = [
@@ -97,6 +97,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [ticker, setTicker] = useState("");
   const [aramaOneri, setAramaOneri] = useState<{ ticker: string; name: string }[]>([]);
+  const [inputReady, setInputReady] = useState(false);
   const [recent, setRecent] = useState<{ ticker: string; time: string }[]>([]);
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
@@ -253,15 +254,19 @@ export default function DashboardPage() {
             ).slice(0, 6);
             setAramaOneri(filtered);
           }} onBlur={() => setTimeout(() => setAramaOneri([]), 150)} placeholder="Hisse kodu veya şirket adı girin..."
-            style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }} autoComplete="new-password" name="hisse-arama" id="hisse-arama" />
+            style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }} autoComplete="off" readOnly={!inputReady} onFocus={() => setInputReady(true)} />
           {aramaOneri.length > 0 && (
             <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 50, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
               {aramaOneri.map((h) => (
                 <div key={h.ticker} onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", cursor: "pointer", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px" }}>
-                    {((h as {ticker:string;name:string;kisalt?:string}).kisalt || h.ticker).slice(0, 5)}
+                  <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px", overflow: "hidden" }}>
+                    {(h as any).domain ? (
+                      <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 20, height: 20, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    ) : (
+                      ((h as {ticker:string;name:string;kisalt?:string}).kisalt || h.ticker).slice(0, 5)
+                    )}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
