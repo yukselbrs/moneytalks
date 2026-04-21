@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import AppShell from "@/components/AppShell";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 
@@ -186,10 +187,7 @@ export default function DashboardPage() {
     router.push(`/hisse/${t}`);
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
+
 
   const firstName = fullName ? fullName.split(" ")[0] : user?.email?.split("@")[0] ?? "";
   const nowDate = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "long" });
@@ -205,54 +203,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
+    <AppShell>
+    <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
-      {/* Navbar */}
-      <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <a href="/" style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
-          para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
-        </a>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "#F97316", letterSpacing: "0.06em" }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#F97316" }} />
-            DEMO
-          </div>
-          <div style={{ position: "relative" }}>
-            <button onClick={() => setBildirimAcik(!bildirimAcik)} style={{ background: "none", border: "none", cursor: "pointer", color: bildirimAcik ? "#3B82F6" : "#475569", display: "flex", alignItems: "center", padding: 4, transition: "color 0.15s" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-              </svg>
-            </button>
-            {bildirimAcik && (
-              <div style={{ position: "absolute", right: 0, top: "calc(100% + 10px)", width: 320, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, zIndex: 100, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
-                <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#F8FAFC" }}>Bildirimler</span>
-                  <span style={{ fontSize: 12, color: "#475569" }}>⚙</span>
-                </div>
-                {bildirimler.map((b, i) => (
-                  <div key={i} style={{ padding: "12px 16px", borderBottom: i < bildirimler.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: 12 }}>{b.tip === "yukselis" ? "🟢" : b.tip === "dusus" ? "🔴" : "📄"}</span>
-                    <div>
-                      <div style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>{b.zaman}</div>
-                      <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>{b.mesaj}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <a href="/profile" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "#3B82F6" }}>
-              {fullName ? fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : user?.email?.slice(0, 2).toUpperCase()}
-            </div>
-            <span style={{ fontSize: 12, color: "#475569" }}>{user?.email}</span>
-          </a>
-          <button onClick={handleLogout} style={{ fontSize: 12, color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "5px 13px", background: "transparent", cursor: "pointer" }}>
-            Çıkış Yap
-          </button>
-        </div>
-      </nav>
 
       <main style={{ maxWidth: 1000, margin: "0 auto", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Header */}
@@ -500,5 +453,6 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+    </AppShell>
   );
 }

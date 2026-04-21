@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, use, useEffect } from "react";
+import AppShell from "@/components/AppShell";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
@@ -129,10 +130,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     setLoading(false);
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
+
 
   const sections = analiz ? renderMarkdown(analiz) : [];
 
@@ -145,6 +143,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   ] : [];
 
   return (
+    <AppShell>
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/dashboard" style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
@@ -261,5 +260,6 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         )}
       </main>
     </div>
+    </AppShell>
   );
 }
