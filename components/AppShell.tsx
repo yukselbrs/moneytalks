@@ -64,7 +64,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <div style={{ width: 56, background: "#050A14", borderRight: "0.5px solid rgba(255,255,255,0.04)", display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 6, flexShrink: 0, position: "fixed", top: 0, left: 0, height: "100vh", zIndex: 50 }}>
         {/* Logo */}
-        <a href="/dashboard" style={{ width: 32, height: 32, background: "#3B82F6", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "white", textDecoration: "none", marginBottom: 12, flexShrink: 0 }}>PK</a>
+        <a href="/dashboard" style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", marginBottom: 12, flexShrink: 0 }}>
+          <img src="/favicon.svg" style={{ width: 36, height: 36 }} alt="ParaKonusur" />
+        </a>
 
         {/* Geri butonu - hisse sayfasında göster */}
         {pathname.startsWith("/hisse/") && (
