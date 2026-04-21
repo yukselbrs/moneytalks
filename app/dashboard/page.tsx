@@ -230,7 +230,7 @@ export default function DashboardPage() {
               h.ticker.startsWith(q) || h.name.toUpperCase().startsWith(q)
             ).slice(0, 6);
             setAramaOneri(filtered);
-          }} onBlur={() => setTimeout(() => setAramaOneri([]), 150)} placeholder="Hisse kodu veya şirket adı girin..."
+          }} onBlur={() => setTimeout(() => setAramaOneri([]), 150)}
             style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }} autoComplete="off" readOnly={!inputReady} onFocus={() => setInputReady(true)} placeholder="Hisse kodu veya şirket adı ara..." />
           {aramaOneri.length > 0 && (
             <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 50, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
