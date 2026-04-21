@@ -64,8 +64,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <div style={{ width: 56, background: "#050A14", borderRight: "0.5px solid rgba(255,255,255,0.04)", display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 6, flexShrink: 0, position: "fixed", top: 0, left: 0, height: "100vh", zIndex: 50 }}>
         {/* Logo */}
-        <a href="/dashboard" style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", marginBottom: 12, flexShrink: 0 }}>
-          <img src="/favicon.svg" style={{ width: 36, height: 36 }} alt="ParaKonusur" />
+        <a href="/dashboard" style={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", marginBottom: 12, flexShrink: 0 }}>
+          <svg width="40" height="40" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#60A5FA"/>
+                <stop offset="55%" stopColor="#3B82F6"/>
+                <stop offset="100%" stopColor="#1E40AF"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.35"/>
+                <stop offset="100%" stopColor="#1E40AF" stopOpacity="0.25"/>
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="256" height="256" rx="48" fill="#0B1220" stroke="rgba(59,130,246,0.3)" strokeWidth="2"/>
+            <rect x="70" y="170" width="18" height="30" rx="3" fill="url(#g2)"/>
+            <rect x="70" y="130" width="18" height="70" rx="3" fill="url(#g1)"/>
+            <rect x="94" y="110" width="18" height="90" rx="3" fill="url(#g1)"/>
+            <path d="M112 110 Q 180 110 180 140 Q 180 170 122 170" fill="none" stroke="url(#g1)" strokeWidth="18" strokeLinecap="round"/>
+            <circle cx="180" cy="92" r="7" fill="#60A5FA"/>
+          </svg>
         </a>
 
         {/* Geri butonu - hisse sayfasında göster */}
