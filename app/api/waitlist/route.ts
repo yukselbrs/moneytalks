@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID!;
+let resend: Resend | null = null;
+const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID || "";
+
+function getResend() {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 const WELCOME_SUBJECT = "ParaKonusur waitlist\'ine hoş geldin";
 
@@ -117,7 +124,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const contactResult = await resend.contacts.create({
+    const client = getResend();
+    if (!client) return NextResponse.json({ error: "Servis yapilandirilmamis." }, { status: 503 });
+    const contactResult = await client.contacts.create({
       email,
       audienceId: AUDIENCE_ID,
       unsubscribed: false,
@@ -137,7 +146,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      await resend.emails.send({
+      await client.emails.send({
         from: "ParaKonusur <hello@parakonusur.com>",
         to: email,
         subject: WELCOME_SUBJECT,

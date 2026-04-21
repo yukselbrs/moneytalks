@@ -1,12 +1,15 @@
-import { client } from '@/sanity/lib/client'
-
 async function getPost(slug: string) {
-  return client.fetch(`*[_type == "post" && slug.current == $slug][0] {
-    _id,
-    title,
-    excerpt,
-    publishedAt
-  }`, { slug })
+  try {
+    const { client } = await import('@/sanity/lib/client')
+    return client.fetch(`*[_type == "post" && slug.current == $slug][0] {
+      _id,
+      title,
+      excerpt,
+      publishedAt
+    }`, { slug })
+  } catch {
+    return null
+  }
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {

@@ -1,13 +1,16 @@
-import { client } from '@/sanity/lib/client'
-
 async function getPosts() {
-  return client.fetch(`*[_type == "post" && defined(slug.current)] | order(publishedAt desc)[0..5] {
-    _id,
-    title,
-    slug,
-    excerpt,
-    publishedAt
-  }`)
+  try {
+    const { client } = await import('@/sanity/lib/client')
+    return client.fetch(`*[_type == "post" && defined(slug.current)] | order(publishedAt desc)[0..5] {
+      _id,
+      title,
+      slug,
+      excerpt,
+      publishedAt
+    }`)
+  } catch {
+    return []
+  }
 }
 
 export default async function HomePage() {

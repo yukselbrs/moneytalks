@@ -197,7 +197,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             {kartlar.map((k) => (
               <div key={k.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 4 }}>{k.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: k.up === true ? "#1D9E75" : k.up === false ? "#E24B4A" : "#E2E8F0" }}>{k.value}</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: "#E2E8F0" }}>{k.value}</div>
               </div>
             ))}
           </div>
@@ -217,7 +217,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                   </defs>
                   <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                   <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v} ₺`} width={55} />
-                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
+                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
                   <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={1.5} fill="url(#fiyatGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
