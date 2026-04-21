@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 
@@ -98,6 +98,8 @@ export default function DashboardPage() {
   const [ticker, setTicker] = useState("");
   const [aramaOneri, setAramaOneri] = useState<{ ticker: string; name: string }[]>([]);
   const [inputReady, setInputReady] = useState(false);
+  const [watchlistInput, setWatchlistInput] = useState("");
+  const [watchlistInputAcik, setWatchlistInputAcik] = useState(false);
   const [recent, setRecent] = useState<{ ticker: string; time: string }[]>([]);
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
@@ -111,6 +113,7 @@ export default function DashboardPage() {
     { zaman: "Dün 09:55", mesaj: "XU100 günü %-0,71 düşüşle kapattı.", tip: "dusus" },
   ];
   const router = useRouter();
+  const watchlistRef = useRef<{ticker:string}[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -125,14 +128,20 @@ export default function DashboardPage() {
         .select("ticker")
         .eq("user_id", session.user.id)
         .order("added_at", { ascending: false });
-      if (data) setWatchlist(data);
+      if (data) {
+        setWatchlist(data);
+        watchlistRef.current = data;
+        const tickers = data.map((w: {ticker: string}) => w.ticker);
+        fetchFiyatlar(tickers);
+      }
       setLoading(false);
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
     const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => setPiyasa(prev => ({ ...prev, ...d }))).catch(() => {});
-    const fetchFiyatlar = () => {
-      const watchlistTickers = watchlist.map(w => w.ticker).join(",");
-      const url = watchlistTickers ? `/api/fiyatlar?extra=${watchlistTickers}` : "/api/fiyatlar";
+    const fetchFiyatlar = (extraList?: string[]) => {
+      const wl = extraList || watchlistRef.current.map(w => w.ticker);
+      const extra = wl.join(",");
+      const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
       fetch(url).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
     };
     fetchDoviz();
@@ -156,14 +165,14 @@ export default function DashboardPage() {
     const already = watchlist.find((w) => w.ticker === t);
     if (already) return;
     await supabase.from("watchlist").insert({ user_id: session.user.id, ticker: t });
-    setWatchlist((prev) => [{ ticker: t }, ...prev]);
+    setWatchlist((prev) => { const next = [{ ticker: t }, ...prev]; watchlistRef.current = next; return next; });
   }
 
   async function removeFromWatchlist(t: string) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", t);
-    setWatchlist((prev) => prev.filter((w) => w.ticker !== t));
+    setWatchlist((prev) => { const next = prev.filter((w) => w.ticker !== t); watchlistRef.current = next; return next; });
   }
 
   function handleAnaliz(e: React.FormEvent) {
@@ -269,20 +278,26 @@ export default function DashboardPage() {
           {aramaOneri.length > 0 && (
             <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 50, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
               {aramaOneri.map((h) => (
-                <div key={h.ticker} onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", cursor: "pointer", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                <div key={h.ticker} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", cursor: "pointer", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px", overflow: "hidden" }}>
-                    {(h as any).domain ? (
-                      <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 20, height: 20, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    ) : (
-                      ((h as {ticker:string;name:string;kisalt?:string}).kisalt || h.ticker).slice(0, 5)
-                    )}
+                  <div onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); }} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+                    <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px", overflow: "hidden" }}>
+                      {(h as any).domain ? (
+                        <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 20, height: 20, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                      ) : (
+                        ((h as {ticker:string;name:string;kisalt?:string}).kisalt || h.ticker).slice(0, 5)
+                      )}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
+                      <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>{h.name}</div>
+                    </div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
-                    <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>{h.name}</div>
-                  </div>
+                  <button onMouseDown={(e) => { e.preventDefault(); watchlist.find(w => w.ticker === h.ticker) ? removeFromWatchlist(h.ticker) : addToWatchlist(h.ticker); }}
+                    style={{ fontSize: 14, color: watchlist.find(w => w.ticker === h.ticker) ? "#F97316" : "#334155", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
+                    {watchlist.find(w => w.ticker === h.ticker) ? "★" : "☆"}
+                  </button>
                 </div>
               ))}
             </div>
@@ -358,7 +373,46 @@ export default function DashboardPage() {
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>İzleme Listesi</span>
+              <button onClick={() => { setWatchlistInputAcik(!watchlistInputAcik); setWatchlistInput(""); }}
+                style={{ fontSize: 16, color: watchlistInputAcik ? "#94A3B8" : "#3B82F6", background: "none", border: "none", cursor: "pointer", lineHeight: 1, fontWeight: 300 }}>
+                {watchlistInputAcik ? "✕" : "+"}
+              </button>
             </div>
+            {watchlistInputAcik && (
+              <div style={{ padding: "8px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", gap: 6 }}>
+                <div style={{ flex: 1, position: "relative" }}>
+                  <input
+                    autoFocus
+                    autoComplete="off"
+                    readOnly={false}
+                    value={watchlistInput}
+                    onChange={e => setWatchlistInput(e.target.value.toUpperCase())}
+                    onKeyDown={e => { if (e.key === "Enter" && watchlistInput.trim()) { addToWatchlist(watchlistInput.trim()); setWatchlistInput(""); setWatchlistInputAcik(false); } if (e.key === "Escape") { setWatchlistInputAcik(false); setWatchlistInput(""); } }}
+                    placeholder="THYAO"
+                    style={{ width: "100%", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 5, padding: "4px 8px", fontSize: 12, color: "#E2E8F0", outline: "none" }}
+                  />
+                  {watchlistInput.length > 0 && (() => {
+                    const q = watchlistInput.toUpperCase();
+                    const filtered = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || h.name.toUpperCase().startsWith(q)).slice(0, 5);
+                    return filtered.length > 0 ? (
+                      <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, zIndex: 100, overflow: "hidden" }}>
+                        {filtered.map(h => (
+                          <div key={h.ticker} onMouseDown={() => { addToWatchlist(h.ticker); setWatchlistInput(""); setWatchlistInputAcik(false); }}
+                            style={{ padding: "7px 10px", cursor: "pointer", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
+                            <span style={{ fontSize: 10, color: "#475569" }}>{h.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+                <button onMouseDown={() => { if (watchlistInput.trim()) { addToWatchlist(watchlistInput.trim()); setWatchlistInput(""); setWatchlistInputAcik(false); } }}
+                  style={{ fontSize: 11, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 5, padding: "4px 8px", cursor: "pointer" }}>Ekle</button>
+              </div>
+            )}
             {watchlist.length === 0 ? (
               <div style={{ padding: "20px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                 <p style={{ fontSize: 12, color: "#334155", textAlign: "center" }}>Henüz hisse eklemediniz</p>

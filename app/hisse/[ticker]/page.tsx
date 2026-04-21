@@ -45,6 +45,27 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [analiz, setAnaliz] = useState("");
   const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
+  const [izlemede, setIzlemede] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const { data } = await supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).single();
+      if (data) setIzlemede(true);
+    });
+  }, [ticker]);
+
+  async function toggleIzleme() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    if (izlemede) {
+      await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+      setIzlemede(false);
+    } else {
+      await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
+      setIzlemede(true);
+    }
+  }
   const router = useRouter();
 
   useEffect(() => {
@@ -114,6 +135,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         </a>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <a href="/dashboard" style={{ fontSize: 12, color: "#475569", textDecoration: "none" }}>← Dashboard</a>
+
           <button onClick={handleLogout} style={{ fontSize: 12, color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "5px 13px", background: "transparent", cursor: "pointer" }}>
             Çıkış Yap
           </button>
@@ -125,6 +147,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <button onClick={toggleIzleme} style={{ fontSize: 22, color: izlemede ? "#F97316" : "#334155", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1 }}>
+                {izlemede ? "★" : "☆"}
+              </button>
               <h1 style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
               {veri && (
                 <span style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC", display: "flex", alignItems: "center", gap: 6 }}>
