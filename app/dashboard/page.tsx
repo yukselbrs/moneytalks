@@ -422,6 +422,10 @@ export default function DashboardPage() {
               watchlist.map((w) => (
                 <div key={w.ticker} onClick={() => router.push(`/hisse/${w.ticker}`)}
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {(() => { const h = BIST_HISSELER.find(b => b.ticker === w.ticker); return (h as any)?.domain ? (
+                      <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(w.ticker) }}>{w.ticker.slice(0,3)}</span>; })()}
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{w.ticker}</div>
                     {fiyatlar[w.ticker] && (
@@ -432,6 +436,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
                     )}
+                  </div>
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); removeFromWatchlist(w.ticker); }}
                     style={{ fontSize: 11, color: "#334155", background: "none", border: "none", cursor: "pointer" }}>✕</button>
@@ -453,9 +458,14 @@ export default function DashboardPage() {
               recent.map((r, i) => (
                 <div key={i} onClick={() => router.push(`/hisse/${r.ticker}`)}
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer" }}>
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{r.ticker}</div>
-                    <div style={{ fontSize: 10, color: "#334155", marginTop: 1 }}>{r.time}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {(() => { const h = BIST_HISSELER.find(b => b.ticker === r.ticker); return (h as any)?.domain ? (
+                      <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(r.ticker) }}>{r.ticker.slice(0,3)}</span>; })()}
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{r.ticker}</div>
+                      <div style={{ fontSize: 10, color: "#334155", marginTop: 1 }}>{r.time}</div>
+                    </div>
                   </div>
                   <span style={{ fontSize: 12, color: "#1E40AF" }}>→</span>
                 </div>
