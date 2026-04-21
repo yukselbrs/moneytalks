@@ -98,6 +98,11 @@ export default function ProfilePage() {
                 style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#94A3B8", padding: "4px 0", width: "100%" }} />
             </div>
             <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
+              <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Kullanıcı Adı</div>
+              <input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="kullanici_adi"
+                style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#94A3B8", padding: "4px 0", width: "100%" }} />
+            </div>
+            <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
               <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>E-posta</div>
               <input value={email} disabled
                 style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.1)", outline: "none", fontSize: 13, color: "#334155", padding: "4px 0", width: "100%" }} />
