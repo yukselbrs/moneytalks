@@ -46,7 +46,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </svg>
       ),
       label: "Analizler",
-      href: "/dashboard",
+      href: "/analizler",
     },
     {
       icon: (
@@ -55,7 +55,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </svg>
       ),
       label: "İzleme",
-      href: "/dashboard",
+      href: "/izleme",
     },
   ];
 
