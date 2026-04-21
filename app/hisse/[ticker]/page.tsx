@@ -127,7 +127,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
               <h1 style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
               {veri && (
-                <span style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC" }}>
+                <span style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
+                    <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
+                    <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
+                  </span>
                   ₺{veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
                 </span>
               )}
@@ -137,6 +141,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                 Günlük: ₺{veri.gunlukDusuk} – ₺{veri.gunlukYuksek}
               </p>
             )}
+            <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, marginTop: 8 }}>
           <button

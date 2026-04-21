@@ -113,9 +113,9 @@ export default function DashboardPage() {
           para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
         </a>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "#475569", letterSpacing: "0.06em" }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#1D9E75" }} />
-            CANLI
+          <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "#F97316", letterSpacing: "0.06em" }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#F97316" }} />
+            DEMO
           </div>
           <a href="/profile" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
             <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "#3B82F6" }}>
