@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-const TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
+const DEFAULT_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
 
 async function fetchFiyat(ticker: string) {
   try {
@@ -22,9 +22,12 @@ async function fetchFiyat(ticker: string) {
   }
 }
 
-export async function GET() {
-  const results = await Promise.all(TICKERS.map(t => fetchFiyat(t)));
+export async function GET(req: NextRequest) {
+  const extra = req.nextUrl.searchParams.get("extra");
+  const extraTickers = extra ? extra.split(",").filter(Boolean) : [];
+  const allTickers = [...new Set([...DEFAULT_TICKERS, ...extraTickers])];
+  const results = await Promise.all(allTickers.map(t => fetchFiyat(t)));
   const data: Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null> = {};
-  TICKERS.forEach((t, i) => { data[t] = results[i]; });
+  allTickers.forEach((t, i) => { data[t] = results[i]; });
   return NextResponse.json(data);
 }

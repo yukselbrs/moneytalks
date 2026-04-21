@@ -130,7 +130,11 @@ export default function DashboardPage() {
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
     const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => setPiyasa(prev => ({ ...prev, ...d }))).catch(() => {});
-    const fetchFiyatlar = () => fetch("/api/fiyatlar").then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
+    const fetchFiyatlar = () => {
+      const watchlistTickers = watchlist.map(w => w.ticker).join(",");
+      const url = watchlistTickers ? `/api/fiyatlar?extra=${watchlistTickers}` : "/api/fiyatlar";
+      fetch(url).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
+    };
     fetchDoviz();
     fetchXu();
     fetchFiyatlar();
@@ -364,7 +368,17 @@ export default function DashboardPage() {
               watchlist.map((w) => (
                 <div key={w.ticker} onClick={() => router.push(`/hisse/${w.ticker}`)}
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer" }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{w.ticker}</div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{w.ticker}</div>
+                    {fiyatlar[w.ticker] && (
+                      <div style={{ display: "flex", gap: 5, marginTop: 2 }}>
+                        <span style={{ fontSize: 11, color: "#94A3B8" }}>₺{fiyatlar[w.ticker]!.fiyat}</span>
+                        <span style={{ fontSize: 11, fontWeight: 500, color: fiyatlar[w.ticker]!.yukselis ? "#1D9E75" : "#E24B4A" }}>
+                          {fiyatlar[w.ticker]!.yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[w.ticker]!.degisim)).toFixed(2).replace(".", ",")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <button onClick={(e) => { e.stopPropagation(); removeFromWatchlist(w.ticker); }}
                     style={{ fontSize: 11, color: "#334155", background: "none", border: "none", cursor: "pointer" }}>✕</button>
                 </div>
