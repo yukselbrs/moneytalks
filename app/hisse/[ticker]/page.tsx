@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, use, useEffect } from "react";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 
@@ -45,6 +46,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [analiz, setAnaliz] = useState("");
   const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
+  const [grafik, setGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);
   const [izlemede, setIzlemede] = useState(false);
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   useEffect(() => {
     fetchVeri();
+    fetch(`/api/grafik?ticker=${ticker}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
     const interval = setInterval(fetchVeri, 15000);
     return () => clearInterval(interval);
   }, [ticker]);
@@ -192,6 +195,27 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           </div>
         )}
 
+        {grafik.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>1 Aylık Fiyat Grafiği</p>
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, padding: "16px 8px 8px 0" }}>
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={grafik}>
+                  <defs>
+                    <linearGradient id="fiyatGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                  <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v) => `₺${v}`} width={55} />
+                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [`₺${v}`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
+                  <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={1.5} fill="url(#fiyatGrad)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
         {sections.length > 0 && (
           <>
             <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>AI Analiz Özeti</p>
