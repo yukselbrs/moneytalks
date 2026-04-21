@@ -333,7 +333,10 @@ export default function DashboardPage() {
                   )}
                   {e.val}
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: e.up ? "#1D9E75" : "#E24B4A" }}>{e.change}</div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: e.up ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 3 }}>
+                  <span>{e.up ? "▲" : "▼"}</span>
+                  <span>{e.change}</span>
+                </div>
               </div>
             ))}
           </div>
