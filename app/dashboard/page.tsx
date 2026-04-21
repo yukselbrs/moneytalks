@@ -102,6 +102,7 @@ export default function DashboardPage() {
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
   const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } });
+  const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [bildirimAcik, setBildirimAcik] = useState(false);
 
   const bildirimler = [
@@ -127,16 +128,22 @@ export default function DashboardPage() {
       if (data) setWatchlist(data);
       setLoading(false);
     });
-    const fetchPiyasa = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
-    fetchPiyasa();
-    const interval = setInterval(fetchPiyasa, 300000);
+    const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
+    const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => setPiyasa(prev => ({ ...prev, ...d }))).catch(() => {});
+    const fetchFiyatlar = () => fetch("/api/fiyatlar").then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
+    fetchDoviz();
+    fetchXu();
+    fetchFiyatlar();
+    const dovizInterval = setInterval(fetchDoviz, 900000);
+    const xuInterval = setInterval(fetchXu, 15000);
+    const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
       if (stored) setRecent(JSON.parse(stored));
     };
     loadRecent();
     window.addEventListener("focus", loadRecent);
-    return () => { clearInterval(interval); window.removeEventListener("focus", loadRecent); };
+    return () => { clearInterval(dovizInterval); clearInterval(xuInterval); clearInterval(fiyatlarInterval); window.removeEventListener("focus", loadRecent); };
   }, [router]);
 
   async function addToWatchlist(t: string) {
@@ -324,6 +331,14 @@ export default function DashboardPage() {
                   <div style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{s.ticker}</div>
                 </div>
                 <div style={{ fontSize: 10, color: "#334155", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
+                {fiyatlar[s.ticker] && (
+                  <div style={{ marginTop: 6, display: "flex", alignItems: "baseline", gap: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{"₺"}{fiyatlar[s.ticker].fiyat}</span>
+                    <span style={{ fontSize: 10, fontWeight: 500, color: fiyatlar[s.ticker].yukselis ? "#1D9E75" : "#E24B4A" }}>
+                      {fiyatlar[s.ticker].yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[s.ticker].degisim)).toFixed(2).replace(".", ",")}
+                    </span>
+                  </div>
+                )}
                 <button onClick={(ev) => { ev.stopPropagation(); addToWatchlist(s.ticker); }}
                   style={{ position: "absolute", top: 8, right: 8, fontSize: 10, color: "#1E40AF", background: "none", border: "none", cursor: "pointer" }}>
                   {watchlist.find((w) => w.ticker === s.ticker) ? "★" : "☆"}
