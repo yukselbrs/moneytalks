@@ -28,7 +28,7 @@ export default function DashboardPage() {
   const [recent, setRecent] = useState<{ ticker: string; time: string }[]>([]);
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
-  const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" } });
+  const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } });
   const router = useRouter();
 
   useEffect(() => {
@@ -106,6 +106,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
       {/* Navbar */}
       <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <a href="/" style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
@@ -149,14 +150,22 @@ export default function DashboardPage() {
           <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Piyasa Özeti</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
             {[
-              { label: "XU100", val: "14.543", change: "-0,30%", up: false },
-              { label: "XU030", val: "16.663", change: "-0,36%", up: false },
+              { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-" },
+              { label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-" },
               { label: "USD/TRY", val: piyasa.usd.value, change: piyasa.usd.change, up: !piyasa.usd.change.startsWith("-") },
               { label: "EUR/TRY", val: piyasa.eur.value, change: piyasa.eur.change, up: !piyasa.eur.change.startsWith("-") },
             ].map((e) => (
               <div key={e.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 12px" }}>
                 <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 5 }}>{e.label}</div>
-                <div style={{ fontSize: 15, fontWeight: 500, color: "#E2E8F0", marginBottom: 2 }}>{e.val}</div>
+                <div style={{ fontSize: 15, fontWeight: 500, color: "#E2E8F0", marginBottom: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                  {(e.label === "XU100" || e.label === "XU030") && (
+                    <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
+                      <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
+                      <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
+                    </span>
+                  )}
+                  {e.val}
+                </div>
                 <div style={{ fontSize: 11, fontWeight: 500, color: e.up ? "#1D9E75" : "#E24B4A" }}>{e.change}</div>
               </div>
             ))}

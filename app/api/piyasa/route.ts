@@ -1,28 +1,61 @@
 import { NextResponse } from "next/server";
 
+async function fetchYahoo(symbol: string) {
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
+    const data = await res.json();
+    const meta = data?.chart?.result?.[0]?.meta;
+    if (!meta) return { value: "-", change: "-" };
+    const price = meta.regularMarketPrice;
+    const prev = meta.chartPreviousClose || meta.previousClose;
+    const changePercent = prev ? (((price - prev) / prev) * 100).toFixed(2) : "-";
+    const formattedPrice = price?.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "-";
+    const sign = Number(changePercent) >= 0 ? "%" : "%-";
+    const changeStr = changePercent !== "-" ? `${sign}${Math.abs(Number(changePercent)).toFixed(2).replace(".", ",")}` : "-";
+    return { value: formattedPrice, change: changeStr };
+  } catch {
+    return { value: "-", change: "-" };
+  }
+}
+
 export async function GET() {
   try {
     const res = await fetch("https://finans.truncgil.com/today.json", {
       cache: "no-store",
       headers: { "Accept": "application/json" },
     });
-    const text = await res.text();
-    const data = JSON.parse(text);
-    
+    const data = await res.json();
+
     const usdObj = data["USD"] || {};
     const eurObj = data["EUR"] || {};
-    
-    const usdValue = usdObj["Sat\u0131\u015f"] || usdObj["Satis"] || "-";
-    const usdChange = usdObj["De\u011fi\u015fim"] || usdObj["Degisim"] || "-";
-    const eurValue = eurObj["Sat\u0131\u015f"] || eurObj["Satis"] || "-";
-    const eurChange = eurObj["De\u011fi\u015fim"] || eurObj["Degisim"] || "-";
+
+    const usdValue = usdObj[Object.keys(usdObj).find(k => k.includes("at")) || ""] || "-";
+    const usdChange = usdObj[Object.keys(usdObj).find(k => k.includes("işim") || k.includes("Degisim")) || ""] || "-";
+    const eurValue = eurObj[Object.keys(eurObj).find(k => k.includes("at")) || ""] || "-";
+    const eurChange = eurObj[Object.keys(eurObj).find(k => k.includes("işim") || k.includes("Degisim")) || ""] || "-";
+
+    const [xu100, xu030] = await Promise.all([
+      fetchYahoo("XU100.IS"),
+      fetchYahoo("XU030.IS"),
+    ]);
 
     return NextResponse.json({
       usd: { value: usdValue, change: usdChange },
       eur: { value: eurValue, change: eurChange },
+      xu100,
+      xu030,
     });
   } catch (e) {
     console.error("Piyasa API error:", e);
-    return NextResponse.json({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" } });
+    return NextResponse.json({
+      usd: { value: "-", change: "-" },
+      eur: { value: "-", change: "-" },
+      xu100: { value: "-", change: "-" },
+      xu030: { value: "-", change: "-" },
+    });
   }
 }
