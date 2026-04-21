@@ -149,7 +149,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button onClick={toggleIzleme} style={{ fontSize: 22, color: izlemede ? "#F97316" : "#334155", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1 }}>
                 {izlemede ? "★" : "☆"}
               </button>
@@ -160,13 +160,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
                     <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
                   </span>
-                  ₺{veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+                  {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
                 </span>
               )}
             </div>
             {veri && (
               <p style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
-                Günlük: ₺{veri.gunlukDusuk} – ₺{veri.gunlukYuksek}
+                {`Günlük: ${veri.gunlukDusuk} – ${veri.gunlukYuksek} ₺`}
               </p>
             )}
             <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
@@ -208,8 +208,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                  <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v) => `₺${v}`} width={55} />
-                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [`₺${v}`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
+                  <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v} ₺`} width={55} />
+                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
                   <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={1.5} fill="url(#fiyatGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>

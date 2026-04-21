@@ -352,7 +352,7 @@ export default function DashboardPage() {
                 <div style={{ fontSize: 10, color: "#334155", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
                 {fiyatlar[s.ticker] && (
                   <div style={{ marginTop: 6, display: "flex", alignItems: "baseline", gap: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{"₺"}{fiyatlar[s.ticker].fiyat}</span>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{fiyatlar[s.ticker].fiyat} ₺</span>
                     <span style={{ fontSize: 10, fontWeight: 500, color: fiyatlar[s.ticker].yukselis ? "#1D9E75" : "#E24B4A" }}>
                       {fiyatlar[s.ticker].yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[s.ticker].degisim)).toFixed(2).replace(".", ",")}
                     </span>
@@ -430,7 +430,7 @@ export default function DashboardPage() {
                     <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{w.ticker}</div>
                     {fiyatlar[w.ticker] && (
                       <div style={{ display: "flex", gap: 5, marginTop: 2 }}>
-                        <span style={{ fontSize: 11, color: "#94A3B8" }}>₺{fiyatlar[w.ticker]!.fiyat}</span>
+                        <span style={{ fontSize: 11, color: "#94A3B8" }}>{fiyatlar[w.ticker]!.fiyat} ₺</span>
                         <span style={{ fontSize: 11, fontWeight: 500, color: fiyatlar[w.ticker]!.yukselis ? "#1D9E75" : "#E24B4A" }}>
                           {fiyatlar[w.ticker]!.yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[w.ticker]!.degisim)).toFixed(2).replace(".", ",")}
                         </span>
