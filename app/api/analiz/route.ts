@@ -6,7 +6,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 async function getHisseVerisi(ticker: string) {
   try {
     const res = await fetch(
-      `https://query2.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`,
       { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
     );
     const data = await res.json();

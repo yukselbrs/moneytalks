@@ -49,6 +49,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   useEffect(() => {
     fetchVeri();
+    const interval = setInterval(fetchVeri, 15000);
+    return () => clearInterval(interval);
   }, [ticker]);
 
   async function fetchVeri() {
@@ -65,10 +67,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     const cacheKey = `pk_analiz_${ticker}`;
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      const { analiz: cachedAnaliz, veri: cachedVeri, timestamp } = JSON.parse(cached);
+      const { analiz: cachedAnaliz, timestamp } = JSON.parse(cached);
       if (Date.now() - timestamp < 2 * 60 * 60 * 1000) {
         setAnaliz(cachedAnaliz);
-        if (cachedVeri) setVeri(cachedVeri);
         return;
       }
     }
