@@ -191,7 +191,7 @@ export default function DashboardPage() {
     router.push("/login");
   }
 
-  const firstName = user?.email?.split("@")[0] ?? "";
+  const firstName = fullName ? fullName.split(" ")[0] : user?.email?.split("@")[0] ?? "";
   const nowDate = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "long" });
   const nowTime = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
   const now = `${nowDate} · ${nowTime}`;
