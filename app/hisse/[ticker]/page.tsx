@@ -73,6 +73,14 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   useEffect(() => {
     fetchVeri();
     fetch(`/api/grafik?ticker=${ticker}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
+    // Supabase'den analiz yükle
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const { data } = await supabase.from("analizler").select("analiz").eq("user_id", session.user.id).eq("ticker", ticker).single();
+      if (data?.analiz) {
+        setAnaliz(data.analiz);
+      }
+    });
     const interval = setInterval(fetchVeri, 15000);
     return () => clearInterval(interval);
   }, [ticker]);
@@ -113,6 +121,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     const recent = stored ? JSON.parse(stored) : [];
     const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
     localStorage.setItem("pk_recent", JSON.stringify(updated));
+    // Supabase'e kaydet
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && data.analiz) {
+      await supabase.from("analizler").upsert({ user_id: session.user.id, ticker, analiz: data.analiz }, { onConflict: "user_id,ticker" });
+    }
     setLoading(false);
   }
 
