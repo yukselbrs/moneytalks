@@ -7,6 +7,7 @@ import { supabase } from "@/components/lib/supabase";
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -22,6 +23,7 @@ export default function ProfilePage() {
       setUser(session.user);
       setEmail(session.user.email || "");
       setFullName(session.user.user_metadata?.full_name || "");
+      setUsername(session.user.user_metadata?.username || "");
       setLoading(false);
     });
   }, [router]);
@@ -29,7 +31,7 @@ export default function ProfilePage() {
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     setMessage(""); setError("");
-    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName } });
+    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName, username: username } });
     if (error) setError(error.message);
     else setMessage("Bilgiler güncellendi.");
   }

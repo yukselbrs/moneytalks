@@ -15,9 +15,19 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    let loginEmail = email;
+    if (!email.includes("@")) {
+      const { data, error: rpcError } = await supabase.rpc("get_email_by_username", { uname: email });
+      if (rpcError || !data) {
+        setError("Kullanıcı adı bulunamadı.");
+        setLoading(false);
+        return;
+      }
+      loginEmail = data;
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
     if (error) {
-      setError("E-posta veya şifre hatalı.");
+      setError("E-posta/kullanıcı adı veya şifre hatalı.");
       setLoading(false);
     } else {
       router.push("/dashboard");
@@ -37,8 +47,8 @@ export default function LoginPage() {
         <div style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "28px 24px", background: "rgba(255,255,255,0.02)" }}>
           <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>E-posta</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com"
+              <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>E-posta veya Kullanıcı Adı</label>
+              <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com veya kullanici_adi"
                 style={{ width: "100%", background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 14, color: "#94A3B8", padding: "6px 0" }} />
             </div>
             <div>

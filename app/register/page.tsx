@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,10 +28,14 @@ export default function RegisterPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: { data: { full_name: fullName, username: username } },
     });
     if (error) {
-      setError("Kayıt sırasında hata oluştu: " + error.message);
+      if (error.message.includes("already registered") || error.message.includes("already been registered")) {
+        setError("Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.");
+      } else {
+        setError("Kayıt sırasında hata oluştu: " + error.message);
+      }
       setLoading(false);
     } else {
       setSuccess(true);
@@ -71,6 +76,11 @@ export default function RegisterPage() {
             <div>
               <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>Ad Soyad</label>
               <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Adın Soyadın"
+                style={{ width: "100%", background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 14, color: "#94A3B8", padding: "6px 0" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: "#475569", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>Kullanıcı Adı</label>
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} required placeholder="kullanici_adi"
                 style={{ width: "100%", background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 14, color: "#94A3B8", padding: "6px 0" }} />
             </div>
             <div>

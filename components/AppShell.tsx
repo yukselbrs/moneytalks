@@ -9,12 +9,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setEmail(session.user.email || "");
         setFullName(session.user.user_metadata?.full_name || "");
+        setEmail(session.user.user_metadata?.username || session.user.email || "");
       }
     });
   }, []);
@@ -59,13 +61,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     },
   ];
 
+  const sidebarW = expanded ? 180 : 56;
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#060C18", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <style>{`
+        .sb-label { opacity: 0; transform: translateX(-8px); transition: opacity 0.2s, transform 0.2s; white-space: nowrap; font-size: 13px; font-weight: 500; }
+        .sb-expanded .sb-label { opacity: 1; transform: translateX(0); }
+        .sb-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0 10px; height: 36px; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.15s; }
+      `}</style>
+
       {/* Sidebar */}
-      <div style={{ width: 56, background: "#050A14", borderRight: "0.5px solid rgba(255,255,255,0.04)", display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 6, flexShrink: 0, position: "fixed", top: 0, left: 0, height: "100vh", zIndex: 50 }}>
+      <div
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => setExpanded(false)}
+        className={expanded ? "sb-expanded" : ""}
+        style={{ width: sidebarW, background: "#050A14", borderRight: "0.5px solid rgba(255,255,255,0.04)", display: "flex", flexDirection: "column", alignItems: "flex-start", padding: "16px 8px", gap: 4, flexShrink: 0, position: "fixed", top: 0, left: 0, height: "100vh", zIndex: 50, transition: "width 0.2s ease", overflow: "hidden" }}>
+
         {/* Logo */}
-        <a href="/dashboard" style={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", marginBottom: 12, flexShrink: 0 }}>
-          <svg width="40" height="40" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+        <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 16, padding: "0 2px" }}>
+          <svg width="36" height="36" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
             <defs>
               <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#60A5FA"/>
@@ -84,48 +99,59 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <path d="M112 110 Q 180 110 180 140 Q 180 170 122 170" fill="none" stroke="url(#g1)" strokeWidth="18" strokeLinecap="round"/>
             <circle cx="180" cy="92" r="7" fill="#60A5FA"/>
           </svg>
+          <span className="sb-label" style={{ color: "#F8FAFC", fontSize: 14, fontWeight: 600, letterSpacing: "-0.3px" }}>para<span style={{ color: "#3B82F6" }}>konusur</span></span>
         </a>
 
-        {/* Geri butonu - hisse sayfasında göster */}
+        {/* Geri butonu - hisse sayfasında */}
         {pathname.startsWith("/hisse/") && (
-          <a href="/dashboard" title="Dashboard'a Dön"
-            style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", textDecoration: "none", color: "#3B82F6", background: "rgba(59,130,246,0.1)", marginBottom: 4 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <a href="/dashboard" className="sb-item"
+            style={{ color: "#3B82F6", background: "rgba(59,130,246,0.1)", marginBottom: 4 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <path d="M19 12H5"/><path d="m12 5-7 7 7 7"/>
             </svg>
+            <span className="sb-label">Dashboard</span>
           </a>
         )}
+
         {/* Nav Items */}
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
-            <a key={item.label} href={item.href} title={item.label}
-              style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", textDecoration: "none", color: isActive ? "#3B82F6" : "#1E3A5F", background: isActive ? "rgba(59,130,246,0.15)" : "transparent", transition: "all 0.15s" }}>
-              {item.icon}
+            <a key={item.label} href={item.href} className="sb-item"
+              style={{ color: isActive ? "#3B82F6" : "#1E3A5F", background: isActive ? "rgba(59,130,246,0.12)" : "transparent" }}>
+              <div style={{ flexShrink: 0 }}>{item.icon}</div>
+              <span className="sb-label" style={{ color: isActive ? "#3B82F6" : "#64748B" }}>{item.label}</span>
             </a>
           );
         })}
 
         {/* Bottom */}
-        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-          <button title="Bildirimler" style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", cursor: "pointer", color: "#334155" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 4, width: "100%" }}>
+          <button className="sb-item" title="Bildirimler"
+            style={{ color: "#1E3A5F", background: "none", border: "none" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
+            <span className="sb-label" style={{ color: "#64748B" }}>Bildirimler</span>
           </button>
-          <button onClick={handleLogout} title="Çıkış Yap" style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", cursor: "pointer", color: "#334155" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <button onClick={handleLogout} className="sb-item" title="Çıkış Yap"
+            style={{ color: "#1E3A5F", background: "none", border: "none" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
+            <span className="sb-label" style={{ color: "#64748B" }}>Çıkış Yap</span>
           </button>
-          <a href="/profile" title="Profil" style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "0.5px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 600, color: "#3B82F6", textDecoration: "none" }}>
-            {initials}
+          <a href="/profile" className="sb-item" title="Profil" style={{ textDecoration: "none", color: "#1E3A5F" }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "0.5px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 600, color: "#3B82F6", flexShrink: 0 }}>
+              {initials}
+            </div>
+            <span className="sb-label" style={{ color: "#64748B" }}>{email.includes("@") ? email.split("@")[0] : email}</span>
           </a>
         </div>
       </div>
 
       {/* Main content */}
-      <div style={{ marginLeft: 56, flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ marginLeft: 56, flex: 1, display: "flex", flexDirection: "column", transition: "margin-left 0.2s ease" }}>
         {/* Topbar */}
         <div style={{ borderBottom: "0.5px solid rgba(255,255,255,0.04)", padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#080F1E", position: "sticky", top: 0, zIndex: 40 }}>
           <a href="/" style={{ fontSize: 14, fontWeight: 500, color: "#F8FAFC", textDecoration: "none", letterSpacing: "-0.3px" }}>
