@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+import Navbar from "@/components/Navbar";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
   const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [message, setMessage] = useState("");
@@ -20,10 +18,8 @@ export default function ProfilePage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push("/login"); return; }
-      setUser(session.user);
       setEmail(session.user.email || "");
       setFullName(session.user.user_metadata?.full_name || "");
-      setUsername(session.user.user_metadata?.username || "");
       setLoading(false);
     });
   }, [router]);
@@ -31,7 +27,7 @@ export default function ProfilePage() {
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     setMessage(""); setError("");
-    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName, username: username } });
+    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName } });
     if (error) setError(error.message);
     else setMessage("Bilgiler güncellendi.");
   }
@@ -45,17 +41,12 @@ export default function ProfilePage() {
     if (!/[0-9]/.test(newPassword)) { setError("Şifre en az bir rakam içermelidir."); return; }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) setError(error.message);
-    else { setMessage("Şifre güncellendi."); setCurrentPassword(""); setNewPassword(""); setNewPasswordConfirm(""); }
+    else { setMessage("Şifre güncellendi."); setNewPassword(""); setNewPasswordConfirm(""); }
   }
 
   async function handleDeleteAccount() {
     setError("");
     setMessage("Hesabınızı silmek için hello@parakonusur.com adresine yazın.");
-  }
-
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
   }
 
   const initials = fullName ? fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : email.slice(0, 2).toUpperCase();
@@ -68,19 +59,9 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
-      <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <a href="/dashboard" style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
-          para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
-        </a>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <a href="/dashboard" style={{ fontSize: 12, color: "#475569", textDecoration: "none" }}>← Dashboard</a>
-          <button onClick={handleLogout} style={{ fontSize: 12, color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "5px 13px", background: "transparent", cursor: "pointer" }}>
-            Çıkış Yap
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
-      <main style={{ maxWidth: 560, margin: "0 auto", padding: "36px 24px" }}>
+      <main style={{ maxWidth: 560, margin: "0 auto", padding: "100px 24px 36px" }}>
         <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 500, color: "#3B82F6", marginBottom: 24 }}>
           {initials}
         </div>
@@ -95,11 +76,6 @@ export default function ProfilePage() {
             <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
               <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Ad Soyad</div>
               <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Adın Soyadın"
-                style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#94A3B8", padding: "4px 0", width: "100%" }} />
-            </div>
-            <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Kullanıcı Adı</div>
-              <input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="kullanici_adi"
                 style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#94A3B8", padding: "4px 0", width: "100%" }} />
             </div>
             <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>

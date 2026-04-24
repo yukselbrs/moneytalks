@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, use, useEffect } from "react";
-import AppShell from "@/components/AppShell";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+import Navbar from "@/components/Navbar";
 
 interface HisseVeri {
   fiyat: number;
@@ -47,41 +46,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [analiz, setAnaliz] = useState("");
   const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
-  const [grafik, setGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);
-  const [izlemede, setIzlemede] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return;
-      const { data } = await supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).single();
-      if (data) setIzlemede(true);
-    });
-  }, [ticker]);
-
-  async function toggleIzleme() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    if (izlemede) {
-      await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
-      setIzlemede(false);
-    } else {
-      await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
-      setIzlemede(true);
-    }
-  }
   const router = useRouter();
 
   useEffect(() => {
     fetchVeri();
-    fetch(`/api/grafik?ticker=${ticker}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
-    // Supabase'den analiz yükle
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return;
-      const { data } = await supabase.from("analizler").select("analiz").eq("user_id", session.user.id).eq("ticker", ticker).single();
-      if (data?.analiz) {
-        setAnaliz(data.analiz);
-      }
-    });
     const interval = setInterval(fetchVeri, 15000);
     return () => clearInterval(interval);
   }, [ticker]);
@@ -122,19 +90,16 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     const recent = stored ? JSON.parse(stored) : [];
     const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
     localStorage.setItem("pk_recent", JSON.stringify(updated));
-    // Supabase'e kaydet
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session && data.analiz) {
-      await supabase.from("analizler").upsert({ user_id: session.user.id, ticker, analiz: data.analiz }, { onConflict: "user_id,ticker" });
-    }
     setLoading(false);
   }
 
-
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   const sections = analiz ? renderMarkdown(analiz) : [];
 
-  const gunlukDegisim = veri ? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDusuk)) / (veri.oncekiKapanis || veri.gunlukDusuk) * 100) : 0;
   const kartlar = veri ? [
     { label: "52 Hafta En Yüksek", value: `${veri.yillikYuksek} ₺` },
     { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
@@ -143,18 +108,14 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   ] : [];
 
   return (
-    <AppShell>
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <Navbar />
 
-
-      <main style={{ maxWidth: 800, margin: "0 auto", padding: "36px 24px" }}>
+      <main style={{ maxWidth: 800, margin: "0 auto", padding: "100px 24px 36px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button onClick={toggleIzleme} style={{ fontSize: 22, color: izlemede ? "#F97316" : "#334155", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1 }}>
-                {izlemede ? "★" : "☆"}
-              </button>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
               <h1 style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
               {veri && (
                 <span style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC", display: "flex", alignItems: "center", gap: 6 }}>
@@ -162,19 +123,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
                     <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
                   </span>
-                  {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
-                  {veri.oncekiKapanis && (
-                    <span style={{ fontSize: 14, fontWeight: 500, color: veri.fiyat >= veri.oncekiKapanis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 3 }}>
-                      <span>{veri.fiyat >= veri.oncekiKapanis ? "▲" : "▼"}</span>
-                      <span>%{Math.abs(((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
-                    </span>
-                  )}
+                  ₺{veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
                 </span>
               )}
             </div>
             {veri && (
               <p style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
-                {`Günlük: ${veri.gunlukDusuk} – ${veri.gunlukYuksek} ₺`}
+                Günlük: ₺{veri.gunlukDusuk} – ₺{veri.gunlukYuksek}
               </p>
             )}
             <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
@@ -203,27 +158,6 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           </div>
         )}
 
-        {grafik.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>1 Aylık Fiyat Grafiği</p>
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, padding: "16px 8px 8px 0" }}>
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={grafik}>
-                  <defs>
-                    <linearGradient id="fiyatGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                  <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v} ₺`} width={55} />
-                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
-                  <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={1.5} fill="url(#fiyatGrad)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
         {sections.length > 0 && (
           <>
             <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>AI Analiz Özeti</p>
@@ -249,6 +183,5 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         )}
       </main>
     </div>
-    </AppShell>
   );
 }

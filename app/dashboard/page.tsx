@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import AppShell from "@/components/AppShell";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+import Navbar from "@/components/Navbar";
 
 const TICKER_KISALT: Record<string, string> = {
   THYAO: "THY", GARAN: "GARAN", AKBNK: "AKBNK", ISCTR: "ISCTR",
@@ -24,42 +24,42 @@ function tickerRenk(ticker: string) {
 }
 
 const BIST_HISSELER = [
-  { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY", domain: "turkishairlines.com" },
-  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
+  { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY" },
+  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ" },
   { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
   { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
   { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
-  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
+  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK" },
   { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
-  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
-  { ticker: "TUPRS", name: "Tüpraş", domain: "tupras.com.tr" },
-  { ticker: "SAHOL", name: "Sabancı Holding", domain: "sabanci.com" },
-  { ticker: "YKBNK", name: "Yapı Kredi Bankası", domain: "yapikredi.com.tr" },
-  { ticker: "TCELL", name: "Turkcell", domain: "turkcell.com.tr" },
-  { ticker: "FROTO", name: "Ford Otosan", domain: "fordotosan.com.tr" },
-  { ticker: "TOASO", name: "Tofaş Otomobil", domain: "tofas.com.tr" },
-  { ticker: "PETKM", name: "Petkim", domain: "petkim.com.tr" },
-  { ticker: "ARCLK", name: "Arçelik", domain: "arcelik.com" },
+  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM" },
+  { ticker: "TUPRS", name: "Tüpraş" },
+  { ticker: "SAHOL", name: "Sabancı Holding" },
+  { ticker: "YKBNK", name: "Yapı Kredi Bankası" },
+  { ticker: "TCELL", name: "Turkcell" },
+  { ticker: "FROTO", name: "Ford Otosan" },
+  { ticker: "TOASO", name: "Tofaş Otomobil" },
+  { ticker: "PETKM", name: "Petkim" },
+  { ticker: "ARCLK", name: "Arçelik" },
   { ticker: "KOZAL", name: "Koza Altın" },
   { ticker: "KOZAA", name: "Koza Anadolu Metal" },
   { ticker: "EKGYO", name: "Emlak Konut GYO" },
   { ticker: "ISGYO", name: "İş GYO" },
-  { ticker: "HALKB", name: "Halkbank", domain: "halkbank.com.tr" },
-  { ticker: "VAKBN", name: "Vakıfbank", domain: "vakifbank.com.tr" },
-  { ticker: "ISCTR", name: "İş Bankası", domain: "isbank.com.tr" },
-  { ticker: "ENKAI", name: "Enka İnşaat", domain: "enka.com" },
+  { ticker: "HALKB", name: "Halkbank" },
+  { ticker: "VAKBN", name: "Vakıfbank" },
+  { ticker: "ISCTR", name: "İş Bankası" },
+  { ticker: "ENKAI", name: "Enka İnşaat" },
   { ticker: "DOHOL", name: "Doğan Holding" },
-  { ticker: "TAVHL", name: "TAV Havalimanları", domain: "tav.aero" },
-  { ticker: "PGSUS", name: "Pegasus Hava Yolları", domain: "flypgs.com" },
+  { ticker: "TAVHL", name: "TAV Havalimanları" },
+  { ticker: "PGSUS", name: "Pegasus Hava Yolları" },
   { ticker: "LOGO", name: "Logo Yazılım" },
   { ticker: "NETAS", name: "Netaş Telekom" },
   { ticker: "VESBE", name: "Vestel Beyaz Eşya" },
   { ticker: "VESTL", name: "Vestel" },
-  { ticker: "MGROS", name: "Migros", domain: "migros.com.tr" },
-  { ticker: "SOKM", name: "Şok Marketler", domain: "sokmarket.com.tr" },
-  { ticker: "ULKER", name: "Ülker Bisküvi", domain: "ulker.com.tr" },
+  { ticker: "MGROS", name: "Migros" },
+  { ticker: "SOKM", name: "Şok Marketler" },
+  { ticker: "ULKER", name: "Ülker Bisküvi" },
   { ticker: "AEFES", name: "Anadolu Efes" },
-  { ticker: "TTKOM", name: "Türk Telekom", domain: "turktelekom.com.tr" },
+  { ticker: "TTKOM", name: "Türk Telekom" },
   { ticker: "TTRAK", name: "Türk Traktör" },
   { ticker: "OTKAR", name: "Otokar" },
   { ticker: "GUBRF", name: "Gübre Fabrikaları" },
@@ -70,42 +70,32 @@ const BIST_HISSELER = [
   { ticker: "EREGL", name: "Ereğli Demir Çelik" },
   { ticker: "KRDMD", name: "Kardemir" },
   { ticker: "ISDMR", name: "İskenderun Demir Çelik" },
-  { ticker: "SASA", name: "Sasa Polyester", domain: "sasa.com.tr" },
+  { ticker: "SASA", name: "Sasa Polyester" },
   { ticker: "BRYAT", name: "Borusan Yatırım" },
-  { ticker: "BRISA", name: "Brisa", domain: "brisa.com.tr" },
-  { ticker: "DOAS", name: "Doğuş Otomotiv", domain: "dogusotomotiv.com.tr" },
+  { ticker: "BRISA", name: "Brisa" },
+  { ticker: "DOAS", name: "Doğuş Otomotiv" },
 ];
 
 const POPULAR = [
   { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY" },
-  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
+  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ" },
   { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
   { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
   { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
-  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
+  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK" },
   { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
-  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
-];
-
-const KAP = [
-  { ticker: "THYAO", title: "Esas Sözleşme Tadili", time: "15:56" },
-  { ticker: "TKNSA", title: "Pay Bazında Devre Kesici Bildirimi", time: "15:56" },
-  { ticker: "AKBNK", title: "Yabancı Yatırımcı İşlemleri", time: "15:51" },
+  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM" },
 ];
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<{ email?: string } | null>(null);
+  const [user, setUser] = useState<{ email?: string; user_metadata?: { full_name?: string } } | null>(null);
   const [loading, setLoading] = useState(true);
   const [ticker, setTicker] = useState("");
   const [aramaOneri, setAramaOneri] = useState<{ ticker: string; name: string }[]>([]);
-  const [inputReady, setInputReady] = useState(false);
-  const [watchlistInput, setWatchlistInput] = useState("");
-  const [watchlistInputAcik, setWatchlistInputAcik] = useState(false);
   const [recent, setRecent] = useState<{ ticker: string; time: string }[]>([]);
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
   const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } });
-  const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [bildirimAcik, setBildirimAcik] = useState(false);
 
   const bildirimler = [
@@ -114,7 +104,6 @@ export default function DashboardPage() {
     { zaman: "Dün 09:55", mesaj: "XU100 günü %-0,71 düşüşle kapattı.", tip: "dusus" },
   ];
   const router = useRouter();
-  const watchlistRef = useRef<{ticker:string}[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -129,35 +118,19 @@ export default function DashboardPage() {
         .select("ticker")
         .eq("user_id", session.user.id)
         .order("added_at", { ascending: false });
-      if (data) {
-        setWatchlist(data);
-        watchlistRef.current = data;
-        const tickers = data.map((w: {ticker: string}) => w.ticker);
-        fetchFiyatlar(tickers);
-      }
+      if (data) setWatchlist(data);
       setLoading(false);
     });
-    const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
-    const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => setPiyasa(prev => ({ ...prev, ...d }))).catch(() => {});
-    const fetchFiyatlar = (extraList?: string[]) => {
-      const wl = extraList || watchlistRef.current.map(w => w.ticker);
-      const extra = wl.join(",");
-      const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
-      fetch(url).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
-    };
-    fetchDoviz();
-    fetchXu();
-    fetchFiyatlar();
-    const dovizInterval = setInterval(fetchDoviz, 900000);
-    const xuInterval = setInterval(fetchXu, 15000);
-    const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
+    const fetchPiyasa = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
+    fetchPiyasa();
+    const interval = setInterval(fetchPiyasa, 300000);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
       if (stored) setRecent(JSON.parse(stored));
     };
     loadRecent();
     window.addEventListener("focus", loadRecent);
-    return () => { clearInterval(dovizInterval); clearInterval(xuInterval); clearInterval(fiyatlarInterval); window.removeEventListener("focus", loadRecent); };
+    return () => { clearInterval(interval); window.removeEventListener("focus", loadRecent); };
   }, [router]);
 
   async function addToWatchlist(t: string) {
@@ -166,14 +139,14 @@ export default function DashboardPage() {
     const already = watchlist.find((w) => w.ticker === t);
     if (already) return;
     await supabase.from("watchlist").insert({ user_id: session.user.id, ticker: t });
-    setWatchlist((prev) => { const next = [{ ticker: t }, ...prev]; watchlistRef.current = next; return next; });
+    setWatchlist((prev) => [{ ticker: t }, ...prev]);
   }
 
   async function removeFromWatchlist(t: string) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", t);
-    setWatchlist((prev) => { const next = prev.filter((w) => w.ticker !== t); watchlistRef.current = next; return next; });
+    setWatchlist((prev) => prev.filter((w) => w.ticker !== t));
   }
 
   function handleAnaliz(e: React.FormEvent) {
@@ -187,9 +160,8 @@ export default function DashboardPage() {
     router.push(`/hisse/${t}`);
   }
 
-
-
-  const firstName = fullName ? fullName.split(" ")[0] : user?.email?.split("@")[0] ?? "";
+  // firstName: önce full_name, sonra email prefix (Barış'ın isteği)
+  const firstName = (fullName.split(" ")[0] || user?.email?.split("@")[0]) ?? "";
   const nowDate = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "long" });
   const nowTime = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
   const now = `${nowDate} · ${nowTime}`;
@@ -203,23 +175,51 @@ export default function DashboardPage() {
   }
 
   return (
-    <AppShell>
-    <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
+    <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
 
-      <main style={{ maxWidth: 1000, margin: "0 auto", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
-        {/* Header */}
+      <Navbar />
+
+      <main style={{ maxWidth: 1000, margin: "0 auto", padding: "92px 24px 28px", display: "flex", flexDirection: "column", gap: 20 }}>
+        {/* Header: İyi günler + DEMO badge + bildirim + tarih */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC" }}>İyi günler, {firstName}</h1>
-          <span style={{ fontSize: 11, color: "#334155" }}>{now}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10, color: "#F97316", letterSpacing: "0.06em" }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#F97316" }} />
+              DEMO
+            </div>
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setBildirimAcik(!bildirimAcik)} style={{ background: "none", border: "none", cursor: "pointer", color: bildirimAcik ? "#3B82F6" : "#475569", display: "flex", alignItems: "center", padding: 4, transition: "color 0.15s" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </button>
+              {bildirimAcik && (
+                <div style={{ position: "absolute", right: 0, top: "calc(100% + 10px)", width: 320, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, zIndex: 100, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+                  <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#F8FAFC" }}>Bildirimler</span>
+                    <span style={{ fontSize: 12, color: "#475569" }}>⚙</span>
+                  </div>
+                  {bildirimler.map((b, i) => (
+                    <div key={i} style={{ padding: "12px 16px", borderBottom: i < bildirimler.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <span style={{ fontSize: 12 }}>{b.tip === "yukselis" ? "🟢" : b.tip === "dusus" ? "🔴" : "📄"}</span>
+                      <div>
+                        <div style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>{b.zaman}</div>
+                        <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>{b.mesaj}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <span style={{ fontSize: 11, color: "#334155" }}>{now}</span>
+          </div>
         </div>
 
         {/* Arama */}
-        <form onSubmit={handleAnaliz} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: "10px 16px", transition: "border-color 0.2s" }}
-          onFocus={() => {}} >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
+        <form onSubmit={handleAnaliz} style={{ display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(59,130,246,0.15)", paddingBottom: 10 }}>
           <div style={{ flex: 1, position: "relative" }}>
           <input type="search" value={ticker} onChange={(e) => {
             const val = e.target.value;
@@ -230,37 +230,27 @@ export default function DashboardPage() {
               h.ticker.startsWith(q) || h.name.toUpperCase().startsWith(q)
             ).slice(0, 6);
             setAramaOneri(filtered);
-          }} onBlur={() => setTimeout(() => setAramaOneri([]), 150)}
-            style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }} autoComplete="off" readOnly={!inputReady} onFocus={() => setInputReady(true)} placeholder="Hisse kodu veya şirket adı ara..." />
+          }} onBlur={() => setTimeout(() => setAramaOneri([]), 150)} placeholder="Hisse kodu veya şirket adı girin..."
+            style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }} autoComplete="new-password" name="hisse-arama" id="hisse-arama" />
           {aramaOneri.length > 0 && (
             <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 50, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
               {aramaOneri.map((h) => (
-                <div key={h.ticker} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", cursor: "pointer", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                <div key={h.ticker} onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", cursor: "pointer", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <div onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); }} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-                    <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px", overflow: "hidden" }}>
-                      {(h as any).domain ? (
-                        <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 20, height: 20, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      ) : (
-                        ((h as {ticker:string;name:string;kisalt?:string}).kisalt || h.ticker).slice(0, 5)
-                      )}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
-                      <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>{h.name}</div>
-                    </div>
+                  <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px" }}>
+                    {((h as {ticker:string;name:string;kisalt?:string}).kisalt || h.ticker).slice(0, 5)}
                   </div>
-                  <button onMouseDown={(e) => { e.preventDefault(); watchlist.find(w => w.ticker === h.ticker) ? removeFromWatchlist(h.ticker) : addToWatchlist(h.ticker); }}
-                    style={{ fontSize: 14, color: watchlist.find(w => w.ticker === h.ticker) ? "#F97316" : "#334155", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
-                    {watchlist.find(w => w.ticker === h.ticker) ? "★" : "☆"}
-                  </button>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
+                    <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>{h.name}</div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
           </div>
-          <button type="submit" style={{ height: 32, padding: "0 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+          <button type="submit" style={{ height: 30, padding: "0 12px", background: "rgba(59,130,246,0.12)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer" }}>
             Analiz Et
           </button>
         </form>
@@ -286,10 +276,7 @@ export default function DashboardPage() {
                   )}
                   {e.val}
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: e.up ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 3 }}>
-                  <span>{e.up ? "▲" : "▼"}</span>
-                  <span>{e.change}</span>
-                </div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: e.up ? "#1D9E75" : "#E24B4A" }}>{e.change}</div>
               </div>
             ))}
           </div>
@@ -301,26 +288,9 @@ export default function DashboardPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
             {POPULAR.map((s) => (
               <div key={s.ticker} onClick={() => router.push(`/hisse/${s.ticker}`)}
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 12px", cursor: "pointer", position: "relative", transition: "all 0.15s" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.06)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(59,130,246,0.3)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.02)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(59,130,246,0.1)"; }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  {(() => { const h = BIST_HISSELER.find(b => b.ticker === s.ticker); return (h as any)?.domain ? (
-                    <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }}
-                      onError={(e) => { const el = e.target as HTMLImageElement; el.style.display="none"; const span = document.createElement("span"); span.style.cssText=`font-size:9px;font-weight:700;color:${tickerRenk(s.ticker)}`; span.innerText=s.ticker.slice(0,3); el.parentNode?.appendChild(span); }} />
-                  ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(s.ticker) }}>{s.ticker.slice(0,3)}</span>; })()}
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{s.ticker}</div>
-                </div>
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 12px", cursor: "pointer", position: "relative" }}>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{s.ticker}</div>
                 <div style={{ fontSize: 10, color: "#334155", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
-                {fiyatlar[s.ticker] && fiyatlar[s.ticker] !== null && (
-                  <div style={{ marginTop: 6, display: "flex", alignItems: "baseline", gap: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{fiyatlar[s.ticker]!.fiyat} ₺</span>
-                    <span style={{ fontSize: 10, fontWeight: 500, color: fiyatlar[s.ticker]!.yukselis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 2 }}>
-                      <span>{fiyatlar[s.ticker]!.yukselis ? "▲" : "▼"}</span>
-                      <span>{fiyatlar[s.ticker]!.yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[s.ticker]!.degisim)).toFixed(2).replace(".", ",")}</span>
-                    </span>
-                  </div>
-                )}
                 <button onClick={(ev) => { ev.stopPropagation(); addToWatchlist(s.ticker); }}
                   style={{ position: "absolute", top: 8, right: 8, fontSize: 10, color: "#1E40AF", background: "none", border: "none", cursor: "pointer" }}>
                   {watchlist.find((w) => w.ticker === s.ticker) ? "★" : "☆"}
@@ -336,46 +306,7 @@ export default function DashboardPage() {
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>İzleme Listesi</span>
-              <button onClick={() => { setWatchlistInputAcik(!watchlistInputAcik); setWatchlistInput(""); }}
-                style={{ fontSize: 16, color: watchlistInputAcik ? "#94A3B8" : "#3B82F6", background: "none", border: "none", cursor: "pointer", lineHeight: 1, fontWeight: 300 }}>
-                {watchlistInputAcik ? "✕" : "+"}
-              </button>
             </div>
-            {watchlistInputAcik && (
-              <div style={{ padding: "8px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", gap: 6 }}>
-                <div style={{ flex: 1, position: "relative" }}>
-                  <input
-                    autoFocus
-                    autoComplete="off"
-                    readOnly={false}
-                    value={watchlistInput}
-                    onChange={e => setWatchlistInput(e.target.value.toUpperCase())}
-                    onKeyDown={e => { if (e.key === "Enter" && watchlistInput.trim()) { addToWatchlist(watchlistInput.trim()); setWatchlistInput(""); setWatchlistInputAcik(false); } if (e.key === "Escape") { setWatchlistInputAcik(false); setWatchlistInput(""); } }}
-                    placeholder="THYAO"
-                    style={{ width: "100%", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 5, padding: "4px 8px", fontSize: 12, color: "#E2E8F0", outline: "none" }}
-                  />
-                  {watchlistInput.length > 0 && (() => {
-                    const q = watchlistInput.toUpperCase();
-                    const filtered = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || h.name.toUpperCase().startsWith(q)).slice(0, 5);
-                    return filtered.length > 0 ? (
-                      <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, zIndex: 100, overflow: "hidden" }}>
-                        {filtered.map(h => (
-                          <div key={h.ticker} onMouseDown={() => { addToWatchlist(h.ticker); setWatchlistInput(""); setWatchlistInputAcik(false); }}
-                            style={{ padding: "7px 10px", cursor: "pointer", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
-                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
-                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
-                            <span style={{ fontSize: 10, color: "#475569" }}>{h.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null;
-                  })()}
-                </div>
-                <button onMouseDown={() => { if (watchlistInput.trim()) { addToWatchlist(watchlistInput.trim()); setWatchlistInput(""); setWatchlistInputAcik(false); } }}
-                  style={{ fontSize: 11, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 5, padding: "4px 8px", cursor: "pointer" }}>Ekle</button>
-              </div>
-            )}
             {watchlist.length === 0 ? (
               <div style={{ padding: "20px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                 <p style={{ fontSize: 12, color: "#334155", textAlign: "center" }}>Henüz hisse eklemediniz</p>
@@ -385,23 +316,7 @@ export default function DashboardPage() {
               watchlist.map((w) => (
                 <div key={w.ticker} onClick={() => router.push(`/hisse/${w.ticker}`)}
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {(() => { const h = BIST_HISSELER.find(b => b.ticker === w.ticker); return (h as any)?.domain ? (
-                      <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(w.ticker) }}>{w.ticker.slice(0,3)}</span>; })()}
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{w.ticker}</div>
-                    {fiyatlar[w.ticker] && (
-                      <div style={{ display: "flex", gap: 5, marginTop: 2 }}>
-                        <span style={{ fontSize: 11, color: "#94A3B8" }}>{fiyatlar[w.ticker]!.fiyat} ₺</span>
-                        <span style={{ fontSize: 11, fontWeight: 500, color: fiyatlar[w.ticker]!.yukselis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 2 }}>
-                          <span>{fiyatlar[w.ticker]!.yukselis ? "▲" : "▼"}</span>
-                          <span>{fiyatlar[w.ticker]!.yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[w.ticker]!.degisim)).toFixed(2).replace(".", ",")}</span>
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{w.ticker}</div>
                   <button onClick={(e) => { e.stopPropagation(); removeFromWatchlist(w.ticker); }}
                     style={{ fontSize: 11, color: "#334155", background: "none", border: "none", cursor: "pointer" }}>✕</button>
                 </div>
@@ -422,14 +337,9 @@ export default function DashboardPage() {
               recent.map((r, i) => (
                 <div key={i} onClick={() => router.push(`/hisse/${r.ticker}`)}
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {(() => { const h = BIST_HISSELER.find(b => b.ticker === r.ticker); return (h as any)?.domain ? (
-                      <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(r.ticker) }}>{r.ticker.slice(0,3)}</span>; })()}
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{r.ticker}</div>
-                      <div style={{ fontSize: 10, color: "#334155", marginTop: 1 }}>{r.time}</div>
-                    </div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{r.ticker}</div>
+                    <div style={{ fontSize: 10, color: "#334155", marginTop: 1 }}>{r.time}</div>
                   </div>
                   <span style={{ fontSize: 12, color: "#1E40AF" }}>→</span>
                 </div>
@@ -437,22 +347,18 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* KAP Haberleri */}
+          {/* KAP Haberleri — "Çok Yakında" placeholder (Barış'ın isteği) */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
               <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>KAP Haberleri</span>
             </div>
-            {KAP.map((k, i) => (
-              <div key={i} style={{ padding: "9px 14px", borderBottom: i < KAP.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none" }}>
-                <div style={{ fontSize: 10, fontWeight: 500, color: "#3B82F6", marginBottom: 2 }}>{k.ticker}</div>
-                <div style={{ fontSize: 11, color: "#475569", lineHeight: 1.4 }}>{k.title}</div>
-                <div style={{ fontSize: 10, color: "#1E293B", marginTop: 2 }}>{k.time}</div>
-              </div>
-            ))}
+            <div style={{ padding: "32px 14px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: "#3B82F6", letterSpacing: "0.12em", textTransform: "uppercase" }}>Çok Yakında</div>
+              <div style={{ fontSize: 11, color: "#64748B", textAlign: "center", lineHeight: 1.5, maxWidth: 220 }}>Canlı KAP bildirimleri yakında bu alanda gösterilecek.</div>
+            </div>
           </div>
         </div>
       </main>
     </div>
-    </AppShell>
   );
 }
