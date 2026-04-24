@@ -216,8 +216,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                  <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v} ₺`} width={55} />
-                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
+                  <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v} ₺`} width={55} />
+                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v: unknown) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
                   <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={1.5} fill="url(#fiyatGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
