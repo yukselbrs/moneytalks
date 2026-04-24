@@ -267,31 +267,54 @@ export default function DashboardPage() {
 
         {/* Piyasa Özeti */}
         <div>
-          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Piyasa Özeti</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Piyasa Ozeti</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
             {[
-              { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-" },
-              { label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-" },
+              { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
+              { label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-", gecikme: true },
               { label: "USD/TRY", val: piyasa.usd.value, change: piyasa.usd.change, up: !piyasa.usd.change.startsWith("-") },
               { label: "EUR/TRY", val: piyasa.eur.value, change: piyasa.eur.change, up: !piyasa.eur.change.startsWith("-") },
-            ].map((e) => (
-              <div key={e.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 12px" }}>
-                <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 5 }}>{e.label}</div>
-                <div style={{ fontSize: 15, fontWeight: 500, color: "#E2E8F0", marginBottom: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                  {(e.label === "XU100" || e.label === "XU030") && (
-                    <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
-                      <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
-                      <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
-                    </span>
-                  )}
-                  {e.val}
+            ].map((e) => {
+              const color = e.up ? "#10B981" : "#EF4444";
+              const bgColor = e.up ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)";
+              // Sahte sparkline noktalari
+              const pts = e.up
+                ? [40,38,42,37,41,36,39,34,38,32,35,30,33,28,30,25,28,22,26,20]
+                : [20,22,25,21,27,23,29,25,31,27,33,30,35,32,37,34,39,36,41,38];
+              const w = 100, h = 40;
+              const mn = Math.min(...pts), mx = Math.max(...pts);
+              const sx = (i: number) => (i / (pts.length - 1)) * w;
+              const sy = (v: number) => h - ((v - mn) / (mx - mn + 1)) * h;
+              const d = pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i)} ${sy(v)}`).join(" ");
+              const area = d + ` L ${w} ${h} L 0 ${h} Z`;
+              return (
+                <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 11, color: "#64748B", fontWeight: 500 }}>{e.label}</span>
+                    {e.gecikme && <span style={{ fontSize: 9, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 3, padding: "1px 5px" }}>15dk</span>}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.5px", lineHeight: 1.2 }}>{e.val}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
+                        <span>{e.up ? "▲" : "▼"}</span>
+                        <span>{e.change}</span>
+                      </div>
+                    </div>
+                    <svg width="100" height="40" viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
+                      <defs>
+                        <linearGradient id={`sg-${e.label}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
+                          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+                        </linearGradient>
+                      </defs>
+                      <path d={area} fill={`url(#sg-${e.label})`}/>
+                      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: e.up ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 3 }}>
-                  <span>{e.up ? "▲" : "▼"}</span>
-                  <span>{e.change}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
