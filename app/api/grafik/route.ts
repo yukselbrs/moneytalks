@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   if (!ticker) return NextResponse.json({ error: "ticker gerekli" }, { status: 400 });
 
   try {
-    const symbol = ticker.endsWith(".IS") ? ticker : `${ticker}.IS`;
+    const symbol = ticker.endsWith(".IS") || ticker.endsWith("=X") ? ticker : `${ticker}.IS`;
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1mo`;
     const res = await fetch(url, { cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" } });
     const data = await res.json();

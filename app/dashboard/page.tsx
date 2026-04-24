@@ -140,11 +140,14 @@ export default function DashboardPage() {
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
     const fetchSparklines = () => {
-      ["XU100.IS", "XU030.IS", "USD"].forEach((sym) => {
-        const url = sym === "USD" ? "/api/grafik?ticker=USDTRY" : `/api/grafik?ticker=${sym}`;
-        fetch(url).then(r => r.json()).then(d => {
+      [
+        { sym: "XU100.IS", key: "XU100" },
+        { sym: "XU030.IS", key: "XU030" },
+        { sym: "USDTRY=X", key: "USD/TRY" },
+        { sym: "EURTRY=X", key: "EUR/TRY" },
+      ].forEach(({ sym, key }) => {
+        fetch(`/api/grafik?ticker=${sym}`).then(r => r.json()).then(d => {
           if (d.points) {
-            const key = sym === "XU100.IS" ? "XU100" : sym === "XU030.IS" ? "XU030" : "USD";
             setSparklines(prev => ({ ...prev, [key]: d.points.map((p: {fiyat: number}) => p.fiyat) }));
           }
         }).catch(() => {});
