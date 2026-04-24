@@ -81,15 +81,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         .sb-label { opacity: 0; transform: translateX(-8px); transition: opacity 0.2s, transform 0.2s; white-space: nowrap; font-size: 13px; font-weight: 500; }
         .sb-expanded .sb-label { opacity: 1; transform: translateX(0); }
         .sb-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0 10px; height: 36px; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.15s; }
+        @media (max-width: 767px) {
+          .sb-desktop { display: none !important; }
+          .sb-main { margin-left: 0 !important; padding-bottom: 64px; }
+          .sb-bottomnav { display: flex !important; }
+        }
+        @media (min-width: 768px) {
+          .sb-bottomnav { display: none !important; }
+        }
       `}</style>
 
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <div
+        className={`sb-desktop${expanded ? " sb-expanded" : ""}`}
         onMouseEnter={() => setExpanded(true)}
         onMouseLeave={() => setExpanded(false)}
-        className={expanded ? "sb-expanded" : ""}
-        style={{ width: sidebarW, background: "#050A14", borderRight: "0.5px solid rgba(255,255,255,0.04)", display: "flex", flexDirection: "column", alignItems: "flex-start", padding: "16px 8px", gap: 4, flexShrink: 0, position: "fixed", top: 0, left: 0, height: "100vh", zIndex: 50, transition: "width 0.2s ease", overflow: "hidden" }}>
-
+        style={{ width: sidebarW, background: "#050A14", borderRight: "0.5px solid rgba(255,255,255,0.04)", display: "flex", flexDirection: "column", alignItems: "flex-start", padding: "16px 8px", gap: 4, flexShrink: 0, position: "fixed", top: 0, left: 0, height: "100vh", zIndex: 50, transition: "width 0.2s ease", overflow: "hidden" }}
+      >
         {/* Logo */}
         <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 16, padding: "0 2px" }}>
           <svg width="36" height="36" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
@@ -163,7 +171,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <div style={{ marginLeft: 56, flex: 1, display: "flex", flexDirection: "column", transition: "margin-left 0.2s ease" }}>
+      <div className="sb-main" style={{ marginLeft: 56, flex: 1, display: "flex", flexDirection: "column", transition: "margin-left 0.2s ease" }}>
         {/* Topbar */}
         <div style={{ borderBottom: "0.5px solid rgba(255,255,255,0.04)", padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#080F1E", position: "sticky", top: 0, zIndex: 40 }}>
           <a href="/" style={{ fontSize: 14, fontWeight: 500, color: "#F8FAFC", textDecoration: "none", letterSpacing: "-0.3px" }}>
@@ -182,6 +190,42 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         {children}
       </div>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="sb-bottomnav" style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
+        background: "rgba(5,10,20,0.97)", borderTop: "0.5px solid rgba(255,255,255,0.06)",
+        backdropFilter: "blur(12px)", padding: "0 8px",
+        alignItems: "center", justifyContent: "space-around", height: 60,
+      }}>
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          return (
+            <a key={item.label} href={item.href} style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+              textDecoration: "none", padding: "6px 12px", borderRadius: 8,
+              color: isActive ? "#3B82F6" : "#334155",
+              background: isActive ? "rgba(59,130,246,0.08)" : "transparent",
+              minWidth: 52,
+            }}>
+              {item.icon}
+              <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.02em" }}>{item.label}</span>
+            </a>
+          );
+        })}
+        <a href="/profile" style={{
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+          textDecoration: "none", padding: "6px 12px", borderRadius: 8,
+          color: pathname === "/profile" ? "#3B82F6" : "#334155",
+          background: pathname === "/profile" ? "rgba(59,130,246,0.08)" : "transparent",
+          minWidth: 52,
+        }}>
+          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "0.5px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 600, color: "#3B82F6" }}>
+            {initials}
+          </div>
+          <span style={{ fontSize: 9, fontWeight: 500 }}>Profil</span>
+        </a>
+      </nav>
     </div>
   );
 }
