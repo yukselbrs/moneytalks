@@ -52,10 +52,10 @@ export default function PortfoyPage() {
       const tickers = data.map((p: { ticker: string }) => p.ticker).join(",");
       const res = await fetch("/api/fiyatlar?extra=" + tickers);
       const json = await res.json();
-      const map = {};
+      const map: FiyatMap = {};
       Object.entries(json).forEach(([ticker, val]) => {
         if (!val) return;
-        const v = val;
+        const v = val as { fiyat: string; degisim: string };
         map[ticker] = {
           fiyat: parseFloat(v.fiyat.replace(/\./g, "").replace(",", ".")),
           degisim: parseFloat(v.degisim.replace(",", ".")),
@@ -71,13 +71,9 @@ export default function PortfoyPage() {
     portfoyuYukle();
   }, [portfoyuYukle]);
 
-  const riskSkoru = useCallback(async (ticker) => {
+  const riskSkoru = useCallback(async (ticker: string) => {
     if (riskler[ticker]?.skor) return;
-<<<<<<< HEAD
-    setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
-=======
     setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true, acik: true } }));
->>>>>>> 27ccde9 (portfoy: direkt supabase client, token kaldirildi)
     try {
       const res = await fetch("/api/analiz", {
         method: "POST",
@@ -85,23 +81,19 @@ export default function PortfoyPage() {
         body: JSON.stringify({ ticker, veriOnly: false }),
       });
       const json = await res.json();
-      const analiz = json.analiz || "";
+      const analiz: string = json.analiz || "";
       const lower = analiz.toLowerCase();
       let skor = "Orta";
-      if (lower.includes("yuksek risk") || lower.includes("dikkatli")) skor = "Yuksek";
-      else if (lower.includes("dusuk risk") || lower.includes("guvenli") || lower.includes("olumlu")) skor = "Dusuk";
+      if (lower.includes("yuksek risk") || lower.includes("dikkatli")) skor = "Yüksek";
+      else if (lower.includes("dusuk risk") || lower.includes("guvenli") || lower.includes("olumlu")) skor = "Düşük";
       const ozet = analiz.slice(0, 220).replace(/#+/g, "").trim() + "...";
       setRiskler((prev) => ({ ...prev, [ticker]: { skor, ozet, yukleniyor: false, acik: true } }));
     } catch {
-<<<<<<< HEAD
-      setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Analiz alınamadı.", yukleniyor: false, acik: false } }));
-=======
       setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Analiz alinamadi.", yukleniyor: false, acik: true } }));
->>>>>>> 27ccde9 (portfoy: direkt supabase client, token kaldirildi)
     }
   }, [riskler]);
 
-  const riskKapat = (ticker) => {
+  const riskKapat = (ticker: string) => {
     setRiskler((prev) => ({ ...prev, [ticker]: { ...prev[ticker], acik: false } }));
   };
 
@@ -125,14 +117,14 @@ export default function PortfoyPage() {
     }
   };
 
-  const hisseSil = async (ticker) => {
+  const hisseSil = async (ticker: string) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", ticker);
     setPortfoy((prev) => prev.filter((p) => p.ticker !== ticker));
   };
 
-  const plHesapla = (item) => {
+  const plHesapla = (item: PortfoyItem) => {
     const guncel = fiyatlar[item.ticker]?.fiyat;
     if (!guncel) return null;
     const maliyet_toplam = item.adet * item.maliyet;
@@ -176,14 +168,14 @@ export default function PortfoyPage() {
     }
     if (toplamPLYuzde < -10) puan += 20;
     else if (toplamPLYuzde < 0) puan += 10;
-    if (puan >= 50) return { skor: "Yuksek", renk: "text-red-400", bg: "bg-red-900/20 border-red-800/40", emoji: "X" };
-    if (puan >= 25) return { skor: "Orta", renk: "text-yellow-400", bg: "bg-yellow-900/20 border-yellow-800/40", emoji: "!" };
-    return { skor: "Dusuk", renk: "text-emerald-400", bg: "bg-emerald-900/20 border-emerald-800/40", emoji: "OK" };
+    if (puan >= 50) return { skor: "Yüksek", renk: "text-red-400", bg: "bg-red-900/20 border-red-800/40", emoji: "🔴" };
+    if (puan >= 25) return { skor: "Orta", renk: "text-yellow-400", bg: "bg-yellow-900/20 border-yellow-800/40", emoji: "🟡" };
+    return { skor: "Düşük", renk: "text-emerald-400", bg: "bg-emerald-900/20 border-emerald-800/40", emoji: "🟢" };
   })();
 
-  const riskRenk = (skor) => {
-    if (skor === "Dusuk") return "text-emerald-400 bg-emerald-400/10";
-    if (skor === "Yuksek") return "text-red-400 bg-red-400/10";
+  const riskRenk = (skor: string) => {
+    if (skor === "Düşük") return "text-emerald-400 bg-emerald-400/10";
+    if (skor === "Yüksek") return "text-red-400 bg-red-400/10";
     return "text-yellow-400 bg-yellow-400/10";
   };
 
@@ -192,20 +184,20 @@ export default function PortfoyPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">Portfoy Takibi</h1>
-            <p className="text-slate-400 text-sm mt-1">BIST pozisyonlarinizi takip edin, her hisse icin AI risk skoru alin</p>
+            <h1 className="text-2xl font-bold text-white">Portföy Takibi</h1>
+            <p className="text-slate-400 text-sm mt-1">BIST pozisyonlarinizi takip edin, her hisse için AI risk skoru alin</p>
           </div>
           <button
             onClick={() => setSekme(sekme === "ekle" ? "portfoy" : "ekle")}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
-            {sekme === "ekle" ? "Geri" : "+ Hisse Ekle"}
+            {sekme === "ekle" ? "← Geri" : "+ Hisse Ekle"}
           </button>
         </div>
 
         {sekme === "ekle" && (
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-6 mb-6">
-            <h2 className="text-white font-semibold mb-4">Hisse Ekle / Guncelle</h2>
+            <h2 className="text-white font-semibold mb-4">Hisse Ekle / Güncelle</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="text-slate-400 text-xs mb-1 block">Hisse Kodu</label>
@@ -227,7 +219,7 @@ export default function PortfoyPage() {
                 />
               </div>
               <div>
-                <label className="text-slate-400 text-xs mb-1 block">Ortalama Maliyet</label>
+                <label className="text-slate-400 text-xs mb-1 block">Ortalama Maliyet (TL)</label>
                 <input
                   type="number"
                   className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
@@ -255,27 +247,25 @@ export default function PortfoyPage() {
               <p className="text-white font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL</p>
             </div>
             <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
-              <p className="text-slate-400 text-xs mb-1">Guncel Deger</p>
+              <p className="text-slate-400 text-xs mb-1">Güncel Deger</p>
               <p className="text-white font-bold text-lg">{toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL</p>
             </div>
-            <div className={"border rounded-xl p-4 " + (toplamPL >= 0 ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40")}>
+            <div className={`border rounded-xl p-4 ${toplamPL >= 0 ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
               <p className="text-slate-400 text-xs mb-1">Toplam K/Z</p>
-              <p className={"font-bold text-lg " + (toplamPL >= 0 ? "text-emerald-400" : "text-red-400")}>
+              <p className={`font-bold text-lg ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {toplamPL >= 0 ? "+" : ""}{toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL
               </p>
-              <p className={"text-xs " + (toplamPL >= 0 ? "text-emerald-500" : "text-red-500")}>
+              <p className={`text-xs ${toplamPL >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                 {toplamPLYuzde >= 0 ? "+" : ""}{toplamPLYuzde.toFixed(2)}%
               </p>
             </div>
             {portfoyRisk && (
-              <div className={"border rounded-xl p-4 " + portfoyRisk.bg}>
-                <p className="text-slate-400 text-xs mb-1">Portfoy Riski</p>
-                <p className={"font-bold text-lg " + portfoyRisk.renk}>
-                  {portfoyRisk.skor}
+              <div className={`border rounded-xl p-4 ${portfoyRisk.bg}`}>
+                <p className="text-slate-400 text-xs mb-1">Portföy Riski</p>
+                <p className={`font-bold text-lg ${portfoyRisk.renk}`}>
+                  {portfoyRisk.emoji} {portfoyRisk.skor}
                 </p>
-                <p className="text-slate-500 text-xs mt-1">
-                  {portfoy.length} hisse
-                </p>
+                <p className="text-slate-500 text-xs mt-1">{portfoy.length} hisse</p>
               </div>
             )}
           </div>
@@ -284,11 +274,11 @@ export default function PortfoyPage() {
         {sekme === "portfoy" && (
           <>
             {yukleniyor ? (
-              <div className="text-slate-400 text-sm text-center py-12">Yukleniyor...</div>
+              <div className="text-slate-400 text-sm text-center py-12">Yükleniyor...</div>
             ) : portfoy.length === 0 ? (
               <div className="text-center py-16 text-slate-500">
                 <p className="text-4xl mb-3">💼</p>
-                <p className="text-sm">Henuz portfoyunuzde hisse yok.</p>
+                <p className="text-sm">Henüz portföyünüzde hisse yok.</p>
                 <button onClick={() => setSekme("ekle")} className="mt-4 text-blue-400 hover:text-blue-300 text-sm underline">
                   Ilk hissenizi ekleyin
                 </button>
@@ -304,17 +294,17 @@ export default function PortfoyPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <Link href={"/hisse/" + item.ticker} className="text-white font-bold hover:text-blue-400 transition-colors">
+                            <Link href={`/hisse/${item.ticker}`} className="text-white font-bold hover:text-blue-400 transition-colors">
                               {item.ticker}
                             </Link>
                             {fiyat && (
-                              <span className={"text-xs font-medium " + (fiyat.degisim >= 0 ? "text-emerald-400" : "text-red-400")}>
-                                {fiyat.degisim >= 0 ? "+" : ""}{Math.abs(fiyat.degisim).toFixed(2)}%
+                              <span className={`text-xs font-medium ${fiyat.degisim >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                                {fiyat.degisim >= 0 ? "▲" : "▼"} {Math.abs(fiyat.degisim).toFixed(2)}%
                               </span>
                             )}
                           </div>
                           <p className="text-slate-400 text-xs">
-                            {item.adet} lot - Maliyet: {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
+                            {item.adet} lot · Maliyet: {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
                           </p>
                         </div>
                         <div className="text-right flex-shrink-0">
@@ -322,7 +312,7 @@ export default function PortfoyPage() {
                             <>
                               <p className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL</p>
                               {pl && (
-                                <p className={"text-xs font-medium " + (pl.pl >= 0 ? "text-emerald-400" : "text-red-400")}>
+                                <p className={`text-xs font-medium ${pl.pl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                                   {pl.pl >= 0 ? "+" : ""}{pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL ({pl.plYuzde >= 0 ? "+" : ""}{pl.plYuzde.toFixed(2)}%)
                                 </p>
                               )}
@@ -339,7 +329,7 @@ export default function PortfoyPage() {
                               <span className="text-slate-400 text-xs animate-pulse">AI analiz yapiliyor...</span>
                             ) : (
                               <>
-                                <span className={"text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 " + riskRenk(risk.skor)}>
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${riskRenk(risk.skor)}`}>
                                   {risk.skor} Risk
                                 </span>
                                 <p className="text-slate-400 text-xs truncate flex-1">{risk.ozet}</p>
@@ -357,8 +347,8 @@ export default function PortfoyPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-3 flex-shrink-0">
-                          <Link href={"/hisse/" + item.ticker} className="text-xs text-slate-400 hover:text-white transition-colors">
-                            Analiz
+                          <Link href={`/hisse/${item.ticker}`} className="text-xs text-slate-400 hover:text-white transition-colors">
+                            Analiz →
                           </Link>
                           <button onClick={() => hisseSil(item.ticker)} className="text-xs text-red-500 hover:text-red-400 transition-colors">
                             Sil
