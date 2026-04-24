@@ -94,7 +94,7 @@ export default function PortfoyPage() {
       const ozet = analiz.slice(0, 220).replace(/#+/g, "").trim() + "...";
       setRiskler((prev) => ({ ...prev, [ticker]: { skor, ozet, yukleniyor: false, acik: true } }));
     } catch {
-      setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Analiz alınamadı.", yukleniyor: false } }));
+      setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Analiz alınamadı.", yukleniyor: false, acik: false } }));
     }
   }, [riskler]);
 
