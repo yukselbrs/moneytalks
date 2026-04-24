@@ -52,6 +52,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
       label: "Haberler", href: "/blog",
     },
+    {
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+      label: "Takvim", href: "/takvim",
+    },
+    {
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+      label: "Alarmlar", href: "/alarmlar",
+    },
+    {
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+      label: "Ayarlar", href: "/ayarlar",
+    },
   ];
 
   return (
@@ -120,19 +132,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           border: "1px solid rgba(59,130,246,0.2)",
           padding: "16px 14px", textAlign: "center",
         }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🤖</div>
+          <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
           <p style={{ color: "#F8FAFC", fontSize: 13, fontWeight: 600, marginBottom: 6, lineHeight: 1.4 }}>
-            Yapay Zeka Gucu Yatiriminizin Yaninda!
+            Pro'ya Yukseltin!
           </p>
           <p style={{ color: "#64748B", fontSize: 11, marginBottom: 12, lineHeight: 1.5 }}>
-            AI destekli analizlerle akilli yatirim kararlari alin.
+            Sinırsız analiz, gercek zamanli veriler ve cok daha fazlasi.
           </p>
-          <a href="/hisse/THYAO" style={{
+          <a href="/pro" style={{
             display: "block", background: "linear-gradient(90deg, #2563EB, #3B82F6)",
             color: "#fff", fontSize: 12, fontWeight: 600,
             padding: "8px 12px", borderRadius: 8, textDecoration: "none",
           }}>
-            Analiz Yap &gt;
+            Pro'ya Yukselt &gt;
           </a>
         </div>
 
