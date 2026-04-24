@@ -49,19 +49,26 @@ export default function PortfoyPage() {
 
       setPortfoy(data);
 
-      const tickers = data.map((p: { ticker: string }) => p.ticker).join(",");
-      const res = await fetch("/api/fiyatlar?extra=" + tickers);
-      const json = await res.json();
-      const map: FiyatMap = {};
-      Object.entries(json).forEach(([ticker, val]) => {
-        if (!val) return;
-        const v = val as { fiyat: string; degisim: string };
-        map[ticker] = {
-          fiyat: parseFloat(v.fiyat.replace(/\./g, "").replace(",", ".")),
-          degisim: parseFloat(v.degisim.replace(",", ".")),
-        };
-      });
-      setFiyatlar(map);
+      const tickers = data.map((p: { ticker: string }) => p.ticker.trim()).join(",");
+      console.log("Fiyat fetch basliyor:", tickers);
+      try {
+        const res = await fetch("/api/fiyatlar?extra=" + tickers);
+        const json = await res.json();
+        console.log("Fiyat json:", json);
+        const map: FiyatMap = {};
+        Object.entries(json).forEach(([ticker, val]) => {
+          if (!val) return;
+          const v = val as { fiyat: string; degisim: string };
+          map[ticker] = {
+            fiyat: parseFloat(v.fiyat.replace(/\./g, "").replace(",", ".")),
+            degisim: parseFloat(v.degisim.replace(",", ".")),
+          };
+        });
+        console.log("Fiyat map:", map);
+        setFiyatlar(map);
+      } catch(e) {
+        console.error("Fiyat fetch HATA:", e);
+      }
     } finally {
       setYukleniyor(false);
     }
@@ -105,7 +112,7 @@ export default function PortfoyPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/login"); return; }
       const { error } = await supabase.from("portfoy").upsert(
-        { user_id: session.user.id, ticker: form.ticker.toUpperCase(), adet: parseFloat(form.adet), maliyet: parseFloat(form.maliyet) },
+        { user_id: session.user.id, ticker: form.ticker.toUpperCase().replace(/\0/g, '').trim(), adet: parseFloat(form.adet), maliyet: parseFloat(form.maliyet) },
         { onConflict: "user_id,ticker" }
       );
       if (error) { setFormHata(error.message); return; }
