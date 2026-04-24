@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/components/lib/supabase";
+import { useRouter, usePathname } from "next/navigation";
 
 const PKMark = () => (
   <svg width="36" height="36" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" aria-label="ParaKonusur mark">
@@ -34,6 +35,8 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<{ email?: string; user_metadata?: { full_name?: string } } | null>(null);
@@ -43,7 +46,7 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setUser(session.user);
+      if (session) { setUser(session.user); if (pathname === "/") router.push("/dashboard"); }
     });
     const { data: authListener } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
