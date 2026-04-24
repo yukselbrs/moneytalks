@@ -107,6 +107,7 @@ export default function DashboardPage() {
   const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } });
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [bildirimAcik, setBildirimAcik] = useState(false);
+  const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
 
   const bildirimler = [
     { zaman: "09:55", mesaj: `XU100 güne %${piyasa.xu100.change} ile başladı.`, tip: piyasa.xu100.change.startsWith("%-") ? "dusus" : "yukselis" },
@@ -138,6 +139,17 @@ export default function DashboardPage() {
       setLoading(false);
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
+    const fetchSparklines = () => {
+      ["XU100.IS", "XU030.IS", "USD"].forEach((sym) => {
+        const url = sym === "USD" ? "/api/grafik?ticker=USDTRY" : `/api/grafik?ticker=${sym}`;
+        fetch(url).then(r => r.json()).then(d => {
+          if (d.points) {
+            const key = sym === "XU100.IS" ? "XU100" : sym === "XU030.IS" ? "XU030" : "USD";
+            setSparklines(prev => ({ ...prev, [key]: d.points.map((p: {fiyat: number}) => p.fiyat) }));
+          }
+        }).catch(() => {});
+      });
+    };
     const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => setPiyasa(prev => ({ ...prev, ...d }))).catch(() => {});
     const fetchFiyatlar = (extraList?: string[]) => {
       const wl = extraList || watchlistRef.current.map(w => w.ticker);
@@ -148,6 +160,7 @@ export default function DashboardPage() {
     fetchDoviz();
     fetchXu();
     fetchFiyatlar();
+    fetchSparklines();
     const dovizInterval = setInterval(fetchDoviz, 900000);
     const xuInterval = setInterval(fetchXu, 15000);
     const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
@@ -277,10 +290,11 @@ export default function DashboardPage() {
             ].map((e) => {
               const color = e.up ? "#10B981" : "#EF4444";
               const bgColor = e.up ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)";
-              // Sahte sparkline noktalari
-              const pts = e.up
+              // Gercek sparkline veya fallback
+              const rawPts = sparklines[e.label] || [];
+              const pts = rawPts.length > 1 ? rawPts : (e.up
                 ? [40,38,42,37,41,36,39,34,38,32,35,30,33,28,30,25,28,22,26,20]
-                : [20,22,25,21,27,23,29,25,31,27,33,30,35,32,37,34,39,36,41,38];
+                : [20,22,25,21,27,23,29,25,31,27,33,30,35,32,37,34,39,36,41,38]);
               const w = 100, h = 40;
               const mn = Math.min(...pts), mx = Math.max(...pts);
               const sx = (i: number) => (i / (pts.length - 1)) * w;
@@ -291,7 +305,12 @@ export default function DashboardPage() {
                 <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 11, color: "#64748B", fontWeight: 500 }}>{e.label}</span>
-                    {e.gecikme && <span style={{ fontSize: 9, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 3, padding: "1px 5px" }}>15dk</span>}
+                    {e.gecikme && (
+                      <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
+                        <span style={{ position: "absolute", bottom: "calc(100% + 6px)", right: 0, background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
+                      </span>
+                    )}
                   </div>
                   <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
                     <div>
