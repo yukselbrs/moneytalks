@@ -78,7 +78,7 @@ export default function PortfoyPage() {
 
   const riskSkoru = useCallback(async (ticker: string) => {
     if (riskler[ticker]?.skor) return;
-    setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true } }));
+    setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
     try {
       const res = await fetch("/api/analiz", {
         method: "POST",
