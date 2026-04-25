@@ -42,7 +42,7 @@ interface EkleModal {
   adet: string;
   maliyet: string;
   hata: string;
-  yükleniyor: boolean;
+  yukleniyor: boolean;
 }
 
 interface SilModal {
@@ -472,9 +472,9 @@ export default function PortfoyPage() {
                 className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm transition-colors">
                 İptal
               </button>
-              <button onClick={hisseEkle} disabled={ekleModal.yükleniyor}
+              <button onClick={hisseEkle} disabled={ekleModal.yukleniyor}
                 className="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-2 rounded-lg text-sm font-medium transition-colors">
-                {ekleModal.yükleniyor ? "Kaydediliyor..." : "Kaydet"}
+                {ekleModal.yukleniyor ? "Kaydediliyor..." : "Kaydet"}
               </button>
             </div>
           </div>
