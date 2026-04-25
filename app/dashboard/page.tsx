@@ -124,6 +124,7 @@ export default function DashboardPage() {
   const [grafikArama, setGrafikArama] = useState("");
   const [grafikDropdown, setGrafikDropdown] = useState(false);
   const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
+  const [portfoyOzet, setPortfoyOzet] = useState<{toplamMaliyet: number; toplamGuncel: number; toplamPL: number; toplamPLYuzde: number; hisseSayisi: number} | null>(null);
 
   const fetchBuyukGrafik = React.useCallback(async (range: string, ticker?: string) => {
     setGrafikYukleniyor(true);
@@ -193,6 +194,30 @@ export default function DashboardPage() {
       }
       setLoading(false);
       fetchBuyukGrafik("1mo");
+
+      // Portföy özeti
+      try {
+        const { data: portfoyData } = await supabase
+          .from("portfoy")
+          .select("ticker, adet, maliyet");
+        if (portfoyData && portfoyData.length > 0) {
+          const tickers = portfoyData.map((p: {ticker: string}) => p.ticker.trim()).join(",");
+          const fRes = await fetch("/api/fiyatlar?extra=" + tickers);
+          const fJson = await fRes.json();
+          let toplamMaliyet = 0, toplamGuncel = 0;
+          portfoyData.forEach((p: {ticker: string; adet: number; maliyet: number}) => {
+            const mal = p.adet * p.maliyet;
+            toplamMaliyet += mal;
+            const fiyatStr = fJson[p.ticker.trim()]?.fiyat;
+            const fiyat = fiyatStr ? parseFloat(fiyatStr.replace(/\./g, "").replace(",", ".")) : p.maliyet;
+            toplamGuncel += p.adet * fiyat;
+          });
+          const toplamPL = toplamGuncel - toplamMaliyet;
+          const toplamPLYuzde = toplamMaliyet > 0 ? (toplamPL / toplamMaliyet) * 100 : 0;
+          setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, hisseSayisi: portfoyData.length });
+        }
+      } catch(e) { console.error("Portfoy ozet hatasi:", e); }
+
       setAiPanel({
         skor: 75,
         seviye: "Düşük",
@@ -286,7 +311,7 @@ export default function DashboardPage() {
     <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
 
-      <main style={{ maxWidth: 1000, margin: "0 auto", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC" }}>{selamlama()}, {firstName}</h1>
@@ -344,6 +369,8 @@ export default function DashboardPage() {
           </button>
         </form>
 
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Piyasa Özeti */}
         <div>
           <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Piyasa Özeti</p>
@@ -673,8 +700,44 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Alt 3 kolon */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+        </div>
+
+        {/* SAĞ PANEL */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {/* Portföy Özeti */}
+        {portfoyOzet && (
+          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "12px 16px", marginBottom: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Portföy Özeti</span>
+              <a href="/portfoy" style={{ fontSize: 10, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+              <div>
+                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Toplam Maliyet</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Güncel Değer</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Toplam K/Z</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
+                  {portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                </p>
+                <p style={{ fontSize: 10, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
+                  {portfoyOzet.toplamPLYuzde >= 0 ? "+" : ""}{portfoyOzet.toplamPLYuzde.toFixed(2)}%
+                </p>
+              </div>
+              <div>
+                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Hisse Sayısı</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.hisseSayisi} hisse</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+
           {/* İzleme Listesi */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -793,6 +856,7 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+        </div>
         </div>
       </main>
     </div>
