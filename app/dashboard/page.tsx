@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
@@ -116,6 +116,24 @@ export default function DashboardPage() {
     return "İyi geceler";
   };
   const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
+  const [buyukGrafik, setBuyukGrafik] = useState<{tarih: string; fiyat: number}[]>([]);
+  const [grafikRange, setGrafikRange] = useState("1mo");
+  const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
+  const [grafikTicker, setGrafikTicker] = useState("XU100.IS");
+  const [grafikTickerLabel, setGrafikTickerLabel] = useState("XU100");
+  const [grafikArama, setGrafikArama] = useState("");
+  const [grafikDropdown, setGrafikDropdown] = useState(false);
+
+  const fetchBuyukGrafik = React.useCallback(async (range: string, ticker?: string) => {
+    setGrafikYukleniyor(true);
+    try {
+      const t = ticker || grafikTicker;
+      const r = await fetch(`/api/grafik?ticker=${t}&range=${range}`);
+      const d = await r.json();
+      if (d.points) setBuyukGrafik(d.points);
+    } catch {}
+    setGrafikYukleniyor(false);
+  }, [grafikTicker]);
 
   const bildirimler = [
     { zaman: "09:55", mesaj: `XU100 güne %${piyasa.xu100.change} ile başladı.`, tip: piyasa.xu100.change.startsWith("%-") ? "dusus" : "yukselis" },
@@ -145,6 +163,7 @@ export default function DashboardPage() {
         fetchFiyatlar(tickers);
       }
       setLoading(false);
+      fetchBuyukGrafik("1mo");
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
     const fetchSparklines = () => {
@@ -345,6 +364,136 @@ export default function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* Piyasa Grafiği */}
+        <div style={{ marginTop: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
+              {/* Ticker seçici */}
+              <div style={{ position: "relative" }}>
+                <button onClick={() => setGrafikDropdown(v => !v)}
+                  style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, padding: "3px 10px", cursor: "pointer" }}>
+                  {grafikTickerLabel} ▾
+                </button>
+                {grafikDropdown && (
+                  <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 100, minWidth: 200, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                    <div style={{ padding: "8px" }}>
+                      <input
+                        autoFocus
+                        placeholder="Hisse ara... (THYAO, GARAN...)"
+                        value={grafikArama}
+                        onChange={e => setGrafikArama(e.target.value.toUpperCase())}
+                        style={{ width: "100%", background: "#1E293B", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, padding: "6px 10px", color: "#F1F5F9", fontSize: 12, outline: "none", boxSizing: "border-box" }}
+                      />
+                    </div>
+                    <div style={{ maxHeight: 200, overflowY: "auto" }}>
+                      {[
+                        { ticker: "XU100.IS", label: "XU100 — BIST 100" },
+                        { ticker: "XU030.IS", label: "XU030 — BIST 30" },
+                        { ticker: "USDTRY=X", label: "USD/TRY" },
+                        { ticker: "EURTRY=X", label: "EUR/TRY" },
+                        { ticker: "THYAO.IS", label: "THYAO — Türk Hava Yolları" },
+                        { ticker: "GARAN.IS", label: "GARAN — Garanti Bankası" },
+                        { ticker: "AKBNK.IS", label: "AKBNK — Akbank" },
+                        { ticker: "ISCTR.IS", label: "ISCTR — İş Bankası" },
+                        { ticker: "YKBNK.IS", label: "YKBNK — Yapı Kredi" },
+                        { ticker: "TUPRS.IS", label: "TUPRS — Tüpraş" },
+                        { ticker: "EREGL.IS", label: "EREGL — Ereğli Demir Çelik" },
+                        { ticker: "ASELS.IS", label: "ASELS — Aselsan" },
+                        { ticker: "KCHOL.IS", label: "KCHOL — Koç Holding" },
+                        { ticker: "TCELL.IS", label: "TCELL — Turkcell" },
+                        { ticker: "BIMAS.IS", label: "BIMAS — BİM" },
+                        { ticker: "FROTO.IS", label: "FROTO — Ford Otosan" },
+                        { ticker: "SISE.IS", label: "SISE — Şişecam" },
+                        { ticker: "TOASO.IS", label: "TOASO — Tofaş" },
+                        { ticker: "PETKM.IS", label: "PETKM — Petkim" },
+                        { ticker: "PGSUS.IS", label: "PGSUS — Pegasus" },
+                      ].filter(t => !grafikArama || t.label.toUpperCase().includes(grafikArama)).map(t => (
+                        <div key={t.ticker}
+                          onClick={() => {
+                            setGrafikTicker(t.ticker);
+                            setGrafikTickerLabel(t.label.split(" — ")[0]);
+                            setGrafikDropdown(false);
+                            setGrafikArama("");
+                            fetchBuyukGrafik(grafikRange, t.ticker);
+                          }}
+                          style={{ padding: "8px 12px", fontSize: 12, color: grafikTicker === t.ticker ? "#3B82F6" : "#94A3B8", cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                          onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
+                          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                        >
+                          {t.label}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 4 }}>
+              {[
+                { label: "1G", value: "1d" },
+                { label: "1H", value: "1wk" },
+                { label: "1A", value: "1mo" },
+                { label: "3A", value: "3mo" },
+                { label: "1Y", value: "1y" },
+              ].map((r) => (
+                <button key={r.value} onClick={() => { setGrafikRange(r.value); fetchBuyukGrafik(r.value); }}
+                  style={{ fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 6, border: "none", cursor: "pointer", transition: "all 0.15s",
+                    background: grafikRange === r.value ? "#3B82F6" : "rgba(255,255,255,0.05)",
+                    color: grafikRange === r.value ? "#fff" : "#64748B" }}>
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative" }}>
+            {grafikYukleniyor && (
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(11,18,32,0.7)", borderRadius: 12, zIndex: 10 }}>
+                <span style={{ fontSize: 12, color: "#64748B" }}>Yükleniyor...</span>
+              </div>
+            )}
+            {buyukGrafik.length > 0 && (() => {
+              const pts = buyukGrafik.map(p => p.fiyat);
+              const labels = buyukGrafik.map(p => p.tarih);
+              const mn = Math.min(...pts), mx = Math.max(...pts);
+              const W = 800, H = 180;
+              const sx = (i: number) => (i / (pts.length - 1)) * W;
+              const sy = (v: number) => H - ((v - mn) / (mx - mn || 1)) * (H - 20) - 10;
+              const isUp = pts[pts.length - 1] >= pts[0];
+              const color = isUp ? "#10B981" : "#EF4444";
+              const d = pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i).toFixed(1)} ${sy(v).toFixed(1)}`).join(" ");
+              const area = d + ` L ${W} ${H} L 0 ${H} Z`;
+              const tickCount = 6;
+              const tickIndices = Array.from({length: tickCount}, (_, i) => Math.round(i * (pts.length - 1) / (tickCount - 1)));
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 180, display: "block" }}>
+                  <defs>
+                    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={color} stopOpacity="0.2"/>
+                      <stop offset="100%" stopColor={color} stopOpacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  {/* Y grid lines */}
+                  {[0.25, 0.5, 0.75].map((p, i) => {
+                    const y = sy(mn + (mx - mn) * p);
+                    return <line key={i} x1="0" y1={y} x2={W} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>;
+                  })}
+                  <path d={area} fill="url(#bgGrad)"/>
+                  <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  {/* X labels */}
+                  {tickIndices.map((idx, i) => (
+                    <text key={i} x={sx(idx)} y={H - 2} textAnchor="middle" fontSize="9" fill="#334155">{labels[idx]}</text>
+                  ))}
+                  {/* Current price */}
+                  <text x={W - 4} y={sy(pts[pts.length - 1])} textAnchor="end" fontSize="10" fill={color} fontWeight="600">
+                    {pts[pts.length - 1].toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+                  </text>
+                </svg>
+              );
+            })()}
           </div>
         </div>
 
