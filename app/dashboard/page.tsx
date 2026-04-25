@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import AppShell from "@/components/AppShell";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
@@ -457,41 +458,53 @@ export default function DashboardPage() {
             )}
             {buyukGrafik.length > 0 && (() => {
               const pts = buyukGrafik.map(p => p.fiyat);
-              const labels = buyukGrafik.map(p => p.tarih);
-              const mn = Math.min(...pts), mx = Math.max(...pts);
-              const W = 800, H = 180;
-              const sx = (i: number) => (i / (pts.length - 1)) * W;
-              const sy = (v: number) => H - ((v - mn) / (mx - mn || 1)) * (H - 20) - 10;
               const isUp = pts[pts.length - 1] >= pts[0];
               const color = isUp ? "#10B981" : "#EF4444";
-              const d = pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i).toFixed(1)} ${sy(v).toFixed(1)}`).join(" ");
-              const area = d + ` L ${W} ${H} L 0 ${H} Z`;
-              const tickCount = 6;
-              const tickIndices = Array.from({length: tickCount}, (_, i) => Math.round(i * (pts.length - 1) / (tickCount - 1)));
+              const mn = Math.min(...pts);
+              const mx = Math.max(...pts);
+              const pad = (mx - mn) * 0.05;
               return (
-                <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: 180, display: "block" }}>
-                  <defs>
-                    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={color} stopOpacity="0.2"/>
-                      <stop offset="100%" stopColor={color} stopOpacity="0"/>
-                    </linearGradient>
-                  </defs>
-                  {/* Y grid lines */}
-                  {[0.25, 0.5, 0.75].map((p, i) => {
-                    const y = sy(mn + (mx - mn) * p);
-                    return <line key={i} x1="0" y1={y} x2={W} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>;
-                  })}
-                  <path d={area} fill="url(#bgGrad)"/>
-                  <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  {/* X labels */}
-                  {tickIndices.map((idx, i) => (
-                    <text key={i} x={sx(idx)} y={H - 2} textAnchor="middle" fontSize="9" fill="#334155">{labels[idx]}</text>
-                  ))}
-                  {/* Current price */}
-                  <text x={W - 4} y={sy(pts[pts.length - 1])} textAnchor="end" fontSize="10" fill={color} fontWeight="600">
-                    {pts[pts.length - 1].toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
-                  </text>
-                </svg>
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="grafikGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={color} stopOpacity={0.2}/>
+                        <stop offset="95%" stopColor={color} stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false}/>
+                    <XAxis
+                      dataKey="tarih"
+                      tick={{ fontSize: 10, fill: "#334155" }}
+                      tickLine={false}
+                      axisLine={false}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis
+                      domain={[mn - pad, mx + pad]}
+                      tick={{ fontSize: 10, fill: "#334155" }}
+                      tickLine={false}
+                      axisLine={false}
+                      width={60}
+                      tickFormatter={(v: number) => v.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: "#0F1C2E", border: `1px solid ${color}33`, borderRadius: 8, fontSize: 12 }}
+                      labelStyle={{ color: "#94A3B8", marginBottom: 4 }}
+                      formatter={(v: number) => [v.toLocaleString("tr-TR", { minimumFractionDigits: 2 }), grafikTickerLabel]}
+                      cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: "4 4" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="fiyat"
+                      stroke={color}
+                      strokeWidth={1.5}
+                      fill="url(#grafikGrad)"
+                      dot={false}
+                      activeDot={{ r: 4, fill: color, strokeWidth: 0 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               );
             })()}
           </div>
