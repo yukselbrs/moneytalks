@@ -124,7 +124,7 @@ export default function DashboardPage() {
   const [grafikArama, setGrafikArama] = useState("");
   const [grafikDropdown, setGrafikDropdown] = useState(false);
   const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
-  const [portfoyOzet, setPortfoyOzet] = useState<{toplamMaliyet: number; toplamGuncel: number; toplamPL: number; toplamPLYuzde: number; hisseSayisi: number} | null>(null);
+  const [portfoyOzet, setPortfoyOzet] = useState<{toplamMaliyet: number; toplamGuncel: number; toplamPL: number; toplamPLYuzde: number; hisseSayisi: number; hisseDagilim?: {ticker: string; yuzde: number; renk: string}[]} | null>(null);
 
   const fetchBuyukGrafik = React.useCallback(async (range: string, ticker?: string) => {
     setGrafikYukleniyor(true);
@@ -214,7 +214,14 @@ export default function DashboardPage() {
           });
           const toplamPL = toplamGuncel - toplamMaliyet;
           const toplamPLYuzde = toplamMaliyet > 0 ? (toplamPL / toplamMaliyet) * 100 : 0;
-          setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, hisseSayisi: portfoyData.length });
+          const RENK = ["#3B82F6","#8B5CF6","#10B981","#F59E0B","#EF4444","#06B6D4","#EC4899","#F97316"];
+          const hisseDagilim = portfoyData.map((p: {ticker: string; adet: number; maliyet: number}, idx: number) => {
+            const fs = fJson[p.ticker.trim()]?.fiyat;
+            const fiyat = fs ? parseFloat(fs.replace(/\./g,"").replace(",",".")) : p.maliyet;
+            return { ticker: p.ticker.trim(), deger: p.adet * fiyat, yuzde: 0, renk: RENK[idx % RENK.length] };
+          }).sort((a: {deger: number}, b: {deger: number}) => b.deger - a.deger)
+            .map((h: {ticker: string; deger: number; yuzde: number; renk: string}) => ({ ...h, yuzde: toplamGuncel > 0 ? (h.deger / toplamGuncel) * 100 : 0 }));
+          setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, hisseSayisi: portfoyData.length, hisseDagilim });
         }
       } catch(e) { console.error("Portfoy ozet hatasi:", e); }
 
@@ -721,6 +728,47 @@ export default function DashboardPage() {
                 {portfoyOzet.toplamPLYuzde >= 0 ? "%" : "%-"}{Math.abs(portfoyOzet.toplamPLYuzde).toFixed(2).replace(".", ",")} ({portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺)
               </p>
             </div>
+            {portfoyOzet?.hisseDagilim && portfoyOzet.hisseDagilim.length > 0 && (() => {
+              const R = 36, cx = 46, cy = 46, sw = 10;
+              const circ = 2 * Math.PI * R;
+              let acc = 0;
+              return (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <svg width="92" height="92" viewBox="0 0 92 92" style={{ flexShrink: 0 }}>
+                    <circle cx={cx} cy={cy} r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={sw}/>
+                    {portfoyOzet.hisseDagilim!.map((h, i) => {
+                      const dl = (h.yuzde / 100) * circ;
+                      const el = <circle key={i} cx={cx} cy={cy} r={R} fill="none" stroke={h.renk} strokeWidth={sw}
+                        strokeDasharray={`${dl} ${circ - dl}`}
+                        strokeDashoffset={circ * 0.25 - acc}
+                        strokeLinecap="butt"/>;
+                      acc += dl;
+                      return el;
+                    })}
+                  </svg>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
+                    {portfoyOzet.hisseDagilim!.slice(0, 3).map((h, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: h.renk }}/>
+                          <span style={{ fontSize: 10, color: "#94A3B8" }}>{h.ticker}</span>
+                        </div>
+                        <span style={{ fontSize: 10, color: "#64748B" }}>%{h.yuzde.toFixed(1)}</span>
+                      </div>
+                    ))}
+                    {portfoyOzet.hisseDagilim!.length > 3 && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#475569" }}/>
+                          <span style={{ fontSize: 10, color: "#94A3B8" }}>Diğer</span>
+                        </div>
+                        <span style={{ fontSize: 10, color: "#64748B" }}>%{portfoyOzet.hisseDagilim!.slice(3).reduce((a, h) => a + h.yuzde, 0).toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
                 <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>Ana Para</p>
