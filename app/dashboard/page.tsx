@@ -383,11 +383,46 @@ export default function DashboardPage() {
                     <div style={{ padding: "8px" }}>
                       <input
                         autoFocus
-                        placeholder="Hisse ara... (THYAO, GARAN...)"
+                        placeholder="Hisse kodu yaz... (THYAO, GARAN, SASA...)"
                         value={grafikArama}
                         onChange={e => setGrafikArama(e.target.value.toUpperCase())}
+                        onKeyDown={e => {
+                          if (e.key === "Enter" && grafikArama.length >= 2) {
+                            const t = grafikArama.endsWith(".IS") || grafikArama.includes("=X") ? grafikArama : `${grafikArama}.IS`;
+                            setGrafikTicker(t);
+                            setGrafikTickerLabel(grafikArama.replace(".IS",""));
+                            setGrafikDropdown(false);
+                            setGrafikArama("");
+                            fetchBuyukGrafik(grafikRange, t);
+                          }
+                        }}
                         style={{ width: "100%", background: "#1E293B", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, padding: "6px 10px", color: "#F1F5F9", fontSize: 12, outline: "none", boxSizing: "border-box" }}
                       />
+                      {grafikArama.length >= 2 && (() => {
+                        const sabit2 = ["XU100.IS","XU030.IS","USDTRY=X","EURTRY=X"];
+                        const eslesmeler = [
+                          ...sabit2.filter(t => t.includes(grafikArama)),
+                          ...BIST_HISSELER.filter(h => h.ticker.includes(grafikArama) || h.name.toUpperCase().includes(grafikArama))
+                        ];
+                        if (eslesmeler.length > 0) return null;
+                        return (
+                        <div
+                          onClick={() => {
+                            const t = grafikArama.endsWith(".IS") || grafikArama.includes("=X") ? grafikArama : `${grafikArama}.IS`;
+                            setGrafikTicker(t);
+                            setGrafikTickerLabel(grafikArama.replace(".IS",""));
+                            setGrafikDropdown(false);
+                            setGrafikArama("");
+                            fetchBuyukGrafik(grafikRange, t);
+                          }}
+                          style={{ marginTop: 4, padding: "7px 10px", background: "rgba(59,130,246,0.12)", borderRadius: 6, fontSize: 12, color: "#3B82F6", cursor: "pointer", fontWeight: 500 }}
+                          onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.2)")}
+                          onMouseLeave={e => (e.currentTarget.style.background = "rgba(59,130,246,0.12)")}
+                        >
+                          → {grafikArama} grafiğini göster
+                        </div>
+                        );
+                      })()}
                     </div>
                     <div style={{ maxHeight: 200, overflowY: "auto" }}>
                       {(() => {
