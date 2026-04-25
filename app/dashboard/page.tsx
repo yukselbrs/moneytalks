@@ -491,7 +491,7 @@ export default function DashboardPage() {
                     <Tooltip
                       contentStyle={{ background: "#0F1C2E", border: `1px solid ${color}33`, borderRadius: 8, fontSize: 12 }}
                       labelStyle={{ color: "#94A3B8", marginBottom: 4 }}
-                      formatter={(v: number) => [v.toLocaleString("tr-TR", { minimumFractionDigits: 2 }), grafikTickerLabel]}
+                      formatter={(v: unknown) => [`${typeof v === "number" ? v.toLocaleString("tr-TR", { minimumFractionDigits: 2 }) : v}`, grafikTickerLabel]}
                       cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: "4 4" }}
                     />
                     <Area
