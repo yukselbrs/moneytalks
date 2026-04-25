@@ -69,6 +69,7 @@ export default function PortfoyPage() {
   });
 
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
+  const [portfoyRiskSkor, setPortfoyRiskSkor] = useState<{ skor: number; seviye: string; yukleniyor: boolean } | null>(null);
 
   const portfoyuYukle = useCallback(async () => {
     setYükleniyor(true);
@@ -96,6 +97,26 @@ export default function PortfoyPage() {
           };
         });
         setFiyatlar(map);
+
+        // Portföy ortalama risk — tüm hisselerin skorlarını paralel çek
+        setPortfoyRiskSkor({ skor: 0, seviye: "", yukleniyor: true });
+        const riskSonuclari = await Promise.all(
+          data.map(async (p: { ticker: string; adet: number; maliyet: number }) => {
+            try {
+              const r = await fetch(`/api/risk?ticker=${p.ticker.trim()}`);
+              const rj = await r.json();
+              const fiyat = map[p.ticker.trim()]?.fiyat || p.maliyet;
+              const deger = p.adet * fiyat;
+              return { skor: rj.skor || 0, deger };
+            } catch { return { skor: 35, deger: p.adet * p.maliyet }; }
+          })
+        );
+        const toplamDeger = riskSonuclari.reduce((a, b) => a + b.deger, 0);
+        const agirlikliSkor = toplamDeger > 0
+          ? riskSonuclari.reduce((a, b) => a + (b.skor * b.deger / toplamDeger), 0)
+          : riskSonuclari.reduce((a, b) => a + b.skor, 0) / riskSonuclari.length;
+        const seviye = agirlikliSkor >= 60 ? "Yüksek" : agirlikliSkor >= 35 ? "Orta" : "Düşük";
+        setPortfoyRiskSkor({ skor: Math.round(agirlikliSkor), seviye, yukleniyor: false });
       } catch (e) { console.error("Fiyat fetch HATA:", e); }
     } finally { setYükleniyor(false); }
   }, [router]);
@@ -197,36 +218,7 @@ export default function PortfoyPage() {
   const toplamPL = toplamGuncel - toplamMaliyet;
   const toplamPLYuzde = toplamMaliyet > 0 ? (toplamPL / toplamMaliyet) * 100 : 0;
 
-  const portfoyRisk = (() => {
-    if (portfoy.length === 0) return null;
-    let puan = 0;
-    if (portfoy.length === 1) puan += 40;
-    else if (portfoy.length === 2) puan += 20;
-    else if (portfoy.length >= 5) puan -= 10;
-    const toplamDeger = portfoy.reduce((acc, p) => {
-      const f = fiyatlar[p.ticker]?.fiyat || p.maliyet;
-      return acc + p.adet * f;
-    }, 0);
-    if (toplamDeger > 0) {
-      const maxPay = Math.max(...portfoy.map((p) => {
-        const f = fiyatlar[p.ticker]?.fiyat || p.maliyet;
-        return (p.adet * f) / toplamDeger;
-      }));
-      if (maxPay > 0.6) puan += 30;
-      else if (maxPay > 0.4) puan += 15;
-    }
-    const degisimler = portfoy.map((p) => Math.abs(fiyatlar[p.ticker]?.degisim || 0)).filter((d) => d > 0);
-    if (degisimler.length > 0) {
-      const ort = degisimler.reduce((a, b) => a + b, 0) / degisimler.length;
-      if (ort > 3) puan += 25;
-      else if (ort > 1.5) puan += 10;
-    }
-    if (toplamPLYuzde < -10) puan += 20;
-    else if (toplamPLYuzde < 0) puan += 10;
-    if (puan >= 50) return { skor: "Yüksek", renk: "text-red-400", bg: "bg-red-900/20 border-red-800/40", emoji: "🔴" };
-    if (puan >= 25) return { skor: "Orta", renk: "text-yellow-400", bg: "bg-yellow-900/20 border-yellow-800/40", emoji: "🟡" };
-    return { skor: "Düşük", renk: "text-emerald-400", bg: "bg-emerald-900/20 border-emerald-800/40", emoji: "🟢" };
-  })();
+
 
   const riskRenk = (skor: string) => {
     if (skor === "Düşük") return "text-emerald-400 bg-emerald-400/10";
@@ -272,11 +264,27 @@ export default function PortfoyPage() {
                 {toplamPLYuzde >= 0 ? "+" : ""}{toplamPLYuzde.toFixed(2)}%
               </p>
             </div>
-            {portfoyRisk && (
-              <div className={`border rounded-xl p-4 ${portfoyRisk.bg}`}>
+            {portfoyRiskSkor && (
+              <div className={`border rounded-xl p-4 ${
+                portfoyRiskSkor.yukleniyor ? "bg-slate-800/60 border-slate-700" :
+                portfoyRiskSkor.seviye === "Yüksek" ? "bg-red-900/20 border-red-800/40" :
+                portfoyRiskSkor.seviye === "Orta" ? "bg-yellow-900/20 border-yellow-800/40" :
+                "bg-emerald-900/20 border-emerald-800/40"
+              }`}>
                 <p className="text-slate-400 text-xs mb-1">Portföy Riski</p>
-                <p className={`font-bold text-lg ${portfoyRisk.renk}`}>{portfoyRisk.emoji} {portfoyRisk.skor}</p>
-                <p className="text-slate-500 text-xs mt-1">{portfoy.length} hisse</p>
+                {portfoyRiskSkor.yukleniyor ? (
+                  <p className="text-slate-500 text-sm animate-pulse">Hesaplanıyor...</p>
+                ) : (
+                  <>
+                    <p className={`font-bold text-lg ${
+                      portfoyRiskSkor.seviye === "Yüksek" ? "text-red-400" :
+                      portfoyRiskSkor.seviye === "Orta" ? "text-yellow-400" : "text-emerald-400"
+                    }`}>
+                      {portfoyRiskSkor.seviye === "Yüksek" ? "🔴" : portfoyRiskSkor.seviye === "Orta" ? "🟡" : "🟢"} {portfoyRiskSkor.seviye}
+                    </p>
+                    <p className="text-slate-500 text-xs mt-1">{portfoy.length} hisse · Ort. {portfoyRiskSkor.skor}/100</p>
+                  </>
+                )}
               </div>
             )}
           </div>
