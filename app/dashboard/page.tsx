@@ -311,7 +311,9 @@ export default function DashboardPage() {
     <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
 
-      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px" }}>
+      <main style={{ maxWidth: 1600, margin: "0 auto", padding: "24px 32px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 20, alignItems: "start" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h1 style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC" }}>{selamlama()}, {firstName}</h1>
@@ -369,12 +371,10 @@ export default function DashboardPage() {
           </button>
         </form>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Piyasa Özeti */}
         <div>
-          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Piyasa Özeti</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Piyasa Özeti</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
             {[
               { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
               { label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-", gecikme: true },
@@ -395,7 +395,7 @@ export default function DashboardPage() {
               const d = pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i)} ${sy(v)}`).join(" ");
               const area = d + ` L ${w} ${h} L 0 ${h} Z`;
               return (
-                <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
+                <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 11, color: "#64748B", fontWeight: 500 }}>{e.label}</span>
                     {e.gecikme && (
@@ -706,32 +706,41 @@ export default function DashboardPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {/* Portföy Özeti */}
         {portfoyOzet && (
-          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "12px 16px", marginBottom: 0 }}>
+          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 0 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Portföy Özeti</span>
               <a href="/portfoy" style={{ fontSize: 10, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-              <div>
-                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Toplam Maliyet</p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+            {/* Toplam Değer büyük */}
+            <div style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>Toplam Değer</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.5px" }}>
+                {portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+              </p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444", marginTop: 2 }}>
+                {portfoyOzet.toplamPLYuzde >= 0 ? "%" : "%-"}{Math.abs(portfoyOzet.toplamPLYuzde).toFixed(2).replace(".", ",")} ({portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺)
+              </p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
+                <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>Ana Para</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
               </div>
-              <div>
-                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Güncel Değer</p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
-              </div>
-              <div>
-                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Toplam K/Z</p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
+                <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>K/Z ₺</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
                   {portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
                 </p>
-                <p style={{ fontSize: 10, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
+                <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>Hisse</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.hisseSayisi} hisse</p>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
+                <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>Getiri</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
                   {portfoyOzet.toplamPLYuzde >= 0 ? "+" : ""}{portfoyOzet.toplamPLYuzde.toFixed(2)}%
                 </p>
-              </div>
-              <div>
-                <p style={{ fontSize: 10, color: "#475569", marginBottom: 3 }}>Hisse Sayısı</p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.hisseSayisi} hisse</p>
               </div>
             </div>
           </div>
