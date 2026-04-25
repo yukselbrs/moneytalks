@@ -123,6 +123,7 @@ export default function DashboardPage() {
   const [grafikTickerLabel, setGrafikTickerLabel] = useState("XU100");
   const [grafikArama, setGrafikArama] = useState("");
   const [grafikDropdown, setGrafikDropdown] = useState(false);
+  const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
 
   const fetchBuyukGrafik = React.useCallback(async (range: string, ticker?: string) => {
     setGrafikYukleniyor(true);
@@ -134,6 +135,29 @@ export default function DashboardPage() {
     } catch {}
     setGrafikYukleniyor(false);
   }, [grafikTicker]);
+
+  const fetchAiPanel = React.useCallback(async (ticker?: string) => {
+    const t = (ticker || grafikTicker).replace(".IS","").replace("=X","");
+    const temiz = ticker ? t : grafikTickerLabel;
+    setAiPanel({ skor: 0, seviye: "", yorum: "", guven: "", yukleniyor: true });
+    try {
+      const [riskRes, analizRes] = await Promise.all([
+        fetch(`/api/risk?ticker=${temiz}`),
+        fetch("/api/analiz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ticker: temiz, veriOnly: false }) }),
+      ]);
+      const risk = await riskRes.json();
+      const analiz = await analizRes.json();
+      const skor = risk.skor ? Math.round(100 - risk.skor) : 50;
+      const analizMetin: string = analiz.analiz || "";
+      // İlk anlamlı paragrafı al - başlıkları ve boş satırları atla
+      const satirlar = analizMetin.split("\n").map((s: string) => s.replace(/#+|\*\*/g, "").trim()).filter((s: string) => s.length > 30);
+      const yorum = satirlar[0] ? (satirlar[0].length > 140 ? satirlar[0].slice(0, 140) + "..." : satirlar[0]) : "";
+      const guven = skor >= 65 ? "Yüksek" : skor >= 45 ? "Orta" : "Düşük";
+      setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
+    } catch {
+      setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz alınamadı.", guven: "Düşük", yukleniyor: false });
+    }
+  }, [grafikTicker, grafikTickerLabel]);
 
   const bildirimler = [
     { zaman: "09:55", mesaj: `XU100 güne %${piyasa.xu100.change} ile başladı.`, tip: piyasa.xu100.change.startsWith("%-") ? "dusus" : "yukselis" },
@@ -164,6 +188,7 @@ export default function DashboardPage() {
       }
       setLoading(false);
       fetchBuyukGrafik("1mo");
+      fetchAiPanel();
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
     const fetchSparklines = () => {
@@ -367,8 +392,9 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Piyasa Grafiği */}
-        <div style={{ marginTop: 4 }}>
+        {/* Piyasa Grafiği + AI Panel */}
+        <div style={{ marginTop: 4, display: "grid", gridTemplateColumns: "1fr 300px", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
@@ -473,7 +499,7 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative" }}>
+          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative", flexGrow: 1, minHeight: 220 }}>
             {grafikYukleniyor && (
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(11,18,32,0.7)", borderRadius: 12, zIndex: 10 }}>
                 <span style={{ fontSize: 12, color: "#64748B" }}>Yükleniyor...</span>
@@ -487,7 +513,7 @@ export default function DashboardPage() {
               const mx = Math.max(...pts);
               const pad = (mx - mn) * 0.05;
               return (
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                   <AreaChart data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="grafikGrad" x1="0" y1="0" x2="0" y2="1">
@@ -531,6 +557,66 @@ export default function DashboardPage() {
               );
             })()}
           </div>
+        </div>
+
+        {/* AI Panel */}
+        <div style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
+          {/* Başlık */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: "#475569", letterSpacing: "0.1em", textTransform: "uppercase" }}>Yapay Zekâ Analizi</p>
+            <button onClick={() => fetchAiPanel()}
+              style={{ fontSize: 10, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 20, padding: "3px 12px", cursor: "pointer" }}>
+              ↻ Yeni
+            </button>
+          </div>
+
+          {aiPanel?.yukleniyor ? (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: "24px 0" }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", border: "3px solid rgba(59,130,246,0.2)", borderTopColor: "#3B82F6", animation: "spin 0.8s linear infinite" }}/>
+              <span style={{ fontSize: 11, color: "#334155" }}>Analiz yapılıyor...</span>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          ) : aiPanel ? (
+            <>
+              {/* Skor ortada büyük */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                <div style={{ position: "relative", width: 110, height: 110 }}>
+                  <svg viewBox="0 0 110 110" style={{ width: 110, height: 110, transform: "rotate(-90deg)" }}>
+                    <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8"/>
+                    <circle cx="55" cy="55" r="46" fill="none"
+                      stroke={aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444"}
+                      strokeWidth="8" strokeLinecap="round"
+                      strokeDasharray={`${(aiPanel.skor / 100) * 289} 289`}
+                      style={{ filter: `drop-shadow(0 0 6px ${aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444"}66)` }}/>
+                  </svg>
+                  <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1px" }}>{aiPanel.skor}</span>
+                    <span style={{ fontSize: 9, color: "#475569", fontWeight: 500 }}>AI Skoru</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444", marginBottom: 2 }}>
+                    {aiPanel.skor >= 65 ? "💚 Güçlü Al" : aiPanel.skor >= 55 ? "🟢 Al" : aiPanel.skor >= 45 ? "⚪ Nötr" : aiPanel.skor >= 35 ? "🔴 Sat" : "💔 Güçlü Sat"}
+                  </p>
+                  <p style={{ fontSize: 10, color: "#334155" }}>
+                    Güven: <span style={{ color: aiPanel.guven === "Yüksek" ? "#10B981" : aiPanel.guven === "Orta" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Yorum */}
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
+                <p style={{ fontSize: 11, color: "#64748B", lineHeight: 1.7 }}>{aiPanel.yorum}</p>
+              </div>
+
+              {/* Alt buton */}
+              <button onClick={() => router.push(`/hisse/${grafikTickerLabel}`)}
+                style={{ width: "100%", padding: "9px 0", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                Detaylı Analiz Gör →
+              </button>
+            </>
+          ) : null}
+        </div>
         </div>
 
         {/* Popüler Hisseler */}
