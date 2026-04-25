@@ -42,11 +42,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     },
     {
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-      label: "Izleme Listem", href: "/izleme",
+      label: "İzleme Listem", href: "/izleme",
     },
     {
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>,
-      label: "Portfoy", href: "/portfoy",
+      label: "Portföy", href: "/portfoy",
     },
     {
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
@@ -134,17 +134,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }}>
           <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
           <p style={{ color: "#F8FAFC", fontSize: 13, fontWeight: 600, marginBottom: 6, lineHeight: 1.4 }}>
-            Pro'ya Yukseltin!
+            Pro'ya Yükseltin!
           </p>
           <p style={{ color: "#64748B", fontSize: 11, marginBottom: 12, lineHeight: 1.5 }}>
-            Sinırsız analiz, gercek zamanli veriler ve cok daha fazlasi.
+            Sınırsız analiz, gerçek zamanlı veriler ve çok daha fazlası.
           </p>
           <a href="/pro" style={{
             display: "block", background: "linear-gradient(90deg, #2563EB, #3B82F6)",
             color: "#fff", fontSize: 12, fontWeight: 600,
             padding: "8px 12px", borderRadius: 8, textDecoration: "none",
           }}>
-            Pro'ya Yukselt &gt;
+            Pro'ya Yükselt &gt;
           </a>
         </div>
 
@@ -157,7 +157,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <button onClick={handleLogout} className="sb-item" style={{ color: "#64748B", background: "none", border: "none" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Cikis Yap
+            Çıkış Yap
           </button>
           <a href="/profile" className="sb-item" style={{ textDecoration: "none", color: "#64748B", marginTop: 4 }}>
             <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#3B82F6", flexShrink: 0 }}>

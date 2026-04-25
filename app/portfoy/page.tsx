@@ -5,7 +5,7 @@ import { supabase } from "@/components/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-interface PortfoyItem {
+interface PortföyItem {
   id: string;
   ticker: string;
   adet: number;
@@ -17,24 +17,24 @@ interface FiyatMap {
 }
 
 interface RiskMap {
-  [ticker: string]: { skor: string; ozet: string; yukleniyor: boolean; acik: boolean };
+  [ticker: string]: { skor: string; ozet: string; yükleniyor: boolean; acik: boolean };
 }
 
 type Sekme = "portfoy" | "ekle";
 
-export default function PortfoyPage() {
+export default function PortföyPage() {
   const router = useRouter();
-  const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
+  const [portfoy, setPortföy] = useState<PortföyItem[]>([]);
   const [fiyatlar, setFiyatlar] = useState<FiyatMap>({});
   const [riskler, setRiskler] = useState<RiskMap>({});
-  const [yukleniyor, setYukleniyor] = useState(true);
+  const [yükleniyor, setYükleniyor] = useState(true);
   const [sekme, setSekme] = useState<Sekme>("portfoy");
   const [form, setForm] = useState({ ticker: "", adet: "", maliyet: "" });
   const [formHata, setFormHata] = useState("");
-  const [formYukleniyor, setFormYukleniyor] = useState(false);
+  const [formYükleniyor, setFormYükleniyor] = useState(false);
 
   const portfoyuYukle = useCallback(async () => {
-    setYukleniyor(true);
+    setYükleniyor(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/login"); return; }
@@ -44,10 +44,10 @@ export default function PortfoyPage() {
         .select("id, ticker, adet, maliyet")
         .order("created_at", { ascending: true });
 
-      if (error) { console.error("Portfoy yuklenemedi", error); return; }
-      if (!data || data.length === 0) { setPortfoy([]); return; }
+      if (error) { console.error("Portföy yuklenemedi", error); return; }
+      if (!data || data.length === 0) { setPortföy([]); return; }
 
-      setPortfoy(data);
+      setPortföy(data);
 
       const tickers = data.map((p: { ticker: string }) => p.ticker.trim()).join(",");
       console.log("Fiyat fetch basliyor:", tickers);
@@ -70,7 +70,7 @@ export default function PortfoyPage() {
         console.error("Fiyat fetch HATA:", e);
       }
     } finally {
-      setYukleniyor(false);
+      setYükleniyor(false);
     }
   }, [router]);
 
@@ -80,7 +80,7 @@ export default function PortfoyPage() {
 
   const riskSkoru = useCallback(async (ticker: string) => {
     if (riskler[ticker]?.skor) return;
-    setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true, acik: true } }));
+    setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yükleniyor: true, acik: true } }));
     try {
       const res = await fetch("/api/analiz", {
         method: "POST",
@@ -94,9 +94,9 @@ export default function PortfoyPage() {
       if (lower.includes("yuksek risk") || lower.includes("dikkatli")) skor = "Yüksek";
       else if (lower.includes("dusuk risk") || lower.includes("guvenli") || lower.includes("olumlu")) skor = "Düşük";
       const ozet = analiz.slice(0, 220).replace(/#+/g, "").trim() + "...";
-      setRiskler((prev) => ({ ...prev, [ticker]: { skor, ozet, yukleniyor: false, acik: true } }));
+      setRiskler((prev) => ({ ...prev, [ticker]: { skor, ozet, yükleniyor: false, acik: true } }));
     } catch {
-      setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Analiz alinamadi.", yukleniyor: false, acik: true } }));
+      setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Analiz alınamadı.", yükleniyor: false, acik: true } }));
     }
   }, [riskler]);
 
@@ -106,8 +106,8 @@ export default function PortfoyPage() {
 
   const hisseEkle = async () => {
     setFormHata("");
-    if (!form.ticker || !form.adet || !form.maliyet) { setFormHata("Tum alanlari doldurun."); return; }
-    setFormYukleniyor(true);
+    if (!form.ticker || !form.adet || !form.maliyet) { setFormHata("Tüm alanları doldurun."); return; }
+    setFormYükleniyor(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/login"); return; }
@@ -120,7 +120,7 @@ export default function PortfoyPage() {
       setSekme("portfoy");
       await portfoyuYukle();
     } finally {
-      setFormYukleniyor(false);
+      setFormYükleniyor(false);
     }
   };
 
@@ -128,25 +128,25 @@ export default function PortfoyPage() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", ticker);
-    setPortfoy((prev) => prev.filter((p) => p.ticker !== ticker));
+    setPortföy((prev) => prev.filter((p) => p.ticker !== ticker));
   };
 
-  const plHesapla = (item: PortfoyItem) => {
-    const guncel = fiyatlar[item.ticker]?.fiyat;
-    if (!guncel) return null;
+  const plHesapla = (item: PortföyItem) => {
+    const güncel = fiyatlar[item.ticker]?.fiyat;
+    if (!güncel) return null;
     const maliyet_toplam = item.adet * item.maliyet;
-    const guncel_toplam = item.adet * guncel;
-    const pl = guncel_toplam - maliyet_toplam;
+    const güncel_toplam = item.adet * güncel;
+    const pl = güncel_toplam - maliyet_toplam;
     const plYuzde = (pl / maliyet_toplam) * 100;
-    return { maliyet_toplam, guncel_toplam, pl, plYuzde };
+    return { maliyet_toplam, güncel_toplam, pl, plYuzde };
   };
 
   const toplamMaliyet = portfoy.reduce((acc, p) => acc + p.adet * p.maliyet, 0);
-  const toplamGuncel = portfoy.reduce((acc, p) => {
+  const toplamGüncel = portfoy.reduce((acc, p) => {
     const f = fiyatlar[p.ticker]?.fiyat;
     return acc + (f ? p.adet * f : p.adet * p.maliyet);
   }, 0);
-  const toplamPL = toplamGuncel - toplamMaliyet;
+  const toplamPL = toplamGüncel - toplamMaliyet;
   const toplamPLYuzde = toplamMaliyet > 0 ? (toplamPL / toplamMaliyet) * 100 : 0;
 
   const portfoyRisk = (() => {
@@ -226,7 +226,7 @@ export default function PortfoyPage() {
                 />
               </div>
               <div>
-                <label className="text-slate-400 text-xs mb-1 block">Ortalama Maliyet (TL)</label>
+                <label className="text-slate-400 text-xs mb-1 block">Ortalama Maliyet (₺)</label>
                 <input
                   type="number"
                   className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
@@ -239,10 +239,10 @@ export default function PortfoyPage() {
             {formHata && <p className="text-red-400 text-xs mt-3">{formHata}</p>}
             <button
               onClick={hisseEkle}
-              disabled={formYukleniyor}
+              disabled={formYükleniyor}
               className="mt-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
             >
-              {formYukleniyor ? "Kaydediliyor..." : "Kaydet"}
+              {formYükleniyor ? "Kaydediliyor…" : "Kaydet"}
             </button>
           </div>
         )}
@@ -255,7 +255,7 @@ export default function PortfoyPage() {
             </div>
             <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
               <p className="text-slate-400 text-xs mb-1">Güncel Deger</p>
-              <p className="text-white font-bold text-lg">{toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL</p>
+              <p className="text-white font-bold text-lg">{toplamGüncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL</p>
             </div>
             <div className={`border rounded-xl p-4 ${toplamPL >= 0 ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
               <p className="text-slate-400 text-xs mb-1">Toplam K/Z</p>
@@ -280,14 +280,14 @@ export default function PortfoyPage() {
 
         {sekme === "portfoy" && (
           <>
-            {yukleniyor ? (
+            {yükleniyor ? (
               <div className="text-slate-400 text-sm text-center py-12">Yükleniyor...</div>
             ) : portfoy.length === 0 ? (
               <div className="text-center py-16 text-slate-500">
                 <p className="text-4xl mb-3">💼</p>
                 <p className="text-sm">Henüz portföyünüzde hisse yok.</p>
                 <button onClick={() => setSekme("ekle")} className="mt-4 text-blue-400 hover:text-blue-300 text-sm underline">
-                  Ilk hissenizi ekleyin
+                  İlk hissenizi ekleyin
                 </button>
               </div>
             ) : (
@@ -332,7 +332,7 @@ export default function PortfoyPage() {
                       <div className="mt-3 pt-3 border-t border-slate-700/60 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           {risk && risk.acik ? (
-                            risk.yukleniyor ? (
+                            risk.yükleniyor ? (
                               <span className="text-slate-400 text-xs animate-pulse">AI analiz yapiliyor...</span>
                             ) : (
                               <>
@@ -345,7 +345,7 @@ export default function PortfoyPage() {
                             )
                           ) : risk && !risk.acik ? (
                             <button onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], acik: true } }))} className="text-xs text-blue-400 hover:text-blue-300 underline">
-                              Risk Skorunu Goster
+                              Risk Skorunu Göster
                             </button>
                           ) : (
                             <button onClick={() => riskSkoru(item.ticker)} className="text-xs text-blue-400 hover:text-blue-300 underline">

@@ -110,10 +110,10 @@ export default function DashboardPage() {
 
   const selamlama = () => {
     const saat = new Date().getHours();
-    if (saat >= 5 && saat < 12) return "Gunaydın";
-    if (saat >= 12 && saat < 18) return "Iyi gunler";
-    if (saat >= 18 && saat < 24) return "Iyi aksamlar";
-    return "Iyi geceler";
+    if (saat >= 5 && saat < 12) return "Günaydın";
+    if (saat >= 12 && saat < 18) return "İyi günler";
+    if (saat >= 18 && saat < 24) return "İyi akşamlar";
+    return "İyi geceler";
   };
   const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
 
@@ -291,7 +291,7 @@ export default function DashboardPage() {
 
         {/* Piyasa Özeti */}
         <div>
-          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Piyasa Ozeti</p>
+          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Piyasa Özeti</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
             {[
               { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
