@@ -11,10 +11,10 @@ interface HisseVeri {
   oncekiKapanis: number;
   degisim: number | null;
   hacim: number;
-  yillikYüksek: number;
-  yillikDüşük: number;
-  gunlukYüksek: number;
-  gunlukDüşük: number;
+  yillikYuksek: number;
+  yillikDusuk: number;
+  gunlukYuksek: number;
+  gunlukDusuk: number;
 }
 
 function renderMarkdown(text: string) {
@@ -134,10 +134,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   const sections = analiz ? renderMarkdown(analiz) : [];
 
-  const gunlukDegisim = veri ? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDüşük)) / (veri.oncekiKapanis || veri.gunlukDüşük) * 100) : 0;
+  const gunlukDegisim = veri ? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDusuk)) / (veri.oncekiKapanis || veri.gunlukDusuk) * 100) : 0;
   const kartlar = veri ? [
-    { label: "52 Hafta En Yüksek", value: `${veri.yillikYüksek} ₺` },
-    { label: "52 Hafta En Düşük", value: `${veri.yillikDüşük} ₺` },
+    { label: "52 Hafta En Yüksek", value: `${veri.yillikYuksek} ₺` },
+    { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
     { label: "Günlük Hacim", value: veri.hacim.toLocaleString("tr-TR") + " adet" },
     { label: "İşlem Hacmi", value: (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0 }) + " ₺" },
   ] : [];
@@ -174,7 +174,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             </div>
             {veri && (
               <p style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
-                {`Günlük: ${veri.gunlukDüşük} – ${veri.gunlukYüksek} ₺`}
+                {`Günlük: ${veri.gunlukDusuk} – ${veri.gunlukYuksek} ₺`}
               </p>
             )}
             <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
