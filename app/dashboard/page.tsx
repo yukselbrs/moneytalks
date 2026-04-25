@@ -583,44 +583,42 @@ export default function DashboardPage() {
             </div>
           ) : aiPanel ? (
             <>
-              {/* Skor ortada büyük */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                <div style={{ position: "relative", width: 110, height: 110 }}>
-                  <svg viewBox="0 0 110 110" style={{ width: 110, height: 110, transform: "rotate(-90deg)" }}>
-                    <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8"/>
-                    <circle cx="55" cy="55" r="46" fill="none"
+              {/* Yatay layout: sol skor, sağ bilgi */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+                {/* Skor dairesi */}
+                <div style={{ position: "relative", width: 90, height: 90, flexShrink: 0 }}>
+                  <svg viewBox="0 0 90 90" style={{ width: 90, height: 90, transform: "rotate(-90deg)" }}>
+                    <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="7"/>
+                    <circle cx="45" cy="45" r="38" fill="none"
                       stroke={aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444"}
-                      strokeWidth="8" strokeLinecap="round"
-                      strokeDasharray={`${(aiPanel.skor / 100) * 289} 289`}
-                      style={{ filter: `drop-shadow(0 0 6px ${aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444"}66)` }}/>
+                      strokeWidth="7" strokeLinecap="round"
+                      strokeDasharray={`${(aiPanel.skor / 100) * 238.6} 238.6`}
+                      style={{ filter: `drop-shadow(0 0 5px ${aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444"}88)` }}/>
                   </svg>
                   <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1px" }}>{aiPanel.skor}</span>
-                    <span style={{ fontSize: 9, color: "#475569", fontWeight: 500 }}>AI Skoru</span>
+                    <span style={{ fontSize: 24, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1px" }}>{aiPanel.skor}</span>
+                    <span style={{ fontSize: 8, color: "#475569", fontWeight: 500 }}>AI Skoru</span>
                   </div>
                 </div>
-                <div style={{ textAlign: "center" }}>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444", marginBottom: 2 }}>
-                    {aiPanel.skor >= 65 ? "💚 Güçlü Al" : aiPanel.skor >= 55 ? "🟢 Al" : aiPanel.skor >= 45 ? "⚪ Nötr" : aiPanel.skor >= 35 ? "🔴 Sat" : "💔 Güçlü Sat"}
+                {/* Sağ bilgi */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444", marginBottom: 6 }}>
+                    {aiPanel.skor >= 65 ? "Güçlü Görünüm" : aiPanel.skor >= 55 ? "Olumlu Görünüm" : aiPanel.skor >= 45 ? "Nötr Görünüm" : aiPanel.skor >= 35 ? "Zayıf Görünüm" : "Olumsuz Görünüm"}
                   </p>
-                  <p style={{ fontSize: 10, color: "#334155" }}>
+                  <p style={{ fontSize: 11, color: "#94A3B8", lineHeight: 1.6 }}>{aiPanel.yorum}</p>
+                  <p style={{ fontSize: 10, color: "#334155", marginTop: 6 }}>
                     Güven: <span style={{ color: aiPanel.guven === "Yüksek" ? "#10B981" : aiPanel.guven === "Orta" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
                   </p>
                 </div>
               </div>
 
-              {/* Yorum */}
-              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
-                <p style={{ fontSize: 11, color: "#64748B", lineHeight: 1.7 }}>{aiPanel.yorum}</p>
-              </div>
-
               {/* Alt buton */}
               <button onClick={() => router.push(`/hisse/${grafikTickerLabel}`)}
-                style={{ width: "100%", padding: "9px 0", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                style={{ width: "100%", padding: "9px 0", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: "auto" }}>
                 Detaylı Analiz Gör →
               </button>
-              <p style={{ fontSize: 9, color: "#1E293B", marginTop: 8, textAlign: "center", lineHeight: 1.5 }}>
-                Bu içerik yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.
+              <p style={{ fontSize: 9, color: "#334155", marginTop: 6, textAlign: "center", lineHeight: 1.5 }}>
+                Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.
               </p>
             </>
           ) : null}
