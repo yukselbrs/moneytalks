@@ -738,6 +738,46 @@ export default function DashboardPage() {
         )}
 
 
+          {/* En Çok Yükselenler / Düşenler */}
+          {Object.keys(fiyatlar).length > 0 && (() => {
+            const liste = Object.entries(fiyatlar)
+              .filter(([, v]) => v && v.degisim)
+              .map(([ticker, v]) => ({ ticker, degisim: parseFloat(String(v!.degisim).replace(",",".")), fiyat: v!.fiyat, yukselis: v!.yukselis }))
+              .sort((a, b) => Math.abs(b.degisim) - Math.abs(a.degisim));
+            const yukselenler = liste.filter(x => x.yukselis).slice(0, 3);
+            const dusenler = liste.filter(x => !x.yukselis).slice(0, 3);
+            return (
+              <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Yükselenler</span>
+                </div>
+                {yukselenler.map((h, i) => (
+                  <div key={h.ticker} onClick={() => router.push(`/hisse/${h.ticker}`)}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < yukselenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 11, color: "#94A3B8" }}>{h.fiyat} ₺</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#10B981" }}>▲ %{Math.abs(h.degisim).toFixed(2).replace(".", ",")}</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", borderTop: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Düşenler</span>
+                </div>
+                {dusenler.map((h, i) => (
+                  <div key={h.ticker} onClick={() => router.push(`/hisse/${h.ticker}`)}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < dusenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 11, color: "#94A3B8" }}>{h.fiyat} ₺</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>▼ %-{Math.abs(h.degisim).toFixed(2).replace(".", ",")}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
           {/* KAP Haberleri */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
