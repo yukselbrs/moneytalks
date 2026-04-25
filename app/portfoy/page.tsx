@@ -251,16 +251,16 @@ export default function PortföyPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
               <p className="text-slate-400 text-xs mb-1">Toplam Maliyet</p>
-              <p className="text-white font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL</p>
+              <p className="text-white font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
             </div>
             <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
               <p className="text-slate-400 text-xs mb-1">Güncel Deger</p>
-              <p className="text-white font-bold text-lg">{toplamGüncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL</p>
+              <p className="text-white font-bold text-lg">{toplamGüncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
             </div>
             <div className={`border rounded-xl p-4 ${toplamPL >= 0 ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
               <p className="text-slate-400 text-xs mb-1">Toplam K/Z</p>
               <p className={`font-bold text-lg ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                {toplamPL >= 0 ? "+" : ""}{toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL
+                {toplamPL >= 0 ? "+" : ""}{toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
               </p>
               <p className={`text-xs ${toplamPL >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                 {toplamPLYuzde >= 0 ? "+" : ""}{toplamPLYuzde.toFixed(2)}%
@@ -311,16 +311,16 @@ export default function PortföyPage() {
                             )}
                           </div>
                           <p className="text-slate-400 text-xs">
-                            {item.adet} lot · Maliyet: {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL
+                            {item.adet} lot · Maliyet: {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
                           </p>
                         </div>
                         <div className="text-right flex-shrink-0">
                           {fiyat ? (
                             <>
-                              <p className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} TL</p>
+                              <p className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</p>
                               {pl && (
                                 <p className={`text-xs font-medium ${pl.pl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                                  {pl.pl >= 0 ? "+" : ""}{pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} TL ({pl.plYuzde >= 0 ? "+" : ""}{pl.plYuzde.toFixed(2)}%)
+                                  {pl.pl >= 0 ? "+" : ""}{pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺ ({pl.plYuzde >= 0 ? "+" : ""}{pl.plYuzde.toFixed(2)}%)
                                 </p>
                               )}
                             </>
