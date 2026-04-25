@@ -430,9 +430,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Piyasa Grafiği + AI Panel */}
-        <div style={{ marginTop: 4, display: "grid", gridTemplateColumns: "1fr 300px", gap: 12 }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        {/* Piyasa Grafiği */}
+        <div style={{ marginTop: 4 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
@@ -597,7 +596,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* AI Panel */}
+        {/* AI Panel - Grafik altında küçük */}
         <div style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
           {/* Başlık */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
@@ -800,7 +799,6 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-        </div>
         </div>
 
         {/* Alt 3 Kolon */}
