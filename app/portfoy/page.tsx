@@ -19,8 +19,11 @@ interface FiyatMap {
 interface RiskBilesen {
   ad: string; deger: string; risk: number; agirlik: number;
 }
+interface RiskEntry {
+  skor: string; ozet: string; yukleniyor: boolean; acik: boolean; skor100?: number; bilesenler?: RiskBilesen[]; detay?: boolean;
+}
 interface RiskMap {
-  [ticker: string]: { skor: string; ozet: string; yukleniyor: boolean; acik: boolean; skor100?: number; bilesenler?: RiskBilesen[] };
+  [ticker: string]: RiskEntry;
 }
 
 interface LotModal {
@@ -337,11 +340,46 @@ export default function PortfoyPage() {
                         <div className="mt-1">
                           {risk && risk.acik ? (
                             risk.yukleniyor ? (
-                              <span className="text-slate-500 text-xs animate-pulse">AI analiz...</span>
+                              <span className="text-slate-500 text-xs animate-pulse">Hesaplanıyor...</span>
                             ) : (
-                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)}`}>
-                                {risk.skor} Risk
-                              </span>
+                              <div>
+                                <button
+                                  onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
+                                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
+                                >
+                                  {risk.skor} Risk {risk.skor100 !== undefined ? `(${risk.skor100}/100)` : ""} {(risk as RiskEntry).detay ? "▲" : "▼"}
+                                </button>
+                                {(risk as RiskEntry).detay && risk.bilesenler && (
+                                  <div className="mt-2 bg-slate-900/80 border border-slate-700 rounded-lg p-3 space-y-2 min-w-[280px]">
+                                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">Risk Bileşenleri</p>
+                                    {risk.bilesenler.map((b, i) => {
+                                      const aciklama: Record<string, string> = {
+                                        "Beta (Sistematik Risk)": "Piyasaya karşı duyarlılık (CAPM). >1 ise piyasadan daha oynak.",
+                                        "Volatilite (Yillik)": "Yıllık fiyat oynaklığı. Yüksekse getiri belirsizliği artar.",
+                                        "52H Pozisyonu": "Yıllık aralıktaki konum. %90+ aşırı alım, %15- dip riski.",
+                                        "Momentum (20g)": "Son 20 gün fiyat trendi. Negatifse düşüş baskısı var.",
+                                        "Hacim Anomalisi": "Günlük hacim / ort. hacim. >2x anormal aktivite sinyali.",
+                                        "RSI (14)": "Göreceli güç endeksi. >70 aşırı alım, <30 aşırı satım.",
+                                        "Gunluk Range": "Günlük fiyat aralığı/fiyat. Yüksekse intraday volatilite yüksek.",
+                                      };
+                                      const riskBar = Math.round((b.risk / 80) * 100);
+                                      const barRenk = b.risk >= 55 ? "bg-red-500" : b.risk >= 35 ? "bg-yellow-500" : "bg-emerald-500";
+                                      return (
+                                        <div key={i} className="space-y-1">
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-slate-300 text-xs font-medium">{b.ad}</span>
+                                            <span className="text-slate-400 text-xs">{b.deger}</span>
+                                          </div>
+                                          <div className="w-full bg-slate-700 rounded-full h-1">
+                                            <div className={`h-1 rounded-full ${barRenk}`} style={{ width: `${Math.min(riskBar, 100)}%` }} />
+                                          </div>
+                                          <p className="text-slate-600 text-xs leading-tight">{aciklama[b.ad] || ""}</p>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
                             )
                           ) : (
                             <button onClick={() => riskSkoru(item.ticker)} className="text-xs text-slate-500 hover:text-blue-400 transition-colors">
