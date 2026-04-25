@@ -612,11 +612,18 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Alt buton */}
-              <button onClick={() => router.push(`/hisse/${grafikTickerLabel}`)}
-                style={{ width: "100%", padding: "9px 0", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: "auto" }}>
-                Detaylı Analiz Gör →
-              </button>
+              {/* Alt buton - Pro kilitli */}
+              <div style={{ position: "relative", marginTop: "auto" }} className="pro-btn-wrap">
+                <button
+                  disabled
+                  style={{ width: "100%", padding: "9px 0", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#475569", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  🔒 Detaylı Analiz Gör
+                </button>
+                <div className="pro-tooltip" style={{ display: "none", position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", borderRadius: 6, padding: "6px 12px", fontSize: 11, color: "#F97316", whiteSpace: "nowrap", zIndex: 50 }}>
+                  ⚡ Pro üyelik gereklidir
+                </div>
+              </div>
+              <style>{`.pro-btn-wrap:hover .pro-tooltip { display: block !important; }`}</style>
               <p style={{ fontSize: 9, color: "#334155", marginTop: 6, textAlign: "center", lineHeight: 1.5 }}>
                 Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.
               </p>
