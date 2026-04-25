@@ -852,7 +852,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Alt 3 Kolon */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 4 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 4 }}>
           {/* İzleme Listesi */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -958,46 +958,6 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Portföy Performansı */}
-          <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
-            <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Portföy Performansı</span>
-              <a href="/portfoy" style={{ fontSize: 10, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
-            </div>
-            {portfoyOzet ? (
-              <div style={{ padding: "16px 14px" }}>
-                <p style={{ fontSize: 22, fontWeight: 800, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
-                  {portfoyOzet.toplamPLYuzde >= 0 ? "+" : ""}{portfoyOzet.toplamPLYuzde.toFixed(2)}%
-                </p>
-                <p style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Toplam Getiri</p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 14 }}>
-                  <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
-                    <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>Ana Para</p>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
-                  </div>
-                  <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
-                    <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>Güncel Değer</p>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
-                  </div>
-                  <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
-                    <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>K/Z ₺</p>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
-                      {portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
-                    </p>
-                  </div>
-                  <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
-                    <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>Hisse</p>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.hisseSayisi} hisse</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ padding: "20px 14px", textAlign: "center" }}>
-                <p style={{ fontSize: 12, color: "#334155" }}>Portföy verisi bulunamadı</p>
-                <a href="/portfoy" style={{ fontSize: 11, color: "#3B82F6" }}>Portföy ekle →</a>
-              </div>
-            )}
-          </div>
 
         </div>
       </main>
