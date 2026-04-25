@@ -141,17 +141,22 @@ export default function DashboardPage() {
     const temiz = ticker ? t : grafikTickerLabel;
     setAiPanel({ skor: 0, seviye: "", yorum: "", guven: "", yukleniyor: true });
     try {
-      const [riskRes, analizRes] = await Promise.all([
+      const [riskRes, yorumRes] = await Promise.all([
         fetch(`/api/risk?ticker=${temiz}`),
-        fetch("/api/analiz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ticker: temiz, veriOnly: false }) }),
+        fetch("/api/analiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ticker: temiz, veriOnly: false, kisaYorum: true }),
+        }),
       ]);
       const risk = await riskRes.json();
-      const analiz = await analizRes.json();
+      const yorumJson = await yorumRes.json();
       const skor = risk.skor ? Math.round(100 - risk.skor) : 50;
-      const analizMetin: string = analiz.analiz || "";
-      // İlk anlamlı paragrafı al - başlıkları ve boş satırları atla
-      const satirlar = analizMetin.split("\n").map((s: string) => s.replace(/#+|\*\*/g, "").trim()).filter((s: string) => s.length > 30);
-      const yorum = satirlar[0] ? (satirlar[0].length > 140 ? satirlar[0].slice(0, 140) + "..." : satirlar[0]) : "";
+      const analizMetin: string = yorumJson.analiz || "";
+      const satirlar = analizMetin.split("\n")
+        .map((s: string) => s.replace(/[#*]/g, "").trim())
+        .filter((s: string) => s.length > 20 && !s.toUpperCase().includes("PROFİL") && !s.toUpperCase().includes("ANALİZ") && !s.toUpperCase().includes("ENDEKS"));
+      const yorum = satirlar[0] ? (satirlar[0].length > 150 ? satirlar[0].slice(0, 150) + "..." : satirlar[0]) : "Analiz yükleniyor...";
       const guven = skor >= 65 ? "Yüksek" : skor >= 45 ? "Orta" : "Düşük";
       setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
     } catch {
