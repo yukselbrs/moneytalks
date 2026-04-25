@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -318,7 +318,8 @@ export default function PortfoyPage() {
                   const risk = riskler[item.ticker];
                   const isPos = pl ? pl.pl >= 0 : null;
                   return (
-                    <tr key={item.id} className={`hover:bg-slate-700/20 transition-colors ${idx !== portfoy.length - 1 ? "border-b border-slate-700/50" : ""}`}>
+                    <React.Fragment key={item.id}>
+                    <tr className={`hover:bg-slate-700/20 transition-colors ${!risk?.detay && idx !== portfoy.length - 1 ? "border-b border-slate-700/50" : ""}`}>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
                           <Link href={`/hisse/${item.ticker}`} className="text-white font-bold hover:text-blue-400 transition-colors">
@@ -392,7 +393,7 @@ export default function PortfoyPage() {
                       </td>
                     </tr>
                     {risk?.detay && risk?.bilesenler && (
-                      <tr className="border-b border-slate-700/50 bg-slate-900/30">
+                      <tr key={item.id + "_detay"} className="border-b border-slate-700/50 bg-slate-900/30">
                         <td colSpan={9} className="px-4 py-3">
                           <div className="grid grid-cols-7 gap-3">
                             {risk.bilesenler.map((b, i) => {
@@ -424,6 +425,7 @@ export default function PortfoyPage() {
                         </td>
                       </tr>
                     )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>
