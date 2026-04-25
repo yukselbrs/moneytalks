@@ -347,9 +347,9 @@ export default function PortfoyPage() {
                                   onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
                                   className={`text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
                                 >
-                                  {risk.skor} Risk {risk.skor100 !== undefined ? `(${risk.skor100}/100)` : ""} {(risk as RiskEntry).detay ? "▲" : "▼"}
+                                  {risk.skor} Risk {risk.skor100 !== undefined ? `(${risk.skor100}/100)` : ""} {risk.detay ? "▲" : "▼"}
                                 </button>
-                                {(risk as RiskEntry).detay && risk.bilesenler && (
+                                {risk.detay && risk.bilesenler && (
                                   <div className="mt-2 bg-slate-900/80 border border-slate-700 rounded-lg p-3 space-y-2 min-w-[280px]">
                                     <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">Risk Bileşenleri</p>
                                     {risk.bilesenler.map((b, i) => {
