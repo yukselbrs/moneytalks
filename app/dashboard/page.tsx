@@ -193,7 +193,13 @@ export default function DashboardPage() {
       }
       setLoading(false);
       fetchBuyukGrafik("1mo");
-      fetchAiPanel();
+      setAiPanel({
+        skor: 75,
+        seviye: "Düşük",
+        yorum: "Endeks güçlü momentum ile hareket ediyor. Hacim ortalamanın üzerinde seyrederken teknik göstergeler olumlu bir tablo çiziyor.",
+        guven: "Yüksek",
+        yukleniyor: false,
+      });
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
     const fetchSparklines = () => {
