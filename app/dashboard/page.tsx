@@ -68,7 +68,6 @@ const BIST_HISSELER = [
   { ticker: "AKCNS", name: "Akçansa" },
   { ticker: "ALARK", name: "Alarko Holding" },
   { ticker: "GOLTS", name: "Göltaş Çimento" },
-  { ticker: "EREGL", name: "Ereğli Demir Çelik" },
   { ticker: "KRDMD", name: "Kardemir" },
   { ticker: "ISDMR", name: "İskenderun Demir Çelik" },
   { ticker: "SASA", name: "Sasa Polyester", domain: "sasa.com.tr" },
@@ -391,28 +390,17 @@ export default function DashboardPage() {
                       />
                     </div>
                     <div style={{ maxHeight: 200, overflowY: "auto" }}>
-                      {[
-                        { ticker: "XU100.IS", label: "XU100 — BIST 100" },
-                        { ticker: "XU030.IS", label: "XU030 — BIST 30" },
-                        { ticker: "USDTRY=X", label: "USD/TRY" },
-                        { ticker: "EURTRY=X", label: "EUR/TRY" },
-                        { ticker: "THYAO.IS", label: "THYAO — Türk Hava Yolları" },
-                        { ticker: "GARAN.IS", label: "GARAN — Garanti Bankası" },
-                        { ticker: "AKBNK.IS", label: "AKBNK — Akbank" },
-                        { ticker: "ISCTR.IS", label: "ISCTR — İş Bankası" },
-                        { ticker: "YKBNK.IS", label: "YKBNK — Yapı Kredi" },
-                        { ticker: "TUPRS.IS", label: "TUPRS — Tüpraş" },
-                        { ticker: "EREGL.IS", label: "EREGL — Ereğli Demir Çelik" },
-                        { ticker: "ASELS.IS", label: "ASELS — Aselsan" },
-                        { ticker: "KCHOL.IS", label: "KCHOL — Koç Holding" },
-                        { ticker: "TCELL.IS", label: "TCELL — Turkcell" },
-                        { ticker: "BIMAS.IS", label: "BIMAS — BİM" },
-                        { ticker: "FROTO.IS", label: "FROTO — Ford Otosan" },
-                        { ticker: "SISE.IS", label: "SISE — Şişecam" },
-                        { ticker: "TOASO.IS", label: "TOASO — Tofaş" },
-                        { ticker: "PETKM.IS", label: "PETKM — Petkim" },
-                        { ticker: "PGSUS.IS", label: "PGSUS — Pegasus" },
-                      ].filter(t => !grafikArama || t.label.toUpperCase().includes(grafikArama)).map(t => (
+                      {(() => {
+                        const sabit = [
+                          { ticker: "XU100.IS", label: "XU100 — BIST 100" },
+                          { ticker: "XU030.IS", label: "XU030 — BIST 30" },
+                          { ticker: "USDTRY=X", label: "USD/TRY" },
+                          { ticker: "EURTRY=X", label: "EUR/TRY" },
+                        ];
+                        const bist = BIST_HISSELER.map(h => ({ ticker: `${h.ticker}.IS`, label: `${h.ticker} — ${h.name}` }));
+                        const sabitTickers = new Set(sabit.map(s => s.ticker));
+                        const tumListe = [...sabit, ...bist.filter(b => !sabitTickers.has(b.ticker))];
+                        return tumListe.filter(t => !grafikArama || t.label.toUpperCase().includes(grafikArama)).slice(0, 60).map(t => (
                         <div key={t.ticker}
                           onClick={() => {
                             setGrafikTicker(t.ticker);
@@ -427,7 +415,7 @@ export default function DashboardPage() {
                         >
                           {t.label}
                         </div>
-                      ))}
+                        ));})()}
                     </div>
                   </div>
                 )}
