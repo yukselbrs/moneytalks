@@ -107,6 +107,14 @@ export default function DashboardPage() {
   const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } });
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [bildirimAcik, setBildirimAcik] = useState(false);
+
+  const selamlama = () => {
+    const saat = new Date().getHours();
+    if (saat >= 5 && saat < 12) return "Gunaydın";
+    if (saat >= 12 && saat < 18) return "Iyi gunler";
+    if (saat >= 18 && saat < 24) return "Iyi aksamlar";
+    return "Iyi geceler";
+  };
   const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
 
   const bildirimler = [
@@ -226,7 +234,7 @@ export default function DashboardPage() {
       <main style={{ maxWidth: 1000, margin: "0 auto", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC" }}>İyi günler, {firstName}</h1>
+          <h1 style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC" }}>{selamlama()}, {firstName}</h1>
           <span style={{ fontSize: 11, color: "#334155" }}>{now}</span>
         </div>
 
@@ -311,7 +319,7 @@ export default function DashboardPage() {
                     {e.gecikme && (
                       <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
                         <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
-                        <span style={{ position: "absolute", bottom: "calc(100% + 6px)", right: 0, background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
+                        <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
                       </span>
                     )}
                   </div>
