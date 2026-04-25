@@ -242,7 +242,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             </div>
             <div style={{ marginTop: 16, padding: "12px 16px", border: "1px solid rgba(59,130,246,0.06)", borderRadius: 8 }}>
               <p style={{ fontSize: 11, color: "#1E293B", lineHeight: 1.6 }}>
-                Bu analiz yalnızca bilgilendirme amaçlıdır ve yatırım tavsiyesi niteliği taşımaz. Her türlü yatırım kararı yatırımcının kendi sorumluluğundadır.
+                Bu içerik yalnızca teknik veri analizi amacıyla sunulmakta olup SPK mevzuatı kapsamında yatırım tavsiyesi niteliği taşımamaktadır. Yatırım kararlarınız için lisanslı aracı kurumlardan destek alınız.
               </p>
             </div>
           </>

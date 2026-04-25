@@ -619,6 +619,9 @@ export default function DashboardPage() {
                 style={{ width: "100%", padding: "9px 0", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#3B82F6", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                 Detaylı Analiz Gör →
               </button>
+              <p style={{ fontSize: 9, color: "#1E293B", marginTop: 8, textAlign: "center", lineHeight: 1.5 }}>
+                Bu içerik yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.
+              </p>
             </>
           ) : null}
         </div>
