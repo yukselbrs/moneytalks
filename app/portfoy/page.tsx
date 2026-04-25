@@ -106,21 +106,14 @@ export default function PortfoyPage() {
     if (riskler[ticker]?.skor) return;
     setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true, acik: true } }));
     try {
-      const res = await fetch("/api/analiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker, veriOnly: false }),
-      });
+      const res = await fetch(`/api/risk?ticker=${ticker}`);
       const json = await res.json();
-      const analiz: string = json.analiz || "";
-      const lower = analiz.toLowerCase();
-      let skor = "Orta";
-      if (lower.includes("yuksek risk") || lower.includes("dikkatli")) skor = "Yüksek";
-      else if (lower.includes("dusuk risk") || lower.includes("guvenli") || lower.includes("olumlu")) skor = "Düşük";
-      const ozet = analiz.slice(0, 180).replace(/#+/g, "").trim() + "...";
-      setRiskler((prev) => ({ ...prev, [ticker]: { skor, ozet, yukleniyor: false, acik: true } }));
+      if (json.error) throw new Error(json.error);
+      const skor = json.seviyeTR || "Orta";
+      const ozet = `Beta: ${json.meta?.beta} · Volatilite: %${json.meta?.volatilite} · RSI: ${json.meta?.rsi}`;
+      setRiskler((prev) => ({ ...prev, [ticker]: { skor, ozet, yukleniyor: false, acik: true, skor100: json.skor, bilesenler: json.bilesenler } }));
     } catch {
-      setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Analiz alinamadi.", yukleniyor: false, acik: true } }));
+      setRiskler((prev) => ({ ...prev, [ticker]: { skor: "?", ozet: "Hesaplama hatasi.", yukleniyor: false, acik: true } }));
     }
   }, [riskler]);
 
