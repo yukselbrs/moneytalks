@@ -323,8 +323,8 @@ export default function DashboardPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontSize: 18, fontWeight: 500, color: "#F8FAFC" }}>{selamlama()}, {firstName}</h1>
-          <span style={{ fontSize: 11, color: "#334155" }}>{now}</span>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{selamlama()}, {firstName}</h1>
+          <span style={{ fontSize: 12, color: "#334155" }}>{now}</span>
         </div>
 
         {/* Arama */}
@@ -380,7 +380,7 @@ export default function DashboardPage() {
 
         {/* Piyasa Özeti */}
         <div>
-          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Piyasa Özeti</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Piyasa Özeti</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
             {[
               { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
@@ -404,7 +404,7 @@ export default function DashboardPage() {
               return (
                 <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 11, color: "#64748B", fontWeight: 500 }}>{e.label}</span>
+                    <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>{e.label}</span>
                     {e.gecikme && (
                       <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
                         <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
@@ -414,8 +414,8 @@ export default function DashboardPage() {
                   </div>
                   <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
                     <div>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.5px", lineHeight: 1.2 }}>{e.val}</div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
+                      <div style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2 }}>{e.val}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
                         <span>{e.up ? "▲" : "▼"}</span>
                         <span>{e.change}</span>
                       </div>
@@ -442,7 +442,7 @@ export default function DashboardPage() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
               {/* Ticker seçici */}
               <div style={{ position: "relative" }}>
                 <button onClick={() => setGrafikDropdown(v => !v)}
@@ -608,7 +608,7 @@ export default function DashboardPage() {
         <div style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
           {/* Başlık */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: "#475569", letterSpacing: "0.1em", textTransform: "uppercase" }}>Yapay Zekâ Analizi</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#64748B", letterSpacing: "0.1em", textTransform: "uppercase" }}>Yapay Zekâ Analizi</p>
             <button onClick={() => fetchAiPanel()}
               style={{ fontSize: 10, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 20, padding: "3px 12px", cursor: "pointer" }}>
               ↻ Yeni
@@ -636,16 +636,16 @@ export default function DashboardPage() {
                       style={{ filter: `drop-shadow(0 0 5px ${aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444"}88)` }}/>
                   </svg>
                   <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontSize: 24, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1px" }}>{aiPanel.skor}</span>
-                    <span style={{ fontSize: 8, color: "#475569", fontWeight: 500 }}>AI Skoru</span>
+                    <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1.2px" }}>{aiPanel.skor}</span>
+                    <span style={{ fontSize: 9, color: "#64748B", fontWeight: 600 }}>AI Skoru</span>
                   </div>
                 </div>
                 {/* Sağ bilgi */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444", marginBottom: 6 }}>
+                  <p style={{ fontSize: 17, fontWeight: 700, color: aiPanel.skor >= 65 ? "#10B981" : aiPanel.skor >= 45 ? "#F59E0B" : "#EF4444", marginBottom: 6, letterSpacing: "-0.3px" }}>
                     {aiPanel.skor >= 65 ? "Güçlü Görünüm" : aiPanel.skor >= 55 ? "Olumlu Görünüm" : aiPanel.skor >= 45 ? "Nötr Görünüm" : aiPanel.skor >= 35 ? "Zayıf Görünüm" : "Olumsuz Görünüm"}
                   </p>
-                  <p style={{ fontSize: 11, color: "#94A3B8", lineHeight: 1.6 }}>{aiPanel.yorum}</p>
+                  <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6 }}>{aiPanel.yorum}</p>
                   <p style={{ fontSize: 10, color: "#334155", marginTop: 6 }}>
                     Güven: <span style={{ color: aiPanel.guven === "Yüksek" ? "#10B981" : aiPanel.guven === "Orta" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
                   </p>
@@ -674,7 +674,7 @@ export default function DashboardPage() {
 
         {/* Popüler Hisseler */}
         <div>
-          <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Popüler BIST Hisseleri</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Popüler BIST Hisseleri</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
             {POPULAR.map((s) => (
               <div key={s.ticker} onClick={() => router.push(`/hisse/${s.ticker}`)}
@@ -686,13 +686,13 @@ export default function DashboardPage() {
                     <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }}
                       onError={(e) => { const el = e.target as HTMLImageElement; el.style.display="none"; const span = document.createElement("span"); span.style.cssText=`font-size:9px;font-weight:700;color:${tickerRenk(s.ticker)}`; span.innerText=s.ticker.slice(0,3); el.parentNode?.appendChild(span); }} />
                   ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(s.ticker) }}>{s.ticker.slice(0,3)}</span>; })()}
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{s.ticker}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{s.ticker}</div>
                 </div>
-                <div style={{ fontSize: 10, color: "#334155", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
+                <div style={{ fontSize: 11, color: "#475569", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
                 {fiyatlar[s.ticker] && fiyatlar[s.ticker] !== null && (
                   <div style={{ marginTop: 6, display: "flex", alignItems: "baseline", gap: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: "#E2E8F0" }}>{fiyatlar[s.ticker]!.fiyat} ₺</span>
-                    <span style={{ fontSize: 10, fontWeight: 500, color: fiyatlar[s.ticker]!.yukselis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 2 }}>
+                    <span style={{ fontSize: 18, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.3px" }}>{fiyatlar[s.ticker]!.fiyat} ₺</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: fiyatlar[s.ticker]!.yukselis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 2 }}>
                       <span>{fiyatlar[s.ticker]!.yukselis ? "▲" : "▼"}</span>
                       <span>{fiyatlar[s.ticker]!.yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[s.ticker]!.degisim)).toFixed(2).replace(".", ",")}</span>
                     </span>
@@ -712,7 +712,7 @@ export default function DashboardPage() {
           {/* İzleme Listesi */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>İzleme Listesi</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>İzleme Listesi</span>
               <button onClick={() => { setWatchlistInputAcik(!watchlistInputAcik); setWatchlistInput(""); }}
                 style={{ fontSize: 16, color: watchlistInputAcik ? "#94A3B8" : "#3B82F6", background: "none", border: "none", cursor: "pointer", lineHeight: 1, fontWeight: 300 }}>
                 {watchlistInputAcik ? "✕" : "+"}
@@ -741,7 +741,7 @@ export default function DashboardPage() {
                             style={{ padding: "7px 10px", cursor: "pointer", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
                             onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
                             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
                             <span style={{ fontSize: 10, color: "#475569" }}>{h.name}</span>
                           </div>
                         ))}
@@ -767,11 +767,11 @@ export default function DashboardPage() {
                       <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(w.ticker) }}>{w.ticker.slice(0,3)}</span>; })()}
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{w.ticker}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{w.ticker}</div>
                     {fiyatlar[w.ticker] && (
                       <div style={{ display: "flex", gap: 5, marginTop: 2 }}>
-                        <span style={{ fontSize: 11, color: "#94A3B8" }}>{fiyatlar[w.ticker]!.fiyat} ₺</span>
-                        <span style={{ fontSize: 11, fontWeight: 500, color: fiyatlar[w.ticker]!.yukselis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 2 }}>
+                        <span style={{ fontSize: 13, color: "#94A3B8", fontWeight: 600 }}>{fiyatlar[w.ticker]!.fiyat} ₺</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: fiyatlar[w.ticker]!.yukselis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 2 }}>
                           <span>{fiyatlar[w.ticker]!.yukselis ? "▲" : "▼"}</span>
                           <span>{fiyatlar[w.ticker]!.yukselis ? "%" : "%-"}{Math.abs(Number(fiyatlar[w.ticker]!.degisim)).toFixed(2).replace(".", ",")}</span>
                         </span>
@@ -789,7 +789,7 @@ export default function DashboardPage() {
           {/* Son Analizler */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Son Analizlerin</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Son Analizlerin</span>
             </div>
             {recent.length === 0 ? (
               <div style={{ padding: "20px 14px" }}>
@@ -804,8 +804,8 @@ export default function DashboardPage() {
                       <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(r.ticker) }}>{r.ticker.slice(0,3)}</span>; })()}
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 500, color: "#E2E8F0" }}>{r.ticker}</div>
-                      <div style={{ fontSize: 10, color: "#334155", marginTop: 1 }}>{r.time}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{r.ticker}</div>
+                      <div style={{ fontSize: 11, color: "#64748B", marginTop: 1 }}>{r.time}</div>
                     </div>
                   </div>
                   <span style={{ fontSize: 12, color: "#1E40AF" }}>→</span>
@@ -823,16 +823,16 @@ export default function DashboardPage() {
         {portfoyOzet && (
           <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 0 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Portföy Özeti</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Portföy Özeti</span>
               <a href="/portfoy" style={{ fontSize: 10, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
             </div>
             {/* Toplam Değer büyük */}
             <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>Toplam Değer</p>
-              <p style={{ fontSize: 22, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.5px" }}>
+              <p style={{ fontSize: 11, color: "#64748B", marginBottom: 4, fontWeight: 500 }}>Toplam Değer</p>
+              <p style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px" }}>
                 {portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
               </p>
-              <p style={{ fontSize: 11, fontWeight: 600, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444", marginTop: 2 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444", marginTop: 2 }}>
                 {portfoyOzet.toplamPLYuzde >= 0 ? "%" : "%-"}{Math.abs(portfoyOzet.toplamPLYuzde).toFixed(2).replace(".", ",")} ({portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺)
               </p>
             </div>
@@ -914,27 +914,27 @@ export default function DashboardPage() {
             return (
               <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
                 <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Yükselenler</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Yükselenler</span>
                 </div>
                 {yukselenler.map((h, i) => (
                   <div key={h.ticker} onClick={() => router.push(`/hisse/${h.ticker}`)}
                     style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < yukselenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 11, color: "#94A3B8" }}>{h.fiyat} ₺</div>
+                      <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>{h.fiyat} ₺</div>
                       <div style={{ fontSize: 11, fontWeight: 600, color: "#10B981" }}>▲ %{Math.abs(h.degisim).toFixed(2).replace(".", ",")}</div>
                     </div>
                   </div>
                 ))}
                 <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", borderTop: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Düşenler</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Düşenler</span>
                 </div>
                 {dusenler.map((h, i) => (
                   <div key={h.ticker} onClick={() => router.push(`/hisse/${h.ticker}`)}
                     style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < dusenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 11, color: "#94A3B8" }}>{h.fiyat} ₺</div>
+                      <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>{h.fiyat} ₺</div>
                       <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>▼ %-{Math.abs(h.degisim).toFixed(2).replace(".", ",")}</div>
                     </div>
                   </div>
@@ -946,13 +946,13 @@ export default function DashboardPage() {
           {/* KAP Haberleri */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              <span style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>KAP Haberleri</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>KAP Haberleri</span>
             </div>
             {KAP.map((k, i) => (
               <div key={i} style={{ padding: "9px 14px", borderBottom: i < KAP.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none" }}>
-                <div style={{ fontSize: 10, fontWeight: 500, color: "#3B82F6", marginBottom: 2 }}>{k.ticker}</div>
-                <div style={{ fontSize: 11, color: "#475569", lineHeight: 1.4 }}>{k.title}</div>
-                <div style={{ fontSize: 10, color: "#1E293B", marginTop: 2 }}>{k.time}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", marginBottom: 2 }}>{k.ticker}</div>
+                <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.4 }}>{k.title}</div>
+                <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>{k.time}</div>
               </div>
             ))}
           </div>
