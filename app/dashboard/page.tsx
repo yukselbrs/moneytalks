@@ -395,7 +395,7 @@ export default function DashboardPage() {
               const pts = rawPts.length > 1 ? rawPts : (e.up
                 ? [40,38,42,37,41,36,39,34,38,32,35,30,33,28,30,25,28,22,26,20]
                 : [20,22,25,21,27,23,29,25,31,27,33,30,35,32,37,34,39,36,41,38]);
-              const w = 100, h = 40;
+              const w = 90, h = 36;
               const mn = Math.min(...pts), mx = Math.max(...pts);
               const sx = (i: number) => (i / (pts.length - 1)) * w;
               const sy = (v: number) => h - ((v - mn) / (mx - mn + 1)) * h;
@@ -412,7 +412,7 @@ export default function DashboardPage() {
                       </span>
                     )}
                   </div>
-                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 6 }}>
                     <div>
                       <div style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2 }}>{e.val}</div>
                       <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
@@ -420,7 +420,7 @@ export default function DashboardPage() {
                         <span>{e.change}</span>
                       </div>
                     </div>
-                    <svg width="100" height="40" viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
+                    <svg width="90" height="36" viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
                       <defs>
                         <linearGradient id={`sg-${e.label}`} x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
