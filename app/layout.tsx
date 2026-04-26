@@ -13,6 +13,12 @@ const manrope = Manrope({
   subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
 });
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   icons: { icon: "/favicon.svg" },
   title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",

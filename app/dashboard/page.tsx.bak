@@ -106,6 +106,7 @@ export default function DashboardPage() {
   const [fullName, setFullName] = useState("");
   const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } });
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
+  const [piyasaFiyatlari, setPiyasaFiyatlari] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [bildirimAcik, setBildirimAcik] = useState(false);
 
   const selamlama = () => {
@@ -255,20 +256,26 @@ export default function DashboardPage() {
       const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
       fetch(url).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
     };
+    const fetchPiyasa = () => {
+      const tumHisseler = BIST_HISSELER.map(h => h.ticker).join(",");
+      fetch(`/api/fiyatlar?extra=${tumHisseler}`).then(r => r.json()).then(d => setPiyasaFiyatlari(d)).catch(() => {});
+    };
     fetchDoviz();
     fetchXu();
     fetchFiyatlar();
+    fetchPiyasa();
     fetchSparklines();
     const dovizInterval = setInterval(fetchDoviz, 900000);
     const xuInterval = setInterval(fetchXu, 15000);
     const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
+    const piyasaInterval = setInterval(fetchPiyasa, 60000);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
       if (stored) setRecent(JSON.parse(stored));
     };
     loadRecent();
     window.addEventListener("focus", loadRecent);
-    return () => { clearInterval(dovizInterval); clearInterval(xuInterval); clearInterval(fiyatlarInterval); window.removeEventListener("focus", loadRecent); };
+    return () => { clearInterval(dovizInterval); clearInterval(xuInterval); clearInterval(fiyatlarInterval); clearInterval(piyasaInterval); window.removeEventListener("focus", loadRecent); };
   }, [router]);
 
   async function addToWatchlist(t: string) {
@@ -322,10 +329,7 @@ export default function DashboardPage() {
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 20, alignItems: "start" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontSize: 28, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{selamlama()}, {firstName}</h1>
-          <span style={{ fontSize: 12, color: "#334155" }}>{now}</span>
-        </div>
+        <h1 style={{ fontSize: 28, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{selamlama()}, {firstName}</h1>
 
         {/* Arama */}
         <form onSubmit={handleAnaliz} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: "10px 16px", transition: "border-color 0.2s" }}
@@ -904,8 +908,8 @@ export default function DashboardPage() {
 
 
           {/* En Çok Yükselenler / Düşenler */}
-          {Object.keys(fiyatlar).length > 0 && (() => {
-            const liste = Object.entries(fiyatlar)
+          {Object.keys(piyasaFiyatlari).length > 0 && (() => {
+            const liste = Object.entries(piyasaFiyatlari)
               .filter(([, v]) => v && v.degisim)
               .map(([ticker, v]) => ({ ticker, degisim: parseFloat(String(v!.degisim).replace(",",".")), fiyat: v!.fiyat, yukselis: v!.yukselis }))
               .sort((a, b) => Math.abs(b.degisim) - Math.abs(a.degisim));
@@ -946,7 +950,7 @@ export default function DashboardPage() {
           {/* KAP Haberleri */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>KAP Haberleri</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Piyasa Haberleri</span>
             </div>
             {KAP.map((k, i) => (
               <div key={i} style={{ padding: "9px 14px", borderBottom: i < KAP.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none" }}>

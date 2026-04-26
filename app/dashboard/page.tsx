@@ -323,10 +323,22 @@ export default function DashboardPage() {
   return (
     <AppShell>
     <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
-      <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
+      <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }
+        .dash-main-padding { padding: 24px 32px; }
+        .dash-main-grid { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 20px; align-items: start; }
+        .dash-piyasa-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+        .dash-grafik-ai-grid { display: grid; grid-template-columns: 1fr 300px; gap: 12px; }
+        .dash-popular-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+        @media (max-width: 767px) {
+          .dash-main-padding { padding: 12px 14px !important; }
+          .dash-main-grid { grid-template-columns: 1fr !important; }
+          .dash-piyasa-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .dash-grafik-ai-grid { grid-template-columns: 1fr !important; }
+          .dash-popular-grid { grid-template-columns: repeat(2,1fr) !important; }
+        }`}</style>
 
-      <main style={{ maxWidth: 1600, margin: "0 auto", padding: "24px 32px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 300px", gap: 20, alignItems: "start" }}>
+      <main className="dash-main-padding" style={{ maxWidth: 1600, margin: "0 auto" }}>
+        <div className="dash-main-grid" style={{}}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
         {/* Header */}
         <h1 style={{ fontSize: 28, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{selamlama()}, {firstName}</h1>
@@ -385,7 +397,7 @@ export default function DashboardPage() {
         {/* Piyasa Özeti */}
         <div>
           <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Piyasa Özeti</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+          <div className="dash-piyasa-grid">
             {[
               { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
               { label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-", gecikme: true },
@@ -442,7 +454,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Piyasa Grafiği + AI Panel */}
-        <div style={{ marginTop: 4, display: "grid", gridTemplateColumns: "1fr 300px", gap: 12 }}>
+        <div className="dash-grafik-ai-grid" style={{ marginTop: 4 }}>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -679,7 +691,7 @@ export default function DashboardPage() {
         {/* Popüler Hisseler */}
         <div>
           <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Popüler BIST Hisseleri</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+          <div className="dash-popular-grid">
             {POPULAR.map((s) => (
               <div key={s.ticker} onClick={() => router.push(`/hisse/${s.ticker}`)}
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 12px", cursor: "pointer", position: "relative", transition: "all 0.15s" }}
