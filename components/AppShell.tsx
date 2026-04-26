@@ -180,10 +180,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
           </a>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 11, color: "#475569" }}>
+            <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>
               {new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "short" })} · {new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
             </span>
-            <span style={{ fontSize: 12, color: "#475569" }}>{displayName}</span>
+            <span style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
           </div>
         </div>
         {children}
