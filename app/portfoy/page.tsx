@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 import { useRouter } from "next/navigation";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "next/link";
 
 interface PortfoyItem {
@@ -70,6 +71,8 @@ export default function PortfoyPage() {
 
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
   const [portfoyRiskSkor, setPortfoyRiskSkor] = useState<{ skor: number; seviye: string; yukleniyor: boolean } | null>(null);
+  const isMobil = useMediaQuery("(max-width: 767px)");
+  const [acikHisse, setAcikHisse] = useState<string | null>(null);
 
   const portfoyuYukle = useCallback(async () => {
     setYükleniyor(true);
@@ -230,7 +233,7 @@ export default function PortfoyPage() {
 
   return (
     <AppShell>
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto py-6" style={{overflowX: "hidden", paddingLeft: "12px", paddingRight: "12px", boxSizing: "border-box", width: "100%"}}>
 
         <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
           <div>
@@ -246,12 +249,12 @@ export default function PortfoyPage() {
         </div>
 
         {portfoy.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
               <p className="text-slate-400 text-xs mb-1">Toplam Maliyet</p>
               <p className="text-white font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
             </div>
-            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
+            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
               <p className="text-slate-400 text-xs mb-1">Güncel Değer</p>
               <p className="text-white font-bold text-lg">{toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
             </div>
@@ -282,7 +285,7 @@ export default function PortfoyPage() {
                     }`}>
                       {portfoyRiskSkor.seviye === "Yüksek" ? "🔴" : portfoyRiskSkor.seviye === "Orta" ? "🟡" : "🟢"} {portfoyRiskSkor.seviye}
                     </p>
-                    <p className="text-slate-500 text-xs mt-1">{portfoy.length} hisse · Ort. {portfoyRiskSkor.skor}/100</p>
+                    <p className="text-slate-500 text-xs mt-1">{portfoy.length} hisse · {portfoyRiskSkor.skor}/100</p>
                   </>
                 )}
               </div>
@@ -303,15 +306,59 @@ export default function PortfoyPage() {
               İlk hissenizi ekleyin
             </button>
           </div>
+        ) : isMobil ? (
+          <div className="flex flex-col gap-2">
+            {portfoy.map((item) => {
+              const pl = plHesapla(item);
+              const fiyat = fiyatlar[item.ticker];
+              const isPos = pl ? pl.pl >= 0 : null;
+              const acik = acikHisse === item.ticker;
+              return (
+                <div key={item.id} className="bg-slate-800/40 border border-slate-700 rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 cursor-pointer" onClick={() => setAcikHisse(acik ? null : item.ticker)}>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="text-white font-bold hover:text-blue-400">{item.ticker}</Link>
+                      {fiyat && <span className={`text-xs font-medium ${fiyat.degisim >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fiyat.degisim >= 0 ? "▲" : "▼"} {Math.abs(fiyat.degisim).toFixed(2)}%</span>}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-sm font-bold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                        {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
+                      </span>
+                      <span className="text-slate-500 text-xs">{acik ? "▲" : "▼"}</span>
+                    </div>
+                  </div>
+                  {acik && (
+                    <div className="px-4 pb-3 border-t border-slate-700/50">
+                      <div className="grid grid-cols-2 gap-2 mt-3 text-sm mb-3">
+                        <div><p className="text-slate-500 text-xs">Lot</p><p className="text-white">{item.adet.toLocaleString("tr-TR")}</p></div>
+                        <div><p className="text-slate-500 text-xs">Ort. Maliyet</p><p className="text-white">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</p></div>
+                        <div><p className="text-slate-500 text-xs">Güncel Fiyat</p><p className="text-white">{fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—"}</p></div>
+                        <div><p className="text-slate-500 text-xs">K/Z %</p><p className={`font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>{pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}</p></div>
+                        <div><p className="text-slate-500 text-xs">Ana Para</p><p className="text-white">{(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p></div>
+                        <div><p className="text-slate-500 text-xs">Güncel Değer</p><p className="text-white">{pl ? pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 }) : "—"} ₺</p></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
+                          className="flex-1 py-2 rounded-lg text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white transition-colors">± Lot Güncelle</button>
+                        <Link href={`/hisse/${item.ticker}`} className="flex-1 py-2 rounded-lg text-xs font-medium bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 transition-colors text-center">Analiz →</Link>
+                        <button onClick={() => setSilModal({ open: true, ticker: item.ticker })}
+                          className="px-3 py-2 rounded-lg text-xs bg-red-900/20 hover:bg-red-900/40 text-red-400 transition-colors">🗑</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <div className="bg-slate-800/40 border border-slate-700 rounded-xl overflow-x-auto">
-            <table className="w-full text-sm min-w-[800px]">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-700 text-xs text-slate-500 uppercase tracking-wide">
-                  <th className="text-left px-4 py-3 font-medium">Hisse</th>
-                  <th className="text-right px-4 py-3 font-medium">Lot</th>
-                  <th className="text-right px-4 py-3 font-medium">Ort. Maliyet</th>
-                  <th className="text-right px-4 py-3 font-medium">Güncel Fiyat</th>
+                  <th className="text-left px-3 py-3 font-medium">Hisse</th>
+                  <th className="text-right px-3 py-3 font-medium">Lot</th>
+                  <th className="text-right px-3 py-3 font-medium">Ort. Maliyet</th>
+                  <th className="text-right px-3 py-3 font-medium">Güncel Fiyat</th>
                   <th className="text-right px-4 py-3 font-medium">Ana Para</th>
                   <th className="text-right px-4 py-3 font-medium">Güncel Değer</th>
                   <th className="text-right px-4 py-3 font-medium">K/Z ₺</th>
@@ -361,21 +408,21 @@ export default function PortfoyPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-right text-white">{item.adet.toLocaleString("tr-TR")}</td>
+                      <td className="px-3 py-4 text-right text-white hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
                       <td className="px-4 py-4 text-right text-slate-300">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
                       <td className="px-4 py-4 text-right text-white">
                         {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : <span className="text-slate-500">—</span>}
                       </td>
-                      <td className="px-4 py-4 text-right text-slate-300">
+                      <td className="px-4 py-4 text-right text-slate-300 hidden sm:table-cell">
                         {(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
                       </td>
-                      <td className="px-4 py-4 text-right text-white">
+                      <td className="px-4 py-4 text-right text-white hidden sm:table-cell">
                         {pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : <span className="text-slate-500">—</span>}
                       </td>
                       <td className={`px-4 py-4 text-right font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                         {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
                       </td>
-                      <td className={`px-4 py-4 text-right font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                      <td className={`px-4 py-4 text-right font-medium hidden sm:table-cell ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                         {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
                       </td>
                       <td className="px-4 py-4">

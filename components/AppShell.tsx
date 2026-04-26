@@ -73,7 +73,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         .sb-item:hover { background: rgba(255,255,255,0.05); }
         @media (max-width: 767px) {
           .sb-desktop { display: none !important; }
-          .sb-main { margin-left: 0 !important; padding-bottom: 64px; }
+          .sb-main { margin-left: 0 !important; padding-bottom: 64px; overflow-x: hidden; max-width: 100vw; }
           .sb-bottomnav { display: flex !important; }
         }
         @media (min-width: 768px) {
