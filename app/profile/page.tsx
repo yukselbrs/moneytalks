@@ -3,18 +3,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+import AppShell from "@/components/AppShell";
+
+const SEKMELER = ["Hesap Bilgileri", "Güvenlik", "İstatistikler", "Üyelik Planı"];
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [sekme, setSekme] = useState("Hesap Bilgileri");
   const router = useRouter();
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export default function ProfilePage() {
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     setMessage(""); setError("");
-    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName, username: username } });
+    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName, username } });
     if (error) setError(error.message);
     else setMessage("Bilgiler güncellendi.");
   }
@@ -39,26 +42,20 @@ export default function ProfilePage() {
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
     setMessage(""); setError("");
-    if (newPassword !== newPasswordConfirm) { setError("Yeni şifreler eşleşmiyor."); return; }
-    if (newPassword.length < 6) { setError("Şifre en az 6 karakter olmalıdır."); return; }
-    if (!/[A-Z]/.test(newPassword)) { setError("Şifre en az bir büyük harf içermelidir."); return; }
-    if (!/[0-9]/.test(newPassword)) { setError("Şifre en az bir rakam içermelidir."); return; }
+    if (newPassword !== newPasswordConfirm) { setError("Şifreler eşleşmiyor."); return; }
+    if (newPassword.length < 6) { setError("En az 6 karakter olmalı."); return; }
+    if (!/[A-Z]/.test(newPassword)) { setError("En az bir büyük harf gerekli."); return; }
+    if (!/[0-9]/.test(newPassword)) { setError("En az bir rakam gerekli."); return; }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) setError(error.message);
-    else { setMessage("Şifre güncellendi."); setCurrentPassword(""); setNewPassword(""); setNewPasswordConfirm(""); }
+    else { setMessage("Şifre güncellendi."); setNewPassword(""); setNewPasswordConfirm(""); }
   }
 
-  async function handleDeleteAccount() {
-    setError("");
-    setMessage("Hesabınızı silmek için hello@parakonusur.com adresine yazın.");
-  }
+  const initials = fullName
+    ? fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+    : email.slice(0, 2).toUpperCase();
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
-
-  const initials = fullName ? fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : email.slice(0, 2).toUpperCase();
+  const displayName = username || email.split("@")[0];
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1220" }}>
@@ -67,86 +64,225 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
-      <nav style={{ borderBottom: "1px solid rgba(59,130,246,0.1)", padding: "13px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <a href="/dashboard" style={{ fontSize: 15, fontWeight: 500, color: "#F8FAFC", textDecoration: "none" }}>
-          para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
-        </a>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <a href="/dashboard" style={{ fontSize: 12, color: "#475569", textDecoration: "none" }}>← Dashboard</a>
-          <button onClick={handleLogout} style={{ fontSize: 12, color: "#94A3B8", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "5px 13px", background: "transparent", cursor: "pointer" }}>
-            Çıkış Yap
-          </button>
-        </div>
-      </nav>
+    <AppShell>
+      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
+        <main style={{ maxWidth: 1000, margin: "0 auto", padding: "24px 24px" }}>
 
-      <main style={{ maxWidth: 560, margin: "0 auto", padding: "36px 24px" }}>
-        <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 500, color: "#3B82F6", marginBottom: 24 }}>
-          {initials}
-        </div>
-
-        {message && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(29,158,117,0.1)", border: "1px solid rgba(29,158,117,0.2)", borderRadius: 8, fontSize: 12, color: "#1D9E75" }}>{message}</div>}
-        {error && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(226,75,74,0.1)", border: "1px solid rgba(226,75,74,0.2)", borderRadius: 8, fontSize: 12, color: "#E24B4A" }}>{error}</div>}
-
-        {/* Hesap Bilgileri */}
-        <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Hesap Bilgileri</p>
-        <form onSubmit={handleSaveProfile}>
-          <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
-            <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Ad Soyad</div>
-              <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Adın Soyadın"
-                style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#94A3B8", padding: "4px 0", width: "100%" }} />
+          {/* Profil Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 28 }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "2px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 700, color: "#3B82F6", flexShrink: 0 }}>
+              {initials}
             </div>
-            <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Kullanıcı Adı</div>
-              <input value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="kullanici_adi"
-                style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#94A3B8", padding: "4px 0", width: "100%" }} />
-            </div>
-            <div style={{ padding: "13px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>E-posta</div>
-              <input value={email} disabled
-                style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.1)", outline: "none", fontSize: 13, color: "#334155", padding: "4px 0", width: "100%" }} />
-            </div>
-            <div style={{ padding: "12px 16px", display: "flex", justifyContent: "flex-end" }}>
-              <button type="submit" style={{ height: 34, padding: "0 18px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Kaydet</button>
-            </div>
-          </div>
-        </form>
-
-        {/* Şifre Değiştir */}
-        <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Şifre Değiştir</p>
-        <form onSubmit={handleChangePassword}>
-          <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
-            {[
-              { label: "Yeni Şifre", value: newPassword, setter: setNewPassword },
-              { label: "Yeni Şifre Tekrar", value: newPasswordConfirm, setter: setNewPasswordConfirm },
-            ].map((field, i, arr) => (
-              <div key={field.label} style={{ padding: "13px 16px", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none" }}>
-                <div style={{ fontSize: 10, fontWeight: 500, color: "#475569", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>{field.label}</div>
-                <input type="password" value={field.value} onChange={(e) => field.setter(e.target.value)} placeholder="••••••••"
-                  style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#94A3B8", padding: "4px 0", width: "100%" }} />
-              </div>
-            ))}
-            <div style={{ padding: "12px 16px", display: "flex", justifyContent: "flex-end" }}>
-              <button type="submit" style={{ height: 34, padding: "0 18px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Güncelle</button>
-            </div>
-          </div>
-        </form>
-
-        {/* Tehlikeli Alan */}
-        <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Tehlikeli Alan</p>
-        <div style={{ border: "1px solid rgba(226,75,74,0.15)", borderRadius: 10, overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 16px" }}>
             <div>
-              <div style={{ fontSize: 13, color: "#E2E8F0" }}>Hesabı Sil</div>
-              <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Bu işlem geri alınamaz.</div>
+              <h1 style={{ fontSize: 20, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.3px" }}>{fullName || displayName}</h1>
+              <p style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>@{displayName} · {email}</p>
             </div>
-            <button onClick={handleDeleteAccount} style={{ height: 34, padding: "0 14px", background: "rgba(226,75,74,0.1)", color: "#E24B4A", border: "1px solid rgba(226,75,74,0.2)", borderRadius: 7, fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
-              Hesabı Sil
-            </button>
+            <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 20, padding: "3px 10px" }}>DEMO</span>
           </div>
-        </div>
-      </main>
-    </div>
+
+          {/* Sekmeler */}
+          <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid rgba(59,130,246,0.08)", paddingBottom: 0, overflowX: "auto" }}>
+            {SEKMELER.map((s) => (
+              <button key={s} onClick={() => { setSekme(s); setMessage(""); setError(""); }}
+                style={{ fontSize: 13, fontWeight: 500, padding: "8px 16px", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                  color: sekme === s ? "#3B82F6" : "#475569",
+                  borderBottom: sekme === s ? "2px solid #3B82F6" : "2px solid transparent",
+                  marginBottom: -1,
+                }}>
+                {s}
+              </button>
+            ))}
+          </div>
+
+          {/* Mesaj/Hata */}
+          {message && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, fontSize: 12, color: "#10B981" }}>{message}</div>}
+          {error && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, fontSize: 12, color: "#EF4444" }}>{error}</div>}
+
+          <div style={{ display: "grid", gridTemplateColumns: sekme === "Hesap Bilgileri" ? "1fr 320px" : "1fr", gap: 20 }}>
+
+          {/* HESAP BİLGİLERİ */}
+          {sekme === "Hesap Bilgileri" && (<>
+            <form onSubmit={handleSaveProfile}>
+              <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.01)" }}>
+                <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Kişisel Bilgiler</p>
+                </div>
+                {[
+                  { label: "Ad Soyad", value: fullName, setter: setFullName, placeholder: "Adın Soyadın", disabled: false },
+                  { label: "Kullanıcı Adı", value: username, setter: (v: string) => setUsername(v.toLowerCase().replace(/[^a-z0-9_]/g, "")), placeholder: "kullanici_adi", disabled: false },
+                  { label: "E-posta", value: email, setter: () => {}, placeholder: "", disabled: true },
+                ].map((f, i, arr) => (
+                  <div key={f.label} style={{ padding: "14px 20px", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 13, color: "#64748B", minWidth: 140 }}>{f.label}</span>
+                    <input value={f.value} onChange={(e) => !f.disabled && f.setter(e.target.value)} disabled={f.disabled} placeholder={f.placeholder}
+                      style={{ background: "transparent", border: "none", borderBottom: f.disabled ? "none" : "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: f.disabled ? "#334155" : "#E2E8F0", padding: "4px 0", textAlign: "right", flex: 1, maxWidth: 280 }} />
+                  </div>
+                ))}
+                <div style={{ padding: "12px 20px", display: "flex", justifyContent: "flex-end" }}>
+                  <button type="submit" style={{ height: 34, padding: "0 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Kaydet</button>
+                </div>
+              </div>
+            </form>
+
+            {/* Sağ — İstatistik özeti */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "16px 20px", background: "rgba(255,255,255,0.01)" }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 14 }}>Hesap Özeti</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {[
+                    { label: "Üyelik", value: user?.created_at ? new Date(user.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
+                    { label: "Son Giriş", value: "Bugün" },
+                    { label: "Analizler", value: "—" },
+                    { label: "İzleme", value: "—" },
+                  ].map((s) => (
+                    <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
+                      <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>{s.label}</p>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ border: "1px solid rgba(249,115,22,0.15)", borderRadius: 12, padding: "16px 20px", background: "rgba(249,115,22,0.04)" }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#F97316", marginBottom: 4 }}>⚡ Demo Hesap</p>
+                <p style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>Pro'ya geçerek sınırsız analiz ve gerçek zamanlı veri erişimi kazanın.</p>
+                <a href="/pro" style={{ display: "inline-block", marginTop: 10, fontSize: 12, fontWeight: 600, color: "#fff", background: "linear-gradient(90deg, #EA580C, #F97316)", padding: "7px 16px", borderRadius: 8, textDecoration: "none" }}>Pro'ya Yükselt →</a>
+              </div>
+            </div>
+          </>)}
+
+          {/* GÜVENLİK */}
+          {sekme === "Güvenlik" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 560 }}>
+              <form onSubmit={handleChangePassword}>
+                <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.01)" }}>
+                  <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Şifre Değiştir</p>
+                  </div>
+                  {[
+                    { label: "Yeni Şifre", value: newPassword, setter: setNewPassword },
+                    { label: "Şifre Tekrar", value: newPasswordConfirm, setter: setNewPasswordConfirm },
+                  ].map((f, i, arr) => (
+                    <div key={f.label} style={{ padding: "14px 20px", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none" }}>
+                      <div style={{ fontSize: 11, color: "#475569", marginBottom: 6 }}>{f.label}</div>
+                      <input type="password" value={f.value} onChange={(e) => f.setter(e.target.value)} placeholder="••••••••"
+                        style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#E2E8F0", padding: "4px 0", width: "100%" }} />
+                    </div>
+                  ))}
+                  <div style={{ padding: "12px 20px", display: "flex", justifyContent: "flex-end" }}>
+                    <button type="submit" style={{ height: 34, padding: "0 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Güncelle</button>
+                  </div>
+                </div>
+              </form>
+
+              <div style={{ border: "1px solid rgba(16,185,129,0.15)", borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.01)" }}>
+                <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Hesap Güvenliği</p>
+                </div>
+                {[
+                  { label: "E-posta Doğrulama", value: "✓ Doğrulandı", color: "#10B981" },
+                  { label: "İki Faktörlü Doğrulama", value: "Aktif değil", color: "#64748B" },
+                ].map((s, i, arr) => (
+                  <div key={s.label} style={{ padding: "14px 20px", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 13, color: "#94A3B8" }}>{s.label}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: s.color }}>{s.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ border: "1px solid rgba(239,68,68,0.15)", borderRadius: 12, overflow: "hidden" }}>
+                <div style={{ padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <p style={{ fontSize: 13, color: "#E2E8F0" }}>Hesabı Sil</p>
+                    <p style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Bu işlem geri alınamaz.</p>
+                  </div>
+                  <button onClick={() => setMessage("Hesabınızı silmek için hello@parakonusur.com adresine yazın.")}
+                    style={{ height: 34, padding: "0 14px", background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+                    Hesabı Sil
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* İSTATİSTİKLER */}
+          {sekme === "İstatistikler" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                {[
+                  { label: "Oluşturulan Analiz", value: "—", sub: "Bu ay" },
+                  { label: "İzlenen Hisse", value: "—", sub: "Toplam" },
+                  { label: "Portföydeki Hisse", value: "—", sub: "Toplam" },
+                  { label: "Yapılan İşlem", value: "—", sub: "Bu ay" },
+                ].map((s) => (
+                  <div key={s.label} style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "16px 20px", background: "rgba(255,255,255,0.01)" }}>
+                    <p style={{ fontSize: 11, color: "#475569", marginBottom: 8 }}>{s.label}</p>
+                    <p style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px" }}>{s.value}</p>
+                    <p style={{ fontSize: 11, color: "#334155", marginTop: 4 }}>{s.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.01)" }}>
+                <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Aktivite Geçmişi</p>
+                </div>
+                {[
+                  { zaman: "Bugün 14:22", mesaj: "TUPRS analizi oluşturuldu", ikon: "📊" },
+                  { zaman: "Bugün 11:05", mesaj: "GARAN izleme listesine eklendi", ikon: "⭐" },
+                  { zaman: "Dün 18:10", mesaj: "Portföy güncellendi", ikon: "💼" },
+                  { zaman: "Dün 17:22", mesaj: "THYAO analizi oluşturuldu", ikon: "📊" },
+                  { zaman: "2 gün önce", mesaj: "Şifre değiştirildi", ikon: "🔒" },
+                ].map((a, i) => (
+                  <div key={i} style={{ padding: "12px 20px", borderBottom: i < 4 ? "1px solid rgba(59,130,246,0.05)" : "none", display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ fontSize: 16 }}>{a.ikon}</span>
+                    <span style={{ fontSize: 13, color: "#94A3B8", flex: 1 }}>{a.mesaj}</span>
+                    <span style={{ fontSize: 11, color: "#334155" }}>{a.zaman}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ÜYELİK PLANI */}
+          {sekme === "Üyelik Planı" && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {[
+                {
+                  isim: "Demo", fiyat: "Ücretsiz", aktif: true,
+                  ozellikler: ["5 analiz/ay", "Gecikmeli veri (15dk)", "Temel risk skoru", "İzleme listesi (5 hisse)"],
+                },
+                {
+                  isim: "Pro", fiyat: "Yakında", aktif: false,
+                  ozellikler: ["Sınırsız analiz", "Gerçek zamanlı veri", "Gelişmiş risk skoru", "Sınırsız izleme listesi", "AI destekli yorumlar", "Reklamsız deneyim"],
+                },
+              ].map((plan) => (
+                <div key={plan.isim} style={{ border: `1px solid ${plan.aktif ? "rgba(59,130,246,0.2)" : "rgba(249,115,22,0.2)"}`, borderRadius: 12, padding: "20px", background: plan.aktif ? "rgba(59,130,246,0.04)" : "rgba(249,115,22,0.04)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: "#F1F5F9" }}>{plan.isim}</p>
+                    {plan.aktif && <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.12)", borderRadius: 20, padding: "3px 10px" }}>AKTİF</span>}
+                  </div>
+                  <p style={{ fontSize: 22, fontWeight: 800, color: "#F1F5F9", marginBottom: 16 }}>{plan.fiyat}</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                    {plan.ozellikler.map((o) => (
+                      <div key={o} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ color: plan.aktif ? "#3B82F6" : "#F97316", fontSize: 12 }}>✓</span>
+                        <span style={{ fontSize: 12, color: "#94A3B8" }}>{o}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {!plan.aktif && (
+                    <a href="/pro" style={{ display: "block", textAlign: "center", background: "linear-gradient(90deg, #EA580C, #F97316)", color: "#fff", fontSize: 13, fontWeight: 600, padding: "10px", borderRadius: 8, textDecoration: "none" }}>
+                      Pro'ya Yükselt →
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          </div>
+        </main>
+      </div>
+    </AppShell>
   );
 }
