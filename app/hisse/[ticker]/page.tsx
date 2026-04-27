@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+import HisseChatbot from "@/components/HisseChatbot";
 
 interface HisseVeri {
   fiyat: number;
@@ -49,6 +50,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [loading, setLoading] = useState(false);
   const [grafik, setGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);
   const [izlemede, setIzlemede] = useState(false);
+  const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -81,6 +83,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       if (data?.analiz) {
         setAnaliz(data.analiz);
       }
+    });
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const { data } = await supabase.from("portfoy").select("ticker,adet,alis_fiyati").eq("user_id", session.user.id);
+      if (data) setPortfoy(data);
     });
     const interval = setInterval(fetchVeri, 15000);
     return () => clearInterval(interval);
@@ -249,6 +256,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         )}
       </main>
     </div>
+      <HisseChatbot ticker={ticker} veri={veri} analiz={analiz} portfoy={portfoy} />
     </AppShell>
   );
 }
