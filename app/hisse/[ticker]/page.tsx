@@ -154,17 +154,33 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
 
 
-      <main style={{ maxWidth: 800, margin: "0 auto", padding: "36px 24px" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+      <style>{`
+        .hisse-main { padding: 36px 24px; }
+        .hisse-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+        .hisse-kartlar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+        .hisse-analiz-btn { height: 38px; padding: 0 20px; background: linear-gradient(135deg, #1E40AF, #3B82F6); color: #F8FAFC; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; margin-top: 8px; }
+        .hisse-analiz-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        @media (max-width: 640px) {
+          .hisse-main { padding: 16px 14px !important; }
+          .hisse-header { flex-direction: column; gap: 12px; }
+          .hisse-header-right { width: 100%; display: flex; flex-direction: row !important; align-items: center; justify-content: space-between; }
+          .hisse-kartlar { grid-template-columns: 1fr 1fr; }
+          .hisse-ticker { font-size: 24px !important; }
+          .hisse-fiyat { font-size: 18px !important; }
+          .hisse-analiz-btn { margin-top: 0; }
+        }
+      `}</style>
+      <main className="hisse-main" style={{ maxWidth: 800, margin: "0 auto" }}>
+        <div className="hisse-header">
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button onClick={toggleIzleme} style={{ fontSize: 22, color: izlemede ? "#F97316" : "#334155", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1 }}>
                 {izlemede ? "★" : "☆"}
               </button>
-              <h1 style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
+              <h1 className="hisse-ticker" style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
               {veri && (
-                <span style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC", display: "flex", alignItems: "center", gap: 6 }}>
+                <span className="hisse-fiyat" style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC", display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
                     <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
                     <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
@@ -186,11 +202,12 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             )}
             <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, marginTop: 8 }}>
+          <div className="hisse-header-right" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, marginTop: 8 }}>
           <button
             onClick={handleAnaliz}
             disabled={loading}
-            style={{ height: 38, padding: "0 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1, marginTop: 8, whiteSpace: "nowrap" }}
+            className="hisse-analiz-btn"
+            style={{ opacity: loading ? 0.6 : 1 }}
           >
             {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
@@ -200,7 +217,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         </div>
 
         {veri && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
+          <div className="hisse-kartlar">
             {kartlar.map((k) => (
               <div key={k.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 4 }}>{k.label}</div>
