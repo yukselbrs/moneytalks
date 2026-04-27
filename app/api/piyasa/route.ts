@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 
+export const revalidate = 30;
+
 async function fetchYahoo(symbol: string) {
   try {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
     const res = await fetch(url, {
-      cache: "no-store",
+      next: { revalidate: 30 },
       headers: { "User-Agent": "Mozilla/5.0" },
     });
     const data = await res.json();
@@ -25,7 +27,7 @@ async function fetchYahoo(symbol: string) {
 export async function GET() {
   try {
     const res = await fetch("https://finans.truncgil.com/today.json", {
-      cache: "no-store",
+      next: { revalidate: 30 },
       headers: { "Accept": "application/json" },
     });
     const data = await res.json();
