@@ -15,7 +15,7 @@ const HIZLI = [
 export default function AlarmlarPage() {
   const [sekme, setSekme] = useState("Tümü");
   const [modalAcik, setModalAcik] = useState(false);
-  const [modalTip, setModalTip] = useState<"fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "bildirim_tercihleri">("fiyat_seviye");
+  const [modalTip, setModalTip] = useState<"fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "haber" | "bildirim_tercihleri">("fiyat_seviye");
   const [alarmlar, setAlarmlar] = useState(ALARMLAR);
   const [fiyatlar, setFiyatlar] = useState<Record<string, {fiyat: string; degisim: string; yukselis: boolean}>>({});
 
