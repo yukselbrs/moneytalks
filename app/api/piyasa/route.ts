@@ -45,12 +45,14 @@ export async function GET() {
       fetchYahoo("XU030.IS"),
     ]);
 
-    return NextResponse.json({
+    const res2 = NextResponse.json({
       usd: { value: usdValue, change: usdChange },
       eur: { value: eurValue, change: eurChange },
       xu100,
       xu030,
     });
+    res2.headers.set("Cache-Control", "public, s-maxage=30, stale-while-revalidate=60");
+    return res2;
   } catch (e) {
     console.error("Piyasa API error:", e);
     return NextResponse.json({

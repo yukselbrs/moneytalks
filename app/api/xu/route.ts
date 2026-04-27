@@ -50,5 +50,7 @@ async function refreshCache() {
 
 export async function GET() {
   await refreshCache();
-  return NextResponse.json({ xu100: g.xuCache!.xu100, xu030: g.xuCache!.xu030 });
+  const r = NextResponse.json({ xu100: g.xuCache!.xu100, xu030: g.xuCache!.xu030 });
+  r.headers.set("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+  return r;
 }

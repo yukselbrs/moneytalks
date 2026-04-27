@@ -44,5 +44,7 @@ export async function GET(req: NextRequest) {
   const results = await Promise.all(allTickers.map(t => fetchFiyat(t)));
   const data: Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null> = {};
   allTickers.forEach((t, i) => { data[t] = results[i]; });
-  return NextResponse.json(data);
+  const response = NextResponse.json(data);
+  response.headers.set("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+  return response;
 }
