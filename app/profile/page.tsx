@@ -145,8 +145,8 @@ export default function ProfilePage() {
                   {[
                     { label: "Üyelik", value: user?.created_at ? new Date(user.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
                     { label: "Son Giriş", value: "Bugün" },
-                    { label: "Analizler", value: "—" },
-                    { label: "İzleme", value: "—" },
+                    { label: "Analizler", value: istatistik.analizSayisi },
+                    { label: "İzleme", value: istatistik.watchlistSayisi },
                   ].map((s) => (
                     <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
                       <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>{s.label}</p>
