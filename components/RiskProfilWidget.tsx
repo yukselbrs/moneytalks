@@ -134,8 +134,8 @@ export default function RiskProfilWidget() {
               {SORULAR[adim].secenekler.map((s) => (
                 <button key={s} onClick={() => handleSecim(SORULAR[adim].key, s)}
                   style={{ padding: "9px 14px", background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 8, fontSize: 12, color: "#94A3B8", cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}
-                  onMouseEnter={e => { (e.currentTarget.style.background = "rgba(59,130,246,0.1)"); (e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)"); (e.currentTarget.style.color = "#F8FAFC)"; }}
-                  onMouseLeave={e => { (e.currentTarget.style.background = "rgba(59,130,246,0.04)"); (e.currentTarget.style.borderColor = "rgba(59,130,246,0.12)"); (e.currentTarget.style.color = "#94A3B8)"; }}>
+                  onMouseEnter={e => { (e.currentTarget.style.background = "rgba(59,130,246,0.1)"); (e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)"); (e.currentTarget.style.color = "#F8FAFC"); }}
+                  onMouseLeave={e => { (e.currentTarget.style.background = "rgba(59,130,246,0.04)"); (e.currentTarget.style.borderColor = "rgba(59,130,246,0.12)"); (e.currentTarget.style.color = "#94A3B8"); }}>
                   {s}
                 </button>
               ))}
