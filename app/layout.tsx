@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -51,7 +52,21 @@ export default function RootLayout({
       lang="tr"
       className={`${geist.variable} ${manrope.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+      <body className="min-h-full flex flex-col antialiased">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-0H2KJGRV6D"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-0H2KJGRV6D');
+          `}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }
