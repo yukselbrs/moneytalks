@@ -120,7 +120,7 @@ export default function AIShowcase() {
                   <div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: "#F8FAFC" }}>{ticker}</div>
                     <div style={{ fontSize: 24, fontWeight: 600, color: "#E2E8F0", marginTop: 2 }}>
-                      {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+                      <span suppressHydrationWarning>{veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
                       {degisim !== null && (
                         <span style={{ fontSize: 13, fontWeight: 500, color: degisim >= 0 ? "#1D9E75" : "#E24B4A", marginLeft: 8 }}>
                           {degisim >= 0 ? "▲" : "▼"} %{Math.abs(degisim).toFixed(2).replace(".", ",")}
@@ -135,11 +135,11 @@ export default function AIShowcase() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 20 }}>
                   <div style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 12px" }}>
                     <div style={{ fontSize: 9, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Yüksek</div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1D9E75" }}>{veri.gunlukYuksek.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1D9E75" }}><span suppressHydrationWarning>{veri.gunlukYuksek.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</div>
                   </div>
                   <div style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 12px" }}>
                     <div style={{ fontSize: 9, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Düşük</div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "#E24B4A" }}>{veri.gunlukDusuk.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#E24B4A" }}><span suppressHydrationWarning>{veri.gunlukDusuk.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</div>
                   </div>
                 </div>
 

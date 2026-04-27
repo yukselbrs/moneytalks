@@ -145,8 +145,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const kartlar = veri ? [
     { label: "52 Hafta En Yüksek", value: `${veri.yillikYuksek} ₺` },
     { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
-    { label: "Günlük Hacim", value: veri.hacim.toLocaleString("tr-TR", { useGrouping: true }) + " adet" },
-    { label: "İşlem Hacmi", value: (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0, useGrouping: true }) + " ₺" },
+    { label: "Günlük Hacim", value: typeof window !== "undefined" ? veri.hacim.toLocaleString("tr-TR", { useGrouping: true }) + " adet" : veri.hacim + " adet" },
+    { label: "İşlem Hacmi", value: typeof window !== "undefined" ? (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0, useGrouping: true }) + " ₺" : (veri.hacim * veri.fiyat).toFixed(0) + " ₺" },
   ] : [];
 
   return (
@@ -189,7 +189,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                   {veri.oncekiKapanis && (
                     <span style={{ fontSize: 14, fontWeight: 500, color: veri.fiyat >= veri.oncekiKapanis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 3 }}>
                       <span>{veri.fiyat >= veri.oncekiKapanis ? "▲" : "▼"}</span>
-                      <span>%{Math.abs(((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
+                      <span suppressHydrationWarning>%{Math.abs(((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
                     </span>
                   )}
                 </span>

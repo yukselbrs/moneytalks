@@ -79,7 +79,7 @@ export default function Footer() {
             className="text-xs shrink-0"
             style={{ color: "#334155", fontFamily: "var(--font-manrope)" }}
           >
-            © {new Date().getFullYear()} ParaKonusur.com — Tüm hakları saklıdır.
+            <span suppressHydrationWarning>© {new Date().getFullYear()} ParaKonusur.com — Tüm hakları saklıdır.</span>
           </p>
           <p
             className="text-[10px] max-w-lg"

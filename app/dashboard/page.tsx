@@ -911,7 +911,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
                 <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>K/Z ₺</p>
-                <p style={{ fontSize: 12, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }} suppressHydrationWarning>
                   {portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
                 </p>
               </div>
@@ -921,7 +921,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
                 <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>Getiri</p>
-                <p style={{ fontSize: 12, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }} suppressHydrationWarning>
                   {portfoyOzet.toplamPLYuzde >= 0 ? "+" : ""}{portfoyOzet.toplamPLYuzde.toFixed(2)}%
                 </p>
               </div>
