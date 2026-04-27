@@ -166,7 +166,7 @@ export default function AlarmlarPage() {
                   <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Hızlı İşlemler</p>
                 </div>
                 {HIZLI.map((h, i) => (
-                  <div key={h.baslik} onClick={() => { if (i === 0) { setModalTip("fiyat_seviye"); setModalAcik(true); } else if (i === 1) { setModalTip("gosterge"); setModalAcik(true); } else if (i === 2) { setModalTip("fiyat_yuzde"); setModalAcik(true); } else if (i === 3) { setModalTip("bildirim_tercihleri"); setModalAcik(true); } }} style={{ padding: "12px 16px", borderBottom: i < HIZLI.length-1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+                  <div key={h.baslik} onClick={() => { if (i === 0) { setModalTip("fiyat_seviye"); setModalAcik(true); } else if (i === 1) { setModalTip("gosterge"); setModalAcik(true); } else if (i === 2) { setModalTip("haber"); setModalAcik(true); } else if (i === 3) { setModalTip("bildirim_tercihleri"); setModalAcik(true); } }} style={{ padding: "12px 16px", borderBottom: i < HIZLI.length-1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
                     onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                     onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: h.renk + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{h.ikon}</div>

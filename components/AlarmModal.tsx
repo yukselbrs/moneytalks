@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { supabase } from "@/components/lib/supabase";
 
-type ModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "bildirim_tercihleri";
+type ModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "haber" | "bildirim_tercihleri";
 
 interface Props {
   onKapat: () => void;
@@ -24,6 +24,7 @@ const MODAL_BASLIK: Record<ModalTip, string> = {
   fiyat_seviye: "📈 Fiyat Alarmı Ekle",
   fiyat_yuzde: "📈 Fiyat Alarmı Ekle",
   gosterge: "📊 Gösterge Alarmı Ekle",
+  haber: "📰 Haber Alarmı",
   bildirim_tercihleri: "⚙️ Bildirim Tercihleri",
 };
 
@@ -214,6 +215,18 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
               </button>
               <p style={{ fontSize: 10, color: "#334155", marginTop: 8, textAlign: "center" }}>Alarm tetiklendiğinde e-posta bildirim alacaksınız.</p>
             </>)}
+
+            {/* HABER ALARMI - YAKINDA */}
+            {modalTip === "haber" && (
+              <div style={{ padding: "32px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                <div style={{ fontSize: 40 }}>📰</div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9" }}>Haber Alarmları</p>
+                <p style={{ fontSize: 13, color: "#475569", textAlign: "center", lineHeight: 1.6 }}>KAP duyuruları ve piyasa haberleri için alarm özelliği yakında aktif olacak.</p>
+                <div style={{ marginTop: 8, padding: "8px 20px", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 20 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#F97316" }}>Çok Yakında</span>
+                </div>
+              </div>
+            )}
 
             {/* BİLDİRİM TERCİHLERİ */}
             {modalTip === "bildirim_tercihleri" && (<>
