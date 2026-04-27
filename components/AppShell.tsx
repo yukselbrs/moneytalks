@@ -57,7 +57,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       label: "Takvim", href: "/takvim",
     },
     {
-      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/><line x1="7" y1="3.34" x2="4.22" y2="1.1"/><line x1="17" y1="3.34" x2="19.78" y2="1.1"/></svg>,
       label: "Alarmlar", href: "/alarmlar",
     },
     {
