@@ -28,18 +28,19 @@ export default function ProfilePage() {
       setEmail(session.user.email || "");
       setFullName(session.user.user_metadata?.full_name || "");
       setUsername(session.user.user_metadata?.username || "");
+      setLoading(false);
       // İstatistikleri çek
-      const [analizRes, watchlistRes, portfoyRes] = await Promise.all([
+      Promise.all([
         supabase.from("analizler").select("id", { count: "exact" }).eq("user_id", session.user.id),
         supabase.from("watchlist").select("id", { count: "exact" }).eq("user_id", session.user.id),
         supabase.from("portfoy").select("id", { count: "exact" }).eq("user_id", session.user.id),
-      ]);
-      setIstatistik({
-        analizSayisi: analizRes.count || 0,
-        watchlistSayisi: watchlistRes.count || 0,
-        portfoySayisi: portfoyRes.count || 0,
+      ]).then(([analizRes, watchlistRes, portfoyRes]) => {
+        setIstatistik({
+          analizSayisi: analizRes.count || 0,
+          watchlistSayisi: watchlistRes.count || 0,
+          portfoySayisi: portfoyRes.count || 0,
+        });
       });
-      setLoading(false);
     });
   }, [router]);
 
