@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import AlarmModal from "@/components/AlarmModal";
 
-const ALARMLAR: never[] = [];
+const ALARMLAR: {id:number;tip:string;hisse:string;sirket:string;kosul:string;detay:string;hedef:string;guncel:string;degisim:string;yukselis:boolean;tarih:string;durum:string}[] = [];
 
 const HIZLI = [
   { ikon:"📈", renk:"#10B981", baslik:"Fiyat Alarmı Ekle", aciklama:"Belirlediğiniz fiyat seviyelerine ulaşıldığında bildirim alın." },
