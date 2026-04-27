@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const hedefMetin = tip === "fiyat_seviye"
       ? `${hedef_deger} ₺ seviyesine ${kosulMetin}`
       : `%${hedef_yuzde} oranında ${kosulMetin}`;
-    await resend.emails.send({
+    await getResend().emails.send({
       from: "ParaKonusur <hello@parakonusur.com>",
       to: email,
       subject: `${ticker} için fiyat alarmı oluşturuldu`,
