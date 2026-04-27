@@ -110,6 +110,18 @@ export default function DashboardPage() {
   const [piyasaFiyatlari, setPiyasaFiyatlari] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [bildirimAcik, setBildirimAcik] = useState(false);
 
+  useEffect(() => {
+    const guncelle = () => {
+      const d = new Date();
+      const nd = d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "long" });
+      const nt = d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+      setNow(`${nd} · ${nt}`);
+    };
+    guncelle();
+    const interval = setInterval(guncelle, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const selamlama = () => {
     const saat = new Date().getHours();
     if (saat >= 5 && saat < 12) return "Günaydın";
@@ -309,9 +321,7 @@ export default function DashboardPage() {
 
 
   const firstName = fullName ? fullName.split(" ")[0] : user?.email?.split("@")[0] ?? "";
-  const nowDate = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "long" });
-  const nowTime = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
-  const now = `${nowDate} · ${nowTime}`;
+  const [now, setNow] = useState("");
 
   if (loading) {
     return (

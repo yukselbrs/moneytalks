@@ -8,8 +8,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [fullName, setFullName] = useState("");
+  const [tarihSaat, setTarihSaat] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const guncelle = () => {
+      const d = new Date();
+      const tarih = d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "short" });
+      const saat = d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+      setTarihSaat(`${tarih} · ${saat}`);
+    };
+    guncelle();
+    const interval = setInterval(guncelle, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -180,7 +193,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </a>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>
-              {new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "short", weekday: "short" })} · {new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+              {tarihSaat}
             </span>
             <span style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
           </div>
