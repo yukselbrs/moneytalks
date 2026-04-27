@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
+import AlarmModal from "@/components/AlarmModal";
 
 const ALARMLAR = [
   { id:1, tip:"fiyat", hisse:"TUPRS", sirket:"Tüpraş", kosul:"Fiyat yükseldiğinde", detay:"Üstüne çıkınca", hedef:"300,00 ₺", guncel:"269,00 ₺", degisim:"+%2,28", yukselis:true, tarih:"25 Nis 2025 20:45", durum:"aktif" },
@@ -22,6 +23,8 @@ const HIZLI = [
 
 export default function AlarmlarPage() {
   const [sekme, setSekme] = useState("Tümü");
+  const [modalAcik, setModalAcik] = useState(false);
+  const [modalTip, setModalTip] = useState<"fiyat_seviye" | "fiyat_yuzde">("fiyat_seviye");
   const [alarmlar, setAlarmlar] = useState(ALARMLAR);
   const [fiyatlar, setFiyatlar] = useState<Record<string, {fiyat: string; degisim: string; yukselis: boolean}>>({});
 
@@ -172,7 +175,7 @@ export default function AlarmlarPage() {
                   <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Hızlı İşlemler</p>
                 </div>
                 {HIZLI.map((h, i) => (
-                  <div key={h.baslik} style={{ padding: "12px 16px", borderBottom: i < HIZLI.length-1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+                  <div key={h.baslik} onClick={() => { if (i < 2) { setModalTip(i === 0 ? "fiyat_seviye" : "fiyat_yuzde"); setModalAcik(true); } }} style={{ padding: "12px 16px", borderBottom: i < HIZLI.length-1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
                     onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                     onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: h.renk + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{h.ikon}</div>
@@ -188,6 +191,7 @@ export default function AlarmlarPage() {
           </div>
         </main>
       </div>
+      {modalAcik && <AlarmModal onKapat={() => setModalAcik(false)} onEklendi={() => {}} varsayilanTip={modalTip} />}
     </AppShell>
   );
 }
