@@ -45,10 +45,17 @@ export default function LoginPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
-      <div style={{ width: "100%", maxWidth: 960, display: "grid", gridTemplateColumns: "1fr 1fr", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(59,130,246,0.12)", boxShadow: "0 0 80px rgba(59,130,246,0.07)" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .login-grid { grid-template-columns: 1fr !important; }
+          .login-left { display: none !important; }
+          .login-right { padding: 40px 28px !important; }
+        }
+      `}</style>
+      <div className="login-grid" style={{ width: "100%", maxWidth: 960, display: "grid", gridTemplateColumns: "1fr 1fr", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(59,130,246,0.12)", boxShadow: "0 0 80px rgba(59,130,246,0.07)" }}>
 
         {/* SOL KOLON */}
-        <div style={{ background: "linear-gradient(160deg, #0F1C2E 0%, #0B1220 100%)", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid rgba(59,130,246,0.08)" }}>
+        <div className="login-left" style={{ background: "linear-gradient(160deg, #0F1C2E 0%, #0B1220 100%)", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid rgba(59,130,246,0.08)" }}>
 
           <a href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
             <LogoIcon size={32} />
@@ -100,7 +107,7 @@ export default function LoginPage() {
         </div>
 
         {/* SAG KOLON */}
-        <div style={{ background: "#0F1829", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <div className="login-right" style={{ background: "#0F1829", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
 
           <div style={{ textAlign: "center", marginBottom: 32 }}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", margin: "0 auto 16px", background: "linear-gradient(135deg, rgba(30,64,175,0.3), rgba(59,130,246,0.3))", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
