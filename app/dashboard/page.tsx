@@ -857,10 +857,10 @@ export default function DashboardPage() {
             <div style={{ marginBottom: 12 }}>
               <p style={{ fontSize: 11, color: "#64748B", marginBottom: 4, fontWeight: 500 }}>Toplam Değer</p>
               <p style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px" }}>
-                {portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                {portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
               </p>
               <p style={{ fontSize: 13, fontWeight: 600, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444", marginTop: 2 }}>
-                {portfoyOzet.toplamPLYuzde >= 0 ? "%" : "%-"}{Math.abs(portfoyOzet.toplamPLYuzde).toFixed(2).replace(".", ",")} ({portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺)
+                {portfoyOzet.toplamPLYuzde >= 0 ? "%" : "%-"}{Math.abs(portfoyOzet.toplamPLYuzde).toFixed(2).replace(".", ",")} ({portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺)
               </p>
             </div>
             {portfoyOzet?.hisseDagilim && portfoyOzet.hisseDagilim.length > 0 && (() => {
@@ -907,12 +907,12 @@ export default function DashboardPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
                 <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>Ana Para</p>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9" }}>{portfoyOzet.toplamMaliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</p>
               </div>
               <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
                 <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>K/Z ₺</p>
                 <p style={{ fontSize: 12, fontWeight: 700, color: portfoyOzet.toplamPL >= 0 ? "#10B981" : "#EF4444" }} suppressHydrationWarning>
-                  {portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                  {portfoyOzet.toplamPL >= 0 ? "+" : ""}{portfoyOzet.toplamPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
                 </p>
               </div>
               <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
