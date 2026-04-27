@@ -54,10 +54,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
       const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: yeniMesajlar,
-          ticker, veri, analiz, portfoy,
-        }),
+        body: JSON.stringify({ messages: yeniMesajlar, ticker, veri, analiz, portfoy }),
       });
       const data = await res.json();
       setMesajlar(prev => [...prev, { role: "assistant", content: data.reply }]);
@@ -69,20 +66,61 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
 
   return (
     <>
-      <button
-        onClick={() => setAcik(!acik)}
-        style={{
-          position: "fixed", bottom: 24, right: 24, zIndex: 1000,
-          width: 52, height: 52, borderRadius: "50%",
-          background: "linear-gradient(135deg, #1E40AF, #3B82F6)",
-          border: "none", cursor: "pointer", boxShadow: "0 4px 20px rgba(59,130,246,0.4)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 22, color: "#fff",
-        }}
-      >
-        {acik ? "✕" : "💬"}
-      </button>
+      <style>{`
+        @keyframes pulse-ring {
+          0% { transform: scale(1); opacity: 0.6; }
+          100% { transform: scale(1.55); opacity: 0; }
+        }
+        .pk-pulse::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background: #3B82F6;
+          animation: pulse-ring 1.8s ease-out infinite;
+          z-index: -1;
+        }
+        @keyframes fadein-label {
+          from { opacity: 0; transform: translateX(6px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
 
+      {/* Floating button */}
+      <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000, display: "flex", alignItems: "center", gap: 10 }}>
+        {!acik && (
+          <div style={{
+            animation: "fadein-label 0.3s ease",
+            background: "#0F1C2E",
+            border: "1px solid rgba(59,130,246,0.25)",
+            borderRadius: 20,
+            padding: "6px 14px",
+            display: "flex", alignItems: "center", gap: 6,
+            boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
+            cursor: "pointer",
+          }} onClick={() => setAcik(true)}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#1D9E75", flexShrink: 0 }} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#CBD5E1", whiteSpace: "nowrap" }}>AI Asistan</span>
+          </div>
+        )}
+        <button
+          onClick={() => setAcik(!acik)}
+          className={!acik ? "pk-pulse" : ""}
+          style={{
+            position: "relative",
+            width: 52, height: 52, borderRadius: "50%",
+            background: "linear-gradient(135deg, #1E40AF, #3B82F6)",
+            border: "none", cursor: "pointer",
+            boxShadow: "0 4px 20px rgba(59,130,246,0.4)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 22, color: "#fff", flexShrink: 0,
+          }}
+        >
+          {acik ? "✕" : "💬"}
+        </button>
+      </div>
+
+      {/* Chat panel */}
       {acik && (
         <div style={{
           position: "fixed", bottom: 88, right: 24, zIndex: 999,
