@@ -26,7 +26,7 @@ ${portfoy && portfoy.length > 0 ? `KULLANICININ PORTFÖYÜ:\n${portfoy.map((p: {
 Kısa, net ve Türkçe cevaplar ver. Yatırım tavsiyesi verme, analiz sun. Her cevabı 3-4 cümleyle sınırla.`;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 1024,
     system: systemPrompt,
     messages: messages,
