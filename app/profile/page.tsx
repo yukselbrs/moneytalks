@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [sekme, setSekme] = useState("Hesap Bilgileri");
+  const [istatistik, setIstatistik] = useState({ analizSayisi: 0, watchlistSayisi: 0, portfoySayisi: 0 });
   const router = useRouter();
 
   useEffect(() => {
@@ -27,6 +28,17 @@ export default function ProfilePage() {
       setEmail(session.user.email || "");
       setFullName(session.user.user_metadata?.full_name || "");
       setUsername(session.user.user_metadata?.username || "");
+      // İstatistikleri çek
+      const [analizRes, watchlistRes, portfoyRes] = await Promise.all([
+        supabase.from("analizler").select("id", { count: "exact" }).eq("user_id", session.user.id),
+        supabase.from("watchlist").select("id", { count: "exact" }).eq("user_id", session.user.id),
+        supabase.from("portfoy").select("id", { count: "exact" }).eq("user_id", session.user.id),
+      ]);
+      setIstatistik({
+        analizSayisi: analizRes.count || 0,
+        watchlistSayisi: watchlistRes.count || 0,
+        portfoySayisi: portfoyRes.count || 0,
+      });
       setLoading(false);
     });
   }, [router]);
@@ -209,10 +221,10 @@ export default function ProfilePage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
                 {[
-                  { label: "Oluşturulan Analiz", value: "—", sub: "Bu ay" },
-                  { label: "İzlenen Hisse", value: "—", sub: "Toplam" },
-                  { label: "Portföydeki Hisse", value: "—", sub: "Toplam" },
-                  { label: "Yapılan İşlem", value: "—", sub: "Bu ay" },
+                  { label: "Oluşturulan Analiz", value: istatistik.analizSayisi, sub: "Toplam" },
+                  { label: "İzlenen Hisse", value: istatistik.watchlistSayisi, sub: "Toplam" },
+                  { label: "Portföydeki Hisse", value: istatistik.portfoySayisi, sub: "Toplam" },
+                  { label: "Üyelik", value: "Demo", sub: "Mevcut plan" },
                 ].map((s) => (
                   <div key={s.label} style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "16px 20px", background: "rgba(255,255,255,0.01)" }}>
                     <p style={{ fontSize: 11, color: "#475569", marginBottom: 8 }}>{s.label}</p>
