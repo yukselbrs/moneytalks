@@ -21,11 +21,12 @@ export default async function BlogPage() {
   return (
     <AppShell>
       <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
+        <style>{`.blog-kart:hover { border-color: rgba(59,130,246,0.3) !important; background: rgba(59,130,246,0.04) !important; }`}</style>
         <main style={{ maxWidth: 800, margin: "0 auto", padding: "36px 24px" }}>
           <div style={{ marginBottom: 32 }}>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>ParaKonuşur · Blog</p>
             <h1 style={{ fontSize: 32, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px", marginBottom: 8 }}>Paraya Dair Her Şey</h1>
-            <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Türkiye'nin AI destekli finans platformundan piyasa içgörüleri, analiz ve yorum.</p>
+            <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>Türkiye&apos;nin AI destekli finans platformundan piyasa içgörüleri, analiz ve yorum.</p>
           </div>
 
           {posts.length === 0 ? (
@@ -36,10 +37,8 @@ export default async function BlogPage() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {posts.map((post: {_id: string; title: string; slug: {current: string}; excerpt?: string; publishedAt?: string}) => (
-                <a key={post._id} href={`/posts/${post.slug?.current}`}
-                  style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "20px 24px", display: "block", textDecoration: "none", background: "rgba(255,255,255,0.02)", transition: "all 0.15s" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(59,130,246,0.3)"; (e.currentTarget as HTMLAnchorElement).style.background = "rgba(59,130,246,0.04)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(59,130,246,0.1)"; (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.02)"; }}>
+                <a key={post._id} href={`/posts/${post.slug?.current}`} className="blog-kart"
+                  style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "20px 24px", display: "block", textDecoration: "none", background: "rgba(255,255,255,0.02)", transition: "all 0.15s" }}>
                   {post.publishedAt && (
                     <p style={{ fontSize: 11, color: "#334155", marginBottom: 6, fontWeight: 500 }}>
                       {new Date(post.publishedAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
