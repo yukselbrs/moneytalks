@@ -856,7 +856,7 @@ export default function DashboardPage() {
         </div>
 
         {/* SAĞ PANEL */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "sticky", top: 0, maxHeight: "100vh", overflowY: "auto", scrollbarWidth: "none" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {/* Portföy Özeti */}
         {portfoyOzet && (
           <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 0 }}>
