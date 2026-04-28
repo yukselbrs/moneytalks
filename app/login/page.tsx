@@ -14,6 +14,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -167,7 +176,7 @@ export default function LoginPage() {
               <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
             </div>
 
-            <button type="button" style={{ height: 46, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#E2E8F0", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+            <button type="button" onClick={handleGoogleLogin} style={{ height: 46, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#E2E8F0", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
               Google ile giriş yap
             </button>
 
