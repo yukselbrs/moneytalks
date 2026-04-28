@@ -8,9 +8,16 @@ on:
 jobs:
   check-alarms:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Alarm kontrolü
         run: |
-          curl -X GET "https://www.parakonusur.com/api/cron/alarmlar" \
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "https://www.parakonusur.com/api/cron/alarmlar" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            -f --max-time 30
+            --max-time 60)
+          echo "HTTP Status: $response"
+          if [ "$response" != "200" ]; then
+            echo "Hata: $response"
+            exit 1
+          fi
