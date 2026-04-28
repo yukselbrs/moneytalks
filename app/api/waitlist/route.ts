@@ -124,37 +124,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const client = getResend();
-    if (!client) return NextResponse.json({ error: "Servis yapilandirilmamis." }, { status: 503 });
-    const contactResult = await client.contacts.create({
-      email,
-      audienceId: AUDIENCE_ID,
-      unsubscribed: false,
-    });
-
-    if (contactResult.error) {
-      const errMsg = contactResult.error.message || "";
-      if (errMsg.includes("already exists") || errMsg.includes("duplicate")) {
-        return NextResponse.json({ success: true, duplicate: true });
-      }
-
-      console.error("Resend contact error:", contactResult.error);
-      return NextResponse.json(
-        { error: "Bir sorun olustu. Lutfen tekrar deneyin." },
-        { status: 500 }
-      );
+    // Supabase'e kaydet
+    const { createClient } = await import("@supabase/supabase-js");
+    const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const { error: dbErr } = await sb.from("waitlist").upsert({ email }, { onConflict: "email" });
+    if (dbErr && !dbErr.message.includes("duplicate")) {
+      console.error("Waitlist DB error:", dbErr);
     }
 
-    try {
-      await client.emails.send({
-        from: "ParaKonusur <hello@parakonusur.com>",
-        to: email,
-        subject: WELCOME_SUBJECT,
-        html: WELCOME_HTML,
-        text: WELCOME_TEXT,
-      });
-    } catch (mailErr) {
-      console.error("Welcome email send error:", mailErr);
+    // Resend varsa e-posta gönder (opsiyonel)
+    const client = getResend();
+    if (client && AUDIENCE_ID) {
+      try {
+        await client.contacts.create({ email, audienceId: AUDIENCE_ID, unsubscribed: false });
+        await client.emails.send({
+          from: "ParaKonusur <hello@parakonusur.com>",
+          to: email,
+          subject: WELCOME_SUBJECT,
+          html: WELCOME_HTML,
+          text: WELCOME_TEXT,
+        });
+      } catch (mailErr) {
+        console.error("Resend error (non-fatal):", mailErr);
+      }
     }
 
     return NextResponse.json({ success: true });
