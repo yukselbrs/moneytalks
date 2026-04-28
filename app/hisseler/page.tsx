@@ -157,9 +157,12 @@ export default function HisselerPage() {
   const [arama, setArama] = useState("");
   const [sayfa, setSayfa] = useState(1);
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
+  const [getiriler, setGetiriler] = useState<Record<string, Record<string, string | null>>>({});
 
   const filtrelendi = BIST_HISSELER.filter(h =>
-    h.ticker.includes(arama.toUpperCase()) || h.ad.toUpperCase().includes(arama.toUpperCase())
+    arama === "" ||
+    h.ticker.startsWith(arama.toUpperCase()) ||
+    h.ad.toUpperCase().startsWith(arama.toUpperCase())
   );
 
   const toplamSayfa = Math.ceil(filtrelendi.length / SAYFA_BOYUTU);
@@ -179,6 +182,16 @@ export default function HisselerPage() {
   }, [sayfa, arama]);
 
   useEffect(() => { setSayfa(1); }, [arama]);
+
+  useEffect(() => {
+    sayfadaki.forEach(hisse => {
+      if (getiriler[hisse.ticker]) return;
+      fetch(`/api/getiri?ticker=${hisse.ticker}`)
+        .then(r => r.json())
+        .then(d => setGetiriler(prev => ({ ...prev, [hisse.ticker]: d })))
+        .catch(() => {});
+    });
+  }, [sayfa, arama]);
 
   return (
     <AppShell>
@@ -213,8 +226,8 @@ export default function HisselerPage() {
           {/* Tablo */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
             {/* Header */}
-            <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 100px 120px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
-              {["#", "HİSSE", "FİYAT", "GÜN %", "HACİM"].map((h, i) => (
+            <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
+              {["#", "HİSSE", "FİYAT", "GÜN %", "1H %", "1A %", "3A %", "1Y %"].map((h, i) => (
                 <p key={h} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textAlign: i > 1 ? "right" : "left" }}>{h}</p>
               ))}
             </div>
@@ -225,7 +238,7 @@ export default function HisselerPage() {
               const globalNo = (sayfa - 1) * SAYFA_BOYUTU + i + 1;
               return (
                 <div key={hisse.ticker} className="hisse-row" onClick={() => router.push(`/hisse/${hisse.ticker}`)}
-                  style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 100px 120px", gap: 8, padding: "11px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)", cursor: "pointer", alignItems: "center", background: "transparent", transition: "background 0.1s" }}>
+                  style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "11px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)", cursor: "pointer", alignItems: "center", background: "transparent", transition: "background 0.1s" }}>
                   <span className="col-no" style={{ fontSize: 11, color: "#334155", fontWeight: 500 }}>{globalNo}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: `${renk}18`, border: `1px solid ${renk}30`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
@@ -247,7 +260,15 @@ export default function HisselerPage() {
                   <p style={{ fontSize: 12, fontWeight: 600, textAlign: "right", margin: 0, color: f ? (f.yukselis ? "#10B981" : "#EF4444") : "#1E293B" }}>
                     {f ? `${f.yukselis ? "▲" : "▼"} %${Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}` : "—"}
                   </p>
-                  <p style={{ fontSize: 11, color: "#475569", textAlign: "right", margin: 0 }}>—</p>
+                  {["1wk","1mo","3mo","1y"].map(range => {
+                    const g = getiriler[hisse.ticker]?.[range];
+                    const val = g ? parseFloat(g) : null;
+                    return (
+                      <p key={range} style={{ fontSize: 11, fontWeight: 500, textAlign: "right", margin: 0, color: val === null ? "#1E293B" : val >= 0 ? "#10B981" : "#EF4444" }}>
+                        {val === null ? "—" : `${val >= 0 ? "%" : "%-"}${Math.abs(val).toFixed(2).replace(".", ",")}`}
+                      </p>
+                    );
+                  })}
                 </div>
               );
             })}
