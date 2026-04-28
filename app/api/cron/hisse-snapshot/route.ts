@@ -1,0 +1,108 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { BIST_HISSELER } from "@/lib/bist-hisseler";
+
+export const runtime = "nodejs";
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+const BATCH = 25;
+
+type SnapshotRow = {
+  ticker: string;
+  fiyat: number | null;
+  degisim_yuzde: number | null;
+  hacim: number | null;
+  piyasa_degeri: number | null;
+  getiri_1h: number | null;
+  getiri_1a: number | null;
+  getiri_3a: number | null;
+  getiri_1y: number | null;
+};
+
+async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1y`;
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const result = data?.chart?.result?.[0];
+    if (!result) return null;
+
+    const meta = result.meta;
+    const closes: (number | null)[] = result.indicators?.quote?.[0]?.close || [];
+    const valid = closes.filter((c): c is number => c !== null && c !== undefined);
+
+    if (valid.length === 0 || !meta?.regularMarketPrice) return null;
+
+    const fiyat = meta.regularMarketPrice;
+    const prev = meta.chartPreviousClose || meta.previousClose;
+    const degisim = prev ? ((fiyat - prev) / prev) * 100 : 0;
+    const son = valid[valid.length - 1];
+
+    const getiriGeriye = (isGunu: number): number | null => {
+      if (valid.length <= isGunu) return null;
+      const ilk = valid[valid.length - 1 - isGunu];
+      return ((son - ilk) / ilk) * 100;
+    };
+
+    return {
+      ticker,
+      fiyat,
+      degisim_yuzde: degisim,
+      hacim: meta.regularMarketVolume || null,
+      piyasa_degeri: meta.marketCap || null,
+      getiri_1h: getiriGeriye(5),
+      getiri_1a: getiriGeriye(22),
+      getiri_3a: getiriGeriye(66),
+      getiri_1y: valid.length >= 2 ? ((son - valid[0]) / valid[0]) * 100 : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function GET(req: NextRequest) {
+  const auth = req.headers.get("authorization");
+  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const start = Date.now();
+  const results: SnapshotRow[] = [];
+
+  for (let i = 0; i < BIST_HISSELER.length; i += BATCH) {
+    const batch = BIST_HISSELER.slice(i, i + BATCH);
+    const data = await Promise.all(batch.map((h) => fetchHisseData(h.ticker)));
+    data.forEach((r) => r && results.push(r));
+  }
+
+  if (results.length > 0) {
+    const { error } = await supabase.from("hisse_snapshots").upsert(
+      results.map((r) => ({ ...r, updated_at: new Date().toISOString() }))
+    );
+    if (error) {
+      return NextResponse.json(
+        { error: error.message, partial_saved: 0 },
+        { status: 500 }
+      );
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    total: BIST_HISSELER.length,
+    saved: results.length,
+    failed: BIST_HISSELER.length - results.length,
+    duration_ms: Date.now() - start,
+  });
+}

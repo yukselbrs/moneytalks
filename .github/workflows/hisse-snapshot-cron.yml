@@ -1,0 +1,26 @@
+name: Hisse Snapshot Cron
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hisse snapshot güncelle
+        run: |
+          response=$(curl -s -w "\n%{http_code}" \
+            -X GET "https://www.parakonusur.com/api/cron/hisse-snapshot" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 90)
+          body=$(echo "$response" | head -n -1)
+          code=$(echo "$response" | tail -n 1)
+          echo "Status: $code"
+          echo "Body: $body"
+          if [ "$code" != "200" ]; then
+            echo "Hata: $code"
+            exit 1
+          fi
