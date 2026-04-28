@@ -251,6 +251,29 @@ export default function PortfoyPage() {
         </div>
 
         {portfoy.length > 0 && (
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => {
+                portfoy.forEach(item => {
+                  if (!riskler[item.ticker] || !riskler[item.ticker].skor) {
+                    setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
+                    fetch(`/api/risk?ticker=${item.ticker}`)
+                      .then(r => r.json())
+                      .then(json => {
+                        if (json.error) throw new Error(json.error);
+                        setRiskler(prev => ({ ...prev, [item.ticker]: { skor: json.seviyeTR || "Orta", ozet: "", yukleniyor: false, acik: false, skor100: json.skor, bilesenler: json.bilesenler } }));
+                      })
+                      .catch(() => setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "?", ozet: "", yukleniyor: false, acik: false } })));
+                  }
+                });
+              }}
+              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-700"
+            >
+              ⚡ Portföy Riskini Hesapla
+            </button>
+          </div>
+        )}
+        {portfoy.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
             <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
               <p className="text-slate-400 text-xs mb-1">Toplam Maliyet</p>
