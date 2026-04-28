@@ -256,7 +256,7 @@ export default function DashboardPage() {
         }).catch(() => {});
       });
     };
-    const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => { setPiyasa(prev => { const next = { ...prev, ...d }; try { localStorage.setItem("pk_piyasa", JSON.stringify(next)); } catch {} return next; }); }).catch(() => {});
+    const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => { setPiyasa((prev: {usd:{value:string;change:string};eur:{value:string;change:string};xu100:{value:string;change:string};xu030:{value:string;change:string}}) => { const next = { ...prev, ...d }; try { localStorage.setItem("pk_piyasa", JSON.stringify(next)); } catch {} return next; }); }).catch(() => {});
     const fetchFiyatlar = (extraList?: string[]) => {
       const wl = extraList || watchlistRef.current.map(w => w.ticker);
       const extra = wl.join(",");
