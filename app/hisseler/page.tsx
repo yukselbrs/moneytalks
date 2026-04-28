@@ -94,7 +94,7 @@ export default function HisselerPage() {
               ))}
             </div>
 
-            {sayfadaki.map((hisse, i) => {
+            {sayfadaki.filter(hisse => fiyatlar[hisse.ticker] !== null).map((hisse, i) => {
               const f = fiyatlar[hisse.ticker];
               const renk = tickerRenk(hisse.ticker);
               const globalNo = (sayfa - 1) * SAYFA_BOYUTU + i + 1;
