@@ -4,7 +4,7 @@ const DEFAULT_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "K
 
 // Global in-memory cache - 15 saniye TTL
 const g = globalThis as typeof globalThis & {
-  fiyatCache?: Record<string, { fiyat: string; degisim: string; yukselis: boolean; ts: number }>;
+  fiyatCache?: Record<string, { fiyat: string; degisim: string; yukselis: boolean; hacim: number; piyasaDegeri: number; ts: number }>;
 };
 if (!g.fiyatCache) g.fiyatCache = {};
 
@@ -24,10 +24,14 @@ async function fetchFiyat(ticker: string) {
     const price = meta.regularMarketPrice;
     const prev = meta.chartPreviousClose || meta.previousClose;
     const change = prev ? (((price - prev) / prev) * 100) : 0;
+    const hacim = meta.regularMarketVolume || 0;
+    const piyasaDegeri = meta.marketCap || 0;
     const result = {
       fiyat: price.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       degisim: change.toFixed(2),
       yukselis: change >= 0,
+      hacim,
+      piyasaDegeri,
       ts: now,
     };
     g.fiyatCache![ticker] = result;

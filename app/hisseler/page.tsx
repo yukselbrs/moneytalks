@@ -30,20 +30,30 @@ export default function HisselerPage() {
 
   const sirali = [...filtrelendi].sort((a, b) => {
     if (siralama === "alfabetik") return a.ticker.localeCompare(b.ticker);
+    const af = fiyatlar[a.ticker] as any;
+    const bf = fiyatlar[b.ticker] as any;
     if (siralama === "yukselis") {
-      const av = fiyatlar[a.ticker]; const bv = fiyatlar[b.ticker];
-      if (!av || !bv) return 0;
-      return parseFloat(bv.degisim) - parseFloat(av.degisim);
+      if (!af || !bf) return !af ? 1 : -1;
+      return parseFloat(bf.degisim) - parseFloat(af.degisim);
     }
     if (siralama === "dusus") {
-      const av = fiyatlar[a.ticker]; const bv = fiyatlar[b.ticker];
-      if (!av || !bv) return 0;
-      return parseFloat(av.degisim) - parseFloat(bv.degisim);
+      if (!af || !bf) return !af ? 1 : -1;
+      return parseFloat(af.degisim) - parseFloat(bf.degisim);
     }
-    if (siralama === "1h" || siralama === "1mo" || siralama === "3mo" || siralama === "1y") {
-      const av = getiriler[a.ticker]?.[siralama === "1h" ? "1wk" : siralama]; 
-      const bv = getiriler[b.ticker]?.[siralama === "1h" ? "1wk" : siralama];
-      if (!av || !bv) return 0;
+    if (siralama === "hacim") {
+      if (!af || !bf) return !af ? 1 : -1;
+      return (bf.hacim || 0) - (af.hacim || 0);
+    }
+    if (siralama === "piyasa") {
+      if (!af || !bf) return !af ? 1 : -1;
+      return (bf.piyasaDegeri || 0) - (af.piyasaDegeri || 0);
+    }
+    if (siralama === "1wk" || siralama === "1mo" || siralama === "3mo" || siralama === "1y") {
+      const av = getiriler[a.ticker]?.[siralama];
+      const bv = getiriler[b.ticker]?.[siralama];
+      if (!av && !bv) return 0;
+      if (!av) return 1;
+      if (!bv) return -1;
       return parseFloat(bv) - parseFloat(av);
     }
     return 0;
@@ -103,7 +113,9 @@ export default function HisselerPage() {
                 { key: "alfabetik", label: "A-Z" },
                 { key: "yukselis", label: "▲ Yükselenler" },
                 { key: "dusus", label: "▼ Düşenler" },
-                { key: "1h", label: "1H %" },
+                { key: "hacim", label: "Hacim" },
+                { key: "piyasa", label: "Piyasa Değeri" },
+                { key: "1wk", label: "1H %" },
                 { key: "1mo", label: "1A %" },
                 { key: "3mo", label: "3A %" },
                 { key: "1y", label: "1Y %" },
