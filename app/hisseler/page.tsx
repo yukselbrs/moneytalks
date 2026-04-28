@@ -20,6 +20,7 @@ export default function HisselerPage() {
   const [sayfa, setSayfa] = useState(1);
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [getiriler, setGetiriler] = useState<Record<string, Record<string, string | null>>>({});
+  const [siralama, setSiralama] = useState<string>("alfabetik");
 
   const filtrelendi = BIST_HISSELER.filter(h =>
     arama === "" ||
@@ -27,8 +28,28 @@ export default function HisselerPage() {
     h.ad.toUpperCase().startsWith(arama.toUpperCase())
   );
 
-  const toplamSayfa = Math.ceil(filtrelendi.length / SAYFA_BOYUTU);
-  const sayfadaki = filtrelendi.slice((sayfa - 1) * SAYFA_BOYUTU, sayfa * SAYFA_BOYUTU);
+  const sirali = [...filtrelendi].sort((a, b) => {
+    if (siralama === "alfabetik") return a.ticker.localeCompare(b.ticker);
+    if (siralama === "yukselis") {
+      const av = fiyatlar[a.ticker]; const bv = fiyatlar[b.ticker];
+      if (!av || !bv) return 0;
+      return parseFloat(bv.degisim) - parseFloat(av.degisim);
+    }
+    if (siralama === "dusus") {
+      const av = fiyatlar[a.ticker]; const bv = fiyatlar[b.ticker];
+      if (!av || !bv) return 0;
+      return parseFloat(av.degisim) - parseFloat(bv.degisim);
+    }
+    if (siralama === "1h" || siralama === "1mo" || siralama === "3mo" || siralama === "1y") {
+      const av = getiriler[a.ticker]?.[siralama === "1h" ? "1wk" : siralama]; 
+      const bv = getiriler[b.ticker]?.[siralama === "1h" ? "1wk" : siralama];
+      if (!av || !bv) return 0;
+      return parseFloat(bv) - parseFloat(av);
+    }
+    return 0;
+  });
+  const toplamSayfa = Math.ceil(sirali.length / SAYFA_BOYUTU);
+  const sayfadaki = sirali.slice((sayfa - 1) * SAYFA_BOYUTU, sayfa * SAYFA_BOYUTU);
 
   const fetchFiyatlar = useCallback((tickers: string[]) => {
     const eksik = tickers.filter(t => !fiyatlar[t]);
@@ -76,6 +97,22 @@ export default function HisselerPage() {
                 Hisseler
                 <span style={{ fontSize: 13, color: "#334155", fontWeight: 500, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "2px 10px" }}>{filtrelendi.length} hisse</span>
               </h1>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              {[
+                { key: "alfabetik", label: "A-Z" },
+                { key: "yukselis", label: "▲ Yükselenler" },
+                { key: "dusus", label: "▼ Düşenler" },
+                { key: "1h", label: "1H %" },
+                { key: "1mo", label: "1A %" },
+                { key: "3mo", label: "3A %" },
+                { key: "1y", label: "1Y %" },
+              ].map(s => (
+                <button key={s.key} onClick={() => { setSiralama(s.key); setSayfa(1); }}
+                  style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${siralama === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: siralama === s.key ? "rgba(59,130,246,0.15)" : "transparent", color: siralama === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: siralama === s.key ? 600 : 400, cursor: "pointer", whiteSpace: "nowrap" }}>
+                  {s.label}
+                </button>
+              ))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "8px 14px", minWidth: 260 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -139,7 +176,7 @@ export default function HisselerPage() {
           {/* Pagination */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, flexWrap: "wrap", gap: 8 }}>
             <p style={{ fontSize: 12, color: "#334155" }}>
-              {(sayfa - 1) * SAYFA_BOYUTU + 1} – {Math.min(sayfa * SAYFA_BOYUTU, filtrelendi.length)} / {filtrelendi.length} hisse
+              {(sayfa - 1) * SAYFA_BOYUTU + 1} – {Math.min(sayfa * SAYFA_BOYUTU, sirali.length)} / {sirali.length} hisse
             </p>
             <div style={{ display: "flex", gap: 4 }}>
               <button onClick={() => setSayfa(1)} disabled={sayfa === 1}
