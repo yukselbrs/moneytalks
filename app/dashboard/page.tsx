@@ -131,7 +131,7 @@ export default function DashboardPage() {
   };
   const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
   const [buyukGrafik, setBuyukGrafik] = useState<{tarih: string; fiyat: number}[]>([]);
-  const [grafikRange, setGrafikRange] = useState("1mo");
+  const [grafikRange, setGrafikRange] = useState("1d");
   const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
   const [grafikTicker, setGrafikTicker] = useState("XU100.IS");
   const [grafikTickerLabel, setGrafikTickerLabel] = useState("XU100");
@@ -207,7 +207,7 @@ export default function DashboardPage() {
         fetchFiyatlar(tickers);
       }
       setLoading(false);
-      fetchBuyukGrafik("1mo");
+      fetchBuyukGrafik("1d");
 
       // Portföy özeti
       try {
