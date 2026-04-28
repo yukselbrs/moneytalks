@@ -1,5 +1,48 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
+
+function WaitlistForm() {
+  const [email, setEmail] = useState("");
+  const [durum, setDurum] = useState<"idle"|"yukleniyor"|"basarili"|"hata">("idle");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email || !email.includes("@")) return;
+    setDurum("yukleniyor");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) { setDurum("basarili"); setEmail(""); }
+      else setDurum("hata");
+    } catch { setDurum("hata"); }
+  }
+
+  if (durum === "basarili") return (
+    <div style={{ textAlign: "center", padding: "14px 20px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 10 }}>
+      <span style={{ fontSize: 18 }}>✅</span>
+      <p style={{ fontSize: 13, color: "#10B981", fontWeight: 600, marginTop: 6 }}>Harika! Pro çıkınca sizi haberdar edeceğiz.</p>
+    </div>
+  );
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", margin: 0 }}>Pro çıktığında ilk siz öğrenin:</p>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e-posta adresiniz" required
+          style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "11px 14px", fontSize: 13, color: "#F1F5F9", outline: "none" }} />
+        <button type="submit" disabled={durum === "yukleniyor"}
+          style={{ background: "#3B82F6", color: "#fff", border: "none", borderRadius: 8, padding: "11px 18px", fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", opacity: durum === "yukleniyor" ? 0.7 : 1 }}>
+          {durum === "yukleniyor" ? "..." : "Beni Bilgilendir"}
+        </button>
+      </div>
+      {durum === "hata" && <p style={{ fontSize: 12, color: "#EF4444", textAlign: "center", margin: 0 }}>Bir hata oluştu, tekrar deneyin.</p>}
+    </form>
+  );
+}
 
 export default function ProPage() {
   return (
@@ -120,19 +163,7 @@ export default function ProPage() {
           }}>
             Dashboard'a Dön
           </Link>
-          <a href="mailto:destek@parakonusur.com" style={{
-            display: "block",
-            padding: "13px 24px",
-            background: "transparent",
-            color: "#64748B",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: 10,
-            textDecoration: "none",
-            fontSize: 14,
-            textAlign: "center",
-          }}>
-            Bildirim al → destek@parakonusur.com
-          </a>
+          <WaitlistForm />
         </div>
       </div>
 

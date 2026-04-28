@@ -441,11 +441,20 @@ export default function DashboardPage() {
                   </div>
                   <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 6 }}>
                     <div>
-                      <div style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2 }}>{e.val}</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
-                        <span>{e.up ? "▲" : "▼"}</span>
-                        <span>{e.change}</span>
-                      </div>
+                      {e.val === "-" ? (
+                        <>
+                          <div style={{ width: 110, height: 24, borderRadius: 6, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", marginBottom: 8 }} />
+                          <div style={{ width: 64, height: 14, borderRadius: 4, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite" }} />
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2 }}>{e.val}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
+                            <span>{e.up ? "▲" : "▼"}</span>
+                            <span>{e.change}</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <svg width="90" height="36" viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
                       <defs>
@@ -646,7 +655,7 @@ export default function DashboardPage() {
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: "24px 0" }}>
               <div style={{ width: 36, height: 36, borderRadius: "50%", border: "3px solid rgba(59,130,246,0.2)", borderTopColor: "#3B82F6", animation: "spin 0.8s linear infinite" }}/>
               <span style={{ fontSize: 11, color: "#334155" }}>Analiz yapılıyor...</span>
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
             </div>
           ) : aiPanel ? (
             <>

@@ -276,7 +276,7 @@ export default function IzlemePage() {
 
                       {/* Fiyat */}
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{f ? `${f.fiyat} \u20ba` : "-"}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{f ? `${f.fiyat} ₺` : "-"}</div>
                         <div style={{ fontSize: 10, color: "#334155" }}>{addedDate}</div>
                       </div>
 
@@ -287,7 +287,7 @@ export default function IzlemePage() {
                             <div style={{ fontSize: 13, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
                               {f.yukselis ? "+" : "-"}%{Math.abs(degisim).toFixed(2).replace(".",",")}
                             </div>
-                            <div style={{ fontSize: 10, color: "#334155" }}>0,00 \u20ba</div>
+                            <div style={{ fontSize: 10, color: "#334155" }}>0,00 ₺</div>
                           </>
                         ) : <span style={{ fontSize: 12, color: "#334155" }}>-</span>}
                       </div>

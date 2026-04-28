@@ -126,6 +126,26 @@ export default function PortfoyPage() {
 
   useEffect(() => { portfoyuYukle(); }, [portfoyuYukle]);
 
+  useEffect(() => {
+    if (portfoy.length === 0) return;
+    portfoy.forEach(item => {
+      if (!riskler[item.ticker]) {
+        setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
+        fetch(`/api/risk?ticker=${item.ticker}`)
+          .then(r => r.json())
+          .then(json => {
+            if (json.error) throw new Error(json.error);
+            const skor = json.seviyeTR || "Orta";
+            const ozet = `Beta: ${json.meta?.beta} · Volatilite: %${json.meta?.volatilite} · RSI: ${json.meta?.rsi}`;
+            setRiskler(prev => ({ ...prev, [item.ticker]: { skor, ozet, yukleniyor: false, acik: false, skor100: json.skor, bilesenler: json.bilesenler } }));
+          })
+          .catch(() => {
+            setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "?", ozet: "Hesaplama hatası.", yukleniyor: false, acik: false } }));
+          });
+      }
+    });
+  }, [portfoy]);
+
   const riskSkoru = useCallback(async (ticker: string) => {
     if (riskler[ticker]?.skor) return;
     setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true, acik: true } }));
@@ -387,24 +407,19 @@ export default function PortfoyPage() {
                           )}
                         </div>
                         <div className="mt-1">
-                          {risk && risk.acik ? (
+                          {risk ? (
                             risk.yukleniyor ? (
                               <span className="text-slate-500 text-xs animate-pulse">Hesaplanıyor...</span>
                             ) : (
-                              <div>
-                                <button
-                                  onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
-                                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
-                                >
-                                  {risk.skor} Risk {risk.skor100 !== undefined ? `(${risk.skor100}/100)` : ""} {risk.detay ? "▲" : "▼"}
-                                </button>
-
-                              </div>
+                              <button
+                                onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], acik: true, detay: !prev[item.ticker]?.detay } }))}
+                                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
+                              >
+                                {risk.skor} Risk {risk.skor100 !== undefined ? `(${risk.skor100}/100)` : ""} {risk.detay ? "▲" : "▼"}
+                              </button>
                             )
                           ) : (
-                            <button onClick={() => riskSkoru(item.ticker)} className="text-xs text-slate-500 hover:text-blue-400 transition-colors">
-                              AI Risk Al
-                            </button>
+                            <span className="text-xs text-slate-600 animate-pulse">Yükleniyor...</span>
                           )}
                         </div>
                       </td>

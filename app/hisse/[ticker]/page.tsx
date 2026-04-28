@@ -49,6 +49,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
   const [grafik, setGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);
+  const [grafikRange, setGrafikRange] = useState("1mo");
   const [izlemede, setIzlemede] = useState(false);
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
 
@@ -75,7 +76,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   useEffect(() => {
     fetchVeri();
-    fetch(`/api/grafik?ticker=${ticker}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
+    fetchGrafik("1mo");
     // Supabase'den analiz yükle
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
@@ -92,6 +93,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     const interval = setInterval(fetchVeri, 15000);
     return () => clearInterval(interval);
   }, [ticker]);
+
+  function fetchGrafik(range: string) {
+    fetch(`/api/grafik?ticker=${ticker}.IS&range=${range}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
+  }
 
   async function fetchVeri() {
     const res = await fetch("/api/analiz", {
@@ -211,7 +216,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           >
             {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
-          <p style={{ fontSize: 10, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>
+          {analiz && <p style={{ fontSize: 10, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
           </div>
 
         </div>
@@ -229,7 +234,16 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
         {grafik.length > 0 && (
           <div style={{ marginBottom: 24 }}>
-            <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>1 Aylık Fiyat Grafiği</p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
+                {{ "1d": "Günlük", "1wk": "Haftalık", "1mo": "Aylık", "3mo": "3 Aylık", "1y": "Yıllık" }[grafikRange]} Fiyat Grafiği
+              </p>
+              <div style={{ display: "flex", gap: 4 }}>
+                {([["1d","1G"],["1wk","1H"],["1mo","1A"],["3mo","3A"],["1y","1Y"]] as [string,string][]).map(([val, label]) => (
+                  <button key={val} onClick={() => { setGrafikRange(val); fetchGrafik(val); }} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 5, border: "1px solid", cursor: "pointer", transition: "all 0.15s", background: grafikRange === val ? "#3B82F6" : "transparent", color: grafikRange === val ? "#fff" : "#64748B", borderColor: grafikRange === val ? "#3B82F6" : "rgba(255,255,255,0.08)" }}>{label}</button>
+                ))}
+              </div>
+            </div>
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, padding: "16px 8px 8px 0" }}>
               <ResponsiveContainer width="100%" height={200}>
                 <AreaChart data={grafik}>

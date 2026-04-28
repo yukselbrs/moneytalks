@@ -117,7 +117,7 @@ export default function RiskProfilWidget() {
                 onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)")}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(59,130,246,0.1)")}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#3B82F6", minWidth: 48 }}>{h.ticker}</span>
-                <span style={{ fontSize: 11, color: "#475569", lineHeight: 1.5 }}>{h.neden}</span>
+                <span style={{ fontSize: 11, color: "#475569", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.neden}</span>
               </div>
             ))}
             <p style={{ fontSize: 9, color: "#1E293B", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.</p>
