@@ -1,0 +1,16 @@
+name: Alarm Cron Job
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-alarms:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alarm kontrolü
+        run: |
+          curl -X GET "https://www.parakonusur.com/api/cron/alarmlar" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -f --max-time 30
