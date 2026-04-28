@@ -21,6 +21,9 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
+  verification: {
+    google: "07quE2WQ2Y35Xug7Ezge5_eyMAxSzP_WZg40homYMT8",
+  },
   icons: { icon: "/favicon.svg" },
   title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
   description:
