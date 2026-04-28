@@ -259,30 +259,27 @@ export default function DashboardPage() {
     const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => { setPiyasa((prev: {usd:{value:string;change:string};eur:{value:string;change:string};xu100:{value:string;change:string};xu030:{value:string;change:string}}) => { const next = { ...prev, ...d }; try { localStorage.setItem("pk_piyasa", JSON.stringify(next)); } catch {} return next; }); }).catch(() => {});
     const fetchFiyatlar = (extraList?: string[]) => {
       const wl = extraList || watchlistRef.current.map(w => w.ticker);
-      const extra = wl.join(",");
-      const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
-      fetch(url).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
-    };
-    const fetchPiyasa = () => {
-      const tumHisseler = BIST_HISSELER.map(h => h.ticker).join(",");
-      fetch(`/api/fiyatlar?extra=${tumHisseler}`).then(r => r.json()).then(d => setPiyasaFiyatlari(d)).catch(() => {});
+      const bistTickers = BIST_HISSELER.map(h => h.ticker);
+      const tumTickers = [...new Set([...wl, ...bistTickers])];
+      fetch(`/api/fiyatlar?extra=${tumTickers.join(",")}`).then(r => r.json()).then(d => {
+        setFiyatlar(d);
+        setPiyasaFiyatlari(d);
+      }).catch(() => {});
     };
     fetchDoviz();
     fetchXu();
     fetchFiyatlar();
-    fetchPiyasa();
     setTimeout(fetchSparklines, 2000);
     const dovizInterval = setInterval(fetchDoviz, 900000);
     const xuInterval = setInterval(fetchXu, 15000);
     const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
-    const piyasaInterval = setInterval(fetchPiyasa, 60000);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
       if (stored) setRecent(JSON.parse(stored));
     };
     loadRecent();
     window.addEventListener("focus", loadRecent);
-    return () => { clearInterval(dovizInterval); clearInterval(xuInterval); clearInterval(fiyatlarInterval); clearInterval(piyasaInterval); window.removeEventListener("focus", loadRecent); };
+    return () => { clearInterval(dovizInterval); clearInterval(xuInterval); clearInterval(fiyatlarInterval); window.removeEventListener("focus", loadRecent); };
   }, [router]);
 
   async function addToWatchlist(t: string) {
