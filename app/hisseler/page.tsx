@@ -61,6 +61,17 @@ export default function HisselerPage() {
   const toplamSayfa = Math.ceil(sirali.length / SAYFA_BOYUTU);
   const sayfadaki = sirali.slice((sayfa - 1) * SAYFA_BOYUTU, sayfa * SAYFA_BOYUTU);
 
+  const fetchTumFiyatlar = useCallback(async () => {
+    const BATCH = 50;
+    for (let i = 0; i < BIST_HISSELER.length; i += BATCH) {
+      const batch = BIST_HISSELER.slice(i, i + BATCH).map(h => h.ticker);
+      fetch(`/api/fiyatlar?extra=${batch.join(",")}`)
+        .then(r => r.json())
+        .then(d => setFiyatlar(prev => ({ ...prev, ...d })))
+        .catch(() => {});
+    }
+  }, []);
+
   const fetchFiyatlar = useCallback((tickers: string[]) => {
     const eksik = tickers.filter(t => !fiyatlar[t]);
     if (eksik.length === 0) return;
@@ -75,6 +86,12 @@ export default function HisselerPage() {
   }, [sayfa, arama]);
 
   useEffect(() => { setSayfa(1); }, [arama]);
+
+  useEffect(() => {
+    if (siralama !== "alfabetik") {
+      fetchTumFiyatlar();
+    }
+  }, [siralama]);
 
   useEffect(() => {
     sayfadaki.forEach(hisse => {
