@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 - Fiyat: ${veri.fiyat} TRY
 - Gunluk aralik: ${veri.gunlukDusuk} - ${veri.gunlukYuksek} TRY
 - 52 haftalik aralik: ${veri.yillikDusuk} - ${veri.yillikYuksek} TRY
-- Gunluk islem hacmi: ${veri.hacim?.toLocaleString()} adet`
+- Gunluk islem hacmi: ${veri.hacim > 0 ? veri.hacim?.toLocaleString() + " adet" : "Endeks icin gecerli degil"}`
     : "Guncel fiyat verisi alinamadi.";
 
   try {
