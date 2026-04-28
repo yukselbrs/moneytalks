@@ -209,8 +209,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <nav className="sb-bottomnav" style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
         background: "rgba(5,10,20,0.97)", borderTop: "1px solid rgba(255,255,255,0.06)",
-        backdropFilter: "blur(12px)", padding: "0 8px",
-        alignItems: "center", justifyContent: "space-around", height: 60,
+        backdropFilter: "blur(12px)", padding: "0 4px",
+        alignItems: "center", justifyContent: "flex-start", height: 60,
+        overflowX: "auto", gap: 0,
       }}>
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
