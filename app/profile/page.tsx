@@ -97,6 +97,7 @@ export default function ProfilePage() {
 
   return (
     <AppShell>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
         <main style={{ maxWidth: 1000, margin: "0 auto", padding: "24px 24px" }}>
 

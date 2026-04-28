@@ -407,7 +407,23 @@ export default function DashboardPage() {
 
         {/* Piyasa Özeti */}
         <div>
-          <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Piyasa Özeti</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>Piyasa Özeti</p>
+            {(() => {
+              const simdi = new Date();
+              const trSaat = new Date(simdi.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
+              const saat = trSaat.getHours();
+              const dakika = trSaat.getMinutes();
+              const gun = trSaat.getDay();
+              const zamanDk = saat * 60 + dakika;
+              const acik = gun >= 1 && gun <= 5 && zamanDk >= 10 * 60 && zamanDk < 18 * 60 + 15;
+              return (
+                <span style={{ fontSize: 10, fontWeight: 700, color: acik ? "#10B981" : "#EF4444", background: acik ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${acik ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}`, borderRadius: 4, padding: "2px 7px", letterSpacing: "0.04em" }}>
+                  {acik ? "● AÇIK" : "● KAPALI"}
+                </span>
+              );
+            })()}
+          </div>
           <div className="dash-piyasa-grid">
             {[
               { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
