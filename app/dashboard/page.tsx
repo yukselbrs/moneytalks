@@ -105,7 +105,7 @@ export default function DashboardPage() {
   const [recent, setRecent] = useState<{ ticker: string; time: string }[]>([]);
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
-  const [piyasa, setPiyasa] = useState({ usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } });
+  const [piyasa, setPiyasa] = useState(() => { try { const c = localStorage.getItem("pk_piyasa"); return c ? JSON.parse(c) : { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } catch { return { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } });
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [piyasaFiyatlari, setPiyasaFiyatlari] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [bildirimAcik, setBildirimAcik] = useState(false);
@@ -241,7 +241,7 @@ export default function DashboardPage() {
 
       fetchAiPanel();
     });
-    const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => setPiyasa(d)).catch(() => {});
+    const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => { setPiyasa(d); try { localStorage.setItem("pk_piyasa", JSON.stringify(d)); } catch {} }).catch(() => {});
     const fetchSparklines = () => {
       [
         { sym: "XU100.IS", key: "XU100" },
@@ -256,7 +256,7 @@ export default function DashboardPage() {
         }).catch(() => {});
       });
     };
-    const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => setPiyasa(prev => ({ ...prev, ...d }))).catch(() => {});
+    const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => { setPiyasa(prev => { const next = { ...prev, ...d }; try { localStorage.setItem("pk_piyasa", JSON.stringify(next)); } catch {} return next; }); }).catch(() => {});
     const fetchFiyatlar = (extraList?: string[]) => {
       const wl = extraList || watchlistRef.current.map(w => w.ticker);
       const extra = wl.join(",");
