@@ -271,7 +271,7 @@ export default function DashboardPage() {
     fetchXu();
     fetchFiyatlar();
     fetchPiyasa();
-    fetchSparklines();
+    setTimeout(fetchSparklines, 2000);
     const dovizInterval = setInterval(fetchDoviz, 900000);
     const xuInterval = setInterval(fetchXu, 15000);
     const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
