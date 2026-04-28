@@ -54,6 +54,17 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
 
   useEffect(() => {
+    document.title = `${ticker} Analizi | ParaKonusur — BIST Yapay Zeka`;
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.setAttribute('name', 'description'); document.head.appendChild(metaDesc); }
+    metaDesc.setAttribute('content', `${ticker} hissesi için yapay zeka destekli teknik analiz, fiyat grafiği ve risk skoru. Borsa İstanbul (BIST) yatırımcıları için ParaKonusur.`);
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (!ogTitle) { ogTitle = document.createElement('meta'); ogTitle.setAttribute('property', 'og:title'); document.head.appendChild(ogTitle); }
+    ogTitle.setAttribute('content', `${ticker} Analizi | ParaKonusur`);
+    return () => { document.title = 'ParaKonusur — BIST Yapay Zekâ Analiz Platformu'; };
+  }, [ticker]);
+
+  useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
       const { data } = await supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).single();

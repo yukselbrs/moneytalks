@@ -27,6 +27,21 @@ export async function POST(req: NextRequest) {
   }).select().single();
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
+  // Bildirim kaydı oluştur
+  const kosulMetinBildirim = kosul === "yukari" ? "yükselirse" : "düşerse";
+  const hedefMetinBildirim = tip === "fiyat_seviye"
+    ? `${hedef_deger} ₺ seviyesine ${kosulMetinBildirim}`
+    : `%${hedef_yuzde} oranında ${kosulMetinBildirim}`;
+  await supabase.from("bildirimler").insert({
+    user_id: user.id,
+    baslik: `${ticker} fiyat alarmı oluşturuldu`,
+    aciklama: `${ticker} fiyatı ${hedefMetinBildirim} bildirim alacaksınız.`,
+    detay: "",
+    tip: "uyari",
+    ikon: "🔔",
+    okundu: false,
+  });
+
   // Onay e-postası
   const email = user.email;
   if (email) {

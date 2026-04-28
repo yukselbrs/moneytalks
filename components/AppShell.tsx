@@ -214,29 +214,32 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         alignItems: "center", justifyContent: "flex-start", height: 60,
         overflowX: "auto", gap: 0,
       }}>
-        {navItems.map((item) => {
+        {navItems.filter(item => !(item as { yakinda?: boolean }).yakinda).map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
             <a key={item.label} href={item.href} style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-              textDecoration: "none", padding: "6px 10px", borderRadius: 8,
-              color: isActive ? "#3B82F6" : "#334155",
-              background: isActive ? "rgba(59,130,246,0.08)" : "transparent",
+              textDecoration: "none", padding: "6px 10px", borderRadius: 8, minWidth: 52,
+              color: isActive ? "#3B82F6" : "#475569",
+              background: isActive ? "rgba(59,130,246,0.1)" : "transparent",
+              borderBottom: isActive ? "2px solid #3B82F6" : "2px solid transparent",
             }}>
-              {item.icon}
-              <span style={{ fontSize: 9, fontWeight: 500 }}>{item.label}</span>
+              <span style={{ color: isActive ? "#3B82F6" : "#475569" }}>{item.icon}</span>
+              <span style={{ fontSize: 9, fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
             </a>
           );
         })}
         <a href="/profile" style={{
           display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-          textDecoration: "none", padding: "6px 10px", borderRadius: 8,
-          color: pathname === "/profile" ? "#3B82F6" : "#334155",
+          textDecoration: "none", padding: "6px 10px", borderRadius: 8, minWidth: 52,
+          color: pathname === "/profile" ? "#3B82F6" : "#475569",
+          background: pathname === "/profile" ? "rgba(59,130,246,0.1)" : "transparent",
+          borderBottom: pathname === "/profile" ? "2px solid #3B82F6" : "2px solid transparent",
         }}>
-          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6" }}>
+          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: `1px solid ${pathname === "/profile" ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6" }}>
             {initials}
           </div>
-          <span style={{ fontSize: 9, fontWeight: 500 }}>Profil</span>
+          <span style={{ fontSize: 9, fontWeight: pathname === "/profile" ? 700 : 500 }}>Profil</span>
         </a>
       </nav>
     </div>

@@ -156,10 +156,32 @@ export default function IzlemePage() {
   return (
     <AppShell>
       <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
-        <main style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 28px" }}>
+        <style>{`
+          .izleme-main { max-width: 1280px; margin: 0 auto; padding: 28px 28px; }
+          .izleme-baslik { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+          .izleme-baslik-aksiyonlar { display: flex; gap: 8px; align-items: center; }
+          .izleme-ozet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+          .izleme-icerik-grid { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
+          .izleme-tablo-header { display: grid; grid-template-columns: 2fr 1fr 1fr 120px 100px; padding: 10px 18px; border-bottom: 1px solid rgba(59,130,246,0.06); gap: 8px; }
+          .izleme-tablo-satir { display: grid; grid-template-columns: 2fr 1fr 1fr 120px 100px; padding: 12px 18px; border-bottom: 1px solid rgba(59,130,246,0.04); gap: 8px; align-items: center; }
+          .izleme-sag-panel { display: flex; flex-direction: column; gap: 12px; }
+          @media (max-width: 768px) {
+            .izleme-main { padding: 14px 12px; }
+            .izleme-baslik { flex-direction: column; gap: 12px; }
+            .izleme-baslik-aksiyonlar { width: 100%; flex-wrap: wrap; }
+            .izleme-ozet-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .izleme-icerik-grid { grid-template-columns: 1fr; }
+            .izleme-sag-panel { display: none; }
+            .izleme-tablo-header { grid-template-columns: 1fr 80px 90px; }
+            .izleme-tablo-header span:nth-child(4), .izleme-tablo-header span:nth-child(5) { display: none; }
+            .izleme-tablo-satir { grid-template-columns: 1fr 80px 90px; }
+            .izleme-tablo-satir > div:nth-child(4), .izleme-tablo-satir > div:nth-child(5) { display: none; }
+          }
+        `}</style>
+        <main className="izleme-main">
 
           {/* Baslik */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
+          <div className="izleme-baslik">
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
                 <span style={{ fontSize: 20 }}>&#9733;</span>
@@ -167,7 +189,7 @@ export default function IzlemePage() {
               </div>
               <p style={{ fontSize: 12, color: "#475569" }}>Piyasayı takip ettiğin hisseleri buradan yönet ve anlık gelişmeleri kaçırma.</p>
             </div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div className="izleme-baslik-aksiyonlar">
               {/* Arama */}
               <div style={{ position: "relative" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, padding: "7px 14px" }}>
@@ -208,7 +230,7 @@ export default function IzlemePage() {
           </div>
 
           {/* Ozet Kartlar */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+          <div className="izleme-ozet-grid">
             {[
               { label: "Toplam Hisse", icon: "&#9993;", value: watchlist.length, sub: "İzleme listenizde", color: "#3B82F6" },
               { label: "Yükselenler", icon: "&#8599;", value: yukselenler.length, sub: `%${watchlist.length ? ((yukselenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#10B981" },
@@ -228,12 +250,12 @@ export default function IzlemePage() {
           </div>
 
           {/* Ana Icerik */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
+          <div className="izleme-icerik-grid">
 
             {/* Tablo */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
               {/* Tablo Baslik */}
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 120px 100px", padding: "10px 18px", borderBottom: "1px solid rgba(59,130,246,0.06)", gap: 8 }}>
+              <div className="izleme-tablo-header">
                 {["HİSSE","SON FİYAT","GÜNLÜK DEĞİŞİM","GRAFİK","İŞLEM"].map(h => (
                   <span key={h} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em" }}>{h}</span>
                 ))}
@@ -252,7 +274,7 @@ export default function IzlemePage() {
                   const trendRenk = trend === "Yukselis" ? "#10B981" : trend === "Dusus" ? "#EF4444" : "#64748B";
                   const addedDate = new Date(w.added_at).toLocaleDateString("tr-TR", { day:"2-digit", month:"short" });
                   return (
-                    <div key={w.ticker} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 120px 100px", padding: "12px 18px", borderBottom: "1px solid rgba(59,130,246,0.04)", gap: 8, alignItems: "center",
+                    <div key={w.ticker} className="izleme-tablo-satir" style={{ borderBottom: "1px solid rgba(59,130,246,0.04)", alignItems: "center",
                       background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.005)" }}
                       onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
                       onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.005)"}>
@@ -335,7 +357,7 @@ export default function IzlemePage() {
             </div>
 
             {/* Sag Panel */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="izleme-sag-panel">
 
               {/* Ozet Donut */}
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "16px" }}>
