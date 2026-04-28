@@ -165,14 +165,18 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         .hisse-kartlar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
         .hisse-analiz-btn { height: 38px; padding: 0 20px; background: linear-gradient(135deg, #1E40AF, #3B82F6); color: #F8FAFC; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; margin-top: 8px; }
         .hisse-analiz-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .hisse-range-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .hisse-range-btns { display: flex; gap: 4px; }
         @media (max-width: 640px) {
-          .hisse-main { padding: 16px 14px !important; }
-          .hisse-header { flex-direction: column; gap: 12px; }
+          .hisse-main { padding: 14px 12px !important; }
+          .hisse-header { flex-direction: column; gap: 10px; }
           .hisse-header-right { width: 100%; display: flex; flex-direction: row !important; align-items: center; justify-content: space-between; }
-          .hisse-kartlar { grid-template-columns: 1fr 1fr; }
-          .hisse-ticker { font-size: 24px !important; }
-          .hisse-fiyat { font-size: 18px !important; }
-          .hisse-analiz-btn { margin-top: 0; }
+          .hisse-kartlar { grid-template-columns: 1fr 1fr; gap: 6px; }
+          .hisse-ticker { font-size: 22px !important; }
+          .hisse-fiyat { font-size: 17px !important; }
+          .hisse-analiz-btn { margin-top: 0; height: 36px; font-size: 12px; padding: 0 14px; }
+          .hisse-range-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+          .hisse-range-btns button { font-size: 10px !important; padding: 2px 6px !important; }
         }
       `}</style>
       <main className="hisse-main" style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -234,11 +238,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
         {grafik.length > 0 && (
           <div style={{ marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div className="hisse-range-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
                 {{ "1d": "Günlük", "1wk": "Haftalık", "1mo": "Aylık", "3mo": "3 Aylık", "1y": "Yıllık" }[grafikRange]} Fiyat Grafiği
               </p>
-              <div style={{ display: "flex", gap: 4 }}>
+              <div className="hisse-range-btns" style={{ display: "flex", gap: 4 }}>
                 {([["1d","1G"],["1wk","1H"],["1mo","1A"],["3mo","3A"],["1y","1Y"]] as [string,string][]).map(([val, label]) => (
                   <button key={val} onClick={() => { setGrafikRange(val); fetchGrafik(val); }} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 5, border: "1px solid", cursor: "pointer", transition: "all 0.15s", background: grafikRange === val ? "#3B82F6" : "transparent", color: grafikRange === val ? "#fff" : "#64748B", borderColor: grafikRange === val ? "#3B82F6" : "rgba(255,255,255,0.08)" }}>{label}</button>
                 ))}

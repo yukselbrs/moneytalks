@@ -690,13 +690,15 @@ export default function DashboardPage() {
 
               {/* Alt buton - Pro kilitli */}
               <div style={{ position: "relative", marginTop: "auto" }} className="pro-btn-wrap">
-                <button
-                  disabled
-                  style={{ width: "100%", padding: "9px 0", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#475569", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                  🔒 Detaylı Analiz Gör
-                </button>
+                <a
+                  href="/pro"
+                  style={{ width: "100%", padding: "9px 0", background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#F97316", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, textDecoration: "none", transition: "all 0.15s" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(249,115,22,0.12)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(249,115,22,0.06)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; }}>
+                  ⚡ Pro&apos;ya Yükselt
+                </a>
                 <div className="pro-tooltip" style={{ display: "none", position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", borderRadius: 6, padding: "6px 12px", fontSize: 11, color: "#F97316", whiteSpace: "nowrap", zIndex: 50 }}>
-                  ⚡ Pro üyelik gereklidir
+                  Sınırsız analiz ve gerçek zamanlı veriler
                 </div>
               </div>
               <style>{`.pro-btn-wrap:hover .pro-tooltip { display: block !important; }`}</style>
@@ -854,7 +856,7 @@ export default function DashboardPage() {
         </div>
 
         {/* SAĞ PANEL */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "sticky", top: 0, maxHeight: "100vh", overflowY: "auto", scrollbarWidth: "none" }}>
         {/* Portföy Özeti */}
         {portfoyOzet && (
           <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 0 }}>

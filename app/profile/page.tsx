@@ -18,6 +18,8 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [sekme, setSekme] = useState("Hesap Bilgileri");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [istatistik, setIstatistik] = useState({ analizSayisi: 0, watchlistSayisi: 0, portfoySayisi: 0 });
   const router = useRouter();
 
@@ -28,6 +30,7 @@ export default function ProfilePage() {
       setEmail(session.user.email || "");
       setFullName(session.user.user_metadata?.full_name || "");
       setUsername(session.user.user_metadata?.username || "");
+      setAvatarUrl(session.user.user_metadata?.avatar_url || "");
       setLoading(false);
       // İstatistikleri çek
       Promise.all([
@@ -68,6 +71,22 @@ export default function ProfilePage() {
     ? fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
     : email.slice(0, 2).toUpperCase();
 
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 2 * 1024 * 1024) { setError("Fotoğraf 2MB'dan küçük olmalı."); return; }
+    setAvatarUploading(true); setError("");
+    const ext = file.name.split(".").pop();
+    const path = `avatars/${user.id}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (upErr) { setError("Yükleme hatası: " + upErr.message); setAvatarUploading(false); return; }
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+    const { error: updErr } = await supabase.auth.updateUser({ data: { avatar_url: publicUrl } });
+    if (updErr) setError("Profil güncelleme hatası.");
+    else { setAvatarUrl(publicUrl); setMessage("Profil fotoğrafı güncellendi."); }
+    setAvatarUploading(false);
+  }
+
   const displayName = username || email.split("@")[0];
 
   if (loading) return (
@@ -83,9 +102,21 @@ export default function ProfilePage() {
 
           {/* Profil Header */}
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 28 }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "2px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 700, color: "#3B82F6", flexShrink: 0 }}>
-              {initials}
-            </div>
+            <label style={{ position: "relative", cursor: "pointer", flexShrink: 0 }} title="Fotoğraf yükle">
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "2px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 700, color: "#3B82F6", overflow: "hidden", position: "relative" }}>
+                {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
+                <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0, transition: "opacity 0.15s" }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity="1")} onMouseLeave={e => (e.currentTarget.style.opacity="0")}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+                {avatarUploading && (
+                  <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 20, height: 20, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite" }} />
+                  </div>
+                )}
+              </div>
+              <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: "none" }} />
+            </label>
             <div>
               <h1 style={{ fontSize: 20, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.3px" }}>{fullName || displayName}</h1>
               <p style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>@{displayName} · {email}</p>
