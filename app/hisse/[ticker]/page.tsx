@@ -16,6 +16,7 @@ interface HisseVeri {
   yillikDusuk: number;
   gunlukYuksek: number;
   gunlukDusuk: number;
+  sirketAdi?: string;
 }
 
 function renderMarkdown(text: string) {
@@ -215,6 +216,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                 </span>
               )}
             </div>
+            {veri?.sirketAdi && <p style={{ fontSize: 15, color: "#94A3B8", fontWeight: 400, marginTop: 2, marginBottom: 0 }}>{veri.sirketAdi}</p>}
             {veri && (
               <p style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
                 {`Günlük: ${veri.gunlukDusuk} – ${veri.gunlukYuksek} ₺`}
