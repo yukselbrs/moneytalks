@@ -1,10 +1,14 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [durum, setDurum] = useState<"idle"|"yukleniyor"|"basarili"|"hata">("idle");
+
+  useEffect(() => {
+    if (localStorage.getItem("waitlist_kayitli") === "1") setDurum("basarili");
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -16,7 +20,7 @@ function WaitlistForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      if (res.ok) { setDurum("basarili"); setEmail(""); }
+      if (res.ok) { setDurum("basarili"); setEmail(""); localStorage.setItem("waitlist_kayitli", "1"); }
       else setDurum("hata");
     } catch { setDurum("hata"); }
   }
