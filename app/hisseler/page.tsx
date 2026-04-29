@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 
@@ -41,7 +41,7 @@ const SIRALAMA_OPTIONS = [
   { key: "1y", label: "1Y %" },
 ];
 
-export default function HisselerPage() {
+function HisselerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -216,5 +216,13 @@ export default function HisselerPage() {
         </main>
       </div>
     </AppShell>
+  );
+}
+
+export default function HisselerPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>}>
+      <HisselerContent />
+    </Suspense>
   );
 }
