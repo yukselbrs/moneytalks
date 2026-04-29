@@ -47,7 +47,14 @@ export default function AnalizlerPage() {
 
   function kisaOzet(analiz?: string): string {
     if (!analiz) return "";
-    const ilkCumle = analiz.split(/[.!?\n]/)[0]?.trim();
+    // Markdown kalıntılarını temizle
+    const temiz = analiz
+      .replace(/^#+\s*/gm, "")
+      .replace(/\*\*/g, "")
+      .replace(/\*/g, "")
+      .replace(/^-+\s*/gm, "")
+      .trim();
+    const ilkCumle = temiz.split(/[.!?\n]/).map(s => s.trim()).filter(s => s.length > 20)[0];
     return ilkCumle ? (ilkCumle.length > 120 ? ilkCumle.slice(0, 120) + "..." : ilkCumle + ".") : "";
   }
 
