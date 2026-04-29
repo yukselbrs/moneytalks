@@ -303,7 +303,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     <span style={{ fontSize: 13, fontWeight: 600, color: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "#E24B4A" : "#CBD5E1" }}>{s.title}</span>
                   </div>
                   <div style={{ padding: "12px 16px" }}>
-                    <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.75 }}>{s.body}</p>
+                    <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.75 }}>{s.body.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/^-\s*/gm, "• ").trim()}</p>
                   </div>
                 </div>
               ))}
