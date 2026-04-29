@@ -20,6 +20,7 @@ async function getHisseVerisi(ticker: string) {
       yillikDusuk: meta.fiftyTwoWeekLow,
       gunlukYuksek: meta.regularMarketDayHigh,
       gunlukDusuk: meta.regularMarketDayLow,
+      sirketAdi: meta.longName || meta.shortName || "",
     };
   } catch {
     return null;
@@ -36,9 +37,9 @@ export async function POST(req: NextRequest) {
 
   const veriMetni = veri
     ? `Guncel piyasa verisi:
-- Fiyat: ${veri.fiyat} TRY
-- Gunluk aralik: ${veri.gunlukDusuk} - ${veri.gunlukYuksek} TRY
-- 52 haftalik aralik: ${veri.yillikDusuk} - ${veri.yillikYuksek} TRY
+- Fiyat: ${veri.fiyat} ₺
+- Gunluk aralik: ${veri.gunlukDusuk} - ${veri.gunlukYuksek} ₺
+- 52 haftalik aralik: ${veri.yillikDusuk} - ${veri.yillikYuksek} ₺
 - Gunluk islem hacmi: ${veri.hacim > 0 ? veri.hacim?.toLocaleString() + " adet" : "Endeks icin gecerli degil"}`
     : "Guncel fiyat verisi alinamadi.";
 
@@ -67,7 +68,7 @@ Buraya yaz.
 **Dikkat Noktalari**
 Buraya yaz.
 
-Kural: Fiyat ve hacim verilerini yorumla. Somut ol. Turkce yaz. Yatirim tavsiyesi verme.`
+Kural: Fiyat ve hacim verilerini yorumla. Somut ol. Turkce yaz. Para birimi olarak TRY veya Turkish Lira yazma, sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme.`
         }
       ]
     });
