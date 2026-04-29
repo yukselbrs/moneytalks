@@ -252,9 +252,22 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         {grafik.length > 0 && (
           <div style={{ marginBottom: 24 }}>
             <div className="hisse-range-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
-                {{ "1d": "Günlük", "1wk": "Haftalık", "1mo": "Aylık", "3mo": "3 Aylık", "1y": "Yıllık" }[grafikRange]} Fiyat Grafiği
-              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
+                  {{ "1d": "Günlük", "1wk": "Haftalık", "1mo": "Aylık", "3mo": "3 Aylık", "1y": "Yıllık" }[grafikRange]} Fiyat Grafiği
+                </p>
+                {grafik.length >= 2 && (() => {
+                  const ilk = grafik[0].fiyat;
+                  const son = grafik[grafik.length - 1].fiyat;
+                  const degisim = ((son - ilk) / ilk) * 100;
+                  const pozitif = degisim >= 0;
+                  return (
+                    <span style={{ fontSize: 11, fontWeight: 600, color: pozitif ? "#10B981" : "#EF4444" }}>
+                      {pozitif ? "▲" : "▼"} %{Math.abs(degisim).toFixed(2).replace(".", ",")}
+                    </span>
+                  );
+                })()}
+              </div>
               <div className="hisse-range-btns" style={{ display: "flex", gap: 4 }}>
                 {([["1d","1G"],["1wk","1H"],["1mo","1A"],["3mo","3A"],["1y","1Y"]] as [string,string][]).map(([val, label]) => (
                   <button key={val} onClick={() => { setGrafikRange(val); fetchGrafik(val); }} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 5, border: "1px solid", cursor: "pointer", transition: "all 0.15s", background: grafikRange === val ? "#3B82F6" : "transparent", color: grafikRange === val ? "#fff" : "#64748B", borderColor: grafikRange === val ? "#3B82F6" : "rgba(255,255,255,0.08)" }}>{label}</button>
