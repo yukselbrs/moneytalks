@@ -148,7 +148,7 @@ function HisselerContent() {
               </div>
             )}
 
-            {!yukleniyor && items.map((hisse, i) => {
+            {!yukleniyor && items.filter(hisse => hisse.fiyat != null).map((hisse, i) => {
               const renk = tickerRenk(hisse.ticker);
               const globalNo = (page - 1) * 25 + i + 1;
               return (
