@@ -27,7 +27,28 @@ async function getHisseVerisi(ticker: string) {
   }
 }
 
+// IP bazlı rate limit - saatte 10 istek
+const rateLimitMap = new Map<string, { count: number; ts: number }>();
+const RATE_LIMIT = 10;
+const RATE_WINDOW = 3600000; // 1 saat
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now - entry.ts > RATE_WINDOW) {
+    rateLimitMap.set(ip, { count: 1, ts: now });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json({ error: "Saatte en fazla 10 analiz yapabilirsiniz. Lütfen daha sonra tekrar deneyin." }, { status: 429 });
+  }
   const { ticker, veriOnly, kisaYorum } = await req.json();
   const veri = await getHisseVerisi(ticker);
 
