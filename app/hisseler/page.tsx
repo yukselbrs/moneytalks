@@ -1,10 +1,7 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import { useRouter } from "next/navigation";
-import { BIST_HISSELER } from "@/lib/bist-hisseler";
-
-
 
 const RENKLER = ["#3B82F6","#8B5CF6","#EC4899","#F97316","#10B981","#06B6D4","#EAB308","#EF4444","#6366F1","#14B8A6"];
 function tickerRenk(t: string) {
@@ -12,96 +9,84 @@ function tickerRenk(t: string) {
   return RENKLER[Math.abs(h) % RENKLER.length];
 }
 
-const SAYFA_BOYUTU = 25;
+type Hisse = {
+  ticker: string;
+  ad: string;
+  domain?: string;
+  fiyat: string | null;
+  degisim: string | null;
+  yukselis: boolean | null;
+  hacim: number | null;
+  getiri_1h: string | null;
+  getiri_1a: string | null;
+  getiri_3a: string | null;
+  getiri_1y: string | null;
+};
+
+type ApiResponse = {
+  items: Hisse[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+const SIRALAMA_OPTIONS = [
+  { key: "alfabetik", label: "A-Z" },
+  { key: "yukselis", label: "▲ Yükselenler" },
+  { key: "dusus", label: "▼ Düşenler" },
+  { key: "hacim", label: "Hacim" },
+  { key: "1wk", label: "1H %" },
+  { key: "1mo", label: "1A %" },
+  { key: "3mo", label: "3A %" },
+  { key: "1y", label: "1Y %" },
+];
 
 export default function HisselerPage() {
   const router = useRouter();
-  const [arama, setArama] = useState("");
-  const [sayfa, setSayfa] = useState(1);
-  const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
-  const [getiriler, setGetiriler] = useState<Record<string, Record<string, string | null>>>({});
-  const [siralama, setSiralama] = useState<string>("alfabetik");
+  const searchParams = useSearchParams();
 
-  const filtrelendi = BIST_HISSELER.filter(h =>
-    arama === "" ||
-    h.ticker.startsWith(arama.toUpperCase()) ||
-    h.ad.toUpperCase().startsWith(arama.toUpperCase())
-  );
+  const sort = searchParams.get("sort") || "alfabetik";
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const q = searchParams.get("q") || "";
 
-  const sirali = [...filtrelendi].sort((a, b) => {
-    if (siralama === "alfabetik") return a.ticker.localeCompare(b.ticker);
-    const af = fiyatlar[a.ticker] as any;
-    const bf = fiyatlar[b.ticker] as any;
-    if (siralama === "yukselis") {
-      if (!af || !bf) return !af ? 1 : -1;
-      return parseFloat(bf.degisim) - parseFloat(af.degisim);
-    }
-    if (siralama === "dusus") {
-      if (!af || !bf) return !af ? 1 : -1;
-      return parseFloat(af.degisim) - parseFloat(bf.degisim);
-    }
-    if (siralama === "hacim") {
-      if (!af || !bf) return !af ? 1 : -1;
-      return (bf.hacim || 0) - (af.hacim || 0);
-    }
-    if (siralama === "piyasa") {
-      if (!af || !bf) return !af ? 1 : -1;
-      return (bf.piyasaDegeri || 0) - (af.piyasaDegeri || 0);
-    }
-    if (siralama === "1wk" || siralama === "1mo" || siralama === "3mo" || siralama === "1y") {
-      const av = getiriler[a.ticker]?.[siralama];
-      const bv = getiriler[b.ticker]?.[siralama];
-      if (!av && !bv) return 0;
-      if (!av) return 1;
-      if (!bv) return -1;
-      return parseFloat(bv) - parseFloat(av);
-    }
-    return 0;
-  });
-  const toplamSayfa = Math.ceil(sirali.length / SAYFA_BOYUTU);
-  const sayfadaki = sirali.slice((sayfa - 1) * SAYFA_BOYUTU, sayfa * SAYFA_BOYUTU);
+  const [arama, setArama] = useState(q);
+  const [data, setData] = useState<ApiResponse | null>(null);
+  const [yukleniyor, setYukleniyor] = useState(true);
 
-  const fetchTumFiyatlar = useCallback(async () => {
-    const BATCH = 50;
-    for (let i = 0; i < BIST_HISSELER.length; i += BATCH) {
-      const batch = BIST_HISSELER.slice(i, i + BATCH).map(h => h.ticker);
-      fetch(`/api/fiyatlar?extra=${batch.join(",")}`)
-        .then(r => r.json())
-        .then(d => setFiyatlar(prev => ({ ...prev, ...d })))
-        .catch(() => {});
-    }
-  }, []);
-
-  const fetchFiyatlar = useCallback((tickers: string[]) => {
-    const eksik = tickers.filter(t => !fiyatlar[t]);
-    if (eksik.length === 0) return;
-    fetch(`/api/fiyatlar?extra=${eksik.join(",")}`)
-      .then(r => r.json())
-      .then(d => setFiyatlar(prev => ({ ...prev, ...d })))
-      .catch(() => {});
-  }, [fiyatlar]);
-
-  useEffect(() => {
-    fetchFiyatlar(sayfadaki.map(h => h.ticker));
-  }, [sayfa, arama]);
-
-  useEffect(() => { setSayfa(1); }, [arama]);
-
-  useEffect(() => {
-    if (siralama !== "alfabetik") {
-      fetchTumFiyatlar();
-    }
-  }, [siralama]);
-
-  useEffect(() => {
-    sayfadaki.forEach(hisse => {
-      if (getiriler[hisse.ticker]) return;
-      fetch(`/api/getiri?ticker=${hisse.ticker}`)
-        .then(r => r.json())
-        .then(d => setGetiriler(prev => ({ ...prev, [hisse.ticker]: d })))
-        .catch(() => {});
+  // URL search param güncelleme yardımcısı
+  const updateParams = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([k, v]) => {
+      if (v === null || v === "") params.delete(k);
+      else params.set(k, v);
     });
-  }, [sayfa, arama]);
+    router.replace(`/hisseler?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
+
+  // Arama input → URL (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (arama !== q) {
+        updateParams({ q: arama || null, page: "1" });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [arama]);
+
+  // URL değişince data fetch
+  useEffect(() => {
+    setYukleniyor(true);
+    const params = new URLSearchParams({ sort, page: String(page) });
+    if (q) params.set("q", q);
+    fetch(`/api/hisseler?${params.toString()}`)
+      .then(r => r.json())
+      .then((d: ApiResponse) => { setData(d); setYukleniyor(false); })
+      .catch(() => setYukleniyor(false));
+  }, [sort, page, q]);
+
+  const items = data?.items || [];
+  const toplam = data?.total || 0;
+  const toplamSayfa = Math.max(1, Math.ceil(toplam / 25));
 
   return (
     <AppShell>
@@ -122,23 +107,15 @@ export default function HisselerPage() {
               <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Tüm Hisseler</p>
               <h1 style={{ fontSize: 24, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 10 }}>
                 Hisseler
-                <span style={{ fontSize: 13, color: "#334155", fontWeight: 500, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "2px 10px" }}>{filtrelendi.length} hisse</span>
+                <span style={{ fontSize: 13, color: "#334155", fontWeight: 500, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "2px 10px" }}>
+                  {yukleniyor ? "..." : `${toplam} hisse`}
+                </span>
               </h1>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              {[
-                { key: "alfabetik", label: "A-Z" },
-                { key: "yukselis", label: "▲ Yükselenler" },
-                { key: "dusus", label: "▼ Düşenler" },
-                { key: "hacim", label: "Hacim" },
-                { key: "piyasa", label: "Piyasa Değeri" },
-                { key: "1wk", label: "1H %" },
-                { key: "1mo", label: "1A %" },
-                { key: "3mo", label: "3A %" },
-                { key: "1y", label: "1Y %" },
-              ].map(s => (
-                <button key={s.key} onClick={() => { setSiralama(s.key); setSayfa(1); }}
-                  style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${siralama === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: siralama === s.key ? "rgba(59,130,246,0.15)" : "transparent", color: siralama === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: siralama === s.key ? 600 : 400, cursor: "pointer", whiteSpace: "nowrap" }}>
+              {SIRALAMA_OPTIONS.map(s => (
+                <button key={s.key} onClick={() => updateParams({ sort: s.key, page: "1" })}
+                  style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${sort === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: sort === s.key ? "rgba(59,130,246,0.15)" : "transparent", color: sort === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: sort === s.key ? 600 : 400, cursor: "pointer", whiteSpace: "nowrap" }}>
                   {s.label}
                 </button>
               ))}
@@ -153,17 +130,27 @@ export default function HisselerPage() {
 
           {/* Tablo */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
-            {/* Header */}
             <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
               {["#", "HİSSE", "FİYAT", "GÜN %", "1H %", "1A %", "3A %", "1Y %"].map((h, i) => (
                 <p key={h} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textAlign: i > 1 ? "right" : "left" }}>{h}</p>
               ))}
             </div>
 
-            {sayfadaki.filter(hisse => fiyatlar[hisse.ticker] !== null).map((hisse, i) => {
-              const f = fiyatlar[hisse.ticker];
+            {yukleniyor && (
+              <div style={{ padding: "60px 16px", textAlign: "center", color: "#475569", fontSize: 13 }}>
+                Yükleniyor...
+              </div>
+            )}
+
+            {!yukleniyor && items.length === 0 && (
+              <div style={{ padding: "60px 16px", textAlign: "center", color: "#475569", fontSize: 13 }}>
+                Sonuç bulunamadı
+              </div>
+            )}
+
+            {!yukleniyor && items.map((hisse, i) => {
               const renk = tickerRenk(hisse.ticker);
-              const globalNo = (sayfa - 1) * SAYFA_BOYUTU + i + 1;
+              const globalNo = (page - 1) * 25 + i + 1;
               return (
                 <div key={hisse.ticker} className="hisse-row" onClick={() => router.push(`/hisse/${hisse.ticker}`)}
                   style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "11px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)", cursor: "pointer", alignItems: "center", background: "transparent", transition: "background 0.1s" }}>
@@ -183,16 +170,16 @@ export default function HisselerPage() {
                     </div>
                   </div>
                   <p style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0", textAlign: "right", margin: 0 }}>
-                    {f ? `${f.fiyat} ₺` : <span style={{ color: "#1E293B" }}>—</span>}
+                    {hisse.fiyat ? `${hisse.fiyat} ₺` : <span style={{ color: "#1E293B" }}>—</span>}
                   </p>
-                  <p style={{ fontSize: 12, fontWeight: 600, textAlign: "right", margin: 0, color: f ? (f.yukselis ? "#10B981" : "#EF4444") : "#1E293B" }}>
-                    {f ? `${f.yukselis ? "▲" : "▼"} %${Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}` : "—"}
+                  <p style={{ fontSize: 12, fontWeight: 600, textAlign: "right", margin: 0, color: hisse.degisim !== null ? (hisse.yukselis ? "#10B981" : "#EF4444") : "#1E293B" }}>
+                    {hisse.degisim !== null ? `${hisse.yukselis ? "▲" : "▼"} %${Math.abs(Number(hisse.degisim)).toFixed(2).replace(".", ",")}` : "—"}
                   </p>
-                  {["1wk","1mo","3mo","1y"].map(range => {
-                    const g = getiriler[hisse.ticker]?.[range];
-                    const val = g ? parseFloat(g) : null;
+                  {(["getiri_1h","getiri_1a","getiri_3a","getiri_1y"] as const).map(key => {
+                    const g = hisse[key];
+                    const val = g !== null ? parseFloat(g) : null;
                     return (
-                      <p key={range} style={{ fontSize: 11, fontWeight: 500, textAlign: "right", margin: 0, color: val === null ? "#1E293B" : val >= 0 ? "#10B981" : "#EF4444" }}>
+                      <p key={key} style={{ fontSize: 11, fontWeight: 500, textAlign: "right", margin: 0, color: val === null ? "#1E293B" : val >= 0 ? "#10B981" : "#EF4444" }}>
                         {val === null ? "—" : `${val >= 0 ? "%" : "%-"}${Math.abs(val).toFixed(2).replace(".", ",")}`}
                       </p>
                     );
@@ -205,24 +192,24 @@ export default function HisselerPage() {
           {/* Pagination */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, flexWrap: "wrap", gap: 8 }}>
             <p style={{ fontSize: 12, color: "#334155" }}>
-              {(sayfa - 1) * SAYFA_BOYUTU + 1} – {Math.min(sayfa * SAYFA_BOYUTU, sirali.length)} / {sirali.length} hisse
+              {toplam === 0 ? "0" : `${(page - 1) * 25 + 1} – ${Math.min(page * 25, toplam)}`} / {toplam} hisse
             </p>
             <div style={{ display: "flex", gap: 4 }}>
-              <button onClick={() => setSayfa(1)} disabled={sayfa === 1}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: sayfa === 1 ? "#1E293B" : "#64748B", cursor: sayfa === 1 ? "not-allowed" : "pointer", fontSize: 12 }}>«</button>
-              <button onClick={() => setSayfa(s => Math.max(1, s - 1))} disabled={sayfa === 1}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: sayfa === 1 ? "#1E293B" : "#64748B", cursor: sayfa === 1 ? "not-allowed" : "pointer", fontSize: 12 }}>‹</button>
+              <button onClick={() => updateParams({ page: "1" })} disabled={page === 1}
+                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === 1 ? "#1E293B" : "#64748B", cursor: page === 1 ? "not-allowed" : "pointer", fontSize: 12 }}>«</button>
+              <button onClick={() => updateParams({ page: String(Math.max(1, page - 1)) })} disabled={page === 1}
+                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === 1 ? "#1E293B" : "#64748B", cursor: page === 1 ? "not-allowed" : "pointer", fontSize: 12 }}>‹</button>
               {Array.from({ length: Math.min(5, toplamSayfa) }, (_, i) => {
-                const p = Math.max(1, Math.min(sayfa - 2, toplamSayfa - 4)) + i;
+                const p = Math.max(1, Math.min(page - 2, toplamSayfa - 4)) + i;
                 return (
-                  <button key={p} onClick={() => setSayfa(p)}
-                    style={{ padding: "6px 10px", borderRadius: 6, background: sayfa === p ? "#3B82F6" : "rgba(255,255,255,0.04)", border: `1px solid ${sayfa === p ? "#3B82F6" : "rgba(59,130,246,0.1)"}`, color: sayfa === p ? "#fff" : "#64748B", cursor: "pointer", fontSize: 12, fontWeight: sayfa === p ? 700 : 400 }}>{p}</button>
+                  <button key={p} onClick={() => updateParams({ page: String(p) })}
+                    style={{ padding: "6px 10px", borderRadius: 6, background: page === p ? "#3B82F6" : "rgba(255,255,255,0.04)", border: `1px solid ${page === p ? "#3B82F6" : "rgba(59,130,246,0.1)"}`, color: page === p ? "#fff" : "#64748B", cursor: "pointer", fontSize: 12, fontWeight: page === p ? 700 : 400 }}>{p}</button>
                 );
               })}
-              <button onClick={() => setSayfa(s => Math.min(toplamSayfa, s + 1))} disabled={sayfa === toplamSayfa}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: sayfa === toplamSayfa ? "#1E293B" : "#64748B", cursor: sayfa === toplamSayfa ? "not-allowed" : "pointer", fontSize: 12 }}>›</button>
-              <button onClick={() => setSayfa(toplamSayfa)} disabled={sayfa === toplamSayfa}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: sayfa === toplamSayfa ? "#1E293B" : "#64748B", cursor: sayfa === toplamSayfa ? "not-allowed" : "pointer", fontSize: 12 }}>»</button>
+              <button onClick={() => updateParams({ page: String(Math.min(toplamSayfa, page + 1)) })} disabled={page === toplamSayfa}
+                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === toplamSayfa ? "#1E293B" : "#64748B", cursor: page === toplamSayfa ? "not-allowed" : "pointer", fontSize: 12 }}>›</button>
+              <button onClick={() => updateParams({ page: String(toplamSayfa) })} disabled={page === toplamSayfa}
+                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === toplamSayfa ? "#1E293B" : "#64748B", cursor: page === toplamSayfa ? "not-allowed" : "pointer", fontSize: 12 }}>»</button>
             </div>
           </div>
 

@@ -12,6 +12,7 @@ const supabase = createClient(
 );
 
 const BATCH = 25;
+const GUN = 86400; // saniye
 
 type SnapshotRow = {
   ticker: string;
@@ -24,6 +25,20 @@ type SnapshotRow = {
   getiri_3a: number | null;
   getiri_1y: number | null;
 };
+
+// Verilen target_ts'den önceki en yakın geçerli candle'ın close fiyatını bul
+function findCloseAtOrBefore(
+  timestamps: number[],
+  closes: (number | null)[],
+  targetTs: number
+): number | null {
+  for (let i = timestamps.length - 1; i >= 0; i--) {
+    if (timestamps[i] <= targetTs && closes[i] !== null && closes[i] !== undefined) {
+      return closes[i] as number;
+    }
+  }
+  return null;
+}
 
 async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
   try {
@@ -39,20 +54,26 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     if (!result) return null;
 
     const meta = result.meta;
+    const timestamps: number[] = result.timestamp || [];
     const closes: (number | null)[] = result.indicators?.quote?.[0]?.close || [];
-    const valid = closes.filter((c): c is number => c !== null && c !== undefined);
 
-    if (valid.length === 0 || !meta?.regularMarketPrice) return null;
+    if (timestamps.length === 0 || !meta?.regularMarketPrice) return null;
 
     const fiyat = meta.regularMarketPrice;
-    const prev = meta.chartPreviousClose || meta.previousClose;
-    const degisim = prev ? ((fiyat - prev) / prev) * 100 : 0;
-    const son = valid[valid.length - 1];
+    // En son timestamp = bugünün (ya da son işlem gününün) kapanışı
+    const sonTs = timestamps[timestamps.length - 1];
 
-    const getiriGeriye = (isGunu: number): number | null => {
-      if (valid.length <= isGunu) return null;
-      const ilk = valid[valid.length - 1 - isGunu];
-      return ((son - ilk) / ilk) * 100;
+    // Dünkü kapanış: son candle'dan ÖNCEKİ ilk geçerli candle
+    // Bunu sonTs - 1 saniye target ile bul
+    const onceki = findCloseAtOrBefore(timestamps, closes, sonTs - 1);
+    const degisim = onceki ? ((fiyat - onceki) / onceki) * 100 : 0;
+
+    // Getiriler: takvim gününe göre geriye git, o tarihte/öncesinde son geçerli candle
+    const getiri = (gunOnce: number): number | null => {
+      const targetTs = sonTs - gunOnce * GUN;
+      const ref = findCloseAtOrBefore(timestamps, closes, targetTs);
+      if (!ref || ref === 0) return null;
+      return ((fiyat - ref) / ref) * 100;
     };
 
     return {
@@ -61,10 +82,10 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
       degisim_yuzde: degisim,
       hacim: meta.regularMarketVolume || null,
       piyasa_degeri: meta.marketCap || null,
-      getiri_1h: getiriGeriye(5),
-      getiri_1a: getiriGeriye(22),
-      getiri_3a: getiriGeriye(66),
-      getiri_1y: valid.length >= 2 ? ((son - valid[0]) / valid[0]) * 100 : null,
+      getiri_1h: getiri(7),     // 1 hafta
+      getiri_1a: getiri(30),    // 1 ay
+      getiri_3a: getiri(90),    // 3 ay
+      getiri_1y: getiri(365),   // 1 yıl
     };
   } catch {
     return null;
