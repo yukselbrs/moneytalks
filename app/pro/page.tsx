@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import AppShell from "@/components/AppShell";
 
 function WaitlistForm() {
   const [email, setEmail] = useState("");
@@ -50,6 +51,7 @@ function WaitlistForm() {
 
 export default function ProPage() {
   return (
+    <AppShell>
     <div style={{
       minHeight: "100vh",
       background: "#0B1220",
@@ -175,5 +177,6 @@ export default function ProPage() {
         © 2026 ParaKonusur.com
       </p>
     </div>
+    </AppShell>
   );
 }
