@@ -284,13 +284,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>AI Analiz Özeti</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {sections.map((s, i) => (
-                <div key={i} style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, overflow: "hidden" }}>
-                  <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.07)", display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: s.title === "Dikkat Noktalari" || s.title === "Dikkat Noktaları" ? "#E24B4A" : "#3B82F6", flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, fontWeight: 500, color: "#94A3B8" }}>{s.title}</span>
+                <div key={i} style={{ border: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "1px solid rgba(226,75,74,0.25)" : "1px solid rgba(59,130,246,0.12)", borderRadius: 10, overflow: "hidden", background: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "rgba(226,75,74,0.04)" : "rgba(255,255,255,0.01)" }}>
+                  <div style={{ padding: "12px 16px", borderBottom: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "1px solid rgba(226,75,74,0.12)" : "1px solid rgba(59,130,246,0.07)", display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 7, height: 7, borderRadius: "50%", background: s.title === "Dikkat Noktalari" || s.title === "Dikkat Noktaları" ? "#E24B4A" : "#3B82F6", flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "#E24B4A" : "#CBD5E1" }}>{s.title}</span>
                   </div>
                   <div style={{ padding: "12px 16px" }}>
-                    <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.7 }}>{s.body}</p>
+                    <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.75 }}>{s.body}</p>
                   </div>
                 </div>
               ))}
