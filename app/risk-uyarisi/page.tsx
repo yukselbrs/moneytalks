@@ -13,11 +13,11 @@ export default function RiskUyarisiPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#0B1220", color: "#E2E8F0", padding: "60px 24px", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>← Ana Sayfa</a>
-        <h1 style={{ fontSize: 32, fontWeight: 700, margin: "24px 0 8px" }}>Risk Uyarısı</h1>
+        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>Ana Sayfa</a>
+        <h1 style={{ fontSize: 32, fontWeight: 700, margin: "24px 0 8px" }}>Risk Uya rısı".replace(" ", "")</h1>
         <p style={{ color: "#64748B", marginBottom: 40 }}>Son güncelleme: Mayıs 2026</p>
         <div style={{ background: "#1E293B", border: "1px solid #EF4444", borderRadius: 12, padding: "20px 24px", marginBottom: 40 }}>
-          <p style={{ color: "#FCA5A5", fontWeight: 600, marginBottom: 8 }}>Önemli Uyarı</p>
+          <p style={{ color: "#FCA5A5", fontWeight: 600, marginBottom: 8 }}>Önemli Uya rı".replace(" ", "")</p>
           <p style={{ color: "#94A3B8", lineHeight: 1.8 }}>ParaKonuşur, Sermaye Piyasası Kanunu kapsamında yatırım danışmanlığı hizmeti vermemektedir. Platform içerikleri yatırım tavsiyesi niteliği taşımaz.</p>
         </div>
         <Section title="1. Yatırım Riski">

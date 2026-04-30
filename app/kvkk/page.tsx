@@ -13,7 +13,7 @@ export default function KVKKPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#0B1220", color: "#E2E8F0", padding: "60px 24px", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>← Ana Sayfa</a>
+        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>Ana Sayfa</a>
         <h1 style={{ fontSize: 32, fontWeight: 700, margin: "24px 0 8px" }}>KVKK Aydınlatma Metni</h1>
         <p style={{ color: "#64748B", marginBottom: 40 }}>Son güncelleme: Mayıs 2026</p>
         <Section title="1. Veri Sorumlusu">
@@ -55,8 +55,8 @@ export default function KVKKPage() {
         <Section title="7. KVKK Kapsamındaki Haklarınız">
           <ul>
             <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
-            <li>İşlenmişse buna ilişkin bilgi talep etme</li>
-            <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme</li>
+            <li>İşlenmisse buna ilişkin bilgi talep etme</li>
+            <li>Eksik veya yanlış işlenmisse düzeltilmesini isteme</li>
             <li>Silinmesini veya yok edilmesini isteme</li>
             <li>Kanuna aykırı işleme nedeniyle zararın giderilmesini talep etme</li>
           </ul>

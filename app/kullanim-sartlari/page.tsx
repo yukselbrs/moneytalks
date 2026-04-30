@@ -13,7 +13,7 @@ export default function KullanimSartlariPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#0B1220", color: "#E2E8F0", padding: "60px 24px", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>← Ana Sayfa</a>
+        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>Ana Sayfa</a>
         <h1 style={{ fontSize: 32, fontWeight: 700, margin: "24px 0 8px" }}>Kullanım Şartları</h1>
         <p style={{ color: "#64748B", marginBottom: 40 }}>Son güncelleme: Mayıs 2026</p>
         <Section title="1. Genel">
