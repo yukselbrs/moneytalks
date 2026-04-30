@@ -130,6 +130,14 @@ export async function GET(req: NextRequest) {
       : 0;
     const gunlukRangeRisk = gunlukRange > 5 ? 55 : gunlukRange > 3 ? 35 : gunlukRange > 1.5 ? 20 : 10;
 
+    // 8. Likidite Riski (mutlak hacim)
+    const ortHacimMutlak = ortalama(hisse.volumes.filter((v: number) => v > 0));
+    const liikiditeRisk = ortHacimMutlak < 100000 ? 80 : ortHacimMutlak < 500000 ? 55 : ortHacimMutlak < 2000000 ? 30 : ortHacimMutlak < 10000000 ? 15 : 10;
+
+    // 9. Veri Güvenilirliği
+    const veriSayisi = hisse.closes.length;
+    const veriGüvenilir = veriSayisi >= 45;
+
     // === AĞIRLIKLI SKOR ===
     const skorBilesenleri = [
       { ad: "Beta (Sistematik Risk)", deger: beta.toFixed(2), risk: betaRisk, agirlik: 0.25 },
@@ -138,7 +146,8 @@ export async function GET(req: NextRequest) {
       { ad: "Momentum (20g)", deger: (momentumRatio > 0 ? "+" : "") + momentumRatio.toFixed(1) + "%", risk: momentumRisk, agirlik: 0.15 },
       { ad: "Hacim Anomalisi", deger: hacimOrani.toFixed(2) + "x", risk: hacimRisk, agirlik: 0.10 },
       { ad: "RSI (14)", deger: rsi.toFixed(0), risk: rsiRisk, agirlik: 0.10 },
-      { ad: "Gunluk Range", deger: gunlukRange.toFixed(2) + "%", risk: gunlukRangeRisk, agirlik: 0.05 },
+      { ad: "Gunluk Range", deger: gunlukRange.toFixed(2) + "%", risk: gunlukRangeRisk, agirlik: 0.04 },
+      { ad: "Likidite", deger: ortHacimMutlak > 1000000 ? (ortHacimMutlak/1000000).toFixed(1)+"M" : (ortHacimMutlak/1000).toFixed(0)+"K", risk: liikiditeRisk, agirlik: 0.06 },
     ];
 
     const toplamSkor = skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0);
@@ -153,6 +162,8 @@ export async function GET(req: NextRequest) {
       seviye,
       seviyeTR,
       renk,
+      veriGüvenilir,
+      veriSayisi,
       bilesenler: skorBilesenleri,
       meta: {
         beta: parseFloat(beta.toFixed(3)),
