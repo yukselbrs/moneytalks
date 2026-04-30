@@ -20,6 +20,9 @@ export default function ProfilePage() {
   const [sekme, setSekme] = useState("Hesap Bilgileri");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [silmeModal, setSilmeModal] = useState(false);
+  const [silmeOnay, setSilmeOnay] = useState("");
+  const [silmeLoading, setSilmeLoading] = useState(false);
   const [istatistik, setIstatistik] = useState({ analizSayisi: 0, watchlistSayisi: 0, portfoySayisi: 0 });
   const router = useRouter();
 
@@ -88,6 +91,24 @@ export default function ProfilePage() {
   }
 
   const displayName = username || email.split("@")[0];
+
+  async function handleHesapSil() {
+    if (silmeOnay !== "SİL") { setError('Onay için "SİL" yazın.'); return; }
+    setSilmeLoading(true); setError("");
+    try {
+      await supabase.auth.signOut();
+      const res = await fetch("/api/hesap-sil", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      if (!res.ok) throw new Error("Silme başarısız");
+      router.push("/");
+    } catch {
+      setError("Hesap silinemedi. Lütfen hello@parakonusur.com adresine yazın.");
+      setSilmeLoading(false);
+    }
+  }
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1220" }}>
@@ -240,10 +261,7 @@ export default function ProfilePage() {
                     <p style={{ fontSize: 13, color: "#E2E8F0" }}>Hesabı Sil</p>
                     <p style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Bu işlem geri alınamaz.</p>
                   </div>
-                  <button onClick={() => setMessage("Hesabınızı silmek için hello@parakonusur.com adresine yazın.")}
-                    style={{ height: 34, padding: "0 14px", background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
-                    Hesabı Sil
-                  </button>
+                  <a href="mailto:hello@parakonusur.com?subject=Hesap%20Silme%20Talebi" style={{ height: 34, padding: "0 14px", background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, fontSize: 12, cursor: "pointer", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>Hesabı Sil</a>
                 </div>
               </div>
             </div>
@@ -328,6 +346,34 @@ export default function ProfilePage() {
           </div>
         </main>
       </div>
+      {silmeModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <div style={{ background: "#0F1C2E", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 16, padding: 32, maxWidth: 420, width: "100%" }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "#F1F5F9", marginBottom: 8 }}>Hesabı Sil</h2>
+            <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.7, marginBottom: 20 }}>
+              Bu işlem geri alınamaz. Tüm verileriniz (portföy, analizler, izleme listesi, alarmlar) kalıcı olarak silinecek.
+              Onaylamak için aşağıya <strong style={{ color: "#EF4444" }}>SİL</strong> yazın.
+            </p>
+            <input
+              value={silmeOnay}
+              onChange={e => setSilmeOnay(e.target.value)}
+              placeholder='SİL yazın'
+              style={{ width: "100%", padding: "10px 14px", background: "#0B1220", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, color: "#F1F5F9", fontSize: 14, marginBottom: 16, boxSizing: "border-box" }}
+            />
+            {error && <p style={{ fontSize: 12, color: "#EF4444", marginBottom: 12 }}>{error}</p>}
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => { setSilmeModal(false); setSilmeOnay(""); setError(""); }}
+                style={{ flex: 1, height: 38, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#94A3B8", fontSize: 13, cursor: "pointer" }}>
+                Vazgeç
+              </button>
+              <button onClick={handleHesapSil} disabled={silmeLoading}
+                style={{ flex: 1, height: 38, background: "#EF4444", border: "none", borderRadius: 8, color: "#fff", fontSize: 13, fontWeight: 600, cursor: silmeLoading ? "not-allowed" : "pointer", opacity: silmeLoading ? 0.7 : 1 }}>
+                {silmeLoading ? "Siliniyor..." : "Hesabı Kalıcı Sil"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
