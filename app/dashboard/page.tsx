@@ -287,8 +287,10 @@ export default function DashboardPage() {
     fetchDoviz();
     fetchXu();
     fetchFiyatlar();
+    fetchPiyasa();
     setTimeout(fetchSparklines, 2000);
     const dovizInterval = setInterval(fetchDoviz, 900000);
+    const piyasaInterval = setInterval(fetchPiyasa, 300000);
     const xuInterval = setInterval(fetchXu, 15000);
     const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
     const loadRecent = () => {
