@@ -108,6 +108,7 @@ export default function DashboardPage() {
   const [piyasa, setPiyasa] = useState(() => { try { const c = localStorage.getItem("pk_piyasa"); return c ? JSON.parse(c) : { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } catch { return { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } });
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [piyasaFiyatlari, setPiyasaFiyatlari] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
+  const [topMovers, setTopMovers] = useState<{yukselenler: {ticker:string;fiyat:string;degisim:number}[]; dusenler: {ticker:string;fiyat:string;degisim:number}[]}|null>(null);
   const [bildirimAcik, setBildirimAcik] = useState(false);
 
   useEffect(() => {
@@ -239,7 +240,6 @@ export default function DashboardPage() {
         }
       } catch(e) { console.error("Portfoy ozet hatasi:", e); }
 
-      fetchAiPanel();
     });
     const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => { setPiyasa(d); try { localStorage.setItem("pk_piyasa", JSON.stringify(d)); } catch {} }).catch(() => {});
     const fetchSparklines = () => {
@@ -259,12 +259,30 @@ export default function DashboardPage() {
     const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => { setPiyasa((prev: {usd:{value:string;change:string};eur:{value:string;change:string};xu100:{value:string;change:string};xu030:{value:string;change:string}}) => { const next = { ...prev, ...d }; try { localStorage.setItem("pk_piyasa", JSON.stringify(next)); } catch {} return next; }); }).catch(() => {});
     const fetchFiyatlar = (extraList?: string[]) => {
       const wl = extraList || watchlistRef.current.map(w => w.ticker);
-      const bistTickers = BIST_HISSELER.map(h => h.ticker);
-      const tumTickers = [...new Set([...wl, ...bistTickers])];
-      fetch(`/api/fiyatlar?extra=${tumTickers.join(",")}`).then(r => r.json()).then(d => {
-        setFiyatlar(d);
-        setPiyasaFiyatlari(d);
-      }).catch(() => {});
+      const extra = wl.join(",");
+      const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
+      fetch(url).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
+    };
+    const fetchPiyasa = async () => {
+      try {
+        const [yukRes, dusRes] = await Promise.all([
+          fetch("/api/hisseler?sort=yukselis&page=1"),
+          fetch("/api/hisseler?sort=dusus&page=1"),
+        ]);
+        const yukJson = await yukRes.json();
+        const dusJson = await dusRes.json();
+        const yukselenler = (yukJson.items || []).slice(0, 3).map((h: {ticker:string;fiyat:string|number;degisim:string|number}) => ({
+          ticker: h.ticker,
+          fiyat: typeof h.fiyat === "number" ? h.fiyat.toLocaleString("tr-TR", {minimumFractionDigits:2}) : String(h.fiyat),
+          degisim: parseFloat(String(h.degisim)),
+        }));
+        const dusenler = (dusJson.items || []).slice(0, 3).map((h: {ticker:string;fiyat:string|number;degisim:string|number}) => ({
+          ticker: h.ticker,
+          fiyat: typeof h.fiyat === "number" ? h.fiyat.toLocaleString("tr-TR", {minimumFractionDigits:2}) : String(h.fiyat),
+          degisim: parseFloat(String(h.degisim)),
+        }));
+        setTopMovers({ yukselenler, dusenler });
+      } catch(e) { console.error("fetchPiyasa err:", e); }
     };
     fetchDoviz();
     fetchXu();
@@ -369,12 +387,12 @@ export default function DashboardPage() {
                 <div key={h.ticker} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", cursor: "pointer", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <div onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); }} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+                  <div onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); router.push(`/hisse/${h.ticker}`); }} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
                     <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px", overflow: "hidden" }}>
                       {(h as any).domain ? (
                         <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 20, height: 20, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                       ) : (
-                        ((h as {ticker:string;name:string;kisalt?:string}).kisalt || h.ticker).slice(0, 5)
+                        <span style={{ fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker) }}>{h.ticker.slice(0,4)}</span>
                       )}
                     </div>
                     <div style={{ flex: 1 }}>
@@ -713,7 +731,17 @@ export default function DashboardPage() {
                 Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.
               </p>
             </>
-          ) : null}
+          ) : (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, padding: "32px 16px" }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>🤖</div>
+              <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", lineHeight: 1.6 }}>Piyasa analizi için<br/>aşağıya tıklayın</p>
+              <button onClick={() => fetchAiPanel()}
+                style={{ padding: "9px 24px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", boxShadow: "0 4px 12px rgba(59,130,246,0.3)" }}>
+                ✦ Analiz Et
+              </button>
+              <p style={{ fontSize: 9, color: "#334155", textAlign: "center", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir.</p>
+            </div>
+          )}
         </div>
         </div>
 
@@ -728,9 +756,8 @@ export default function DashboardPage() {
                 onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.02)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(59,130,246,0.1)"; }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                   {(() => { const h = BIST_HISSELER.find(b => b.ticker === s.ticker); return (h as any)?.domain ? (
-                    <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }}
-                      onError={(e) => { const el = e.target as HTMLImageElement; el.style.display="none"; const span = document.createElement("span"); span.style.cssText=`font-size:9px;font-weight:700;color:${tickerRenk(s.ticker)}`; span.innerText=s.ticker.slice(0,3); el.parentNode?.appendChild(span); }} />
-                  ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(s.ticker) }}>{s.ticker.slice(0,3)}</span>; })()}
+                    <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display="none"; }} />
+                  ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(s.ticker) }}>{s.ticker.slice(0,4)}</span>; })()}
                   <div style={{ fontSize: 16, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{s.ticker}</div>
                 </div>
                 <div style={{ fontSize: 11, color: "#475569", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
@@ -810,7 +837,7 @@ export default function DashboardPage() {
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     {(() => { const h = BIST_HISSELER.find(b => b.ticker === w.ticker); return (h as any)?.domain ? (
                       <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(w.ticker) }}>{w.ticker.slice(0,3)}</span>; })()}
+                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(w.ticker) }}>{w.ticker.slice(0,4)}</span>; })()}
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{w.ticker}</div>
                     {fiyatlar[w.ticker] && (
@@ -847,7 +874,7 @@ export default function DashboardPage() {
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     {(() => { const h = BIST_HISSELER.find(b => b.ticker === r.ticker); return (h as any)?.domain ? (
                       <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 16, height: 16, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(r.ticker) }}>{r.ticker.slice(0,3)}</span>; })()}
+                    ) : <span style={{ fontSize: 9, fontWeight: 700, color: tickerRenk(r.ticker) }}>{r.ticker.slice(0,4)}</span>; })()}
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{r.ticker}</div>
                       <div style={{ fontSize: 11, color: "#64748B", marginTop: 1 }}>{r.time}</div>
@@ -958,13 +985,9 @@ export default function DashboardPage() {
 
 
           {/* En Çok Yükselenler / Düşenler */}
-          {Object.keys(piyasaFiyatlari).length > 0 && (() => {
-            const liste = Object.entries(piyasaFiyatlari)
-              .filter(([, v]) => v && v.degisim)
-              .map(([ticker, v]) => ({ ticker, degisim: parseFloat(String(v!.degisim).replace(",",".")), fiyat: v!.fiyat, yukselis: v!.yukselis }))
-              .sort((a, b) => Math.abs(b.degisim) - Math.abs(a.degisim));
-            const yukselenler = liste.filter(x => x.yukselis).slice(0, 3);
-            const dusenler = liste.filter(x => !x.yukselis).slice(0, 3);
+          {topMovers && (() => {
+            const yukselenler = topMovers.yukselenler;
+            const dusenler = topMovers.dusenler;
             return (
               <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
                 <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
@@ -976,7 +999,7 @@ export default function DashboardPage() {
                     <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
                     <div style={{ textAlign: "right" }}>
                       <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: "#10B981" }}>▲ %{Math.abs(h.degisim).toFixed(2).replace(".", ",")}</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#10B981" }}>▲ %{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
                     </div>
                   </div>
                 ))}
@@ -989,7 +1012,7 @@ export default function DashboardPage() {
                     <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
                     <div style={{ textAlign: "right" }}>
                       <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>▼ %-{Math.abs(h.degisim).toFixed(2).replace(".", ",")}</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>▼ %-{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
                     </div>
                   </div>
                 ))}

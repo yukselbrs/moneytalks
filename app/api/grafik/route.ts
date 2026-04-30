@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
     const formatTarih = (t: number) => {
       const d = new Date(t * 1000);
-      if (range === "1d") return d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+      if (range === "1d") return d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
       if (range === "1wk") return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });
       if (range === "1y" || range === "5y") return d.toLocaleDateString("tr-TR", { month: "short", year: "2-digit" });
       return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });

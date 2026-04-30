@@ -50,7 +50,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
   const [grafik, setGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);
-  const [grafikRange, setGrafikRange] = useState("1mo");
+  const [grafikRange, setGrafikRange] = useState("1d");
   const [izlemede, setIzlemede] = useState(false);
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
 
@@ -88,7 +88,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   useEffect(() => {
     fetchVeri();
-    fetchGrafik("1mo");
+    fetchGrafik("1d");
     // Supabase'den analiz yükle
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
