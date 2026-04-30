@@ -56,6 +56,7 @@ export default function Footer() {
               { label: "Gizlilik Politikası", href: "/gizlilik" },
               { label: "Kullanım Şartları", href: "/kullanim-sartlari" },
               { label: "KVKK", href: "/kvkk" },
+              { label: "Risk Uyarısı", href: "/risk-uyarisi" },
               { label: "İletişim", href: "mailto:hello@parakonusur.com" },
             ].map(({ label, href }) => (
               <a
