@@ -186,10 +186,9 @@ export default function AlarmlarPage() {
               {(sekme === "Tümü" || sekme === "Tüm Alarmlar" || sekme === "Haber & Duyurular") && haberAlarmlar.length > 0 && <Grup baslik="Haber & Duyuru Alarmları" liste={haberAlarmlar} badge={haberAlarmlar.length} />}
               {alarmlar.length === 0 && (
                 <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "40px 24px", background: "rgba(255,255,255,0.01)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
-                  <div style={{ fontSize: 32 }}>🔔</div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>Henüz alarm oluşturmadınız</p>
-                  <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>Fiyat hedeflerinize ulaşıldığında bildirim almak için alarm oluşturun.</p>
-                  <button onClick={() => { setModalTip("fiyat_seviye"); setModalAcik(true); }} style={{ marginTop: 4, padding: "9px 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
+                  <div style={{ fontSize: 24 }}>🔔</div>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>Henüz alarm oluşturmadınız</p>
+                  <button onClick={() => { setModalTip("fiyat_seviye"); setModalAcik(true); }} style={{ padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
                     + Fiyat Alarmı Ekle
                   </button>
                 </div>
@@ -199,21 +198,18 @@ export default function AlarmlarPage() {
             {/* Sağ */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 0, overflow: "hidden" }}>
               {/* Özet */}
-              <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "16px", background: "rgba(255,255,255,0.01)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Alarm Özeti</p>
-                  <span style={{ fontSize: 11, color: "#3B82F6", cursor: "pointer" }}>Detayları Gör</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "12px 16px", background: "rgba(255,255,255,0.01)" }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 10 }}>Alarm Özeti</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
                   {[
-                    { label: "Toplam Alarm", value: alarmlar.length, ikon: "🔔", renk: "#3B82F6" },
-                    { label: "Aktif", value: aktifSayi, ikon: "✅", renk: "#10B981" },
-                    { label: "Beklemede", value: beklemeSayi, ikon: "⏳", renk: "#F59E0B" },
-                    { label: "Devre Dışı", value: alarmlar.filter(a=>a.durum==="devre_disi").length, ikon: "❌", renk: "#EF4444" },
+                    { label: "Toplam", value: alarmlar.length, renk: "#3B82F6" },
+                    { label: "Aktif", value: aktifSayi, renk: "#10B981" },
+                    { label: "Beklemede", value: beklemeSayi, renk: "#F59E0B" },
+                    { label: "Devre Dışı", value: alarmlar.filter(a=>a.durum==="devre_disi").length, renk: "#EF4444" },
                   ].map(s => (
-                    <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "12px" }}>
-                      <p style={{ fontSize: 22, fontWeight: 800, color: s.renk }}>{s.value}</p>
-                      <p style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>{s.label}</p>
+                    <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
+                      <p style={{ fontSize: 20, fontWeight: 800, color: s.renk }}>{s.value}</p>
+                      <p style={{ fontSize: 9, color: "#475569", marginTop: 2 }}>{s.label}</p>
                     </div>
                   ))}
                 </div>
