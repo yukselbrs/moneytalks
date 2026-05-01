@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
+import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -521,8 +522,28 @@ export default function PortfoyPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-slate-400 text-xs mb-1 block">Hisse Kodu</label>
-                <input className={inputCls + " uppercase"} placeholder="THYAO" value={ekleModal.ticker}
-                  onChange={(e) => setEkleModal((m) => ({ ...m, ticker: e.target.value.toUpperCase() }))} />
+                <div style={{ position: "relative" }}>
+                  <input className={inputCls + " uppercase"} placeholder="THYAO" value={ekleModal.ticker}
+                    onChange={(e) => setEkleModal((m) => ({ ...m, ticker: e.target.value.toUpperCase() }))}
+                    autoComplete="off" />
+                  {ekleModal.ticker.length >= 2 && (() => {
+                    const q = ekleModal.ticker.toUpperCase();
+                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.name && h.name.toUpperCase().includes(q))).slice(0, 6);
+                    return matches.length > 0 ? (
+                      <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 100, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                        {matches.map(h => (
+                          <div key={h.ticker} onMouseDown={() => setEkleModal(m => ({ ...m, ticker: h.ticker }))}
+                            style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)") }
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</span>
+                            <span style={{ fontSize: 11, color: "#475569" }}>{h.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
               </div>
               <div>
                 <label className="text-slate-400 text-xs mb-1 block">Adet (lot)</label>

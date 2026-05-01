@@ -68,7 +68,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
-      const { data } = await supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).single();
+      const { data } = await supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
       if (data) setIzlemede(true);
     });
   }, [ticker]);
@@ -92,7 +92,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     // Supabase'den analiz yükle
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
-      const { data } = await supabase.from("analizler").select("analiz").eq("user_id", session.user.id).eq("ticker", ticker).single();
+      const { data } = await supabase.from("analizler").select("analiz").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
       if (data?.analiz) {
         setAnaliz(data.analiz);
       }
@@ -234,6 +234,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
           {analiz && <p style={{ fontSize: 10, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
+          {analiz && <p style={{ fontSize: 10, color: "#334155", marginTop: 4, lineHeight: 1.6, textAlign: "right", maxWidth: 280 }}>Bu analiz teknik göstergeler, fiyat ve hacim verilerini kapsar. Temel analiz, bilanço ve KAP haberleri dahil değildir. Yatırım tavsiyesi değildir.</p>}
           </div>
 
         </div>

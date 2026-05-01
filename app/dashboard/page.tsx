@@ -1067,6 +1067,9 @@ export default function DashboardPage() {
         <p style={{ fontSize: 10, color: "#334155", marginTop: 8, lineHeight: 1.6 }}>
           ParaKonuşur yatırım danışmanlığı hizmeti sunmamaktadır. İçerikler yalnızca bilgilendirme amaçlıdır.
         </p>
+        <p style={{ fontSize: 10, color: "#334155", marginTop: 4, lineHeight: 1.6 }}>
+          Veriler 15 dakika gecikmeli olarak sunulmaktadır.
+        </p>
       </div>
     </AppShell>
   );
