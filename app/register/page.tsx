@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sozlesmeOnay, setSozlesmeOnay] = useState(false);
+  const [modalIcerik, setModalIcerik] = useState<{baslik: string; icerik: string} | null>(null);
   const [success, setSuccess] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -49,6 +50,10 @@ export default function RegisterPage() {
     }
   }
 
+  const KULLANIM = `Kullanım Şartları\n\nParaKonuşur yatırım danışmanlığı hizmeti sunmamaktadır. Platform içerikleri yalnızca bilgilendirme amaçlıdır ve yatırım tavsiyesi niteliği taşımamaktadır.\n\nKullanıcı Yükümlülükleri\nPlatforma yalnızca kişisel ve yasal amaçlarla erişmek, hesap bilgilerinizi gizli tutmak, platformu otomatik araçlarla kullanmamak, sistemlere zarar verecek eylemlerden kaçınmak ve platform içeriklerini izinsiz kopyalamak veya dağıtmamak.\n\nSorumluluk Sınırlaması\nParaKonuşur; platform kullanımından, sunulan analizlere dayanılarak alınan yatırım kararlarından veya veri gecikmelerinden kaynaklanabilecek zararlardan sorumlu tutulamaz.\n\nVeri Doğruluğu\nPlatformda sunulan finansal veriler 15 dakika gecikmeli olabilir. Yatırım kararlarınızda resmi kaynaklara başvurmanızı tavsiye ederiz.\n\nUygulanacak Hukuk\nBu şartlar Türkiye Cumhuriyeti hukukuna tabidir.`;
+
+  const GIZLILIK = `Gizlilik Politikası\n\nTopladığımız Veriler\nKayıt sırasında ad, soyad ve e-posta adresinizi alırız. Portföy ve izleme listesi oluşturduğunuzda ilgili hisse bilgilerini saklarız. IP adresi, tarayıcı türü ve oturum bilgileri teknik altyapımız tarafından otomatik olarak kaydedilebilir.\n\nVerilerin Kullanımı\nVerileriniz hesabınızı yönetmek, yapay zeka destekli analiz hizmetlerini sunmak, güvenliği sağlamak ve yasal yükümlülükleri yerine getirmek amacıyla kullanılır.\n\nVeri Güvenliği\nVerileriniz Supabase altyapısında şifrelenmiş olarak saklanmaktadır. Şifreler hiçbir zaman düz metin olarak tutulmaz.\n\nÜçüncü Taraflar\nSupabase, Vercel, Anthropic ve Resend hizmetleri kullanılmaktadır. Bu sağlayıcıların kendi gizlilik politikaları mevcuttur.\n\nVeri Silme\nHesabınızı sildiğinizde kişisel verileriniz 30 gün içinde kalıcı olarak silinir.\n\nİletişim\nhello@parakonusur.com`;
+
   if (success) {
     return (
       <div style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
@@ -70,6 +75,28 @@ export default function RegisterPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "16px" : "24px" }}>
+      {modalIcerik && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={() => setModalIcerik(null)}>
+          <div style={{ background: "#0F1829", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 16, maxWidth: 560, width: "100%", maxHeight: "75vh", display: "flex", flexDirection: "column" }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid rgba(59,130,246,0.1)" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#F1F5F9" }}>{modalIcerik.baslik}</h3>
+              <button onClick={() => setModalIcerik(null)} style={{ background: "none", border: "none", color: "#64748B", fontSize: 20, cursor: "pointer", lineHeight: 1 }}>×</button>
+            </div>
+            <div style={{ overflowY: "auto", padding: "20px", flex: 1 }}>
+              {(modalIcerik.icerik === "kullanim" ? KULLANIM : GIZLILIK).split("\n\n").map((paragraf, i) => (
+                <div key={i} style={{ marginBottom: 16 }}>
+                  {paragraf.split("\n").map((satir, j) => (
+                    <p key={j} style={{ fontSize: 13, color: j === 0 && i > 0 ? "#E2E8F0" : "#94A3B8", lineHeight: 1.7, fontWeight: j === 0 && i > 0 ? 600 : 400 }}>{satir}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "12px 20px", borderTop: "1px solid rgba(59,130,246,0.1)" }}>
+              <button onClick={() => { setSozlesmeOnay(true); setModalIcerik(null); }} style={{ width: "100%", height: 38, background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Okudum, Kabul Ediyorum</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={{ width: "100%", maxWidth: isMobile ? 480 : 960, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(59,130,246,0.12)", boxShadow: "0 0 80px rgba(59,130,246,0.07)" }}>
 
         {/* SOL KOLON - sadece desktop */}
@@ -182,9 +209,9 @@ export default function RegisterPage() {
               <input type="checkbox" id="sozlesme" checked={sozlesmeOnay} onChange={e => setSozlesmeOnay(e.target.checked)}
                 style={{ marginTop: 2, cursor: "pointer", accentColor: "#3B82F6", width: 15, height: 15, flexShrink: 0 }} />
               <label htmlFor="sozlesme" style={{ fontSize: 12, color: "#64748B", lineHeight: 1.6, cursor: "pointer" }}>
-                <a href="/kullanim-sartlari" target="_blank" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Kullanım Şartları</a>
+                <button type="button" onClick={() => setModalIcerik({ baslik: "Kullanım Şartları", icerik: "kullanim" })} style={{ background: "none", border: "none", padding: 0, color: "#3B82F6", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Kullanım Şartları</button>
                 {" "}ve{" "}
-                <a href="/gizlilik" target="_blank" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Gizlilik Politikası</a>
+                <button type="button" onClick={() => setModalIcerik({ baslik: "Gizlilik Politikası", icerik: "gizlilik" })} style={{ background: "none", border: "none", padding: 0, color: "#3B82F6", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Gizlilik Politikası</button>
                 {"'"}nı okudum ve kabul ediyorum. Platformun yatırım tavsiyesi niteliği taşımadığını anlıyorum.
               </label>
             </div>
