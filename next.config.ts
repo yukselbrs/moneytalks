@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["www.google.com", "t1.gstatic.com", "t2.gstatic.com", "t3.gstatic.com"],
+    remotePatterns: [
+      { protocol: "https", hostname: "www.google.com" },
+      { protocol: "https", hostname: "t1.gstatic.com" },
+      { protocol: "https", hostname: "t2.gstatic.com" },
+      { protocol: "https", hostname: "t3.gstatic.com" },
+    ],
   },
 };
 
