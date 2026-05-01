@@ -59,14 +59,22 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
 
     if (timestamps.length === 0 || !meta?.regularMarketPrice) return null;
 
-    const fiyat = meta.regularMarketPrice;
-    // En son timestamp = bugünün (ya da son işlem gününün) kapanışı
+    // Son iki geçerli candle'ı bul
+    let sonFiyat: number | null = null;
+    let oncekiFiyat: number | null = null;
+    for (let i = closes.length - 1; i >= 0; i--) {
+      if (closes[i] !== null && closes[i] !== undefined) {
+        if (sonFiyat === null) {
+          sonFiyat = closes[i] as number;
+        } else {
+          oncekiFiyat = closes[i] as number;
+          break;
+        }
+      }
+    }
+    const fiyat = sonFiyat || meta.regularMarketPrice;
     const sonTs = timestamps[timestamps.length - 1];
-
-    // Dünkü kapanış: son candle'dan ÖNCEKİ ilk geçerli candle
-    // Bunu sonTs - 1 saniye target ile bul
-    const onceki = findCloseAtOrBefore(timestamps, closes, sonTs - 1);
-    const degisim = onceki ? ((fiyat - onceki) / onceki) * 100 : 0;
+    const degisim = oncekiFiyat ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : 0;
 
     // Getiriler: takvim gününe göre geriye git, o tarihte/öncesinde son geçerli candle
     const getiri = (gunOnce: number): number | null => {
