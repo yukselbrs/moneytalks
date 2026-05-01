@@ -288,7 +288,7 @@ export default function DashboardPage() {
     fetchXu();
     fetchFiyatlar();
     fetchPiyasa();
-    setTimeout(fetchSparklines, 2000);
+    fetchSparklines();
     const dovizInterval = setInterval(fetchDoviz, 900000);
     const piyasaInterval = setInterval(fetchPiyasa, 300000);
     const xuInterval = setInterval(fetchXu, 15000);
@@ -452,15 +452,14 @@ export default function DashboardPage() {
               const bgColor = e.up ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)";
               // Gercek sparkline veya fallback
               const rawPts = sparklines[e.label] || [];
-              const pts = rawPts.length > 1 ? rawPts : (e.up
-                ? [40,38,42,37,41,36,39,34,38,32,35,30,33,28,30,25,28,22,26,20]
-                : [20,22,25,21,27,23,29,25,31,27,33,30,35,32,37,34,39,36,41,38]);
+              const pts = rawPts.length > 1 ? rawPts : [];
               const w = 90, h = 36;
-              const mn = Math.min(...pts), mx = Math.max(...pts);
+              const mn = pts.length > 1 ? Math.min(...pts) : 0;
+              const mx = pts.length > 1 ? Math.max(...pts) : 1;
               const sx = (i: number) => (i / (pts.length - 1)) * w;
               const sy = (v: number) => h - ((v - mn) / (mx - mn + 1)) * h;
-              const d = pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i)} ${sy(v)}`).join(" ");
-              const area = d + ` L ${w} ${h} L 0 ${h} Z`;
+              const d = pts.length > 1 ? pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i)} ${sy(v)}`).join(" ") : "";
+              const area = d ? d + ` L ${w} ${h} L 0 ${h} Z` : "";
               return (
                 <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -496,8 +495,8 @@ export default function DashboardPage() {
                           <stop offset="100%" stopColor={color} stopOpacity="0"/>
                         </linearGradient>
                       </defs>
-                      <path d={area} fill={`url(#sg-${e.label})`}/>
-                      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      {area && <path d={area} fill={`url(#sg-${e.label})`}/>}
+                      {d && <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>}
                     </svg>
                   </div>
                 </div>
