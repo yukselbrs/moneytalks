@@ -21,7 +21,24 @@ export async function POST(req: NextRequest) {
   if (error || !user) return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
   const body = await req.json();
   const { ticker, tip, kosul, hedef_deger, hedef_yuzde } = body;
+
   if (!ticker || !tip || !kosul) return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
+  if (typeof ticker !== "string" || !/^[A-Z0-9]{2,10}$/.test(ticker.trim()))
+    return NextResponse.json({ error: "Geçersiz ticker formatı" }, { status: 400 });
+  if (!["fiyat_seviye", "yuzde_degisim"].includes(tip))
+    return NextResponse.json({ error: "Geçersiz alarm tipi" }, { status: 400 });
+  if (!["yukari", "asagi"].includes(kosul))
+    return NextResponse.json({ error: "Geçersiz koşul" }, { status: 400 });
+  if (tip === "fiyat_seviye") {
+    const deger = Number(hedef_deger);
+    if (!hedef_deger || isNaN(deger) || deger <= 0 || deger > 1_000_000)
+      return NextResponse.json({ error: "Geçersiz hedef fiyat" }, { status: 400 });
+  }
+  if (tip === "yuzde_degisim") {
+    const yuzde = Number(hedef_yuzde);
+    if (!hedef_yuzde || isNaN(yuzde) || yuzde <= 0 || yuzde > 100)
+      return NextResponse.json({ error: "Geçersiz hedef yüzde (0-100 arası olmalı)" }, { status: 400 });
+  }
   const { data, error: insertError } = await supabase.from("alarmlar").insert({
     user_id: user.id, ticker, tip, kosul, hedef_deger, hedef_yuzde
   }).select().single();

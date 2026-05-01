@@ -9,6 +9,19 @@ const g = globalThis as typeof globalThis & {
 if (!g.fiyatCache) g.fiyatCache = {};
 
 const TTL = 15000;
+const MAX_CACHE_SIZE = 200;
+
+function pruneCache() {
+  const cache = g.fiyatCache!;
+  const now = Date.now();
+  for (const key of Object.keys(cache)) {
+    if (now - cache[key].ts > TTL * 4) delete cache[key];
+  }
+  if (Object.keys(cache).length > MAX_CACHE_SIZE) {
+    const sorted = Object.entries(cache).sort((a, b) => a[1].ts - b[1].ts);
+    sorted.slice(0, sorted.length - MAX_CACHE_SIZE).forEach(([k]) => delete cache[k]);
+  }
+}
 
 async function fetchFiyat(ticker: string) {
   const now = Date.now();
@@ -42,6 +55,7 @@ async function fetchFiyat(ticker: string) {
 }
 
 export async function GET(req: NextRequest) {
+  pruneCache();
   const extra = req.nextUrl.searchParams.get("extra");
   const extraTickers = extra ? extra.split(",").filter(Boolean) : [];
   const allTickers = [...new Set([...DEFAULT_TICKERS, ...extraTickers])];
