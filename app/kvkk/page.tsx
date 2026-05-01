@@ -9,62 +9,78 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default function KVKKPage() {
+function PageWrapper({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: "100vh", background: "#0B1220", color: "#E2E8F0", padding: "60px 24px", fontFamily: "var(--font-manrope, sans-serif)" }}>
-      <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>Ana Sayfa</a>
-        <h1 style={{ fontSize: 32, fontWeight: 700, margin: "24px 0 8px" }}>KVKK Aydınlatma Metni</h1>
-        <p style={{ color: "#64748B", marginBottom: 40 }}>Son güncelleme: Mayıs 2026</p>
-        <Section title="1. Veri Sorumlusu">
-          <p>6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu sıfatıyla ParaKonuşur (parakonusur.com) olarak kişisel verilerinizi işlemekteyiz. İletişim: hello@parakonusur.com</p>
-        </Section>
-        <Section title="2. İşlenen Kişisel Veriler">
-          <ul>
-            <li>Kimlik ve iletişim bilgileri: Ad, e-posta adresi</li>
-            <li>Hesap bilgileri: Kullanıcı adı, profil fotoğrafı (isteğe bağlı), hesap oluşturma tarihi</li>
-            <li>Platform kullanım verileri: Portföy girişleri, izleme listesi, fiyat alarmaları, yapay zekâ analiz geçmişi</li>
-            <li>Teknik veriler: IP adresi, tarayıcı türü, oturum bilgileri</li>
-            <li>İletişim tercihleri: E-posta bildirim ayarları</li>
-          </ul>
-        </Section>
-        <Section title="3. Kişisel Verilerin İşlenme Amaçları">
-          <ul>
-            <li>Kullanıcı hesabının oluşturulması ve yönetilmesi</li>
-            <li>Hisse analizi, portföy takibi ve fiyat alarm hizmetlerinin sunulması</li>
-            <li>Yapay zekâ destekli analiz özelliklerinin çalıştırılması</li>
-            <li>E-posta bildirimleri ve platform duyurularının iletilmesi</li>
-            <li>Hizmet güvenliğinin sağlanması ve yasal yükümlülüklerin yerine getirilmesi</li>
-          </ul>
-        </Section>
-        <Section title="4. Hukuki Dayanak">
-          <p>Kişisel verileriniz; sözleşmenin ifası (KVKK m. 5/2-c), meşru menfaat (KVKK m. 5/2-f) ve açık rıza (KVKK m. 5/1) hukuki sebeplerine dayanılarak işlenmektedir.</p>
-        </Section>
-        <Section title="5. Kişisel Verilerin Aktarımı">
-          <ul>
-            <li>Supabase Inc. — veritabanı ve kimlik doğrulama altyapısı</li>
-            <li>Resend Inc. — e-posta gönderim altyapısı</li>
-            <li>Vercel Inc. — uygulama barındırma altyapısı</li>
-            <li>Anthropic, Inc. — yapay zekâ analiz altyapısı</li>
-          </ul>
-          <p>Verileriniz ticari amaçla üçüncü taraflarla paylaşılmamaktadır.</p>
-        </Section>
-        <Section title="6. Kişisel Verilerin Saklanma Süresi">
-          <p>Verileriniz hesabınız aktif olduğu sürece saklanır. Hesap silme talebinde bulunmanız halinde 30 gün içinde silinir.</p>
-        </Section>
-        <Section title="7. KVKK Kapsamındaki Haklarınız">
-          <ul>
-            <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
-            <li>İşlenmisse buna ilişkin bilgi talep etme</li>
-            <li>Eksik veya yanlış işlenmisse düzeltilmesini isteme</li>
-            <li>Silinmesini veya yok edilmesini isteme</li>
-            <li>Kanuna aykırı işleme nedeniyle zararın giderilmesini talep etme</li>
-          </ul>
-        </Section>
-        <Section title="8. Başvuru Yöntemi">
-          <p>Haklarınızı kullanmak için hello@parakonusur.com adresine e-posta gönderebilirsiniz. Talepler en geç 30 gün içinde yanıtlanır.</p>
-        </Section>
+    <div style={{ background: "#0B1220", minHeight: "100vh", padding: "48px 24px" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div style={{ marginBottom: 40 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: "#F8FAFC", marginBottom: 8 }}>{title}</h1>
+          <p style={{ fontSize: 13, color: "#475569" }}>{subtitle}</p>
+        </div>
+        {children}
       </div>
     </div>
+  );
+}
+
+export default function KVKKPage() {
+  return (
+    <PageWrapper title="KVKK Aydınlatma Metni" subtitle="Son güncelleme: Mayıs 2026">
+      <Section title="1. Veri Sorumlusu">
+        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu sıfatıyla Barış Yüksel ve Kaan İlgin (bundan sonra "ParaKonuşur" veya "Biz" olarak anılacaktır) tarafından kişisel verileriniz aşağıda açıklanan amaçlar doğrultusunda işlenmektedir. İletişim: hello@parakonusur.com</p>
+      </Section>
+      <Section title="2. İşlenen Kişisel Veriler">
+        <ul style={{ paddingLeft: 20, marginTop: 8 }}>
+          <li style={{ marginBottom: 6 }}>Kimlik verileri: Ad, soyad, kullanıcı adı</li>
+          <li style={{ marginBottom: 6 }}>İletişim verileri: E-posta adresi</li>
+          <li style={{ marginBottom: 6 }}>Kullanım verileri: Analiz geçmişi, izleme listesi, portföy bilgileri</li>
+          <li style={{ marginBottom: 6 }}>Teknik veriler: IP adresi, tarayıcı türü, cihaz bilgisi, oturum bilgileri</li>
+          <li style={{ marginBottom: 6 }}>Finansal tercih verileri: Takip edilen hisseler, portföy içerikleri</li>
+        </ul>
+      </Section>
+      <Section title="3. Kişisel Verilerin İşlenme Amaçları">
+        <ul style={{ paddingLeft: 20, marginTop: 8 }}>
+          <li style={{ marginBottom: 6 }}>Üyelik ve kimlik doğrulama işlemlerinin yürütülmesi</li>
+          <li style={{ marginBottom: 6 }}>Hizmetlerin sunulması ve kişiselleştirilmesi</li>
+          <li style={{ marginBottom: 6 }}>Yapay zeka destekli analiz hizmetlerinin sağlanması</li>
+          <li style={{ marginBottom: 6 }}>Sistem güvenliği ve doğrulama süreçleri</li>
+          <li style={{ marginBottom: 6 }}>Yasal yükümlülüklerin yerine getirilmesi</li>
+          <li style={{ marginBottom: 6 }}>Hizmet kalitesinin artırılması ve teknik sorunların giderilmesi</li>
+          <li style={{ marginBottom: 6 }}>Kullanım istatistiklerinin oluşturulması (anonim)</li>
+        </ul>
+      </Section>
+      <Section title="4. Hukuki Dayanak">
+        <p>Kişisel verileriniz; KVKK Madde 5/2-a (kanunlarda açıkça öngörülmesi), Madde 5/2-c (sözleşmenin kurulması veya ifası), Madde 5/2-ç (hukuki yükümlülük) ve Madde 5/2-f (meşru menfaat) hukuki dayanaklarına göre işlenmektedir. Açık rıza gerektiren işlemler için ayrıca onayınız alınmaktadır.</p>
+      </Section>
+      <Section title="5. Kişisel Verilerin Aktarımı">
+        <p>Kişisel verileriniz aşağıdaki üçüncü taraflara aktarılabilmektedir:</p>
+        <ul style={{ paddingLeft: 20, marginTop: 8 }}>
+          <li style={{ marginBottom: 6 }}>Supabase Inc. — Veritabanı ve kimlik doğrulama altyapısı (ABD, GDPR uyumlu)</li>
+          <li style={{ marginBottom: 6 }}>Vercel Inc. — Uygulama barındırma hizmeti (ABD, GDPR uyumlu)</li>
+          <li style={{ marginBottom: 6 }}>Resend Inc. — E-posta iletişim hizmeti (ABD, GDPR uyumlu)</li>
+          <li style={{ marginBottom: 6 }}>Anthropic Inc. — Yapay zeka analiz hizmeti (ABD, GDPR uyumlu)</li>
+          <li style={{ marginBottom: 6 }}>Yasal yükümlülükler kapsamında ilgili kamu kurum ve kuruluşları</li>
+        </ul>
+      </Section>
+      <Section title="6. Kişisel Verilerin Saklanma Süresi">
+        <p>Kişisel verileriniz, üyelik süreniz boyunca ve üyeliğin sona ermesinden itibaren yasal yükümlülükler kapsamında en fazla 3 yıl süreyle saklanmaktadır. Analiz geçmişi ve portföy verileri hesap silme talebi üzerine derhal silinmektedir.</p>
+      </Section>
+      <Section title="7. KVKK Kapsamındaki Haklarınız">
+        <p>KVKK Madde 11 uyarınca aşağıdaki haklara sahipsiniz:</p>
+        <ul style={{ paddingLeft: 20, marginTop: 8 }}>
+          <li style={{ marginBottom: 6 }}>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+          <li style={{ marginBottom: 6 }}>İşlenmişse buna ilişkin bilgi talep etme</li>
+          <li style={{ marginBottom: 6 }}>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+          <li style={{ marginBottom: 6 }}>Yurt içi veya yurt dışında aktarıldığı üçüncü kişileri öğrenme</li>
+          <li style={{ marginBottom: 6 }}>Eksik veya yanlış işlenmişse düzeltilmesini talep etme</li>
+          <li style={{ marginBottom: 6 }}>KVKK Madde 7 kapsamında silinmesini veya yok edilmesini talep etme</li>
+          <li style={{ marginBottom: 6 }}>İşlemenin otomatik sistemler aracılığıyla yapılması halinde ortaya çıkan aleyhine sonuca itiraz etme</li>
+          <li style={{ marginBottom: 6 }}>Zararın giderilmesini talep etme</li>
+        </ul>
+      </Section>
+      <Section title="8. Başvuru Yöntemi">
+        <p>Haklarınıza ilişkin taleplerinizi hello@parakonusur.com adresine e-posta göndererek veya profil sayfanızdaki "Hesabı Sil" seçeneğini kullanarak iletebilirsiniz. Talepler 30 gün içinde yanıtlanacaktır.</p>
+      </Section>
+    </PageWrapper>
   );
 }

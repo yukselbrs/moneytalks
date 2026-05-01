@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sozlesmeOnay, setSozlesmeOnay] = useState(false);
   const [success, setSuccess] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -27,6 +28,7 @@ export default function RegisterPage() {
     e.preventDefault();
     const pwError = validatePassword(password);
     if (pwError) { setError(pwError); return; }
+    if (!sozlesmeOnay) { setError("Devam etmek için kullanım şartlarını ve gizlilik politikasını kabul etmelisiniz."); return; }
     setLoading(true);
     setError("");
     const { error } = await supabase.auth.signUp({
@@ -176,8 +178,18 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <button type="submit" disabled={loading}
-              style={{ height: 44, background: loading ? "#1E3A6E" : "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", marginTop: 4 }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <input type="checkbox" id="sozlesme" checked={sozlesmeOnay} onChange={e => setSozlesmeOnay(e.target.checked)}
+                style={{ marginTop: 2, cursor: "pointer", accentColor: "#3B82F6", width: 15, height: 15, flexShrink: 0 }} />
+              <label htmlFor="sozlesme" style={{ fontSize: 12, color: "#64748B", lineHeight: 1.6, cursor: "pointer" }}>
+                <a href="/kullanim-sartlari" target="_blank" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Kullanım Şartları</a>
+                {" "}ve{" "}
+                <a href="/gizlilik" target="_blank" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Gizlilik Politikası</a>
+                {"'"}nı okudum ve kabul ediyorum. Platformun yatırım tavsiyesi niteliği taşımadığını anlıyorum.
+              </label>
+            </div>
+            <button type="submit" disabled={loading || !sozlesmeOnay}
+              style={{ height: 44, background: (loading || !sozlesmeOnay) ? "#1E3A6E" : "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: (loading || !sozlesmeOnay) ? "not-allowed" : "pointer", marginTop: 4, opacity: !sozlesmeOnay ? 0.6 : 1 }}>
               {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
             </button>
           </form>

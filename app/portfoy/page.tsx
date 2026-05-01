@@ -528,7 +528,7 @@ export default function PortfoyPage() {
                     autoComplete="off" />
                   {ekleModal.ticker.length >= 2 && (() => {
                     const q = ekleModal.ticker.toUpperCase();
-                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.name && h.name.toUpperCase().includes(q))).slice(0, 6);
+                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6);
                     return matches.length > 0 ? (
                       <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 100, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
                         {matches.map(h => (
@@ -537,7 +537,7 @@ export default function PortfoyPage() {
                             onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)") }
                             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</span>
-                            <span style={{ fontSize: 11, color: "#475569" }}>{h.name}</span>
+                            <span style={{ fontSize: 11, color: "#475569" }}>{h.ad}</span>
                           </div>
                         ))}
                       </div>

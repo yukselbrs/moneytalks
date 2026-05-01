@@ -9,46 +9,57 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default function RiskUyarisiPage() {
+function PageWrapper({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: "100vh", background: "#0B1220", color: "#E2E8F0", padding: "60px 24px", fontFamily: "var(--font-manrope, sans-serif)" }}>
-      <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <a href="/" style={{ color: "#3B82F6", textDecoration: "none", fontSize: 14 }}>Ana Sayfa</a>
-        <h1 style={{ fontSize: 32, fontWeight: 700, margin: "24px 0 8px" }}>Risk Uya rısı".replace(" ", "")</h1>
-        <p style={{ color: "#64748B", marginBottom: 40 }}>Son güncelleme: Mayıs 2026</p>
-        <div style={{ background: "#1E293B", border: "1px solid #EF4444", borderRadius: 12, padding: "20px 24px", marginBottom: 40 }}>
-          <p style={{ color: "#FCA5A5", fontWeight: 600, marginBottom: 8 }}>Önemli Uya rı".replace(" ", "")</p>
-          <p style={{ color: "#94A3B8", lineHeight: 1.8 }}>ParaKonuşur, Sermaye Piyasası Kanunu kapsamında yatırım danışmanlığı hizmeti vermemektedir. Platform içerikleri yatırım tavsiyesi niteliği taşımaz.</p>
+    <div style={{ background: "#0B1220", minHeight: "100vh", padding: "48px 24px" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div style={{ marginBottom: 40 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: "#F8FAFC", marginBottom: 8 }}>{title}</h1>
+          <p style={{ fontSize: 13, color: "#475569" }}>{subtitle}</p>
         </div>
-        <Section title="1. Yatırım Riski">
-          <p>Sermaye piyasası araçlarına yatırım yapmak ciddi finansal riskler barındırmaktadır. Yatırımınızın tamamını veya bir kısmını kaybedebilirsiniz. Geçmiş getiriler geleceği garanti etmez.</p>
-        </Section>
-        <Section title="2. Platform İçeriklerinin Niteliği">
-          <ul>
-            <li>Hisse fiyat verileri gecikmeli olabilir (15 dakikaya kadar)</li>
-            <li>Teknik analiz göstergeleri geçmiş veriye dayanır, geleceği garanti etmez</li>
-            <li>Yapay zekâ analizleri otomatik üretilir, hata içerebilir</li>
-            <li>Hiçbir içerik alım, satım veya elde tutma tavsiyesi değildir</li>
-          </ul>
-        </Section>
-        <Section title="3. Yapay Zekâ Analizlerinin Sınırlılıkları">
-          <ul>
-            <li>Analizler Anthropic Claude modeli tarafından otomatik üretilir</li>
-            <li>İnsan denetiminden geçmez</li>
-            <li>Eksik veya hatalı piyasa verilerine dayanıyor olabilir</li>
-            <li>Kesin finansal sonuçları öngöremez</li>
-          </ul>
-        </Section>
-        <Section title="4. Kişisel Sorumluluk">
-          <p>Platform üzerinden erişilen bilgiler doğrultusunda verilen yatırım kararları tamamen kullanıcının sorumluluğundadır. ParaKonuşur bu kararlar nedeniyle uğranılan zararlardan hukuki sorumluluk kabul etmez.</p>
-        </Section>
-        <Section title="5. Lisanslı Danışmanlık">
-          <p>Yatırım kararı vermeden önce SPK lisanslı bir yatırım danışmanına başvurmanızı tavsiye ederiz.</p>
-        </Section>
-        <Section title="6. İletişim">
-          <p>hello@parakonusur.com</p>
-        </Section>
+        {children}
       </div>
     </div>
+  );
+}
+
+export default function RiskUyarisiPage() {
+  return (
+    <PageWrapper title="Risk Uyarısı" subtitle="Son güncelleme: Mayıs 2026">
+      <Section title="Genel Risk Uyarısı">
+        <p>ParaKonuşur platformunda sunulan tüm içerikler, analizler, grafikler, yapay zeka çıktıları ve risk skorları yalnızca bilgilendirme amaçlıdır. Bu içerikler hiçbir koşulda yatırım tavsiyesi, alım-satım önerisi veya finansal danışmanlık hizmeti olarak yorumlanamaz.</p>
+      </Section>
+      <Section title="SPK Uyarısı">
+        <p>ParaKonuşur, Sermaye Piyasası Kurulu (SPK) tarafından yetkilendirilmiş bir yatırım danışmanlığı veya portföy yönetim şirketi değildir. 6362 sayılı Sermaye Piyasası Kanunu kapsamında yatırım danışmanlığı hizmeti sunulmamaktadır. Yatırım danışmanlığı hizmeti, kişilerin risk ve getiri tercihleri dikkate alınarak kişiye özel sunulmaktadır.</p>
+      </Section>
+      <Section title="Yatırım Riskleri">
+        <ul style={{ paddingLeft: 20, marginTop: 8 }}>
+          <li style={{ marginBottom: 6 }}>Sermaye piyasası araçlarına yapılan yatırımlar risk içermektedir. Yatırılan anaparanın tamamı kaybedilebilir.</li>
+          <li style={{ marginBottom: 6 }}>Geçmiş performans gelecekteki sonuçların garantisi değildir.</li>
+          <li style={{ marginBottom: 6 }}>Hisse senedi fiyatları piyasa koşullarına, ekonomik gelişmelere ve şirket haberlerine bağlı olarak anlık değişkenlik gösterebilir.</li>
+          <li style={{ marginBottom: 6 }}>Kaldıraçlı işlemler, türev araçlar ve yüksek volatiliteli varlıklar özellikle yüksek risk taşır.</li>
+          <li style={{ marginBottom: 6 }}>Döviz kuru değişimleri yatırım getirilerini olumlu veya olumsuz etkileyebilir.</li>
+        </ul>
+      </Section>
+      <Section title="Yapay Zeka Analizleri Hakkında">
+        <p>Platform üzerindeki yapay zeka destekli analizler, geçmiş fiyat verileri ve teknik göstergeler kullanılarak otomatik olarak üretilmektedir. Bu analizler:</p>
+        <ul style={{ paddingLeft: 20, marginTop: 8 }}>
+          <li style={{ marginBottom: 6 }}>Şirketin finansal tablolarını, bilançosunu veya nakit akışını analiz etmemektedir</li>
+          <li style={{ marginBottom: 6 }}>KAP bildirimleri veya şirket haberlerini dikkate almamaktadır</li>
+          <li style={{ marginBottom: 6 }}>Makroekonomik koşulları veya sektör dinamiklerini değerlendirmemektedir</li>
+          <li style={{ marginBottom: 6 }}>Kişisel risk toleransınızı, yatırım ufkunuzu veya finansal durumunuzu bilmemektedir</li>
+        </ul>
+        <p style={{ marginTop: 8 }}>Bu nedenle yapay zeka çıktıları yalnızca bir başlangıç noktası olarak değerlendirilmeli; kesinlikle tek başına yatırım kararı almak için kullanılmamalıdır.</p>
+      </Section>
+      <Section title="Veri Gecikmesi">
+        <p>Platformda sunulan fiyat verileri 15 dakika gecikmeli olabilir. Anlık işlem kararları için lütfen aracı kurum platformlarındaki gerçek zamanlı verileri kullanınız.</p>
+      </Section>
+      <Section title="Sorumluluk Reddi">
+        <p>ParaKonuşur; platform içeriklerine dayanılarak yapılan yatırımlardan doğabilecek maddi veya manevi zararlardan hiçbir koşulda sorumlu tutulamaz. Yatırım kararlarınız tamamen size aittir ve kendi sorumluluğunuzda gerçekleştirilmektedir.</p>
+      </Section>
+      <Section title="Profesyonel Tavsiye">
+        <p>Yatırım yapmadan önce kendi araştırmanızı yapmanızı ve gerektiğinde SPK lisanslı bir yatırım danışmanına başvurmanızı şiddetle tavsiye ederiz.</p>
+      </Section>
+    </PageWrapper>
   );
 }
