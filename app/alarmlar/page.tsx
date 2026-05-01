@@ -5,7 +5,7 @@ import AlarmModal from "@/components/AlarmModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { supabase } from "@/components/lib/supabase";
 
-const ALARMLAR: {id:number;tip:string;hisse:string;sirket:string;kosul:string;detay:string;hedef:string;guncel:string;degisim:string;yukselis:boolean;tarih:string;durum:string}[] = [];
+const ALARMLAR: {id:string|number;tip:string;hisse:string;sirket:string;kosul:string;detay:string;hedef:string;guncel:string;degisim:string;yukselis:boolean;tarih:string;durum:string}[] = [];
 
 const HIZLI = [
   { ikon:"📈", renk:"#10B981", baslik:"Fiyat Alarmı Ekle", aciklama:"Belirlediğiniz fiyat seviyelerine ulaşıldığında bildirim alın." },
