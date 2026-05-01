@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (!ticker || !tip || !kosul) return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
   if (typeof ticker !== "string" || !/^[A-Z0-9]{2,10}$/.test(ticker.trim()))
     return NextResponse.json({ error: "Geçersiz ticker formatı" }, { status: 400 });
-  if (!["fiyat_seviye", "yuzde_degisim"].includes(tip))
+  if (!["fiyat_seviye", "fiyat_yuzde", "yuzde_degisim", "gosterge"].includes(tip))
     return NextResponse.json({ error: "Geçersiz alarm tipi" }, { status: 400 });
   if (!["yukari", "asagi"].includes(kosul))
     return NextResponse.json({ error: "Geçersiz koşul" }, { status: 400 });

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import AlarmModal from "@/components/AlarmModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { supabase } from "@/components/lib/supabase";
 
 const ALARMLAR: {id:number;tip:string;hisse:string;sirket:string;kosul:string;detay:string;hedef:string;guncel:string;degisim:string;yukselis:boolean;tarih:string;durum:string}[] = [];
 
@@ -21,11 +22,40 @@ export default function AlarmlarPage() {
   const [fiyatlar, setFiyatlar] = useState<Record<string, {fiyat: string; degisim: string; yukselis: boolean}>>({});
 
   useEffect(() => {
-    const tickers = [...new Set(ALARMLAR.filter(a => a.tip === "fiyat" || a.tip === "gosterge").map(a => a.hisse))].join(",");
-    fetch(`/api/fiyatlar?extra=${tickers}`)
-      .then(r => r.json())
-      .then(d => setFiyatlar(d))
-      .catch(() => {});
+    async function fetchAlarmlar() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/alarmlar", {
+        headers: { authorization: `Bearer ${session.access_token}` }
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const mapped = data.map((a: {id:string;ticker:string;tip:string;kosul:string;hedef_deger:number|null;hedef_yuzde:number|null;durum:string;created_at:string}) => ({
+          id: a.id,
+          tip: a.tip === "fiyat_seviye" || a.tip === "fiyat_yuzde" ? "fiyat" : a.tip === "gosterge" ? "gosterge" : "haber",
+          hisse: a.ticker,
+          sirket: "",
+          kosul: a.kosul === "yukari" ? "Fiyat yükselirse" : "Fiyat düşerse",
+          detay: a.tip === "fiyat_seviye" ? "Fiyat seviyesi" : a.tip === "fiyat_yuzde" ? "Yüzde değişim" : "",
+          hedef: a.hedef_deger ? `${a.hedef_deger} ₺` : a.hedef_yuzde ? `%${a.hedef_yuzde}` : "-",
+          guncel: "-",
+          degisim: "",
+          yukselis: true,
+          tarih: new Date(a.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "2-digit" }),
+          durum: a.durum || "aktif",
+          rawId: a.id,
+        }));
+        setAlarmlar(mapped as typeof ALARMLAR);
+        const tickers = [...new Set(mapped.map(a => a.hisse))].join(",");
+        if (tickers) {
+          fetch(`/api/fiyatlar?extra=${tickers}`)
+            .then(r => r.json())
+            .then(d => setFiyatlar(d))
+            .catch(() => {});
+        }
+      }
+    }
+    fetchAlarmlar();
   }, []);
 
   const fiyatAlarmlar = alarmlar.filter(a => a.tip === "fiyat");
@@ -241,7 +271,7 @@ export default function AlarmlarPage() {
           </div>
         </main>
       </div>
-      {modalAcik && <AlarmModal onKapat={() => setModalAcik(false)} onEklendi={() => {}} varsayilanTip={modalTip as "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "bildirim_tercihleri"} />}
+      {modalAcik && <AlarmModal onKapat={() => setModalAcik(false)} onEklendi={() => { setModalAcik(false); window.location.reload(); }} varsayilanTip={modalTip as "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "bildirim_tercihleri"} />}
     </AppShell>
   );
 }
