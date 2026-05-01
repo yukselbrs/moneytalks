@@ -62,7 +62,7 @@ export default function AlarmlarPage() {
   const gostergeAlarmlar = alarmlar.filter(a => a.tip === "gosterge");
   const haberAlarmlar = alarmlar.filter(a => a.tip === "haber");
 
-  const toggleDurum = (id: number) => {
+  const toggleDurum = (id: string|number) => {
     setAlarmlar(prev => prev.map(a => a.id === id ? { ...a, durum: a.durum === "aktif" ? "devre_disi" : "aktif" } : a));
   };
 
@@ -72,7 +72,7 @@ export default function AlarmlarPage() {
 
   const tipRenk = (tip: string) => tip === "fiyat" ? { bg: "rgba(59,130,246,0.15)", fg: "#3B82F6" } : tip === "gosterge" ? { bg: "rgba(139,92,246,0.15)", fg: "#8B5CF6" } : { bg: "rgba(249,115,22,0.15)", fg: "#F97316" };
 
-  const AlarmSatir = ({ a, onSil, fiyatlar }: { a: typeof ALARMLAR[0]; onSil: (id: number) => void; fiyatlar: Record<string, {fiyat: string; degisim: string; yukselis: boolean}> }) => {
+  const AlarmSatir = ({ a, onSil, fiyatlar }: { a: typeof ALARMLAR[0]; onSil: (id: string|number) => void; fiyatlar: Record<string, {fiyat: string; degisim: string; yukselis: boolean}> }) => {
     const renk = tipRenk(a.tip);
     const guncelFiyat = fiyatlar[a.hisse];
 
@@ -158,7 +158,7 @@ export default function AlarmlarPage() {
     );
   }
 
-  const Grup = ({ baslik, liste, badge }: { baslik: string; liste: typeof ALARMLAR; badge: number }) => {
+  const Grup = ({ baslik, liste, badge }: { baslik: string; liste: typeof ALARMLAR; badge: number; }) => {
     const [acik, setAcik] = useState(true);
     return (
       <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.01)", marginBottom: 16 }}>
@@ -189,7 +189,7 @@ export default function AlarmlarPage() {
   return (
     <AppShell>
       <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)", overflowX: "hidden", width: "100%" }}>
-        <main style={{ maxWidth: 1400, margin: "0 auto", padding: isMobil ? "16px 14px" : "24px 24px", overflowX: "hidden" }}>
+        <main style={{ maxWidth: isMobil ? "100%" : 1400, margin: "0 auto", padding: isMobil ? "16px 14px" : "24px 24px", overflowX: "hidden", boxSizing: "border-box" }}>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC", marginBottom: 4 }}>Alarmlar</h1>
           <p style={{ fontSize: 13, color: "#475569", marginBottom: 20 }}>Fiyat, gösterge ve haber alarmlarınızı yönetin.</p>
 
