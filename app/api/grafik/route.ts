@@ -34,10 +34,31 @@ export async function GET(req: NextRequest) {
       return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });
     };
 
-    const points = timestamps.map((t: number, i: number) => ({
+    let points = timestamps.map((t: number, i: number) => ({
       tarih: formatTarih(t),
       fiyat: closes[i] ? parseFloat(closes[i].toFixed(2)) : null,
     })).filter((p: {tarih: string; fiyat: number | null}) => p.fiyat !== null);
+
+    // Tatil/hafta sonu: 1d boş dönüyorsa son 5 günden son işlem gününü çek
+    if (points.length === 0 && range === "1d") {
+      const url5d = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=5d`;
+      const res5d = await fetch(url5d, { cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" } });
+      const data5d = await res5d.json();
+      const result5d = data5d?.chart?.result?.[0];
+      if (result5d) {
+        const ts5d = result5d.timestamp || [];
+        const cl5d = result5d.indicators?.quote?.[0]?.close || [];
+        if (ts5d.length > 0) {
+          const sonGun = new Date(ts5d[ts5d.length - 1] * 1000).toLocaleDateString("tr-TR", { timeZone: "Europe/Istanbul" });
+          points = ts5d.map((t: number, i: number) => ({
+            tarih: new Date(t * 1000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }),
+            fiyat: cl5d[i] ? parseFloat(cl5d[i].toFixed(2)) : null,
+            gun: new Date(t * 1000).toLocaleDateString("tr-TR", { timeZone: "Europe/Istanbul" }),
+          })).filter((p: {tarih: string; fiyat: number | null; gun: string}) => p.fiyat !== null && p.gun === sonGun)
+            .map((p: {tarih: string; fiyat: number; gun: string}) => ({ tarih: p.tarih, fiyat: p.fiyat }));
+        }
+      }
+    }
 
     return NextResponse.json({ points });
   } catch {
