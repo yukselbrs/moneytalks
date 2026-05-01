@@ -49,13 +49,31 @@ export async function GET(req: NextRequest) {
         const ts5d = result5d.timestamp || [];
         const cl5d = result5d.indicators?.quote?.[0]?.close || [];
         if (ts5d.length > 0) {
-          const sonGun = new Date(ts5d[ts5d.length - 1] * 1000).toLocaleDateString("tr-TR", { timeZone: "Europe/Istanbul" });
-          points = ts5d.map((t: number, i: number) => ({
-            tarih: new Date(t * 1000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }),
-            fiyat: cl5d[i] ? parseFloat(cl5d[i].toFixed(2)) : null,
-            gun: new Date(t * 1000).toLocaleDateString("tr-TR", { timeZone: "Europe/Istanbul" }),
-          })).filter((p: {tarih: string; fiyat: number | null; gun: string}) => p.fiyat !== null && p.gun === sonGun)
-            .map((p: {tarih: string; fiyat: number; gun: string}) => ({ tarih: p.tarih, fiyat: p.fiyat }));
+          const offset = 3 * 60; // TR = UTC+3
+          const gunKey = (t: number) => {
+            const dtr = new Date(new Date(t * 1000).getTime() + offset * 60000);
+            return `${dtr.getUTCFullYear()}-${dtr.getUTCMonth()}-${dtr.getUTCDate()}`;
+          };
+          const saat = (t: number) => {
+            const dtr = new Date(new Date(t * 1000).getTime() + offset * 60000);
+            return dtr.getUTCHours().toString().padStart(2,"0") + ":" + dtr.getUTCMinutes().toString().padStart(2,"0");
+          };
+          // Close değeri olan son günü bul (tatil günleri null olabilir)
+          let sonGecerliGun: string | null = null;
+          for (let i = ts5d.length - 1; i >= 0; i--) {
+            if (cl5d[i] !== null && cl5d[i] !== undefined) {
+              sonGecerliGun = gunKey(ts5d[i]);
+              break;
+            }
+          }
+          if (sonGecerliGun) {
+            points = ts5d.map((t: number, i: number) => ({
+              tarih: saat(t),
+              fiyat: cl5d[i] ? parseFloat(cl5d[i].toFixed(2)) : null,
+              gk: gunKey(t),
+            })).filter((p: {tarih: string; fiyat: number | null; gk: string}) => p.fiyat !== null && p.gk === sonGecerliGun)
+              .map((p: {tarih: string; fiyat: number; gk: string}) => ({ tarih: p.tarih, fiyat: p.fiyat }));
+          }
         }
       }
     }
