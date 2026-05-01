@@ -14,6 +14,7 @@ export default function ProfilePage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [message, setMessage] = useState("");
@@ -241,8 +242,12 @@ export default function ProfilePage() {
                   ].map((f, i, arr) => (
                     <div key={f.label} style={{ padding: "14px 20px", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none" }}>
                       <div style={{ fontSize: 11, color: "#475569", marginBottom: 6 }}>{f.label}</div>
-                      <input type="password" value={f.value} onChange={(e) => f.setter(e.target.value)} placeholder="••••••••"
-                        style={{ background: "transparent", border: "none", borderBottom: "1px solid rgba(59,130,246,0.2)", outline: "none", fontSize: 13, color: "#E2E8F0", padding: "4px 0", width: "100%" }} />
+                        <input type={showPasswords[f.label] ? "text" : "password"} value={f.value} onChange={(e) => f.setter(e.target.value)} placeholder="••••••••"
+                          style={{ background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0", padding: "4px 0", flex: 1 }} />
+                        <button type="button" onClick={() => setShowPasswords(prev => ({ ...prev, [f.label]: !prev[f.label] }))}
+                          style={{ background: "none", border: "none", cursor: "pointer", padding: "0 4px", color: "#64748B", fontSize: 16, lineHeight: 1 }}>
+                          {showPasswords[f.label] ? "🙈" : "👁"}
+                        </button>
                     </div>
                   ))}
                   <div style={{ padding: "12px 20px", display: "flex", justifyContent: "flex-end" }}>
