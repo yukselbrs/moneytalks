@@ -13,6 +13,7 @@ export default function ProfilePage() {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [message, setMessage] = useState("");
@@ -62,13 +63,19 @@ export default function ProfilePage() {
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
     setMessage(""); setError("");
+    if (!currentPassword) { setError("Mevcut şifrenizi girin."); return; }
     if (newPassword !== newPasswordConfirm) { setError("Şifreler eşleşmiyor."); return; }
     if (newPassword.length < 6) { setError("En az 6 karakter olmalı."); return; }
     if (!/[A-Z]/.test(newPassword)) { setError("En az bir büyük harf gerekli."); return; }
     if (!/[0-9]/.test(newPassword)) { setError("En az bir rakam gerekli."); return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    const emailAddr = session?.user?.email;
+    if (!emailAddr) { setError("Oturum bulunamadı."); return; }
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email: emailAddr, password: currentPassword });
+    if (signInError) { setError("Mevcut şifre yanlış."); return; }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) setError(error.message);
-    else { setMessage("Şifre güncellendi."); setNewPassword(""); setNewPasswordConfirm(""); }
+    else { setMessage("Şifre güncellendi."); setCurrentPassword(""); setNewPassword(""); setNewPasswordConfirm(""); }
   }
 
   const initials = fullName
@@ -228,6 +235,7 @@ export default function ProfilePage() {
                     <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Şifre Değiştir</p>
                   </div>
                   {[
+                    { label: "Mevcut Şifre", value: currentPassword, setter: setCurrentPassword },
                     { label: "Yeni Şifre", value: newPassword, setter: setNewPassword },
                     { label: "Şifre Tekrar", value: newPasswordConfirm, setter: setNewPasswordConfirm },
                   ].map((f, i, arr) => (
