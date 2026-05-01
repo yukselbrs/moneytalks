@@ -180,9 +180,7 @@ export default function LoginPage() {
               Google ile giriş yap
             </button>
 
-            <button type="button" style={{ height: 46, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, color: "#E2E8F0", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
-              Apple ile giriş yap
-            </button>
+
           </form>
 
           <p style={{ textAlign: "center", fontSize: 12, color: "#475569", marginTop: 24 }}>
