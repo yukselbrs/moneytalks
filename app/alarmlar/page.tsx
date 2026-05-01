@@ -159,7 +159,7 @@ export default function AlarmlarPage() {
   return (
     <AppShell>
       <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
-        <main style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 24px", overflowX: "hidden" }}>
+        <main style={{ maxWidth: 1400, margin: "0 auto", padding: isMobil ? "16px 14px" : "24px 24px", overflowX: "hidden" }}>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC", marginBottom: 4 }}>Alarmlar</h1>
           <p style={{ fontSize: 13, color: "#475569", marginBottom: 20 }}>Fiyat, gösterge ve haber alarmlarınızı yönetin.</p>
 
