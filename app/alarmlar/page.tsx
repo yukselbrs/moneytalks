@@ -181,9 +181,19 @@ export default function AlarmlarPage() {
                 ))}
               </div>
 
-              {(sekme === "Tümü" || sekme === "Tüm Alarmlar" || sekme === "Fiyat Alarmları") && <Grup baslik="Fiyat Alarmları" liste={fiyatAlarmlar} badge={fiyatAlarmlar.length} />}
-              {(sekme === "Tümü" || sekme === "Tüm Alarmlar" || sekme === "Gösterge Alarmları") && <Grup baslik="Gösterge Alarmları" liste={gostergeAlarmlar} badge={gostergeAlarmlar.length} />}
-              {(sekme === "Tümü" || sekme === "Tüm Alarmlar" || sekme === "Haber & Duyurular") && <Grup baslik="Haber & Duyuru Alarmları" liste={haberAlarmlar} badge={haberAlarmlar.length} />}
+              {(sekme === "Tümü" || sekme === "Tüm Alarmlar" || sekme === "Fiyat Alarmları") && fiyatAlarmlar.length > 0 && <Grup baslik="Fiyat Alarmları" liste={fiyatAlarmlar} badge={fiyatAlarmlar.length} />}
+              {(sekme === "Tümü" || sekme === "Tüm Alarmlar" || sekme === "Gösterge Alarmları") && gostergeAlarmlar.length > 0 && <Grup baslik="Gösterge Alarmları" liste={gostergeAlarmlar} badge={gostergeAlarmlar.length} />}
+              {(sekme === "Tümü" || sekme === "Tüm Alarmlar" || sekme === "Haber & Duyurular") && haberAlarmlar.length > 0 && <Grup baslik="Haber & Duyuru Alarmları" liste={haberAlarmlar} badge={haberAlarmlar.length} />}
+              {alarmlar.length === 0 && (
+                <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "40px 24px", background: "rgba(255,255,255,0.01)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
+                  <div style={{ fontSize: 32 }}>🔔</div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>Henüz alarm oluşturmadınız</p>
+                  <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>Fiyat hedeflerinize ulaşıldığında bildirim almak için alarm oluşturun.</p>
+                  <button onClick={() => { setModalTip("fiyat_seviye"); setModalAcik(true); }} style={{ marginTop: 4, padding: "9px 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
+                    + Fiyat Alarmı Ekle
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Sağ */}
