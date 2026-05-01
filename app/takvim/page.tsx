@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import AppShell from "@/components/AppShell";
-import useMediaQuery from "@/hooks/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 const GUNLER = ["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"];

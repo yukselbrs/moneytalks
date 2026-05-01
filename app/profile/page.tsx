@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
-import useMediaQuery from "@/hooks/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const SEKMELER = ["Hesap Bilgileri", "Güvenlik", "İstatistikler", "Üyelik Planı"];
 

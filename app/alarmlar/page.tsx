@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import AlarmModal from "@/components/AlarmModal";
-import useMediaQuery from "@/hooks/useMediaQuery";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ALARMLAR: {id:number;tip:string;hisse:string;sirket:string;kosul:string;detay:string;hedef:string;guncel:string;degisim:string;yukselis:boolean;tarih:string;durum:string}[] = [];
 
