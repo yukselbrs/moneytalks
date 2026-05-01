@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import AlarmModal from "@/components/AlarmModal";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 const ALARMLAR: {id:number;tip:string;hisse:string;sirket:string;kosul:string;detay:string;hedef:string;guncel:string;degisim:string;yukselis:boolean;tarih:string;durum:string}[] = [];
 
@@ -35,51 +36,97 @@ export default function AlarmlarPage() {
     setAlarmlar(prev => prev.map(a => a.id === id ? { ...a, durum: a.durum === "aktif" ? "devre_disi" : "aktif" } : a));
   };
 
+  const isMobil = useMediaQuery("(max-width: 767px)");
   const aktifSayi = alarmlar.filter(a => a.durum === "aktif").length;
   const beklemeSayi = alarmlar.filter(a => a.durum === "beklemede").length;
 
+  const tipRenk = (tip: string) => tip === "fiyat" ? { bg: "rgba(59,130,246,0.15)", fg: "#3B82F6" } : tip === "gosterge" ? { bg: "rgba(139,92,246,0.15)", fg: "#8B5CF6" } : { bg: "rgba(249,115,22,0.15)", fg: "#F97316" };
+
   const AlarmSatir = ({ a, onSil, fiyatlar }: { a: typeof ALARMLAR[0]; onSil: (id: number) => void; fiyatlar: Record<string, {fiyat: string; degisim: string; yukselis: boolean}> }) => {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr 80px 40px", gap: 8, alignItems: "center", padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 32, height: 32, borderRadius: "50%", background: a.tip==="fiyat" ? "rgba(59,130,246,0.15)" : a.tip==="gosterge" ? "rgba(139,92,246,0.15)" : "rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: a.tip==="fiyat" ? "#3B82F6" : a.tip==="gosterge" ? "#8B5CF6" : "#F97316", flexShrink: 0 }}>
-          {a.hisse.slice(0,2)}
+    const renk = tipRenk(a.tip);
+    const guncelFiyat = fiyatlar[a.hisse];
+
+    if (isMobil) {
+      return (
+        <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: renk.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: renk.fg, flexShrink: 0 }}>
+                {a.hisse.slice(0,2)}
+              </div>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0" }}>{a.hisse}</p>
+                <p style={{ fontSize: 11, color: "#475569" }}>{a.sirket}</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div onClick={() => toggleDurum(a.id)} style={{ width: 36, height: 20, borderRadius: 10, background: a.durum==="aktif" ? "#3B82F6" : "#1E293B", border: `1px solid ${a.durum==="aktif" ? "#3B82F6" : "rgba(255,255,255,0.1)"}`, position: "relative", cursor: "pointer", transition: "all 0.2s" }}>
+                <div style={{ position: "absolute", top: 2, left: a.durum==="aktif" ? 18 : 2, width: 14, height: 14, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }}/>
+              </div>
+              <button onClick={() => onSil(a.id)} style={{ background: "none", border: "1px solid rgba(239,68,68,0.2)", color: "#EF4444", cursor: "pointer", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6 }}>Sil</button>
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div>
+              <p style={{ fontSize: 12, color: "#94A3B8" }}>{a.kosul}</p>
+              <p style={{ fontSize: 11, color: "#475569" }}>{a.detay}</p>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontSize: 12, color: "#64748B" }}>Hedef: <span style={{ color: "#F1F5F9", fontWeight: 600 }}>{a.hedef}</span></p>
+              {guncelFiyat ? (
+                <p style={{ fontSize: 12, fontWeight: 600, color: guncelFiyat.yukselis ? "#10B981" : "#EF4444" }}>
+                  {guncelFiyat.yukselis ? "+" : "-"}%{Math.abs(parseFloat(guncelFiyat.degisim.replace(",","."))).toFixed(2).replace(".",",")}
+                </p>
+              ) : a.degisim ? (
+                <p style={{ fontSize: 12, fontWeight: 600, color: a.yukselis ? "#10B981" : "#EF4444" }}>{a.degisim}</p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr 80px 40px", gap: 8, alignItems: "center", padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: "50%", background: renk.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: renk.fg, flexShrink: 0 }}>
+            {a.hisse.slice(0,2)}
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{a.hisse}</p>
+            <p style={{ fontSize: 11, color: "#475569" }}>{a.sirket}</p>
+          </div>
         </div>
         <div>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{a.hisse}</p>
-          <p style={{ fontSize: 11, color: "#475569" }}>{a.sirket}</p>
+          <p style={{ fontSize: 12, color: "#94A3B8" }}>{a.kosul}</p>
+          <p style={{ fontSize: 11, color: "#475569" }}>{a.detay}</p>
         </div>
-      </div>
-      <div>
-        <p style={{ fontSize: 12, color: "#94A3B8" }}>{a.kosul}</p>
-        <p style={{ fontSize: 11, color: "#475569" }}>{a.detay}</p>
-      </div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: "#F1F5F9", textAlign: "right" }}>{a.hedef}</div>
-      <div style={{ textAlign: "right" }}>
-        {fiyatlar[a.hisse] ? (
-          <>
-            <p style={{ fontSize: 13, color: "#E2E8F0" }}>{fiyatlar[a.hisse].fiyat} ₺</p>
-            <p style={{ fontSize: 11, fontWeight: 600, color: fiyatlar[a.hisse].yukselis ? "#10B981" : "#EF4444" }}>
-              {fiyatlar[a.hisse].yukselis ? "+" : "-"}%{Math.abs(parseFloat(fiyatlar[a.hisse].degisim.replace(",","."))).toFixed(2).replace(".",",")}
-            </p>
-          </>
-        ) : (
-          <>
-            <p style={{ fontSize: 13, color: "#E2E8F0" }}>{a.guncel}</p>
-            {a.degisim && <p style={{ fontSize: 11, fontWeight: 600, color: a.yukselis ? "#10B981" : "#EF4444" }}>{a.degisim}</p>}
-          </>
-        )}
-      </div>
-      <div style={{ fontSize: 11, color: "#334155" }}>{a.tarih}</div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div onClick={() => toggleDurum(a.id)} style={{ width: 36, height: 20, borderRadius: 10, background: a.durum==="aktif" ? "#3B82F6" : "#1E293B", border: `1px solid ${a.durum==="aktif" ? "#3B82F6" : "rgba(255,255,255,0.1)"}`, position: "relative", cursor: "pointer", transition: "all 0.2s" }}>
-          <div style={{ position: "absolute", top: 2, left: a.durum==="aktif" ? 18 : 2, width: 14, height: 14, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }}/>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "#F1F5F9", textAlign: "right" }}>{a.hedef}</div>
+        <div style={{ textAlign: "right" }}>
+          {guncelFiyat ? (
+            <>
+              <p style={{ fontSize: 13, color: "#E2E8F0" }}>{guncelFiyat.fiyat} ₺</p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: guncelFiyat.yukselis ? "#10B981" : "#EF4444" }}>
+                {guncelFiyat.yukselis ? "+" : "-"}%{Math.abs(parseFloat(guncelFiyat.degisim.replace(",","."))).toFixed(2).replace(".",",")}
+              </p>
+            </>
+          ) : (
+            <>
+              <p style={{ fontSize: 13, color: "#E2E8F0" }}>{a.guncel}</p>
+              {a.degisim && <p style={{ fontSize: 11, fontWeight: 600, color: a.yukselis ? "#10B981" : "#EF4444" }}>{a.degisim}</p>}
+            </>
+          )}
         </div>
+        <div style={{ fontSize: 11, color: "#334155" }}>{a.tarih}</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={() => toggleDurum(a.id)} style={{ width: 36, height: 20, borderRadius: 10, background: a.durum==="aktif" ? "#3B82F6" : "#1E293B", border: `1px solid ${a.durum==="aktif" ? "#3B82F6" : "rgba(255,255,255,0.1)"}`, position: "relative", cursor: "pointer", transition: "all 0.2s" }}>
+            <div style={{ position: "absolute", top: 2, left: a.durum==="aktif" ? 18 : 2, width: 14, height: 14, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }}/>
+          </div>
+        </div>
+        <button onClick={() => onSil(a.id)} style={{ background: "none", border: "1px solid rgba(239,68,68,0.2)", color: "#EF4444", cursor: "pointer", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, transition: "all 0.15s" }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.1)"; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}>Sil</button>
       </div>
-      <button onClick={() => onSil(a.id)} style={{ background: "none", border: "1px solid rgba(239,68,68,0.2)", color: "#EF4444", cursor: "pointer", fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 6, transition: "all 0.15s" }} onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.1)"; }} onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "none"; }}>Sil</button>
-    </div>
-  );
-}
+    );
+  }
 
   const Grup = ({ baslik, liste, badge }: { baslik: string; liste: typeof ALARMLAR; badge: number }) => {
     const [acik, setAcik] = useState(true);
@@ -92,11 +139,13 @@ export default function AlarmlarPage() {
         </div>
         {acik && (
           <>
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr 80px 40px", gap: 8, padding: "8px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-              {["HİSSE","KOŞUL","HEDEF","GÜNCEL","OLUŞTURULMA","DURUM",""].map(h => (
-                <p key={h} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.06em", textAlign: h==="HEDEF"||h==="GÜNCEL"||h==="DURUM" ? "right" : "left" }}>{h}</p>
-              ))}
-            </div>
+            {!isMobil && (
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1.5fr 80px 40px", gap: 8, padding: "8px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
+                {["HİSSE","KOŞUL","HEDEF","GÜNCEL","OLUŞTURULMA","DURUM",""].map(h => (
+                  <p key={h} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.06em", textAlign: h==="HEDEF"||h==="GÜNCEL"||h==="DURUM" ? "right" : "left" }}>{h}</p>
+                ))}
+              </div>
+            )}
             {liste.map(a => <AlarmSatir key={a.id} a={a} onSil={(id) => setAlarmlar(prev => prev.filter(x => x.id !== id))} fiyatlar={fiyatlar} />)}
             <div style={{ padding: "10px 16px", borderTop: "1px solid rgba(59,130,246,0.04)" }}>
               <button style={{ fontSize: 12, color: "#3B82F6", background: "none", border: "none", cursor: "pointer" }}>Tüm {baslik}nı Gör →</button>
@@ -114,7 +163,7 @@ export default function AlarmlarPage() {
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC", marginBottom: 4 }}>Alarmlar</h1>
           <p style={{ fontSize: 13, color: "#475569", marginBottom: 20 }}>Fiyat, gösterge ve haber alarmlarınızı yönetin.</p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 20, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobil ? "1fr" : "1fr 280px", gap: 20, alignItems: "start" }}>
             {/* Sol */}
             <div>
               {/* Sekmeler */}

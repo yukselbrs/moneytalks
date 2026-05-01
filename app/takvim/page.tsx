@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import AppShell from "@/components/AppShell";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 const AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 const GUNLER = ["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"];
@@ -77,6 +78,7 @@ export default function TakvimPage() {
   const oncekiAy = () => { if (ay === 0) { setAy(11); setYil(y => y-1); } else setAy(a => a-1); };
   const sonrakiAy = () => { if (ay === 11) { setAy(0); setYil(y => y+1); } else setAy(a => a+1); };
 
+  const isMobil = useMediaQuery("(max-width: 767px)");
   const seciliEtkinlikler = ETKINLIKLER[seciliGun] || [];
   const seciliTarih = new Date(seciliGun + "T00:00:00");
 
@@ -105,7 +107,7 @@ export default function TakvimPage() {
             ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobil ? "1fr" : "1fr 320px", gap: 20, alignItems: "start" }}>
 
             {/* Sol: Takvim + Etkinlik Listesi */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -179,6 +181,27 @@ export default function TakvimPage() {
                 </div>
                 {seciliEtkinlikler.length === 0 ? (
                   <div style={{ padding: "24px 16px", textAlign: "center", color: "#334155", fontSize: 13 }}>Bu gün için etkinlik bulunmuyor.</div>
+                ) : isMobil ? (
+                  <div>
+                    {seciliEtkinlikler.map((e, i) => (
+                      <div key={i} style={{ padding: "12px 16px", borderBottom: i < seciliEtkinlikler.length-1 ? "1px solid rgba(59,130,246,0.04)" : "none" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 14 }}>{e.ulke || "🌍"}</span>
+                            <span style={{ fontSize: 12, color: "#64748B", fontWeight: 500 }}>{e.saat}</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: ONEM_RENK[e.onem], background: ONEM_RENK[e.onem]+"22", borderRadius: 20, padding: "2px 8px" }}>{e.onem}</span>
+                          </div>
+                        </div>
+                        <p style={{ fontSize: 13, color: "#E2E8F0", fontWeight: 500, marginBottom: 4 }}>{e.baslik}</p>
+                        {(e.beklenti || e.onceki) && (
+                          <div style={{ display: "flex", gap: 12 }}>
+                            {e.beklenti && <span style={{ fontSize: 11, color: "#475569" }}>Beklenti: <span style={{ color: "#94A3B8" }}>{e.beklenti}</span></span>}
+                            {e.onceki && <span style={{ fontSize: 11, color: "#475569" }}>Önceki: <span style={{ color: "#64748B" }}>{e.onceki}</span></span>}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
                     <thead>

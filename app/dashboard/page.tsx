@@ -351,19 +351,25 @@ export default function DashboardPage() {
         .dash-piyasa-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
         .dash-grafik-ai-grid { display: grid; grid-template-columns: 1fr 300px; gap: 12px; }
         .dash-popular-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+        .dash-alt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .dash-h1 { font-size: 28px; }
+        .dash-piyasa-val { font-size: 26px; }
         @media (max-width: 767px) {
           .dash-main-padding { padding: 12px 14px !important; }
           .dash-main-grid { grid-template-columns: 1fr !important; }
           .dash-piyasa-grid { grid-template-columns: repeat(2,1fr) !important; }
           .dash-grafik-ai-grid { grid-template-columns: 1fr !important; }
           .dash-popular-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .dash-alt-grid { grid-template-columns: 1fr !important; }
+          .dash-h1 { font-size: 20px !important; }
+          .dash-piyasa-val { font-size: 18px !important; }
         }`}</style>
 
       <main className="dash-main-padding" style={{ maxWidth: 1600, margin: "0 auto" }}>
         <div className="dash-main-grid" style={{}}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
         {/* Header */}
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{selamlama()}, {firstName}</h1>
+        <h1 className="dash-h1" style={{ fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{selamlama()}, {firstName}</h1>
 
         {/* Arama */}
         <form onSubmit={handleAnaliz} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: "10px 16px", transition: "border-color 0.2s" }}
@@ -475,7 +481,7 @@ export default function DashboardPage() {
                         </>
                       ) : (
                         <>
-                          <div style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2 }}>{e.val}</div>
+                          <div className="dash-piyasa-val" style={{ fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2 }}>{e.val}</div>
                           <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
                             <span>{e.up ? "▲" : "▼"}</span>
                             <span>{e.change}</span>
@@ -782,7 +788,7 @@ export default function DashboardPage() {
         </div>
 
         {/* İzleme Listesi + Son Analizler (sol kolonda, Popüler Hisseler altında) */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="dash-alt-grid">
           {/* İzleme Listesi */}
           <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
             <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

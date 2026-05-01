@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 const SEKMELER = ["Hesap Bilgileri", "Güvenlik", "İstatistikler", "Üyelik Planı"];
 
@@ -110,6 +111,8 @@ export default function ProfilePage() {
     }
   }
 
+  const isMobil = useMediaQuery("(max-width: 767px)");
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1220" }}>
       <p style={{ color: "#475569", fontSize: 14 }}>Yükleniyor...</p>
@@ -164,7 +167,7 @@ export default function ProfilePage() {
           {message && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 8, fontSize: 12, color: "#10B981" }}>{message}</div>}
           {error && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, fontSize: 12, color: "#EF4444" }}>{error}</div>}
 
-          <div style={{ display: "grid", gridTemplateColumns: sekme === "Hesap Bilgileri" ? "1fr 320px" : "1fr", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: sekme === "Hesap Bilgileri" && !isMobil ? "1fr 320px" : "1fr", gap: 20 }}>
 
           {/* HESAP BİLGİLERİ */}
           {sekme === "Hesap Bilgileri" && (<>
@@ -270,7 +273,7 @@ export default function ProfilePage() {
           {/* İSTATİSTİKLER */}
           {sekme === "İstatistikler" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobil ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 12 }}>
                 {[
                   { label: "Oluşturulan Analiz", value: istatistik.analizSayisi, sub: "Toplam" },
                   { label: "İzlenen Hisse", value: istatistik.watchlistSayisi, sub: "Toplam" },
@@ -308,7 +311,7 @@ export default function ProfilePage() {
 
           {/* ÜYELİK PLANI */}
           {sekme === "Üyelik Planı" && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobil ? "1fr" : "1fr 1fr", gap: 16 }}>
               {[
                 {
                   isim: "Demo", fiyat: "Ücretsiz", aktif: true,

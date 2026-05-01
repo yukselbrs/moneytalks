@@ -95,8 +95,11 @@ function HisselerContent() {
           .hisse-row:hover { background: rgba(59,130,246,0.05) !important; }
           @media (max-width: 640px) {
             .hisse-tablo-header { display: none !important; }
-            .hisse-row { grid-template-columns: 1fr 80px 80px !important; }
+            .hisse-row { grid-template-columns: 1fr 90px 80px !important; }
             .hisse-row .col-no { display: none !important; }
+            .hisse-row .col-getiri { display: none !important; }
+            .hisse-arama { min-width: unset !important; width: 100% !important; }
+            .hisse-siralama { overflow-x: auto; flex-wrap: nowrap !important; padding-bottom: 4px; }
           }
         `}</style>
         <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px" }}>
@@ -112,7 +115,7 @@ function HisselerContent() {
                 </span>
               </h1>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
               {SIRALAMA_OPTIONS.map(s => (
                 <button key={s.key} onClick={() => updateParams({ sort: s.key, page: "1" })}
                   style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${sort === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: sort === s.key ? "rgba(59,130,246,0.15)" : "transparent", color: sort === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: sort === s.key ? 600 : 400, cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -120,7 +123,7 @@ function HisselerContent() {
                 </button>
               ))}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "8px 14px", minWidth: 260 }}>
+            <div className="hisse-arama" style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "8px 14px", minWidth: 260 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               <input value={arama} onChange={e => setArama(e.target.value)} placeholder="Hisse kodu veya şirket adı ara..."
                 style={{ background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#94A3B8", width: "100%" }} />
@@ -179,7 +182,7 @@ function HisselerContent() {
                     const g = hisse[key];
                     const val = g !== null ? parseFloat(g) : null;
                     return (
-                      <p key={key} style={{ fontSize: 11, fontWeight: 500, textAlign: "right", margin: 0, color: val === null ? "#1E293B" : val >= 0 ? "#10B981" : "#EF4444" }}>
+                      <p key={key} className="col-getiri" style={{ fontSize: 11, fontWeight: 500, textAlign: "right", margin: 0, color: val === null ? "#1E293B" : val >= 0 ? "#10B981" : "#EF4444" }}>
                         {val === null ? "—" : `${val >= 0 ? "%" : "%-"}${Math.abs(val).toFixed(2).replace(".", ",")}`}
                       </p>
                     );
