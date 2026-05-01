@@ -91,9 +91,7 @@ export default function RegisterPage() {
                 </div>
               ))}
             </div>
-            <div style={{ padding: "12px 20px", borderTop: "1px solid rgba(59,130,246,0.1)" }}>
-              <button onClick={() => { setSozlesmeOnay(true); setModalIcerik(null); }} style={{ width: "100%", height: 38, background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Okudum, Kabul Ediyorum</button>
-            </div>
+
           </div>
         </div>
       )}
