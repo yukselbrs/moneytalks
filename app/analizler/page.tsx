@@ -45,17 +45,9 @@ export default function AnalizlerPage() {
     });
   }, [router]);
 
-  function kisaOzet(analiz?: string): string {
-    if (!analiz) return "";
-    // Markdown kalıntılarını temizle
-    const temiz = analiz
-      .replace(/^#+\s*/gm, "")
-      .replace(/\*\*/g, "")
-      .replace(/\*/g, "")
-      .replace(/^-+\s*/gm, "")
-      .trim();
-    const ilkCumle = temiz.split(/[.!?\n]/).map(s => s.trim()).filter(s => s.length > 20)[0];
-    return ilkCumle ? (ilkCumle.length > 120 ? ilkCumle.slice(0, 120) + "..." : ilkCumle + ".") : "";
+  function kisaOzet(_analiz?: string, ticker?: string): string {
+    if (!ticker) return "";
+    return ticker + " Hissesi Analizi";
   }
 
   return (
@@ -94,7 +86,7 @@ export default function AnalizlerPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {analizler.map((a, i) => {
                 const f = fiyatlar[a.ticker];
-                const ozet = kisaOzet(a.analiz);
+                const ozet = kisaOzet(a.analiz, a.ticker);
                 const renk = f ? (f.yukselis ? "#10B981" : "#EF4444") : "#64748B";
                 return (
                   <div key={i} onClick={() => router.push(`/hisse/${a.ticker}`)}
