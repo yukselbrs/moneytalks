@@ -91,7 +91,9 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
         ticker: gostergeTicker.trim().toUpperCase(),
         tip: "gosterge",
         kosul: gosterge.includes("asagi") || gosterge.includes("negatif") ? "asagi" : "yukari",
-        hedef_deger: esikGerekli ? parseFloat(gostergeEsik.replace(",", ".")) : null,
+        gosterge_tipi: gosterge,
+        gosterge_esik: esikGerekli ? parseFloat(gostergeEsik.replace(",", ".")) : null,
+        hedef_deger: null,
         hedef_yuzde: null,
       }),
     });

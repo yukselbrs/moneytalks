@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const normalizedTicker = typeof ticker === "string" ? ticker.trim().toUpperCase() : "";
   if (!/^[A-Z0-9]{2,10}$/.test(normalizedTicker)) return NextResponse.json({ error: "Geçersiz ticker formatı" }, { status: 400 });
 
-  if (!["fiyat_seviye", "fiyat_yuzde", "yuzde_degisim"].includes(tip)) return NextResponse.json({ error: "Geçersiz alarm tipi" }, { status: 400 });
+  if (!["fiyat_seviye", "fiyat_yuzde", "yuzde_degisim", "gosterge"].includes(tip)) return NextResponse.json({ error: "Geçersiz alarm tipi" }, { status: 400 });
   if (!["yukari", "asagi"].includes(kosul)) return NextResponse.json({ error: "Geçersiz koşul" }, { status: 400 });
 
   if (tip === "fiyat_seviye") {
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     if (hedef_yuzde === null || hedef_yuzde === undefined || isNaN(yuzde) || yuzde <= 0 || yuzde > 100) return NextResponse.json({ error: "Geçersiz hedef yüzde (0-100 arası olmalı)" }, { status: 400 });
   }
 
+  const { gosterge_tipi, gosterge_esik } = body;
   const { data, error: insertError } = await supabase.from("alarmlar").insert({
     user_id: user.id,
     ticker: normalizedTicker,
@@ -52,6 +53,8 @@ export async function POST(req: NextRequest) {
     kosul,
     hedef_deger: tip === "fiyat_seviye" ? Number(hedef_deger) : null,
     hedef_yuzde: ["fiyat_yuzde", "yuzde_degisim"].includes(tip) ? Number(hedef_yuzde) : null,
+    gosterge_tipi: tip === "gosterge" ? gosterge_tipi : null,
+    gosterge_esik: tip === "gosterge" ? (gosterge_esik ? Number(gosterge_esik) : null) : null,
   }).select().single();
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
