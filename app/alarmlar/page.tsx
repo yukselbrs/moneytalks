@@ -259,9 +259,9 @@ export default function AlarmlarPage() {
                     <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{emptyDesc}</p>
                     {sekme !== "Haber & Duyurular" && (
                       <button
-                        onClick={() => sekme === "Gösterge Alarmları" ? openModal("gosterge") : openTipSec()}
+                        onClick={() => sekme === "Gösterge Alarmları" ? openModal("gosterge") : sekme === "Fiyat Alarmları" ? openModal("fiyat_seviye") : openTipSec()}
                         style={{ marginTop: 4, padding: "9px 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
-                        + {sekme === "Gösterge Alarmları" ? "Gösterge Alarmı Ekle" : "Alarm Ekle"}
+                        + {sekme === "Gösterge Alarmları" ? "Gösterge Alarmı Ekle" : sekme === "Fiyat Alarmları" ? "Fiyat Alarmı Ekle" : "Alarm Ekle"}
                       </button>
                     )}
                   </div>
@@ -289,7 +289,6 @@ export default function AlarmlarPage() {
             <div style={{ padding: "16px" }}>
               {[
                 { tip: "fiyat_seviye" as AlarmModalTip, ikon: "📈", renk: "#10B981", baslik: "Fiyat Alarmı", aciklama: "Belirli bir fiyat seviyesine ulaşınca" },
-                { tip: "fiyat_yuzde" as AlarmModalTip, ikon: "📉", renk: "#3B82F6", baslik: "Yüzde Değişim Alarmı", aciklama: "Belirli bir yüzde değişiminde" },
                 { tip: "gosterge" as AlarmModalTip, ikon: "📊", renk: "#8B5CF6", baslik: "Gösterge Alarmı", aciklama: "RSI, MACD, MA50 gibi teknik göstergeler" },
               ].map((s, i, arr) => (
                 <div key={s.tip} onClick={() => { setTipSecModalAcik(false); openModal(s.tip); }}

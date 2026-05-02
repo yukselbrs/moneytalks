@@ -155,8 +155,27 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
               </div>
               <div style={{ marginBottom: 14 }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", marginBottom: 6, letterSpacing: "0.07em", textTransform: "uppercase" }}>Hisse Kodu</p>
-                <input value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="THYAO"
-                  style={{ width: "100%", padding: "10px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, color: "#F8FAFC", fontSize: 14, fontWeight: 700, outline: "none", boxSizing: "border-box" }} />
+                <div style={{ position: "relative" }}>
+                  <input value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="THYAO" autoComplete="off"
+                    style={{ width: "100%", padding: "10px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, color: "#F8FAFC", fontSize: 14, fontWeight: 700, outline: "none", boxSizing: "border-box" }} />
+                  {ticker.length >= 1 && (() => {
+                    const q = ticker.toUpperCase();
+                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6);
+                    return matches.length > 0 ? (
+                      <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 200, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                        {matches.map(h => (
+                          <div key={h.ticker} onMouseDown={() => setTicker(h.ticker)}
+                            style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</span>
+                            <span style={{ fontSize: 11, color: "#475569" }}>{h.ad}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
               </div>
               <div style={{ marginBottom: 14 }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", marginBottom: 6, letterSpacing: "0.07em", textTransform: "uppercase" }}>Koşul</p>
@@ -190,8 +209,27 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
             {modalTip === "gosterge" && (<>
               <div style={{ marginBottom: 14 }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", marginBottom: 6, letterSpacing: "0.07em", textTransform: "uppercase" }}>Hisse Kodu</p>
-                <input value={gostergeTicker} onChange={e => setGostergeTicker(e.target.value.toUpperCase())} placeholder="THYAO"
-                  style={{ width: "100%", padding: "10px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, color: "#F8FAFC", fontSize: 14, fontWeight: 700, outline: "none", boxSizing: "border-box" }} />
+                <div style={{ position: "relative" }}>
+                  <input value={gostergeTicker} onChange={e => setGostergeTicker(e.target.value.toUpperCase())} placeholder="THYAO" autoComplete="off"
+                    style={{ width: "100%", padding: "10px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, color: "#F8FAFC", fontSize: 14, fontWeight: 700, outline: "none", boxSizing: "border-box" }} />
+                  {gostergeTicker.length >= 1 && (() => {
+                    const q = gostergeTicker.toUpperCase();
+                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6);
+                    return matches.length > 0 ? (
+                      <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 200, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                        {matches.map(h => (
+                          <div key={h.ticker} onMouseDown={() => setGostergeTicker(h.ticker)}
+                            style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</span>
+                            <span style={{ fontSize: 11, color: "#475569" }}>{h.ad}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
               </div>
               <div style={{ marginBottom: 14 }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", marginBottom: 6, letterSpacing: "0.07em", textTransform: "uppercase" }}>Gösterge Koşulu</p>
