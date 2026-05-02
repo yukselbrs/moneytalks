@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/components/lib/supabase";
+import { BIST_HISSELER } from "@/lib/bist-hisseler";
 
 type ModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "haber" | "bildirim_tercihleri";
 
