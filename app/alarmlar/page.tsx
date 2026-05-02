@@ -82,7 +82,9 @@ export default function AlarmlarPage() {
     tip === "gosterge" ? { bg: "rgba(139,92,246,0.15)", fg: "#8B5CF6" } :
     { bg: "rgba(249,115,22,0.15)", fg: "#F97316" };
 
+  const [tipSecModalAcik, setTipSecModalAcik] = useState(false);
   const openModal = (tip: AlarmModalTip) => { setModalTip(tip); setModalAcik(true); };
+  const openTipSec = () => setTipSecModalAcik(true);
 
   const toggleDurum = async (id: string | number) => {
     const mevcut = alarmlar.find(a => a.id === id);
@@ -257,9 +259,9 @@ export default function AlarmlarPage() {
                     <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{emptyDesc}</p>
                     {sekme !== "Haber & Duyurular" && (
                       <button
-                        onClick={() => openModal(sekme === "Gösterge Alarmları" ? "gosterge" : "fiyat_seviye")}
+                        onClick={() => sekme === "Gösterge Alarmları" ? openModal("gosterge") : openTipSec()}
                         style={{ marginTop: 4, padding: "9px 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
-                        + {sekme === "Gösterge Alarmları" ? "Gösterge Alarmı Ekle" : "Fiyat Alarmı Ekle"}
+                        + {sekme === "Gösterge Alarmları" ? "Gösterge Alarmı Ekle" : "Alarm Ekle"}
                       </button>
                     )}
                   </div>
@@ -275,6 +277,37 @@ export default function AlarmlarPage() {
           </div>
         </main>
       </div>
+      {tipSecModalAcik && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+          onClick={() => setTipSecModalAcik(false)}>
+          <div style={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 16, width: "100%", maxWidth: 400, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(59,130,246,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "#F8FAFC" }}>Alarm Türü Seç</span>
+              <button onClick={() => setTipSecModalAcik(false)} style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: 18 }}>✕</button>
+            </div>
+            <div style={{ padding: "16px" }}>
+              {[
+                { tip: "fiyat_seviye" as AlarmModalTip, ikon: "📈", renk: "#10B981", baslik: "Fiyat Alarmı", aciklama: "Belirli bir fiyat seviyesine ulaşınca" },
+                { tip: "fiyat_yuzde" as AlarmModalTip, ikon: "📉", renk: "#3B82F6", baslik: "Yüzde Değişim Alarmı", aciklama: "Belirli bir yüzde değişiminde" },
+                { tip: "gosterge" as AlarmModalTip, ikon: "📊", renk: "#8B5CF6", baslik: "Gösterge Alarmı", aciklama: "RSI, MACD, MA50 gibi teknik göstergeler" },
+              ].map((s, i, arr) => (
+                <div key={s.tip} onClick={() => { setTipSecModalAcik(false); openModal(s.tip); }}
+                  style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 12px", borderRadius: 10, cursor: "pointer", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none" }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                  <div style={{ width: 42, height: 42, borderRadius: 10, background: s.renk + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{s.ikon}</div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>{s.baslik}</p>
+                    <p style={{ fontSize: 12, color: "#475569", margin: "2px 0 0" }}>{s.aciklama}</p>
+                  </div>
+                  <span style={{ marginLeft: "auto", color: "#334155" }}>›</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {modalAcik && (
         <AlarmModal
           onKapat={() => setModalAcik(false)}
