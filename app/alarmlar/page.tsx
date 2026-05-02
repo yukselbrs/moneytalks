@@ -257,9 +257,9 @@ export default function AlarmlarPage() {
                     <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{emptyDesc}</p>
                     {sekme !== "Haber & Duyurular" && (
                       <button
-                        onClick={() => openModal("fiyat_seviye")}
+                        onClick={() => openModal(sekme === "Gösterge Alarmları" ? "gosterge" : "fiyat_seviye")}
                         style={{ marginTop: 4, padding: "9px 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
-                        + Fiyat Alarmı Ekle
+                        + {sekme === "Gösterge Alarmları" ? "Gösterge Alarmı Ekle" : "Fiyat Alarmı Ekle"}
                       </button>
                     )}
                   </div>
