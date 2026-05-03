@@ -1,0 +1,5471 @@
+{
+  "checkedAt": "2026-05-03T17:51:15.260Z",
+  "total": 607,
+  "available": 606,
+  "missing": 1,
+  "missingTickers": [
+    "KOZAA"
+  ],
+  "results": [
+    {
+      "ticker": "A1CAP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.48,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "A1YEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 37.96,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AAGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.01,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ACSEL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 120.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ADEL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 48.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ADESE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.08,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ADGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 59.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AEFES",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AFYON",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.53,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AGESA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 240.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AGHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 31.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AGROT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.07,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.61,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AHGAZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 27.48,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AHSGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKBNK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 73.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKCNS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 213.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKENR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.22,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKFGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.85,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKFIS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 55.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKFYE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 22.26,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKGRT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.99,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKHAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 28.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKMGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 259.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKSA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.59,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKSEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 82.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKSGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.95,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKSUE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 34.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AKYHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALARK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 95.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALBRK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.41,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALCAR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 776,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALCTL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 137.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALFAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 41.22,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.33,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALKA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.24,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALKIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20.06,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALKLC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 358,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALTNY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16.01,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ALVES",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.26,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ANELE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 48.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ANGEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.17,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ANHYT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 110.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ANSGR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 28.88,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARASE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 104.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARCLK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 111.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARDYZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 50.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARENA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARFYE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 32.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARMGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 131.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARSAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.48,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARTMS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 43.44,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ARZUM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.68,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ASELS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 420.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ASGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.46,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ASTOR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 284,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ASUZU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 71,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ATAGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.16,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ATAKP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 50.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ATATP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 149.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ATATR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ATEKS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 94,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ATLAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.11,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ATSYH",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 59.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AVGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.76,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AVHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AVOD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.53,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AVPGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 59.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AVTUR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.17,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AYCES",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1053,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AYDEM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 29,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AYEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 36.02,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AYES",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AYGAZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 287.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "AZTEK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.47,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BAGFS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 33.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BAHKM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 120,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BAKAB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 43,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BALAT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 83,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BALSU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BANVT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 160.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BARMA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 60.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BASCM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.82,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BASGZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 51.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BAYRK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.92,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BEGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.32,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BERA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 17.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BESLR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.02,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BESTE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 27.16,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BEYAZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 34.66,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BFREN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 145.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BIENY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 24.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BIGCH",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.52,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BIGEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.66,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BIGTK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 213,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BIMAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 741.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BINBN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 174.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BINHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.07,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BIOEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BIZIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 28.06,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BJKAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.66,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BLCYT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 32.56,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BLUME",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 40,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BMSCH",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.13,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BMSTL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 90.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BNTAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.73,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BOBET",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.91,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BORLS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BORSK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.16,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BOSSA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.55,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRISA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 84.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRKO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRKSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.91,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRKVY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 96.45,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRLSM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.94,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRMEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRSAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 547,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BRYAT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2104,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BSOKE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BTCIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.22,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BUCIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.13,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BULGS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 44.52,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BURCE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 57.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BURVA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1295,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BVSAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 118.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "BYDNR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 41.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CANTE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.79,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CASA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 95.95,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CATES",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 44.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CCOLA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CELHA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CEMAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.79,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CEMTS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CEMZY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.35,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CEOEM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 24.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CGCAM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 40.58,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CIMSA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 57.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CLEBI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1786,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CMBTN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1761,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CMENT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 319.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CONSE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.14,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "COSMO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 200.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CRDFA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 32.16,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CRFSA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 140.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CUSAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 24.58,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CVKMD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 35.68,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "CWENE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 36.64,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DAGI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DAPGM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.54,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DARDL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.22,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DCTTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DENGE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.53,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DERHL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DERIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DESA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DESPC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 44,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DEVA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 66.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DGATE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 89.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DGGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DGNMO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.07,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DIRIT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 27,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DITAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 33.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DMRGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.59,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DMSAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.09,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DNISI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DOAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 180.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DOCO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9105,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DOFER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 32.98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DOFRB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 144.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DOGUB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 107,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DOHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 22.74,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DOKTA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 24.68,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DSTKF",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2730,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DUNYH",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 120.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DURDO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.86,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DURKN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 22.02,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DYOBY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "DZGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.76,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EBEBK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 71.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ECILC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 85.45,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ECOGR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 37.58,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ECZYT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 375,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EDATA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.44,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EDIP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 39.48,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EFOR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.55,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EGEEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6342.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EGEGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.68,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EGEPO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EGGUB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 126.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EGPRO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 44.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EGSER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EKGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20.58,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EKIZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 95.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EKOS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EKSUN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.92,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ELITE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EMKEL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.08,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EMNIS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 149.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EMPAE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.72,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ENDAE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.68,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ENERY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ENJSA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 122.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ENKAI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 104.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ENPRA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 92.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ENSRI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ENTRA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.15,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EPLAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.21,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ERBOS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 196.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ERCB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 58.15,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EREGL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 35.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ERSU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ESCAR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 52.15,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ESCOM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ESEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.73,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ETILR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.15,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ETYAT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.02,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EUHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.95,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EUKYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.51,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EUPWR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 52.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EUREN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.51,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EUYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "EYGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.79,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FADE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.94,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FENER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.14,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FLAP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.06,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FMIZP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 295.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FONET",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.91,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FORMT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FORTE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 94.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FRIGO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.23,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FRMPL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 33.06,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FROTO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "FZLGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.79,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GARAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 133.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GARFA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 28.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GATEG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 317,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GEDIK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.71,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GEDZA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 29.64,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GENIL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.26,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GENKM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GENTS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.94,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GEREL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.52,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GESAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 49.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GIPTA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 87.45,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GLBMD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.27,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GLCVY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 65.85,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GLRMK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 189.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GLRYH",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GLYHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GMTAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 42.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GOKNR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.58,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GOLTS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 366.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GOODY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.54,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GOZDE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.99,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GRNYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 17.94,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GRSEL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 299,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GRTHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 258,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GSDDE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.09,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GSDHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.27,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GSRAY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.17,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GUBRF",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 530.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GUNDG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 923.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GWIND",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "GZNMI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 71.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HALKB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 37.84,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HATEK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 17.03,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HATSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 44,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HDFGS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.47,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HEDEF",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 149,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HEKTS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.43,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HKTM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.66,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HLGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.83,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HOROZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 83.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HRKET",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 74.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HTTBT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 42.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HUBVC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.92,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HUNER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "HURGZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.95,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ICBCT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16.82,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IDGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.29,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IEYHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 99.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IHAAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 78,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IHEVA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.28,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IHGZT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.53,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IHLAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.24,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IHLGM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.24,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IHYAY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.81,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IMASM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.71,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "INDES",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "INFO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.43,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "INGRM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 428.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "INTEK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 242,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "INTEM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 288.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "INVEO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "INVES",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 551,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISBIR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 86.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISBTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 406152.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISCTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISDMR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 48.42,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISFIN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISGSY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 120.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20.24,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISKPL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISKUR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2475017.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISMEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 42.28,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ISSEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IZENR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.72,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IZFAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 68.55,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IZINV",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 68.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "IZMDC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.03,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "JANTS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 17.67,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KAPLM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 629.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KAREL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KARSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.53,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KARTN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 99.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KATMR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.87,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KAYSE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.73,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KBORU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KCAER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.73,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KCHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 202.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KENT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 405.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KERVN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.84,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KFEIN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.71,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.15,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KIMMR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16.96,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLKIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 34.08,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLMSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 34.86,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLNMA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLRHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 102.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLSER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.44,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLSYN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.36,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KLYPV",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 58.95,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KMPUR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KNFRT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.96,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KOCMT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.58,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KONKA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KONTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.41,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KONYA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4180,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KOPOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.93,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KORDS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 65.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KOTON",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KOZAA",
+      "priceAvailable": false,
+      "status": 404,
+      "reason": "http"
+    },
+    {
+      "ticker": "KRDMA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 35.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRDMB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 91.35,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRDMD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.52,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.84,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRONT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.46,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRPLS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.04,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRSTL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.36,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRTEK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 24.88,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KRVGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KSTUR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3190,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KTLEV",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 115,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KTSKR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 125.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KUTPO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 97.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KUVVA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 123.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KUYAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 83.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KZBGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.32,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "KZGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 23.14,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LIDER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 119,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LIDFA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.32,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LILAK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 35.02,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LINK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LKMNH",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LMKDC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 37.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LOGO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 143.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LRSHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.69,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LUKSK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 104.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LXGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 17.01,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LYDHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 196.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "LYDYE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16002.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MAALT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1128,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MACKO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 41.42,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MAGEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 64.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MAKIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.45,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MAKTK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MANAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.16,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MARBL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.48,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MARKA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 58.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MARMR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.94,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MARTI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MAVI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 43.32,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MCARD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 162.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MEDTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 29.86,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MEGAP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MEGMT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 81.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MEKAG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.09,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MEPET",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 22.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MERCN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 23.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MERIT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16.35,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MERKO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 15.46,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "METRO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.49,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MEYSU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.88,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MGROS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 641.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MHRGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MIATK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 39.96,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MMCAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 78.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MNDRS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MNDTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.01,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MOBTL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MOGAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.56,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MOPAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 39.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MPARK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 444.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MRGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.86,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MRSHL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1515,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MSGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.57,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MTRKS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 23.88,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MTRYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.49,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "MZHLD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.52,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NATEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.02,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NETAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 65.35,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NETCD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 130.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NIBAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NTGAZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NTHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NUGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.81,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "NUHCM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 247.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OBAMS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OBASE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.94,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ODAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.86,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ODINE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1139,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OFSYM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 56.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ONCSM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 273.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ONRYT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 60.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ORCAY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.92,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ORGE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 85.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ORMA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 160.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OSMEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.56,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OSTIM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.84,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OTKAR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 382.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OTTO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 303.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OYAKC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 23.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OYAYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 51.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OYLUM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OYYAT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 57,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OZATD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 373.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OZGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.19,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OZKGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.23,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OZRDN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 35.64,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OZSUB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.92,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "OZYSR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PAGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 130.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PAHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.57,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PAMEL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 89.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PAPIL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PARSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 83.35,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PASEU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 132,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PATEK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.68,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PCILT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 29.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PEKGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 16.39,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PENGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.91,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PENTA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PETKM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 23.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PETUN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.33,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PGSUS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 180.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PINSU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.74,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PKART",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 136.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PKENT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 155,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PLTUR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PNLSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 45.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PNSUT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.76,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "POLHO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.28,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "POLTK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5355,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PRDGS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.86,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PRKAB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 38.24,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PRKME",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PRZMA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 29.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PSDTC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 140,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "PSGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "QNBFK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 40.48,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "QNBTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 247,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "QUAGR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.72,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RALYH",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 336.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RAYSG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 197.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "REEDR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RGYAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 185.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RNPOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.82,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RODRG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 28.46,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RTALB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.32,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RUBNS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 32.72,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RUZYE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.28,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RYGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "RYSAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 20,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SAFKR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 24.32,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SAHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 95.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SAMAT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.54,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SANEL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 34.96,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SANFM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.51,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SANKO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 25.32,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SARKY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.46,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SASA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.14,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SAYAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 48.74,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SDTTR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 219.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SEGMN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 56.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SEGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.93,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SEKFK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.07,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SEKUR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.88,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SELEC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 104,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SELVA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.46,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SERNT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.72,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SEYKM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 5.33,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SILVR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.55,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SISE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 47.86,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SKBNK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.27,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SKTAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SKYLP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 338,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SKYMD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.49,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SMART",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 36.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SMRTG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.63,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SMRVA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.46,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SNGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.66,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SNICA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SNPAM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SODSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 10.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SOKE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SOKM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 50.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SONME",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 138.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SRVGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.34,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SUMAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 296.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SUNTK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 35.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SURGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 70.95,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SUWEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "SVGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.23,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TABGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 269,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TARKM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 408.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TATEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.76,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TATGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 17.98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TAVHL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 278.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TBORG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 143.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TCELL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 112.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TCKRC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 106.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TDGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 18.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TEHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TEKTU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 12.11,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TERA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 241,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TEZOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.09,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TGSAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 167.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "THYAO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 308.25,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TKFEN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 142.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TKNSA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 22.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TLMAN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 95.3,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TMPOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 485,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TMSN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 101.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TNZTP",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 25.06,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TOASO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 294.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TRALT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 41.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TRCAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 46.28,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TRENJ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 91.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TRGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 98,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TRHOL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1264,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TRILC",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TRMET",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 118.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TSGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 6.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TSKB",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TSPOR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 0.99,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TTKOM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 62.15,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TTRAK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 444,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TUCLK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TUKAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.56,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TUPRS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 271,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TUREX",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.74,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TURGG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 40,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "TURSG",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.06,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "UCAYM",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 28.48,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "UFUK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1551,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ULAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 29.7,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ULKER",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 123.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ULUFA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 4.11,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ULUSE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 221.1,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ULUUN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.6,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "UNLU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.53,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "USAK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.74,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VAKBN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 31.66,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VAKFA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 13.37,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VAKFN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.83,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VAKKO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 84,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VANGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 90,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VBTYZ",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.4,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VERTU",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 39.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VERUS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 500.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VESBE",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 7.12,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VESTL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 27.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VKFYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 33.62,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VKGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.76,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VKING",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 26,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VRGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 2.37,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "VSNMD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 85.9,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YAPRK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 14.31,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YATAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 43.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YAYLA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 28.5,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YBTAS",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 17.65,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YEOTK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 55.8,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YESIL",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.75,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YGGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 240,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YIGIT",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 24.2,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YKBNK",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 37.04,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YKSLN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.26,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YONGA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 55.05,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YUNSA",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 8.33,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YYAPI",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 1.35,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "YYLGD",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 11.67,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ZEDUR",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 9.41,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ZERGY",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 19.38,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ZGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 30.18,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ZOREN",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 3.06,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    },
+    {
+      "ticker": "ZRGYO",
+      "priceAvailable": true,
+      "status": 200,
+      "price": 21.88,
+      "currency": "TRY",
+      "exchange": "IST",
+      "reason": null
+    }
+  ]
+}
