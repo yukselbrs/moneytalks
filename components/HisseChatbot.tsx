@@ -51,9 +51,13 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
     setInput("");
     setYukleniyor(true);
     try {
+      const { data: { session } } = await (await import("@/components/lib/supabase")).supabase.auth.getSession();
       const res = await fetch("/api/chatbot", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({ messages: yeniMesajlar, ticker, veri, analiz, portfoy }),
       });
       const data = await res.json();
