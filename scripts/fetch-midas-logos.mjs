@@ -6,15 +6,21 @@ const missingOnly = !process.argv.includes("--all");
 const outDir = path.join(root, "public", "stock-logos", "midas");
 const outMapPath = path.join(root, "lib", "midas-stock-logos.ts");
 
-const bistSource = await readFile(path.join(root, "lib", "bist-hisseler.ts"), "utf8");
+const bistCompanies = JSON.parse(await readFile(path.join(root, "data", "bist-companies.json"), "utf8"));
 const stockLogoSource = await readFile(path.join(root, "lib", "stock-logos.ts"), "utf8");
+const existingMidasSource = await readFile(outMapPath, "utf8").catch(() => "");
 
-const tickers = [...bistSource.matchAll(/ticker:\s*"([^"]+)"/g)].map((match) => match[1]);
+const tickers = bistCompanies.map((company) => company.ticker);
 const tradingViewTickers = new Set(
   [...stockLogoSource.matchAll(/^\s{2}([A-Z0-9]+):\s*"/gm)].map((match) => match[1]),
 );
+const existingMidasLogos = new Map(
+  [...existingMidasSource.matchAll(/^\s{2}([A-Z0-9]+):\s*"([^"]+)"/gm)].map((match) => [match[1], match[2]]),
+);
 
-const targetTickers = missingOnly ? tickers.filter((ticker) => !tradingViewTickers.has(ticker)) : tickers;
+const targetTickers = missingOnly
+  ? tickers.filter((ticker) => !tradingViewTickers.has(ticker) && !existingMidasLogos.has(ticker))
+  : tickers;
 await mkdir(outDir, { recursive: true });
 
 function extFromUrl(url) {
@@ -73,7 +79,7 @@ async function runLimited(items, limit, worker) {
   return results;
 }
 
-const found = [];
+const found = new Map(existingMidasLogos);
 
 await runLimited(targetTickers, 8, async (ticker) => {
   const pageUrl = `https://www.getmidas.com/canli-borsa/${ticker.toLowerCase()}-hisse/`;
@@ -104,7 +110,7 @@ await runLimited(targetTickers, 8, async (ticker) => {
     const buffer = Buffer.from(await image.arrayBuffer());
 
     await writeFile(filePath, buffer);
-    found.push([ticker, fileName]);
+    found.set(ticker, fileName);
     console.log(`${ticker} ${fileName}`);
   } catch (error) {
     console.log(`${ticker} ${error instanceof Error ? error.message : "failed"}`);
@@ -113,12 +119,11 @@ await runLimited(targetTickers, 8, async (ticker) => {
   return null;
 });
 
-found.sort(([a], [b]) => a.localeCompare(b));
-
-const mapBody = found.map(([ticker, fileName]) => `  ${ticker}: "${fileName}",`).join("\n");
+const sortedLogos = [...found].sort(([a], [b]) => a.localeCompare(b));
+const mapBody = sortedLogos.map(([ticker, fileName]) => `  ${ticker}: "${fileName}",`).join("\n");
 const mapSource = `export const MIDAS_STOCK_LOGOS: Record<string, string> = {\n${mapBody}\n};\n`;
 
 await writeFile(outMapPath, mapSource);
 
-console.log(`\nSaved ${found.length}/${targetTickers.length} Midas logos to ${path.relative(root, outDir)}`);
+console.log(`\nSaved ${found.size}/${tickers.length} Midas logos to ${path.relative(root, outDir)}`);
 console.log(`Generated ${path.relative(root, outMapPath)}`);
