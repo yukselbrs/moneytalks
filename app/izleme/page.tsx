@@ -119,7 +119,8 @@ export default function IzlemePage() {
     if (!session) return;
     const clean = ticker.replace(/\0/g, "").trim().toUpperCase();
     if (!clean || watchlist.find(w => w.ticker === clean)) return;
-    await supabase.from("watchlist").insert({ user_id: session.user.id, ticker: clean });
+    const { error } = await supabase.from("watchlist").insert({ user_id: session.user.id, ticker: clean });
+    if (error) { console.error("Watchlist ekleme hatasi:", error.message); return; }
     setWatchlist(prev => [{ ticker: clean, added_at: new Date().toISOString() }, ...prev]);
     setAramaInput(""); setAramaAcik(false);
     if (clean) {
@@ -130,7 +131,8 @@ export default function IzlemePage() {
   async function removeFromWatchlist(ticker: string) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+    const { error } = await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+    if (error) { console.error("Watchlist silme hatasi:", error.message); return; }
     setWatchlist(prev => prev.filter(w => w.ticker !== ticker));
   }
 

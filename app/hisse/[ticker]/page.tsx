@@ -76,12 +76,16 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   async function toggleIzleme() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    if (izlemede) {
-      await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
-      setIzlemede(false);
-    } else {
-      await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
-      setIzlemede(true);
+    try {
+      if (izlemede) {
+        const { error } = await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+        if (!error) setIzlemede(false);
+      } else {
+        const { error } = await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
+        if (!error) setIzlemede(true);
+      }
+    } catch (err) {
+      console.error("Izleme guncelleme hatasi:", err);
     }
   }
   const router = useRouter();
