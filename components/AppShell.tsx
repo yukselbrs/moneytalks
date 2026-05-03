@@ -250,11 +250,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           background: pathname === "/profile" ? "rgba(59,130,246,0.1)" : "transparent",
           borderBottom: pathname === "/profile" ? "2px solid #3B82F6" : "2px solid transparent",
         }}>
-          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: `1px solid ${pathname === "/profile" ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6" }}>
-            {initials}
+          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: `1px solid ${pathname === "/profile" ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6", overflow: "hidden" }}>
+            {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
           </div>
           <span style={{ fontSize: 9, fontWeight: pathname === "/profile" ? 700 : 500 }}>Profil</span>
         </a>
+        <button onClick={handleLogout} style={{
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+          padding: "6px 10px", borderRadius: 8, minWidth: 52, background: "none", border: "none", cursor: "pointer", color: "#475569",
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span style={{ fontSize: 9, fontWeight: 500 }}>Çıkış</span>
+        </button>
       </nav>
     </div>
   );
