@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { vade, risk_toleransi, sermaye, sektor, deneyim } = body;
 
-  const prompt = `Sen BIST uzmanı bir yatırım danışmanısın. Kullanıcı profiline göre 3 adet BIST hissesi öner.
+  const prompt = `Sen bir BIST veri tarama asistanısın. Kullanıcının profiline göre incelemeye değer olabilecek 3 BIST hissesini listele. Bu bir yatırım tavsiyesi değil, yalnızca profil uyumlu tarama sonucudur.
 
 Kullanıcı Profili:
 - Yatırım vadesi: ${vade}
@@ -32,13 +32,18 @@ Kullanıcı Profili:
 - Sektör tercihi: ${sektor}
 - Deneyim seviyesi: ${deneyim}
 
+ZORUNLU KURALLAR:
+- "al", "sat", "yatırım yap", "tavsiye" gibi ifadeler kesinlikle kullanma.
+- Her hisse için yalnızca nesnel, veri tabanlı özelliklerini belirt (likidite, sektör, büyüklük vb).
+- Bu çıktı yatırım tavsiyesi değildir ibaresini profil açıklamasına ekle.
+
 Yanıtını SADECE şu JSON formatında ver, başka hiçbir şey yazma:
 {
-  "profil": "Kullanıcının yatırım profilini 1 cümlede özetle",
+  "profil": "Kullanıcının profiline göre tarama kriteri 1 cümlede — bu yatırım tavsiyesi değildir.",
   "hisseler": [
-    {"ticker": "THYAO", "neden": "Kısa açıklama"},
-    {"ticker": "GARAN", "neden": "Kısa açıklama"},
-    {"ticker": "ASELS", "neden": "Kısa açıklama"}
+    {"ticker": "THYAO", "neden": "Nesnel özellik açıklaması"},
+    {"ticker": "GARAN", "neden": "Nesnel özellik açıklaması"},
+    {"ticker": "ASELS", "neden": "Nesnel özellik açıklaması"}
   ]
 }`;
 
