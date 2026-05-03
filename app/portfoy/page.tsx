@@ -188,22 +188,25 @@ export default function PortfoyPage() {
         yeniMaliyet = lotModal.mevcutMaliyet;
       }
       if (yeniAdet <= 0) {
-        await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", lotModal.ticker);
+        const { error } = await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", lotModal.ticker);
+        if (error) { setLotHata("Islem basarisiz oldu."); return; }
       } else {
-        await supabase.from("portfoy").update({ adet: yeniAdet, maliyet: parseFloat(yeniMaliyet.toFixed(4)) })
+        const { error } = await supabase.from("portfoy").update({ adet: yeniAdet, maliyet: parseFloat(yeniMaliyet.toFixed(4)) })
           .eq("user_id", session.user.id).eq("ticker", lotModal.ticker);
+        if (error) { setLotHata("Islem basarisiz oldu."); return; }
       }
       setLotModal({ open: false, ticker: "", mevcutAdet: 0, mevcutMaliyet: 0, islem: "ekle", adet: "", fiyat: "" });
       await portfoyuYukle();
-    } finally { setLotYükleniyor(false); }
+    } catch { setLotHata("Beklenmeyen bir hata olustu."); } finally { setLotYükleniyor(false); }
   };
 
   const hisseSil = async (ticker: string) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", ticker);
-    setPortfoy((prev) => prev.filter((p) => p.ticker !== ticker));
+    const { error } = await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+    if (error) { console.error("Silme hatasi:", error.message); return; }
     setSilModal({ open: false, ticker: "" });
+    await portfoyuYukle();
   };
 
   const plHesapla = (item: PortfoyItem) => {
