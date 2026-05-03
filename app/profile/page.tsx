@@ -64,7 +64,20 @@ export default function ProfilePage() {
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     setMessage(""); setError("");
-    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName, username } });
+    const cleanUsername = username.trim().toLowerCase();
+    if (cleanUsername && cleanUsername.length < 3) { setError("Kullanıcı adı en az 3 karakter olmalı."); return; }
+    if (cleanUsername && !/^[a-z0-9_]{3,20}$/.test(cleanUsername)) { setError("Kullanıcı adı sadece küçük harf, rakam ve alt çizgi içerebilir."); return; }
+    if (cleanUsername) {
+      const { data: existing, error: checkError } = await supabase.from("profiles").select("id").eq("username", cleanUsername).neq("id", user.id).maybeSingle();
+      if (checkError) { setError("Kullanıcı adı kontrol edilemedi."); return; }
+      if (existing) { setError("Bu kullanıcı adı zaten alınmış."); return; }
+    }
+    const { error: profileError } = await supabase.from("profiles").upsert({ id: user.id, username: cleanUsername || null, full_name: fullName });
+    if (profileError) {
+      if (profileError.code === "23505") { setError("Bu kullanıcı adı zaten alınmış."); return; }
+      setError(profileError.message); return;
+    }
+    const { error } = await supabase.auth.updateUser({ data: { full_name: fullName, username: cleanUsername } });
     if (error) setError(error.message);
     else setMessage("Bilgiler güncellendi.");
   }
@@ -217,7 +230,7 @@ export default function ProfilePage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   {[
                     { label: "Üyelik", value: user?.created_at ? new Date(user.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" }) : "—" },
-                    { label: "Son Giriş", value: "Bugün" },
+                    { label: "Son Giriş", value: user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—" },
                     { label: "Analizler", value: istatistik.analizSayisi },
                     { label: "İzleme", value: istatistik.watchlistSayisi },
                   ].map((s) => (

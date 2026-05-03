@@ -1,3 +1,16 @@
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setFullName(session.user.user_metadata?.full_name || "");
+        setUsername(session.user.user_metadata?.username || "");
+        setEmail(session.user.email || "");
+        setAvatarUrl(session.user.user_metadata?.avatar_url || "");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,6 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [tarihSaat, setTarihSaat] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
     const guncelle = () => {
@@ -30,6 +44,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         setFullName(session.user.user_metadata?.full_name || "");
         setUsername(session.user.user_metadata?.username || "");
         setEmail(session.user.email || "");
+        setAvatarUrl(session.user.user_metadata?.avatar_url || "");
       }
     });
   }, []);
@@ -173,8 +188,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
 
           <a href="/profile" className="sb-item" style={{ textDecoration: "none", color: "#64748B" }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#3B82F6", flexShrink: 0 }}>
-              {initials}
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#3B82F6", flexShrink: 0, overflow: "hidden" }}>
+              {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 600 }}>{displayName}</span>
