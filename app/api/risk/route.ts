@@ -130,7 +130,52 @@ export async function GET(req: NextRequest) {
       : 0;
     const gunlukRangeRisk = gunlukRange > 5 ? 55 : gunlukRange > 3 ? 35 : gunlukRange > 1.5 ? 20 : 10;
 
-    // 8. Likidite Riski (mutlak hacim)
+    // 8. Temel Analiz (TradingView Scanner)
+    let fk: number | null = null;
+    let pddd: number | null = null;
+    let piyasaDegeri: number | null = null;
+    let fkRisk = 40; // varsayilan
+    let pdddRisk = 40;
+
+    try {
+      const tvRes = await fetch("https://scanner.tradingview.com/turkey/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          symbols: { tickers: [`BIST:${ticker}`] },
+          columns: ["price_earnings_ttm", "price_book_ratio", "market_cap_basic"]
+        }),
+        cache: "no-store"
+      });
+      const tvData = await tvRes.json();
+      const d = tvData?.data?.[0]?.d;
+      if (d) {
+        fk = d[0];
+        pddd = d[1];
+        piyasaDegeri = d[2];
+        
+        // F/K risk skorlama
+        if (fk === null || fk === undefined) fkRisk = 40;
+        else if (fk < 0) fkRisk = 70; // zarar eden firma
+        else if (fk < 8) fkRisk = 15;
+        else if (fk < 15) fkRisk = 20;
+        else if (fk < 25) fkRisk = 35;
+        else if (fk < 40) fkRisk = 55;
+        else fkRisk = 70;
+        
+        // PD/DD risk skorlama
+        if (pddd === null || pddd === undefined) pdddRisk = 40;
+        else if (pddd < 0) pdddRisk = 65;
+        else if (pddd < 1) pdddRisk = 15;
+        else if (pddd < 2) pdddRisk = 25;
+        else if (pddd < 4) pdddRisk = 40;
+        else pdddRisk = 60;
+      }
+    } catch (e) {
+      console.error("TradingView Scanner hatasi:", e);
+    }
+
+    // 9. Likidite Riski (mutlak hacim)
     const ortHacimMutlak = ortalama(hisse.volumes.filter((v: number) => v > 0));
     const liikiditeRisk = ortHacimMutlak < 100000 ? 80 : ortHacimMutlak < 500000 ? 55 : ortHacimMutlak < 2000000 ? 30 : ortHacimMutlak < 10000000 ? 15 : 10;
 
@@ -147,7 +192,9 @@ export async function GET(req: NextRequest) {
       { ad: "Hacim Anomalisi", deger: hacimOrani.toFixed(2) + "x", risk: hacimRisk, agirlik: 0.10 },
       { ad: "RSI (14)", deger: rsi.toFixed(0), risk: rsiRisk, agirlik: 0.10 },
       { ad: "Gunluk Range", deger: gunlukRange.toFixed(2) + "%", risk: gunlukRangeRisk, agirlik: 0.04 },
-      { ad: "Likidite", deger: ortHacimMutlak > 1000000 ? (ortHacimMutlak/1000000).toFixed(1)+"M" : (ortHacimMutlak/1000).toFixed(0)+"K", risk: liikiditeRisk, agirlik: 0.06 },
+      { ad: "Likidite", deger: ortHacimMutlak > 1000000 ? (ortHacimMutlak/1000000).toFixed(1)+"M" : (ortHacimMutlak/1000).toFixed(0)+"K", risk: liikiditeRisk, agirlik: 0.05 },
+      { ad: "F/K Orani", deger: fk !== null ? fk.toFixed(2) : "N/A", risk: fkRisk, agirlik: 0.05 },
+      { ad: "PD/DD Orani", deger: pddd !== null ? pddd.toFixed(2) : "N/A", risk: pdddRisk, agirlik: 0.05 },
     ];
 
     const toplamSkor = skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0);
@@ -165,6 +212,7 @@ export async function GET(req: NextRequest) {
       veriGüvenilir,
       veriSayisi,
       bilesenler: skorBilesenleri,
+      piyasaDegeri,
       meta: {
         beta: parseFloat(beta.toFixed(3)),
         volatilite: parseFloat(volatilite.toFixed(2)),
