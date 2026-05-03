@@ -3774,17 +3774,6 @@
     "priceAvailable": true
   },
   {
-    "ticker": "KOZAA",
-    "ad": "TR Anadolu Metal Madencilik Isletmeleri",
-    "fullName": "TR Anadolu Metal Madencilik Isletmeleri A.S.",
-    "kapTitle": null,
-    "city": null,
-    "kapMemberOid": null,
-    "source": "stockanalysis",
-    "listed": true,
-    "priceAvailable": false
-  },
-  {
     "ticker": "KRDMA",
     "ad": "KARDEMİR KARABÜK DEMİR ÇELİK SANAYİ VE TİCARET",
     "fullName": "KARDEMİR KARABÜK DEMİR ÇELİK SANAYİ VE TİCARET A.Ş.",

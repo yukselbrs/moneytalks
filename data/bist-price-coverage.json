@@ -1,11 +1,9 @@
 {
   "checkedAt": "2026-05-03T22:12:10.855Z",
-  "total": 607,
+  "total": 606,
   "available": 606,
-  "missing": 1,
-  "missingTickers": [
-    "KOZAA"
-  ],
+  "missing": 0,
+  "missingTickers": [],
   "results": [
     {
       "ticker": "A1CAP",
@@ -3084,12 +3082,6 @@
       "currency": "TRY",
       "exchange": "IST",
       "reason": null
-    },
-    {
-      "ticker": "KOZAA",
-      "priceAvailable": false,
-      "status": 404,
-      "reason": "http"
     },
     {
       "ticker": "KRDMA",

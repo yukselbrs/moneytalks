@@ -229,7 +229,6 @@ export const MIDAS_STOCK_LOGOS: Record<string, string> = {
   KONTR: "KONTR.png",
   KOPOL: "KOPOL.png",
   KORDS: "KORDS.png",
-  KOZAA: "KOZAA.png",
   KRDMA: "KRDMA.png",
   KRDMB: "KRDMB.png",
   KRDMD: "KRDMD.png",

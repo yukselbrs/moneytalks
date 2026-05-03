@@ -23,7 +23,7 @@ const BIST_HISSELER = [
   { ticker: "PETKM", name: "Petkim", domain: "petkim.com.tr" },
   { ticker: "ARCLK", name: "Arçelik", domain: "arcelik.com" },
   { ticker: "KOZAL", name: "Koza Altın" },
-  { ticker: "KOZAA", name: "Koza Anadolu Metal" },
+  { ticker: "TRMET", name: "TR Anadolu Metal" },
   { ticker: "EKGYO", name: "Emlak Konut GYO" },
   { ticker: "ISGYO", name: "İş GYO" },
   { ticker: "HALKB", name: "Halkbank", domain: "halkbank.com.tr" },

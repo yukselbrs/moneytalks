@@ -38,6 +38,14 @@ const DOMAIN_OVERRIDES = {
   YKBNK: "yapikredi.com.tr",
 };
 
+const RENAMED_TICKERS = {
+  KOZAA: "TRMET",
+};
+
+function normalizeTicker(ticker) {
+  return RENAMED_TICKERS[ticker] || ticker;
+}
+
 async function fetchText(url) {
   const response = await fetch(url, {
     headers: {
@@ -90,7 +98,7 @@ async function fetchActiveStocks() {
     if (!html.includes(`?page=${page + 1}`)) break;
   }
 
-  return [...new Map(all.map((row) => [row.ticker, row])).values()].sort((a, b) =>
+  return [...new Map(all.map((row) => [normalizeTicker(row.ticker), { ...row, ticker: normalizeTicker(row.ticker) }])).values()].sort((a, b) =>
     a.ticker.localeCompare(b.ticker, "tr"),
   );
 }
@@ -138,7 +146,7 @@ async function fetchKapCompanies() {
         .map((code) => code.trim().toUpperCase())
         .filter(Boolean)
         .map((ticker) => ({
-          ticker,
+          ticker: normalizeTicker(ticker),
           kapTitle: company.kapMemberTitle || "",
           city: company.cityName || null,
           kapMemberOid: company.kapMemberOid || null,
