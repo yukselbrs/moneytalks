@@ -123,7 +123,9 @@ export default function BildirimlerPage() {
           ) : filtrelendi.length === 0 ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "48px 0" }}>
               <div style={{ fontSize: 36 }}>🔔</div>
-              <p style={{ fontSize: 14, color: "#334155" }}>Henüz bildirim yok.</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>Henüz bildirim yok</p>
+              <p style={{ fontSize: 13, color: "#475569" }}>Alarm kurduğunuzda bildirimler burada görünecek.</p>
+              <button onClick={() => router.push("/alarmlar")} style={{ marginTop: 4, background: "#3B82F6", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Alarm Kur</button>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

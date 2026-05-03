@@ -407,7 +407,7 @@ export default function IzlemePage() {
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Cok Yükselen</span>
                 </div>
-                {topYükselen.length === 0 ? <div style={{ padding: "12px 16px" }}><span style={{ fontSize: 12, color: "#334155" }}>Veri yok</span></div> :
+                {topYükselen.length === 0 ? <div style={{ padding: "20px 16px", textAlign: "center" }}><span style={{ fontSize: 12, color: "#475569" }}>Veri yükleniyor...</span></div> :
                   topYükselen.map((w, i) => (
                     <div key={i} onClick={() => router.push(`/hisse/${w.ticker}`)}
                       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: i < topYükselen.length-1 ? "1px solid rgba(59,130,246,0.04)" : "none", cursor: "pointer" }}
@@ -428,7 +428,7 @@ export default function IzlemePage() {
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Cok Düşen</span>
                 </div>
-                {topDüşen.length === 0 ? <div style={{ padding: "12px 16px" }}><span style={{ fontSize: 12, color: "#334155" }}>Veri yok</span></div> :
+                {topDüşen.length === 0 ? <div style={{ padding: "20px 16px", textAlign: "center" }}><span style={{ fontSize: 12, color: "#475569" }}>Veri yükleniyor...</span></div> :
                   topDüşen.map((w, i) => (
                     <div key={i} onClick={() => router.push(`/hisse/${w.ticker}`)}
                       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: i < topDüşen.length-1 ? "1px solid rgba(59,130,246,0.04)" : "none", cursor: "pointer" }}
