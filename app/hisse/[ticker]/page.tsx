@@ -262,6 +262,17 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
         </div>
 
+        {!veri && (
+          <div className="hisse-kartlar">
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px", height: 52 }}>
+                <div style={{ width: 80, height: 10, borderRadius: 4, background: "linear-gradient(90deg,#0F1C2E 25%,#162436 50%,#0F1C2E 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", marginBottom: 8 }} />
+                <div style={{ width: 60, height: 14, borderRadius: 4, background: "linear-gradient(90deg,#0F1C2E 25%,#162436 50%,#0F1C2E 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite" }} />
+              </div>
+            ))}
+            <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+          </div>
+        )}
         {veri && (
           <div className="hisse-kartlar">
             {kartlar.map((k) => (

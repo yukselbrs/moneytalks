@@ -325,15 +325,30 @@ export default function PortfoyPage() {
         {yükleniyor ? (
           <div className="text-slate-400 text-sm text-center py-12">Yükleniyor...</div>
         ) : portfoy.length === 0 ? (
-          <div className="text-center py-16 text-slate-500">
-            <p className="text-4xl mb-3">💼</p>
-            <p className="text-sm">Henüz portföyünüzde hisse yok.</p>
+          <div style={{ textAlign: "center", padding: "64px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>💼</div>
+            <div>
+              <p style={{ fontSize: 18, fontWeight: 700, color: "#E2E8F0", marginBottom: 8 }}>Portföyünüz boş</p>
+              <p style={{ fontSize: 13, color: "#64748B", lineHeight: 1.6, maxWidth: 280 }}>Hisselerinizi ekleyerek kâr/zarar ve performansınızı anlık takip edin.</p>
+            </div>
             <button
               onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
-              className="mt-4 text-blue-400 hover:text-blue-300 text-sm underline"
+              style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontSize: 14, fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 12px rgba(59,130,246,0.3)" }}
             >
-              İlk hissenizi ekleyin
+              + İlk Hisseni Ekle
             </button>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 8, maxWidth: 400, width: "100%" }}>
+              {[
+                { icon: "📈", text: "Kâr/Zarar takibi" },
+                { icon: "🎯", text: "Risk analizi" },
+                { icon: "📊", text: "Dağılım grafiği" },
+              ].map(f => (
+                <div key={f.text} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{f.icon}</div>
+                  <div style={{ fontSize: 10, color: "#475569", fontWeight: 500 }}>{f.text}</div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : isMobil ? (
           <div className="flex flex-col gap-2">
