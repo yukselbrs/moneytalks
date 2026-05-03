@@ -53,6 +53,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [grafikRange, setGrafikRange] = useState("1d");
   const [izlemede, setIzlemede] = useState(false);
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
+  const [fundamentals, setFundamentals] = useState<{pe: string, pb: string} | null>(null);
 
   useEffect(() => {
     document.title = `${ticker} Analizi | ParaKonusur — BIST Yapay Zeka`;
@@ -124,6 +125,22 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     if (data.veri) setVeri(data.veri);
   }
 
+  useEffect(() => {
+    fetch(`/api/risk?ticker=${ticker}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.bilesenler) {
+          const pe = d.bilesenler.find((f: {ad: string}) => f.ad === "F/K Orani");
+          const pb = d.bilesenler.find((f: {ad: string}) => f.ad === "PD/DD Orani");
+          setFundamentals({
+            pe: pe ? pe.deger : "—",
+            pb: pb ? pb.deger : "—",
+          });
+        }
+      })
+      .catch(() => {});
+  }, [ticker]);
+
   async function handleAnaliz() {
     const cacheKey = `pk_analiz_${ticker}`;
     const cached = localStorage.getItem(cacheKey);
@@ -168,6 +185,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
     { label: "Günlük Hacim", value: typeof window !== "undefined" ? veri.hacim.toLocaleString("tr-TR", { useGrouping: true }) + " adet" : veri.hacim + " adet" },
     { label: "İşlem Hacmi", value: typeof window !== "undefined" ? (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0, useGrouping: true }) + " ₺" : (veri.hacim * veri.fiyat).toFixed(0) + " ₺" },
+    { label: "F/K Oranı", value: fundamentals?.pe ?? "—" },
+    { label: "PD/DD Oranı", value: fundamentals?.pb ?? "—" },
   ] : [];
 
   return (
