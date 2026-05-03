@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 
@@ -33,6 +34,7 @@ function zamanFormat(dateStr: string) {
 }
 
 export default function BildirimlerPage() {
+  const router = useRouter();
   const [sekme, setSekme] = useState("Tümü");
   const [bildirimler, setBildirimler] = useState<Bildirim[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
