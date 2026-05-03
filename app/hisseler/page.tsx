@@ -87,7 +87,8 @@ function HisselerContent() {
 
   const items = data?.items || [];
   const toplam = data?.total || 0;
-  const toplamSayfa = Math.max(1, Math.ceil(toplam / 25));
+  const pageSize = data?.pageSize || 25;
+  const toplamSayfa = Math.max(1, Math.ceil(toplam / pageSize));
 
   return (
     <AppShell>
@@ -154,7 +155,7 @@ function HisselerContent() {
 
             {!yukleniyor && items.filter(hisse => hisse.fiyat != null).map((hisse, i) => {
               const renk = tickerRenk(hisse.ticker);
-              const globalNo = (page - 1) * 25 + i + 1;
+              const globalNo = (page - 1) * pageSize + i + 1;
               return (
                 <div key={hisse.ticker} className="hisse-row" onClick={() => router.push(`/hisse/${hisse.ticker}`)}
                   style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "11px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)", cursor: "pointer", alignItems: "center", background: "transparent", transition: "background 0.1s" }}>
@@ -189,7 +190,7 @@ function HisselerContent() {
           {/* Pagination */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, flexWrap: "wrap", gap: 8 }}>
             <p style={{ fontSize: 12, color: "#334155" }}>
-              {toplam === 0 ? "0" : `${(page - 1) * 25 + 1} – ${Math.min(page * 25, toplam)}`} / {toplam} hisse
+              {toplam === 0 ? "0" : `${(page - 1) * pageSize + 1} – ${Math.min(page * pageSize, toplam)}`} / {toplam} hisse
             </p>
             <div style={{ display: "flex", gap: 4 }}>
               <button onClick={() => updateParams({ page: "1" })} disabled={page === 1}
