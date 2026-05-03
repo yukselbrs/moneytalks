@@ -6,6 +6,7 @@ import AppShell from "@/components/AppShell";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import RiskProfilWidget from "@/components/RiskProfilWidget";
+import StockLogo from "@/components/StockLogo";
 
 const TICKER_KISALT: Record<string, string> = {
   THYAO: "THY", GARAN: "GARAN", AKBNK: "AKBNK", ISCTR: "ISCTR",
@@ -108,7 +109,7 @@ export default function DashboardPage() {
   const [piyasa, setPiyasa] = useState(() => { try { const c = localStorage.getItem("pk_piyasa"); return c ? JSON.parse(c) : { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } catch { return { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } });
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [piyasaFiyatlari, setPiyasaFiyatlari] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
-  const [topMovers, setTopMovers] = useState<{yukselenler: {ticker:string;fiyat:string;degisim:number}[]; dusenler: {ticker:string;fiyat:string;degisim:number}[]}|null>(null);
+  const [topMovers, setTopMovers] = useState<{yukselenler: {ticker:string;fiyat:string;degisim:number}[]; dusenler: {ticker:string;fiyat:string;degisim:number}[]; hacimliler: {ticker:string;fiyat:string;degisim:number}[]}|null>(null);
   const [bildirimAcik, setBildirimAcik] = useState(false);
   const [piyasaOdagiTab, setPiyasaOdagiTab] = useState("one");
 
@@ -266,23 +267,23 @@ export default function DashboardPage() {
     };
     const fetchPiyasa = async () => {
       try {
-        const [yukRes, dusRes] = await Promise.all([
+        const [yukRes, dusRes, hacimRes] = await Promise.all([
           fetch("/api/hisseler?sort=yukselis&page=1"),
           fetch("/api/hisseler?sort=dusus&page=1"),
+          fetch("/api/hisseler?sort=hacim&page=1"),
         ]);
         const yukJson = await yukRes.json();
         const dusJson = await dusRes.json();
-        const yukselenler = (yukJson.items || []).slice(0, 5).map((h: {ticker:string;fiyat:string|number;degisim:string|number}) => ({
+        const hacimJson = await hacimRes.json();
+        const mapH = (h: {ticker:string;fiyat:string|number;degisim:string|number}) => ({
           ticker: h.ticker,
           fiyat: typeof h.fiyat === "number" ? h.fiyat.toLocaleString("tr-TR", {minimumFractionDigits:2}) : String(h.fiyat),
           degisim: parseFloat(String(h.degisim)),
-        }));
-        const dusenler = (dusJson.items || []).slice(0, 5).map((h: {ticker:string;fiyat:string|number;degisim:string|number}) => ({
-          ticker: h.ticker,
-          fiyat: typeof h.fiyat === "number" ? h.fiyat.toLocaleString("tr-TR", {minimumFractionDigits:2}) : String(h.fiyat),
-          degisim: parseFloat(String(h.degisim)),
-        }));
-        setTopMovers({ yukselenler, dusenler });
+        });
+        const yukselenler = (yukJson.items || []).slice(0, 5).map(mapH);
+        const dusenler = (dusJson.items || []).slice(0, 5).map(mapH);
+        const hacimliler = (hacimJson.items || []).slice(0, 5).map(mapH);
+        setTopMovers({ yukselenler, dusenler, hacimliler });
       } catch(e) { console.error("fetchPiyasa err:", e); }
     };
     fetchDoviz();
@@ -397,13 +398,7 @@ export default function DashboardPage() {
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                   <div onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); router.push(`/hisse/${h.ticker}`); }} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-                    <div style={{ width: 48, height: 28, borderRadius: 6, background: tickerRenk(h.ticker) + "22", border: `1px solid ${tickerRenk(h.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker), flexShrink: 0, letterSpacing: "-0.5px", overflow: "hidden" }}>
-                      {(h as any).domain ? (
-                        <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 20, height: 20, objectFit: "contain" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      ) : (
-                        <span style={{ fontSize: 8, fontWeight: 700, color: tickerRenk(h.ticker) }}>{h.ticker.slice(0,4)}</span>
-                      )}
-                    </div>
+                    <StockLogo ticker={h.ticker} domain={(h as any).domain} size={48} imageSize={20} radius={6} color={tickerRenk(h.ticker)} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
                       <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>{h.name}</div>
@@ -772,14 +767,14 @@ export default function DashboardPage() {
               { key: "one", label: "Öne Çıkanlar" },
               { key: "yukselenler", label: "Yükselenler" },
               { key: "dusenler", label: "Düşenler" },
-              { key: "izleme", label: "En Çok İzlenen" },
+              { key: "hacim", label: "En Yüksek Hacim" },
             ];
             const liste = piyasaTab === "yukselenler"
               ? (topMovers?.yukselenler || []).map(h => ({ ticker: h.ticker, fiyat: h.fiyat, degisim: h.degisim, yukselis: h.degisim >= 0 }))
               : piyasaTab === "dusenler"
               ? (topMovers?.dusenler || []).map(h => ({ ticker: h.ticker, fiyat: h.fiyat, degisim: h.degisim, yukselis: h.degisim >= 0 }))
-              : piyasaTab === "izleme"
-              ? watchlist.slice(0, 5).map(w => ({ ticker: w.ticker, fiyat: fiyatlar[w.ticker]?.fiyat || "—", degisim: Number(fiyatlar[w.ticker]?.degisim || 0), yukselis: fiyatlar[w.ticker]?.yukselis ?? true }))
+              : piyasaTab === "hacim"
+              ? (topMovers?.hacimliler || []).map(h => ({ ticker: h.ticker, fiyat: h.fiyat, degisim: h.degisim, yukselis: h.degisim >= 0 }))
               : POPULAR.slice(0, 5).map(s => ({ ticker: s.ticker, fiyat: fiyatlar[s.ticker]?.fiyat || "—", degisim: Number(fiyatlar[s.ticker]?.degisim || 0), yukselis: fiyatlar[s.ticker]?.yukselis ?? true }));
 
             return (
@@ -804,11 +799,7 @@ export default function DashboardPage() {
                       style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 44px", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: i < liste.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer", transition: "background 0.12s" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                      <div style={{ width: 40, height: 40, borderRadius: 10, background: tickerRenk(s.ticker) + "22", border: `1px solid ${tickerRenk(s.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
-                        {(h as any)?.domain
-                          ? <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 24, height: 24, objectFit: "contain" }} onError={ev => { (ev.target as HTMLImageElement).style.display = "none"; }} />
-                          : <span style={{ fontSize: 10, fontWeight: 700, color: tickerRenk(s.ticker) }}>{s.ticker.slice(0, 3)}</span>}
-                      </div>
+                      <StockLogo ticker={s.ticker} domain={(h as any)?.domain} size={40} imageSize={24} radius={10} color={tickerRenk(s.ticker)} />
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.3px" }}>{s.ticker}</div>
                         <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || s.ticker}</div>
@@ -923,11 +914,7 @@ export default function DashboardPage() {
                   style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 36px", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: i < watchlist.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer", transition: "background 0.12s" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: tickerRenk(w.ticker) + "22", border: `1px solid ${tickerRenk(w.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
-                    {(h as any)?.domain
-                      ? <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=64`} style={{ width: 24, height: 24, objectFit: "contain" }} onError={ev => { (ev.target as HTMLImageElement).style.display = "none"; }} />
-                      : <span style={{ fontSize: 10, fontWeight: 700, color: tickerRenk(w.ticker) }}>{w.ticker.slice(0, 3)}</span>}
-                  </div>
+                  <StockLogo ticker={w.ticker} domain={(h as any)?.domain} size={40} imageSize={24} radius={10} color={tickerRenk(w.ticker)} />
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.2px" }}>{w.ticker}</div>
                     <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || w.ticker}</div>
@@ -962,11 +949,7 @@ export default function DashboardPage() {
                 return (
                   <div key={i} onClick={() => router.push(`/hisse/${r.ticker}`)}
                     style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: tickerRenk(r.ticker) + "22", border: `1px solid ${tickerRenk(r.ticker)}44`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
-                      {(h as any)?.domain
-                        ? <img src={`https://www.google.com/s2/favicons?domain=${(h as any).domain}&sz=32`} style={{ width: 18, height: 18, objectFit: "contain" }} onError={ev => { (ev.target as HTMLImageElement).style.display = "none"; }} />
-                        : <span style={{ fontSize: 8, fontWeight: 700, color: tickerRenk(r.ticker) }}>{r.ticker.slice(0, 3)}</span>}
-                    </div>
+                    <StockLogo ticker={r.ticker} domain={(h as any)?.domain} size={32} imageSize={18} radius={8} color={tickerRenk(r.ticker)} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{r.ticker}</div>
                       <div style={{ fontSize: 10, color: "#475569" }}>{r.time}</div>

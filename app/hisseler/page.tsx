@@ -2,6 +2,7 @@
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import StockLogo from "@/components/StockLogo";
 
 const RENKLER = ["#3B82F6","#8B5CF6","#EC4899","#F97316","#10B981","#06B6D4","#EAB308","#EF4444","#6366F1","#14B8A6"];
 function tickerRenk(t: string) {
@@ -159,14 +160,7 @@ function HisselerContent() {
                   style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "11px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)", cursor: "pointer", alignItems: "center", background: "transparent", transition: "background 0.1s" }}>
                   <span className="col-no" style={{ fontSize: 11, color: "#334155", fontWeight: 500 }}>{globalNo}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: `${renk}18`, border: `1px solid ${renk}30`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
-                      {hisse.domain ? (
-                        <img src={`https://www.google.com/s2/favicons?domain=${hisse.domain}&sz=32`} style={{ width: 18, height: 18, objectFit: "contain" }}
-                          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                      ) : (
-                        <span style={{ fontSize: 9, fontWeight: 700, color: renk }}>{hisse.ticker.slice(0, 3)}</span>
-                      )}
-                    </div>
+                    <StockLogo ticker={hisse.ticker} domain={hisse.domain} size={32} imageSize={18} radius={8} color={renk} />
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", margin: 0, letterSpacing: "-0.2px" }}>{hisse.ticker}</p>
                       <p style={{ fontSize: 11, color: "#475569", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{hisse.ad}</p>

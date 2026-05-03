@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
+import StockLogo from "@/components/StockLogo";
 const BIST_HISSELER = [
   { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY", domain: "turkishairlines.com" },
   { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
@@ -283,15 +284,7 @@ export default function IzlemePage() {
 
                       {/* Hisse */}
                       <div onClick={() => router.push(`/hisse/${w.ticker}`)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-                        {(hisseInfo as any)?.domain ? (
-                          <img src={`https://www.google.com/s2/favicons?domain=${(hisseInfo as any).domain}&sz=32`}
-                            style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 6 }}
-                            onError={e => { (e.target as HTMLImageElement).style.display="none"; }} />
-                        ) : (
-                          <div style={{ width: 28, height: 28, borderRadius: 6, background: `${tickerRenk(w.ticker)}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: tickerRenk(w.ticker) }}>
-                            {w.ticker.slice(0,3)}
-                          </div>
-                        )}
+                        <StockLogo ticker={w.ticker} domain={(hisseInfo as any)?.domain} size={28} imageSize={18} radius={6} color={tickerRenk(w.ticker)} />
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</div>
                           <div style={{ fontSize: 10, color: "#475569" }}>{(hisseInfo as any)?.name || ""}</div>
@@ -416,7 +409,7 @@ export default function IzlemePage() {
                       onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
                       onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div style={{ width: 24, height: 24, borderRadius: 6, background: "#10B98118", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#10B981" }}>{w.ticker.slice(0,3)}</div>
+                        <StockLogo ticker={w.ticker} size={24} imageSize={15} radius={6} color="#10B981" />
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</span>
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 600, color: "#10B981" }}>+%{Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))).toFixed(2).replace(".",",")}</span>
@@ -437,7 +430,7 @@ export default function IzlemePage() {
                       onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
                       onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div style={{ width: 24, height: 24, borderRadius: 6, background: "#EF444418", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#EF4444" }}>{w.ticker.slice(0,3)}</div>
+                        <StockLogo ticker={w.ticker} size={24} imageSize={15} radius={6} color="#EF4444" />
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</span>
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 600, color: "#EF4444" }}>-%{Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))).toFixed(2).replace(".",",")}</span>
@@ -454,7 +447,7 @@ export default function IzlemePage() {
                 </div>
                 {watchlist.slice(0,3).map((w, i) => (
                   <div key={i} style={{ padding: "10px 16px", borderBottom: i < 2 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 6, background: `${tickerRenk(w.ticker)}22`, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: tickerRenk(w.ticker) }}>{w.ticker.slice(0,3)}</div>
+                    <StockLogo ticker={w.ticker} size={28} imageSize={17} radius={6} color={tickerRenk(w.ticker)} />
                     <div>
                       <div style={{ fontSize: 11, color: "#E2E8F0", lineHeight: 1.4 }}>{w.ticker} guncel gelisme takipte</div>
                       <div style={{ fontSize: 10, color: "#334155", marginTop: 3 }}>{new Date(w.added_at).toLocaleDateString("tr-TR", {day:"2-digit",month:"short",year:"numeric"})}</div>
