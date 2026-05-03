@@ -174,3 +174,9 @@ export function getStockLogoUrl(ticker: string, domain?: string) {
 
   return null;
 }
+
+export function getStockLogoSource(ticker: string, domain?: string) {
+  if (STOCK_LOGO_SLUGS[ticker.toUpperCase()]) return "tradingview";
+  if (domain) return "domain";
+  return "fallback";
+}

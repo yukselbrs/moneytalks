@@ -398,7 +398,7 @@ export default function DashboardPage() {
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                   <div onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); router.push(`/hisse/${h.ticker}`); }} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-                    <StockLogo ticker={h.ticker} domain={(h as any).domain} size={48} imageSize={20} radius={6} color={tickerRenk(h.ticker)} />
+                    <StockLogo ticker={h.ticker} domain={(h as any).domain} size={28} radius={6} color={tickerRenk(h.ticker)} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
                       <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>{h.name}</div>
@@ -799,7 +799,7 @@ export default function DashboardPage() {
                       style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 44px", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: i < liste.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer", transition: "background 0.12s" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                      <StockLogo ticker={s.ticker} domain={(h as any)?.domain} size={40} imageSize={24} radius={10} color={tickerRenk(s.ticker)} />
+                      <StockLogo ticker={s.ticker} domain={(h as any)?.domain} size={40} radius={10} color={tickerRenk(s.ticker)} />
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.3px" }}>{s.ticker}</div>
                         <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || s.ticker}</div>
@@ -914,7 +914,7 @@ export default function DashboardPage() {
                   style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 36px", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: i < watchlist.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer", transition: "background 0.12s" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <StockLogo ticker={w.ticker} domain={(h as any)?.domain} size={40} imageSize={24} radius={10} color={tickerRenk(w.ticker)} />
+                  <StockLogo ticker={w.ticker} domain={(h as any)?.domain} size={40} radius={10} color={tickerRenk(w.ticker)} />
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.2px" }}>{w.ticker}</div>
                     <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || w.ticker}</div>
@@ -949,7 +949,7 @@ export default function DashboardPage() {
                 return (
                   <div key={i} onClick={() => router.push(`/hisse/${r.ticker}`)}
                     style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-                    <StockLogo ticker={r.ticker} domain={(h as any)?.domain} size={32} imageSize={18} radius={8} color={tickerRenk(r.ticker)} />
+                    <StockLogo ticker={r.ticker} domain={(h as any)?.domain} size={32} radius={8} color={tickerRenk(r.ticker)} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{r.ticker}</div>
                       <div style={{ fontSize: 10, color: "#475569" }}>{r.time}</div>

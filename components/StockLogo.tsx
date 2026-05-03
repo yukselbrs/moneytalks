@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import { getStockLogoUrl } from "@/lib/stock-logos";
+import { getStockLogoSource, getStockLogoUrl } from "@/lib/stock-logos";
 
 type StockLogoProps = {
   ticker: string;
@@ -31,7 +31,11 @@ export default function StockLogo({
 }: StockLogoProps) {
   const [failed, setFailed] = useState(false);
   const src = failed ? null : getStockLogoUrl(ticker, domain);
-  const resolvedImageSize = imageSize ?? Math.round(size * 0.62);
+  const source = failed ? "fallback" : getStockLogoSource(ticker, domain);
+  const resolvedImageSize = imageSize ?? size;
+  const domainImageSize = imageSize ?? Math.round(size * 0.7);
+  const fallbackSize = Math.max(8, Math.round(size * 0.28));
+  const hasNeutralPlate = source === "domain";
 
   return (
     <div
@@ -39,9 +43,9 @@ export default function StockLogo({
       style={{
         width: size,
         height: size,
-        borderRadius: radius,
-        background: `${color}22`,
-        border: `1px solid ${color}44`,
+        borderRadius: hasNeutralPlate ? 999 : radius,
+        background: src ? (hasNeutralPlate ? "#050914" : "transparent") : "rgba(148, 163, 184, 0.08)",
+        border: src ? "none" : "1px solid rgba(148, 163, 184, 0.12)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -54,11 +58,15 @@ export default function StockLogo({
         <img
           src={src}
           alt={`${ticker} logo`}
-          style={{ width: resolvedImageSize, height: resolvedImageSize, objectFit: "contain" }}
+          style={{
+            width: hasNeutralPlate ? domainImageSize : resolvedImageSize,
+            height: hasNeutralPlate ? domainImageSize : resolvedImageSize,
+            objectFit: "contain",
+          }}
           onError={() => setFailed(true)}
         />
       ) : (
-        <span style={{ fontSize: Math.max(8, Math.round(size * 0.25)), fontWeight: 700, color }}>
+        <span style={{ fontSize: fallbackSize, fontWeight: 700, color: "#94A3B8" }}>
           {fallbackText(ticker)}
         </span>
       )}

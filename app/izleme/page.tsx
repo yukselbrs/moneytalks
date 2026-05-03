@@ -284,7 +284,7 @@ export default function IzlemePage() {
 
                       {/* Hisse */}
                       <div onClick={() => router.push(`/hisse/${w.ticker}`)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-                        <StockLogo ticker={w.ticker} domain={(hisseInfo as any)?.domain} size={28} imageSize={18} radius={6} color={tickerRenk(w.ticker)} />
+                        <StockLogo ticker={w.ticker} domain={(hisseInfo as any)?.domain} size={28} radius={6} color={tickerRenk(w.ticker)} />
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</div>
                           <div style={{ fontSize: 10, color: "#475569" }}>{(hisseInfo as any)?.name || ""}</div>
@@ -409,7 +409,7 @@ export default function IzlemePage() {
                       onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
                       onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <StockLogo ticker={w.ticker} size={24} imageSize={15} radius={6} color="#10B981" />
+                        <StockLogo ticker={w.ticker} size={24} radius={6} color="#10B981" />
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</span>
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 600, color: "#10B981" }}>+%{Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))).toFixed(2).replace(".",",")}</span>
@@ -430,7 +430,7 @@ export default function IzlemePage() {
                       onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
                       onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <StockLogo ticker={w.ticker} size={24} imageSize={15} radius={6} color="#EF4444" />
+                        <StockLogo ticker={w.ticker} size={24} radius={6} color="#EF4444" />
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</span>
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 600, color: "#EF4444" }}>-%{Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))).toFixed(2).replace(".",",")}</span>
@@ -447,7 +447,7 @@ export default function IzlemePage() {
                 </div>
                 {watchlist.slice(0,3).map((w, i) => (
                   <div key={i} style={{ padding: "10px 16px", borderBottom: i < 2 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <StockLogo ticker={w.ticker} size={28} imageSize={17} radius={6} color={tickerRenk(w.ticker)} />
+                    <StockLogo ticker={w.ticker} size={28} radius={6} color={tickerRenk(w.ticker)} />
                     <div>
                       <div style={{ fontSize: 11, color: "#E2E8F0", lineHeight: 1.4 }}>{w.ticker} guncel gelisme takipte</div>
                       <div style={{ fontSize: 10, color: "#334155", marginTop: 3 }}>{new Date(w.added_at).toLocaleDateString("tr-TR", {day:"2-digit",month:"short",year:"numeric"})}</div>
