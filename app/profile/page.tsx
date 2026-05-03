@@ -30,27 +30,35 @@ export default function ProfilePage() {
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) { router.push("/login"); return; }
-      setUser(session.user);
-      setEmail(session.user.email || "");
-      setFullName(session.user.user_metadata?.full_name || "");
-      setUsername(session.user.user_metadata?.username || "");
-      setAvatarUrl(session.user.user_metadata?.avatar_url || "");
-      setLoading(false);
-      // İstatistikleri çek
-      Promise.all([
-        supabase.from("analizler").select("id", { count: "exact" }).eq("user_id", session.user.id),
-        supabase.from("watchlist").select("id", { count: "exact" }).eq("user_id", session.user.id),
-        supabase.from("portfoy").select("id", { count: "exact" }).eq("user_id", session.user.id),
-      ]).then(([analizRes, watchlistRes, portfoyRes]) => {
+    async function loadProfile() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { router.push("/login"); return; }
+        setUser(session.user);
+        setEmail(session.user.email || "");
+        setFullName(session.user.user_metadata?.full_name || "");
+        setUsername(session.user.user_metadata?.username || "");
+        setAvatarUrl(session.user.user_metadata?.avatar_url || "");
+        setLoading(false);
+        const [analizRes, watchlistRes, portfoyRes] = await Promise.all([
+          supabase.from("analizler").select("id", { count: "exact", head: true }).eq("user_id", session.user.id),
+          supabase.from("watchlist").select("id", { count: "exact", head: true }).eq("user_id", session.user.id),
+          supabase.from("portfoy").select("id", { count: "exact", head: true }).eq("user_id", session.user.id),
+        ]);
+        if (analizRes.error) console.error("analizler:", analizRes.error.message);
+        if (watchlistRes.error) console.error("watchlist:", watchlistRes.error.message);
+        if (portfoyRes.error) console.error("portfoy:", portfoyRes.error.message);
         setIstatistik({
           analizSayisi: analizRes.count || 0,
           watchlistSayisi: watchlistRes.count || 0,
           portfoySayisi: portfoyRes.count || 0,
         });
-      });
-    });
+      } catch (err) {
+        console.error("Profil yuklenirken hata", err);
+        setLoading(false);
+      }
+    }
+    loadProfile();
   }, [router]);
 
   async function handleSaveProfile(e: React.FormEvent) {
@@ -105,13 +113,14 @@ export default function ProfilePage() {
     if (silmeOnay !== "SİL") { setError('Onay için "SİL" yazın.'); return; }
     setSilmeLoading(true); setError("");
     try {
-      await supabase.auth.signOut();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setError("Oturum bulunamadı."); setSilmeLoading(false); return; }
       const res = await fetch("/api/hesap-sil", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
       });
       if (!res.ok) throw new Error("Silme başarısız");
+      await supabase.auth.signOut();
       router.push("/");
     } catch {
       setError("Hesap silinemedi. Lütfen hello@parakonusur.com adresine yazın.");
@@ -277,7 +286,28 @@ export default function ProfilePage() {
                     <p style={{ fontSize: 13, color: "#E2E8F0" }}>Hesabı Sil</p>
                     <p style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Bu işlem geri alınamaz.</p>
                   </div>
-                  <a href="mailto:hello@parakonusur.com?subject=Hesap%20Silme%20Talebi" style={{ height: 34, padding: "0 14px", background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, fontSize: 12, cursor: "pointer", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>Hesabı Sil</a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSilmeModal(true);
+                      setError("");
+                      setMessage("");
+                    }}
+                    style={{
+                      height: 34,
+                      padding: "0 14px",
+                      background: "rgba(239,68,68,0.1)",
+                      color: "#EF4444",
+                      border: "1px solid rgba(239,68,68,0.2)",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center"
+                    }}
+                  >
+                    Hesabı Sil
+                  </button>
                 </div>
               </div>
             </div>
