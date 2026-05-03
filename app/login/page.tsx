@@ -186,6 +186,11 @@ export default function LoginPage() {
           <p style={{ textAlign: "center", fontSize: 12, color: "#475569", marginTop: 24 }}>
             Hesabın yok mu? <a href="/register" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Kayıt ol</a>
           </p>
+          <p style={{ textAlign: "center", marginTop: 12 }}>
+            <a href="/" style={{ fontSize: 13, color: "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
+              ← Ana sayfaya dön
+            </a>
+          </p>
         </div>
       </div>
     </div>
