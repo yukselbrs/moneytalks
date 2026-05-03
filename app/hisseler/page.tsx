@@ -47,7 +47,8 @@ function HisselerContent() {
   const searchParams = useSearchParams();
 
   const sort = searchParams.get("sort") || "alfabetik";
-  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
+  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const q = searchParams.get("q") || "";
 
   const [arama, setArama] = useState(q);
@@ -61,7 +62,7 @@ function HisselerContent() {
       if (v === null || v === "") params.delete(k);
       else params.set(k, v);
     });
-    router.replace(`/hisseler?${params.toString()}`, { scroll: false });
+    router.replace(`/hisseler?${params.toString()}`);
   }, [router, searchParams]);
 
   // Arama input → URL (debounced)
@@ -76,13 +77,28 @@ function HisselerContent() {
 
   // URL değişince data fetch
   useEffect(() => {
+    const controller = new AbortController();
+    let ignore = false;
+
     setYukleniyor(true);
     const params = new URLSearchParams({ sort, page: String(page) });
     if (q) params.set("q", q);
-    fetch(`/api/hisseler?${params.toString()}`)
+    fetch(`/api/hisseler?${params.toString()}`, { signal: controller.signal })
       .then(r => r.json())
-      .then((d: ApiResponse) => { setData(d); setYukleniyor(false); })
-      .catch(() => setYukleniyor(false));
+      .then((d: ApiResponse) => {
+        if (!ignore) {
+          setData(d);
+          setYukleniyor(false);
+        }
+      })
+      .catch((error) => {
+        if (!ignore && error?.name !== "AbortError") setYukleniyor(false);
+      });
+
+    return () => {
+      ignore = true;
+      controller.abort();
+    };
   }, [sort, page, q]);
 
   const items = data?.items || [];
@@ -153,7 +169,7 @@ function HisselerContent() {
               </div>
             )}
 
-            {!yukleniyor && items.filter(hisse => hisse.fiyat != null).map((hisse, i) => {
+            {!yukleniyor && items.map((hisse, i) => {
               const renk = tickerRenk(hisse.ticker);
               const globalNo = (page - 1) * pageSize + i + 1;
               return (

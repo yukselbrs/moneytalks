@@ -30,7 +30,8 @@ const HISSE_META = new Map(BIST_HISSELER.map((h) => [h.ticker, h]));
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const sort = sp.get("sort") || "alfabetik";
-  const page = Math.max(1, parseInt(sp.get("page") || "1", 10));
+  const pageParam = parseInt(sp.get("page") || "1", 10);
+  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const q = (sp.get("q") || "").trim().toUpperCase();
 
   const sortDef = SORT_MAP[sort] || SORT_MAP.alfabetik;
@@ -43,57 +44,45 @@ export async function GET(req: NextRequest) {
     ).map((h) => h.ticker);
   }
 
-  // Alfabetik sıralama: BIST_HISSELER listesini direkt kullan, snapshot'a join et
-  if (sort === "alfabetik") {
-    const filtered = q !== "" ? allowedTickers! : BIST_HISSELER.map((h) => h.ticker);
-    const total = filtered.length;
-    const sliced = filtered.slice((page - 1) * SAYFA_BOYUTU, page * SAYFA_BOYUTU);
-
-    const { data: snaps, error } = await supabase
-      .from("hisse_snapshots")
-      .select("*")
-      .in("ticker", sliced);
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-    const snapMap = new Map(snaps?.map((s) => [s.ticker, s]) || []);
-    const items = sliced.map((ticker) => {
-      const meta = HISSE_META.get(ticker)!;
-      const snap = snapMap.get(ticker);
-      return formatRow(meta, snap);
-    });
-
-    return NextResponse.json({ items, total, page, pageSize: SAYFA_BOYUTU });
+  const allTickers = q !== "" ? allowedTickers! : BIST_HISSELER.map((h) => h.ticker);
+  if (allTickers.length === 0) {
+    return NextResponse.json({ items: [], total: 0, page, pageSize: SAYFA_BOYUTU });
   }
 
-  // Diğer sıralamalar: Supabase'de ORDER BY + range
-  let query = supabase
+  const { data: snaps, error } = await supabase
     .from("hisse_snapshots")
-    .select("*", { count: "exact" })
-    .order(sortDef.col, { ascending: sortDef.ascDefault, nullsFirst: false });
+    .select("*")
+    .in("ticker", allTickers);
 
-  if (allowedTickers) {
-    if (allowedTickers.length === 0) {
-      return NextResponse.json({ items: [], total: 0, page, pageSize: SAYFA_BOYUTU });
-    }
-    query = query.in("ticker", allowedTickers);
-  }
-
-  const from = (page - 1) * SAYFA_BOYUTU;
-  const to = from + SAYFA_BOYUTU - 1;
-  query = query.range(from, to);
-
-  const { data: snaps, count, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const items = (snaps || []).map((snap) => {
-    const meta = HISSE_META.get(snap.ticker);
-    return formatRow(meta, snap);
+  const snapMap = new Map((snaps || []).map((snap) => [snap.ticker, snap]));
+  const sortedTickers = [...allTickers].sort((a, b) => {
+    if (sort === "alfabetik") return a.localeCompare(b, "tr");
+
+    const snapA = snapMap.get(a);
+    const snapB = snapMap.get(b);
+    const rawA = snapA?.[sortDef.col];
+    const rawB = snapB?.[sortDef.col];
+    const hasA = rawA !== null && rawA !== undefined;
+    const hasB = rawB !== null && rawB !== undefined;
+
+    if (!hasA && !hasB) return a.localeCompare(b, "tr");
+    if (!hasA) return 1;
+    if (!hasB) return -1;
+
+    const valueA = Number(rawA);
+    const valueB = Number(rawB);
+    return sortDef.ascDefault ? valueA - valueB : valueB - valueA;
   });
+
+  const from = (page - 1) * SAYFA_BOYUTU;
+  const slicedTickers = sortedTickers.slice(from, from + SAYFA_BOYUTU);
+  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker), snapMap.get(ticker)));
 
   return NextResponse.json({
     items,
-    total: count || items.length,
+    total: sortedTickers.length,
     page,
     pageSize: SAYFA_BOYUTU,
   });
