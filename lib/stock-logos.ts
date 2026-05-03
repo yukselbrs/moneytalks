@@ -1,3 +1,5 @@
+import { MIDAS_STOCK_LOGOS } from "./midas-stock-logos";
+
 export const STOCK_LOGO_SLUGS: Record<string, string> = {
   ADEL: "adel-kalemcilik",
   AEFES: "anadolu-efes",
@@ -162,7 +164,13 @@ export const STOCK_LOGO_SLUGS: Record<string, string> = {
 };
 
 export function getStockLogoUrl(ticker: string, domain?: string) {
-  const slug = STOCK_LOGO_SLUGS[ticker.toUpperCase()];
+  const normalizedTicker = ticker.toUpperCase();
+  const midasFile = MIDAS_STOCK_LOGOS[normalizedTicker];
+  const slug = STOCK_LOGO_SLUGS[normalizedTicker];
+
+  if (midasFile) {
+    return `/stock-logos/midas/${midasFile}`;
+  }
 
   if (slug) {
     return `https://s3-symbol-logo.tradingview.com/${slug}.svg`;
@@ -176,7 +184,10 @@ export function getStockLogoUrl(ticker: string, domain?: string) {
 }
 
 export function getStockLogoSource(ticker: string, domain?: string) {
-  if (STOCK_LOGO_SLUGS[ticker.toUpperCase()]) return "tradingview";
+  const normalizedTicker = ticker.toUpperCase();
+
+  if (MIDAS_STOCK_LOGOS[normalizedTicker]) return "local";
+  if (STOCK_LOGO_SLUGS[normalizedTicker]) return "tradingview";
   if (domain) return "domain";
   return "fallback";
 }
