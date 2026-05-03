@@ -1,13 +1,71 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+
+function MoreMenu({ navItems, pathname, handleLogout }: {
+  navItems: { icon: React.ReactNode; label: string; href: string }[];
+  pathname: string;
+  handleLogout: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const extraItems = navItems.filter(i => !["/dashboard","/hisseler","/izleme","/portfoy"].includes(i.href));
+  return (
+    <>
+      <button onClick={() => setOpen(v => !v)} style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+        padding: "6px 12px", borderRadius: 8, flex: 1, background: "none", border: "none", cursor: "pointer",
+        color: open ? "#3B82F6" : "#475569",
+        borderBottom: open ? "2px solid #3B82F6" : "2px solid transparent",
+      }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+        </svg>
+        <span style={{ fontSize: 9, fontWeight: open ? 700 : 500 }}>Daha Fazla</span>
+      </button>
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 48 }} />
+          <div style={{
+            position: "fixed", bottom: 64, left: 0, right: 0, zIndex: 49,
+            background: "rgba(7,13,26,0.98)", borderTop: "1px solid rgba(255,255,255,0.08)",
+            backdropFilter: "blur(16px)", padding: "12px 16px 16px",
+            display: "flex", flexDirection: "column", gap: 2,
+          }}>
+            <p style={{ fontSize: 10, color: "#334155", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>Diğer</p>
+            {extraItems.map(item => {
+              const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+              return (
+                <a key={item.label} href={item.href} onClick={() => setOpen(false)} style={{
+                  display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10,
+                  textDecoration: "none", color: isActive ? "#fff" : "#64748B",
+                  background: isActive ? "rgba(59,130,246,0.15)" : "transparent",
+                }}>
+                  <span style={{ color: isActive ? "#3B82F6" : "#475569" }}>{item.icon}</span>
+                  <span style={{ fontSize: 14, fontWeight: 500 }}>{item.label}</span>
+                </a>
+              );
+            })}
+            <button onClick={() => { setOpen(false); handleLogout(); }} style={{
+              display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10,
+              background: "none", border: "none", cursor: "pointer", color: "#64748B", width: "100%",
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span style={{ fontSize: 14, fontWeight: 500 }}>Çıkış Yap</span>
+            </button>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [fullName, setFullName] = useState("");
+  const [moreOpen, setMoreOpen] = useState(false);
   const [tarihSaat, setTarihSaat] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -224,18 +282,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <nav className="sb-bottomnav" style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
         background: "rgba(5,10,20,0.97)", borderTop: "1px solid rgba(255,255,255,0.06)",
-        backdropFilter: "blur(12px)", padding: "0 4px",
-        alignItems: "center", justifyContent: "flex-start", height: 60,
-        overflowX: "auto", gap: 0,
+        backdropFilter: "blur(12px)", padding: "0 8px",
+        alignItems: "center", justifyContent: "space-around", height: 60, gap: 0,
       }}>
-        {navItems.filter(item => !(item as { yakinda?: boolean }).yakinda).map((item) => {
+        {[
+          { href: "/dashboard", label: "Dashboard", icon: navItems[0].icon },
+          { href: "/hisseler", label: "Hisseler", icon: navItems[3].icon },
+          { href: "/izleme", label: "İzleme", icon: navItems[4].icon },
+          { href: "/portfoy", label: "Portföy", icon: navItems[1].icon },
+        ].map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
             <a key={item.label} href={item.href} style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-              textDecoration: "none", padding: "6px 10px", borderRadius: 8, minWidth: 52,
+              textDecoration: "none", padding: "6px 12px", borderRadius: 8, flex: 1,
               color: isActive ? "#3B82F6" : "#475569",
-              background: isActive ? "rgba(59,130,246,0.1)" : "transparent",
               borderBottom: isActive ? "2px solid #3B82F6" : "2px solid transparent",
             }}>
               <span style={{ color: isActive ? "#3B82F6" : "#475569" }}>{item.icon}</span>
@@ -243,11 +304,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </a>
           );
         })}
+        {/* Profil */}
         <a href="/profile" style={{
           display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-          textDecoration: "none", padding: "6px 10px", borderRadius: 8, minWidth: 52,
+          textDecoration: "none", padding: "6px 12px", borderRadius: 8, flex: 1,
           color: pathname === "/profile" ? "#3B82F6" : "#475569",
-          background: pathname === "/profile" ? "rgba(59,130,246,0.1)" : "transparent",
           borderBottom: pathname === "/profile" ? "2px solid #3B82F6" : "2px solid transparent",
         }}>
           <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: `1px solid ${pathname === "/profile" ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6", overflow: "hidden" }}>
@@ -255,13 +316,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <span style={{ fontSize: 9, fontWeight: pathname === "/profile" ? 700 : 500 }}>Profil</span>
         </a>
-        <button onClick={handleLogout} style={{
-          display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-          padding: "6px 10px", borderRadius: 8, minWidth: 52, background: "none", border: "none", cursor: "pointer", color: "#475569",
-        }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span style={{ fontSize: 9, fontWeight: 500 }}>Çıkış</span>
-        </button>
+        {/* Daha Fazla */}
+        <MoreMenu navItems={navItems} pathname={pathname} handleLogout={handleLogout} />
       </nav>
     </div>
   );
