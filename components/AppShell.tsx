@@ -1,16 +1,3 @@
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setFullName(session.user.user_metadata?.full_name || "");
-        setUsername(session.user.user_metadata?.username || "");
-        setEmail(session.user.email || "");
-        setAvatarUrl(session.user.user_metadata?.avatar_url || "");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -36,6 +23,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     guncelle();
     const interval = setInterval(guncelle, 60000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setFullName(session.user.user_metadata?.full_name || "");
+        setUsername(session.user.user_metadata?.username || "");
+        setEmail(session.user.email || "");
+        setAvatarUrl(session.user.user_metadata?.avatar_url || "");
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
