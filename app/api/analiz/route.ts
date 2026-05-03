@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const message = await client.messages.create({
-      model: kisaYorum ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-6",
+      model: "claude-sonnet-4-6",
       max_tokens: 1024,
       messages: [
         {
