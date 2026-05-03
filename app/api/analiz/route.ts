@@ -66,12 +66,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
+      model: kisaYorum ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-6",
       max_tokens: 1024,
       messages: [
         {
           role: "user",
-          content: `Sen bir Turk borsasi uzmanisisin. Asagidaki veriyi kullanarak ${ticker} hissesi icin somut ve analitik bir degerlendirme yap.
+          content: kisaYorum
+            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} hissesi icin asagidaki veriyi kullanarak 2-3 cumlelik kisa ve net bir degerlendirme yap. Sadece verilen veriye dayan. Fiyat, hacim veya degisim bilgisinden en az birini yorumla. Turkce yaz. Para birimi icin sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme. Al/sat/tut yonlendirmesi yapma.
+
+${veriMetni}`
+            : `Sen bir Turk borsasi uzmanisisin. Asagidaki veriyi kullanarak ${ticker} hissesi icin somut ve analitik bir degerlendirme yap.
 
 ${veriMetni}
 
