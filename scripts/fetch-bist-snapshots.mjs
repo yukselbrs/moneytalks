@@ -6,6 +6,7 @@ const root = process.cwd();
 const BATCH = 25;
 const UPSERT_BATCH = 100;
 const DAY_SECONDS = 86400;
+const HISTORY_RANGE = "2y";
 
 function loadEnv() {
   const source = readFile(path.join(root, ".env.local"), "utf8").catch(() => "");
@@ -49,7 +50,7 @@ async function fetchWithTimeout(url) {
 async function fetchHisseData(ticker) {
   try {
     const response = await fetchWithTimeout(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1y`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=${HISTORY_RANGE}`,
     );
     if (!response.ok) return { ticker, row: null, reason: `http_${response.status}` };
 

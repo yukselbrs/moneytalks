@@ -14,6 +14,7 @@ const supabase = createClient(
 
 const BATCH = 25;
 const GUN = 86400; // saniye
+const HISTORY_RANGE = "2y";
 
 type SnapshotRow = {
   ticker: string;
@@ -43,7 +44,7 @@ function findCloseAtOrBefore(
 
 async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1y`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=${HISTORY_RANGE}`;
     const res = await fetch(url, {
       cache: "no-store",
       headers: { "User-Agent": "Mozilla/5.0" },
