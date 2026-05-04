@@ -327,12 +327,11 @@ export default function DashboardPage() {
       } catch(e) { console.error("fetchPiyasa err:", e); }
     };
     fetchPiyasaOzeti();
-    fetchFiyatlar();
     fetchPiyasa();
     fetchSparklines();
     const piyasaOzetiInterval = setInterval(fetchPiyasaOzeti, 3000);
     const piyasaInterval = setInterval(fetchPiyasa, 300000);
-    const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
+    const fiyatlarInterval = setInterval(fetchFiyatlar, 5000);
     const sparklineInterval = setInterval(fetchSparklines, 60000);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
