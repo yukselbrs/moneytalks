@@ -76,7 +76,7 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     }
     const fiyat = sonFiyat || meta.regularMarketPrice;
     const sonTs = timestamps[timestamps.length - 1];
-    const degisim = oncekiFiyat ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : 0;
+    const degisim = meta.regularMarketChangePercent ?? (oncekiFiyat ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : 0);
 
     // Getiriler: takvim gününe göre geriye git, o tarihte/öncesinde son geçerli candle
     const getiri = (gunOnce: number): number | null => {
