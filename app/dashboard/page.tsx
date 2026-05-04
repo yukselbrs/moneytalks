@@ -541,8 +541,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Piyasa Grafiği + AI Panel */}
-        <div className="dash-grafik-ai-grid" style={{ marginTop: 4 }}>
-        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <div className="dash-grafik-ai-grid" style={{ marginTop: 4, alignItems: "stretch" }}>
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
@@ -647,7 +647,7 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <div ref={setGrafikContainerRef} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative", height: 224, minWidth: 0, boxSizing: "border-box" }}>
+          <div ref={setGrafikContainerRef} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative", height: 280, minWidth: 0, boxSizing: "border-box" }}>
             {grafikYukleniyor && (
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(11,18,32,0.7)", borderRadius: 12, zIndex: 10 }}>
                 <span style={{ fontSize: 12, color: "#64748B" }}>Yükleniyor...</span>
@@ -661,7 +661,7 @@ export default function DashboardPage() {
               const mx = Math.max(...pts);
               const pad = (mx - mn) * 0.05;
               return grafikWidth > 0 ? (
-                  <AreaChart width={grafikWidth} height={200} data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                  <AreaChart width={grafikWidth} height={256} data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="grafikGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={color} stopOpacity={0.2}/>
@@ -706,7 +706,7 @@ export default function DashboardPage() {
         </div>
 
         {/* AI Panel */}
-        <div style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0 }}>
+        <div style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280 }}>
           {/* Başlık */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#64748B", letterSpacing: "0.1em", textTransform: "uppercase" }}>Yapay Zekâ Analizi</p>
