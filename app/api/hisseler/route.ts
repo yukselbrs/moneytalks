@@ -23,6 +23,13 @@ type HisseSnapshot = {
   getiri_1y: number | string | null;
 };
 
+type LiveFiyat = {
+  fiyat: number;
+  degisim: number;
+  hacim: number | null;
+  piyasaDegeri: number | null;
+};
+
 type SnapshotSortColumn = keyof HisseSnapshot;
 
 // Whitelist — frontend'den gelen sort key'i Supabase kolonuna map'liyoruz
@@ -93,21 +100,52 @@ export async function GET(req: NextRequest) {
 
   const from = (page - 1) * SAYFA_BOYUTU;
   const slicedTickers = sortedTickers.slice(from, from + SAYFA_BOYUTU);
-  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker), snapMap.get(ticker)));
+  const liveMap = await fetchLiveFiyatlar(slicedTickers);
+  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker), snapMap.get(ticker), liveMap.get(ticker)));
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     items,
     total: sortedTickers.length,
     page,
     pageSize: SAYFA_BOYUTU,
   });
+  response.headers.set("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+  return response;
 }
 
-function formatRow(meta: { ticker: string; ad: string; domain?: string } | undefined, snap?: HisseSnapshot) {
+async function fetchLiveFiyatlar(tickers: string[]) {
+  const results = await Promise.all(
+    tickers.map(async (ticker): Promise<[string, LiveFiyat | null]> => {
+      try {
+        const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`, {
+          headers: { "User-Agent": "Mozilla/5.0" },
+          next: { revalidate: 15 },
+        });
+        const data = await res.json();
+        const meta = data?.chart?.result?.[0]?.meta;
+        const fiyat = Number(meta?.regularMarketPrice);
+        if (!Number.isFinite(fiyat)) return [ticker, null];
+        const onceki = Number(meta?.chartPreviousClose ?? meta?.previousClose);
+        const degisim = Number.isFinite(onceki) && onceki > 0 ? ((fiyat - onceki) / onceki) * 100 : 0;
+        return [ticker, {
+          fiyat,
+          degisim,
+          hacim: Number.isFinite(Number(meta?.regularMarketVolume)) ? Number(meta.regularMarketVolume) : null,
+          piyasaDegeri: Number.isFinite(Number(meta?.marketCap)) ? Number(meta.marketCap) : null,
+        }];
+      } catch {
+        return [ticker, null];
+      }
+    })
+  );
+  return new Map(results.filter((entry): entry is [string, LiveFiyat] => entry[1] !== null));
+}
+
+function formatRow(meta: { ticker: string; ad: string; domain?: string } | undefined, snap?: HisseSnapshot, live?: LiveFiyat) {
   if (!meta) {
     return { ticker: snap?.ticker || "", ad: "", domain: undefined, fiyat: null };
   }
-  if (!snap || snap.fiyat === null) {
+  if (!live && (!snap || snap.fiyat === null)) {
     return {
       ticker: meta.ticker,
       ad: meta.ad,
@@ -123,21 +161,23 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string } | undef
       getiri_1y: null,
     };
   }
+  const fiyat = live?.fiyat ?? Number(snap?.fiyat);
+  const degisim = live?.degisim ?? Number(snap?.degisim_yuzde);
   return {
     ticker: meta.ticker,
     ad: meta.ad,
     domain: meta.domain,
-    fiyat: Number(snap.fiyat).toLocaleString("tr-TR", {
+    fiyat: fiyat.toLocaleString("tr-TR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }),
-    degisim: Number(snap.degisim_yuzde).toFixed(2),
-    yukselis: Number(snap.degisim_yuzde) >= 0,
-    hacim: snap.hacim,
-    piyasaDegeri: snap.piyasa_degeri,
-    getiri_1h: snap.getiri_1h !== null ? Number(snap.getiri_1h).toFixed(2) : null,
-    getiri_1a: snap.getiri_1a !== null ? Number(snap.getiri_1a).toFixed(2) : null,
-    getiri_3a: snap.getiri_3a !== null ? Number(snap.getiri_3a).toFixed(2) : null,
-    getiri_1y: snap.getiri_1y !== null ? Number(snap.getiri_1y).toFixed(2) : null,
+    degisim: degisim.toFixed(2),
+    yukselis: degisim >= 0,
+    hacim: live?.hacim ?? snap?.hacim ?? null,
+    piyasaDegeri: live?.piyasaDegeri ?? snap?.piyasa_degeri ?? null,
+    getiri_1h: snap?.getiri_1h !== null && snap?.getiri_1h !== undefined ? Number(snap.getiri_1h).toFixed(2) : null,
+    getiri_1a: snap?.getiri_1a !== null && snap?.getiri_1a !== undefined ? Number(snap.getiri_1a).toFixed(2) : null,
+    getiri_3a: snap?.getiri_3a !== null && snap?.getiri_3a !== undefined ? Number(snap.getiri_3a).toFixed(2) : null,
+    getiri_1y: snap?.getiri_1y !== null && snap?.getiri_1y !== undefined ? Number(snap.getiri_1y).toFixed(2) : null,
   };
 }
