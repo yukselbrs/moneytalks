@@ -42,11 +42,24 @@ const SIRALAMA_OPTIONS = [
   { key: "1y", label: "1Y %" },
 ];
 
+const TABLO_BASLIKLARI = [
+  { label: "#", align: "left" },
+  { label: "HİSSE", align: "left" },
+  { label: "FİYAT", sort: "fiyat", align: "right" },
+  { label: "GÜN %", sort: "gun", align: "right" },
+  { label: "1H %", sort: "1wk", align: "right" },
+  { label: "1A %", sort: "1mo", align: "right" },
+  { label: "3A %", sort: "3mo", align: "right" },
+  { label: "1Y %", sort: "1y", align: "right" },
+];
+
 function HisselerContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const sort = searchParams.get("sort") || "alfabetik";
+  const dirParam = searchParams.get("dir");
+  const sortDir = dirParam === "asc" || dirParam === "desc" ? dirParam : null;
   const pageParam = parseInt(searchParams.get("page") || "1", 10);
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const q = searchParams.get("q") || "";
@@ -65,6 +78,18 @@ function HisselerContent() {
     router.replace(`/hisseler?${params.toString()}`);
   }, [router, searchParams]);
 
+  const handleHeaderSort = useCallback((sortKey: string) => {
+    if (sort !== sortKey || sortDir === null) {
+      updateParams({ sort: sortKey, dir: "desc", page: "1" });
+      return;
+    }
+    if (sortDir === "desc") {
+      updateParams({ sort: sortKey, dir: "asc", page: "1" });
+      return;
+    }
+    updateParams({ sort: "alfabetik", dir: null, page: "1" });
+  }, [sort, sortDir, updateParams]);
+
   // Arama input → URL (debounced)
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -82,6 +107,7 @@ function HisselerContent() {
 
     setYukleniyor(true);
     const params = new URLSearchParams({ sort, page: String(page) });
+    if (sortDir) params.set("dir", sortDir);
     if (q) params.set("q", q);
     fetch(`/api/hisseler?${params.toString()}`, { signal: controller.signal })
       .then(r => r.json())
@@ -99,7 +125,7 @@ function HisselerContent() {
       ignore = true;
       controller.abort();
     };
-  }, [sort, page, q]);
+  }, [sort, sortDir, page, q]);
 
   const items = data?.items || [];
   const toplam = data?.total || 0;
@@ -135,7 +161,7 @@ function HisselerContent() {
             </div>
             <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
               {SIRALAMA_OPTIONS.map(s => (
-                <button key={s.key} onClick={() => updateParams({ sort: s.key, page: "1" })}
+                <button key={s.key} onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
                   style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${sort === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: sort === s.key ? "rgba(59,130,246,0.15)" : "transparent", color: sort === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: sort === s.key ? 600 : 400, cursor: "pointer", whiteSpace: "nowrap" }}>
                   {s.label}
                 </button>
@@ -150,11 +176,26 @@ function HisselerContent() {
           </div>
 
           {/* Tablo */}
-          <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
-            <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
-              {["#", "HİSSE", "FİYAT", "GÜN %", "1H %", "1A %", "3A %", "1Y %"].map((h, i) => (
-                <p key={h} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textAlign: i > 1 ? "right" : "left" }}>{h}</p>
-              ))}
+            <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
+              <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
+              {TABLO_BASLIKLARI.map((h) => {
+                const active = h.sort && sort === h.sort && sortDir;
+                const alignRight = h.align === "right";
+                if (!h.sort) {
+                  return <p key={h.label} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}>{h.label}</p>;
+                }
+                return (
+                  <button
+                    key={h.label}
+                    onClick={() => handleHeaderSort(h.sort!)}
+                    title={`${h.label} sıralaması`}
+                    style={{ display: "inline-flex", alignItems: "center", justifyContent: alignRight ? "flex-end" : "flex-start", gap: 4, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, fontWeight: 700, color: active ? "#3B82F6" : "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}
+                  >
+                    <span>{h.label}</span>
+                    <span style={{ fontSize: 9, color: active ? "#3B82F6" : "#1E293B" }}>{active ? (sortDir === "desc" ? "▼" : "▲") : "↕"}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {yukleniyor && (

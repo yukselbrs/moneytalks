@@ -35,6 +35,8 @@ type SnapshotSortColumn = keyof HisseSnapshot;
 // Whitelist — frontend'den gelen sort key'i Supabase kolonuna map'liyoruz
 const SORT_MAP: Record<string, { col: SnapshotSortColumn; ascDefault: boolean }> = {
   alfabetik: { col: "ticker", ascDefault: true },
+  fiyat: { col: "fiyat", ascDefault: false },
+  gun: { col: "degisim_yuzde", ascDefault: false },
   yukselis: { col: "degisim_yuzde", ascDefault: false },
   dusus: { col: "degisim_yuzde", ascDefault: true },
   hacim: { col: "hacim", ascDefault: false },
@@ -51,6 +53,8 @@ const HISSE_META = new Map(BIST_HISSELER.map((h) => [h.ticker, h]));
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const sort = sp.get("sort") || "alfabetik";
+  const dirParam = sp.get("dir");
+  const explicitDir = dirParam === "asc" || dirParam === "desc" ? dirParam : null;
   const pageParam = parseInt(sp.get("page") || "1", 10);
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const q = (sp.get("q") || "").trim().toUpperCase();
@@ -79,13 +83,17 @@ export async function GET(req: NextRequest) {
 
   const typedSnaps = (snaps || []) as HisseSnapshot[];
   const snapMap = new Map(typedSnaps.map((snap) => [snap.ticker, snap]));
+  const shouldLiveSort = sort === "gun" || sort === "yukselis" || sort === "dusus" || sort === "fiyat";
+  const sortLiveMap = shouldLiveSort ? await fetchLiveFiyatlar(allTickers) : new Map<string, LiveFiyat>();
   const sortedTickers = [...allTickers].sort((a, b) => {
     if (sort === "alfabetik") return a.localeCompare(b, "tr");
 
     const snapA = snapMap.get(a);
     const snapB = snapMap.get(b);
-    const rawA = snapA?.[sortDef.col];
-    const rawB = snapB?.[sortDef.col];
+    const liveA = sortLiveMap.get(a);
+    const liveB = sortLiveMap.get(b);
+    const rawA = sortDef.col === "fiyat" ? (liveA?.fiyat ?? snapA?.fiyat) : sortDef.col === "degisim_yuzde" ? (liveA?.degisim ?? snapA?.degisim_yuzde) : snapA?.[sortDef.col];
+    const rawB = sortDef.col === "fiyat" ? (liveB?.fiyat ?? snapB?.fiyat) : sortDef.col === "degisim_yuzde" ? (liveB?.degisim ?? snapB?.degisim_yuzde) : snapB?.[sortDef.col];
     const hasA = rawA !== null && rawA !== undefined;
     const hasB = rawB !== null && rawB !== undefined;
 
@@ -95,12 +103,13 @@ export async function GET(req: NextRequest) {
 
     const valueA = Number(rawA);
     const valueB = Number(rawB);
-    return sortDef.ascDefault ? valueA - valueB : valueB - valueA;
+    const asc = explicitDir ? explicitDir === "asc" : sortDef.ascDefault;
+    return asc ? valueA - valueB : valueB - valueA;
   });
 
   const from = (page - 1) * SAYFA_BOYUTU;
   const slicedTickers = sortedTickers.slice(from, from + SAYFA_BOYUTU);
-  const liveMap = await fetchLiveFiyatlar(slicedTickers);
+  const liveMap = shouldLiveSort ? sortLiveMap : await fetchLiveFiyatlar(slicedTickers);
   const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker), snapMap.get(ticker), liveMap.get(ticker)));
 
   const response = NextResponse.json({
