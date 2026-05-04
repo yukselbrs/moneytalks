@@ -102,6 +102,15 @@ const KAP = [
   { ticker: "AKBNK", title: "Yabancı Yatırımcı İşlemleri", time: "15:51" },
 ];
 
+type PiyasaKey = "xu100" | "xu030" | "usd" | "eur";
+type PiyasaYon = "up" | "down";
+
+function parsePiyasaDeger(value: string) {
+  const normalized = value.replace(/\./g, "").replace(",", ".");
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -114,6 +123,9 @@ export default function DashboardPage() {
   const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
   const [piyasa, setPiyasa] = useState(() => { try { const c = localStorage.getItem("pk_piyasa"); return c ? JSON.parse(c) : { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } catch { return { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } });
+  const piyasaRef = useRef(piyasa);
+  const piyasaFlashTimeoutRef = useRef<Record<PiyasaKey, ReturnType<typeof setTimeout> | null>>({ xu100: null, xu030: null, usd: null, eur: null });
+  const [piyasaFlash, setPiyasaFlash] = useState<Partial<Record<PiyasaKey, PiyasaYon>>>({});
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [piyasaFiyatlari, setPiyasaFiyatlari] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
   const [topMovers, setTopMovers] = useState<{yukselenler: {ticker:string;fiyat:string;degisim:number}[]; dusenler: {ticker:string;fiyat:string;degisim:number}[]; hacimliler: {ticker:string;fiyat:string;degisim:number}[]}|null>(null);
@@ -225,6 +237,7 @@ export default function DashboardPage() {
   const watchlistRef = useRef<{ticker:string}[]>([]);
 
   useEffect(() => {
+    const piyasaFlashTimeouts = piyasaFlashTimeoutRef.current;
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
         router.push("/login");
@@ -281,6 +294,22 @@ export default function DashboardPage() {
       try {
         const r = await fetch("/api/piyasa", { cache: "no-store" });
         const d = await r.json();
+        (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {
+          const onceki = parsePiyasaDeger(piyasaRef.current[key]?.value || "-");
+          const yeni = parsePiyasaDeger(d[key]?.value || "-");
+          if (onceki === null || yeni === null || onceki === yeni) return;
+          if (piyasaFlashTimeouts[key]) clearTimeout(piyasaFlashTimeouts[key]!);
+          setPiyasaFlash((prev) => ({ ...prev, [key]: yeni > onceki ? "up" : "down" }));
+          piyasaFlashTimeouts[key] = setTimeout(() => {
+            setPiyasaFlash((prev) => {
+              const next = { ...prev };
+              delete next[key];
+              return next;
+            });
+            piyasaFlashTimeouts[key] = null;
+          }, 550);
+        });
+        piyasaRef.current = d;
         setPiyasa(d);
         try { localStorage.setItem("pk_piyasa", JSON.stringify(d)); } catch {}
       } catch {}
@@ -339,7 +368,16 @@ export default function DashboardPage() {
     };
     loadRecent();
     window.addEventListener("focus", loadRecent);
-    return () => { clearInterval(piyasaOzetiInterval); clearInterval(piyasaInterval); clearInterval(fiyatlarInterval); clearInterval(sparklineInterval); window.removeEventListener("focus", loadRecent); };
+    return () => {
+      clearInterval(piyasaOzetiInterval);
+      clearInterval(piyasaInterval);
+      clearInterval(fiyatlarInterval);
+      clearInterval(sparklineInterval);
+      (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {
+        if (piyasaFlashTimeouts[key]) clearTimeout(piyasaFlashTimeouts[key]!);
+      });
+      window.removeEventListener("focus", loadRecent);
+    };
   }, [router]);
 
   async function addToWatchlist(t: string) {
@@ -477,13 +515,16 @@ export default function DashboardPage() {
           </div>
           <div className="dash-piyasa-grid">
             {[
-              { label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
-              { label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-", gecikme: true },
-              { label: "USD/TRY", val: piyasa.usd.value, change: piyasa.usd.change, up: !piyasa.usd.change.startsWith("%-") && piyasa.usd.change !== "-" },
-              { label: "EUR/TRY", val: piyasa.eur.value, change: piyasa.eur.change, up: !piyasa.eur.change.startsWith("%-") && piyasa.eur.change !== "-" },
+              { key: "xu100" as const, label: "XU100", val: piyasa.xu100.value, change: piyasa.xu100.change, up: !piyasa.xu100.change.startsWith("%-") && piyasa.xu100.change !== "-", gecikme: true },
+              { key: "xu030" as const, label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-", gecikme: true },
+              { key: "usd" as const, label: "USD/TRY", val: piyasa.usd.value, change: piyasa.usd.change, up: !piyasa.usd.change.startsWith("%-") && piyasa.usd.change !== "-" },
+              { key: "eur" as const, label: "EUR/TRY", val: piyasa.eur.value, change: piyasa.eur.change, up: !piyasa.eur.change.startsWith("%-") && piyasa.eur.change !== "-" },
             ].map((e) => {
               const color = e.up ? "#10B981" : "#EF4444";
               const bgColor = e.up ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)";
+              const flash = piyasaFlash[e.key];
+              const flashBg = flash === "up" ? "rgba(16,185,129,0.16)" : flash === "down" ? "rgba(239,68,68,0.16)" : "#0B1220";
+              const flashBorder = flash === "up" ? "rgba(16,185,129,0.42)" : flash === "down" ? "rgba(239,68,68,0.42)" : "rgba(255,255,255,0.06)";
               // Gercek sparkline veya fallback
               const rawPts = sparklines[e.label] || [];
               const pts = rawPts.length > 1 ? rawPts : [];
@@ -495,7 +536,7 @@ export default function DashboardPage() {
               const d = pts.length > 1 ? pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i)} ${sy(v)}`).join(" ") : "";
               const area = d ? d + ` L ${w} ${h} L 0 ${h} Z` : "";
               return (
-                <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
+                <div key={e.label} style={{ background: flashBg, border: `1px solid ${flashBorder}`, boxShadow: flash ? `0 0 0 1px ${flashBorder}, 0 0 22px ${flash === "up" ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)"}` : "none", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden", transition: "background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>{e.label}</span>
                     {e.gecikme && (
