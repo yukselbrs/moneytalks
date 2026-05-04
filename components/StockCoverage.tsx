@@ -6,7 +6,7 @@ const tickers = [
 ];
 
 const stats = [
-  { value: "527+", label: "Hisse Kapsamı", type: "numeric" as const },
+  { value: "600+", label: "Hisse Kapsamı", type: "numeric" as const },
   { value: "Gerçek Zamanlı", label: "Veri Akışı", type: "text" as const },
   { value: "7/24", label: "Kesintisiz İzleme", type: "numeric" as const },
 ];
@@ -32,7 +32,7 @@ export default function StockCoverage() {
             className="text-4xl lg:text-5xl font-bold tracking-tight mb-5"
             style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
           >
-            527&apos;den fazla BIST hissesi.
+            600&apos;den fazla BIST hissesi.
             <br />
             <span className="gradient-text">Kesintisiz kapsam.</span>
           </h2>

@@ -21,16 +21,17 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://parakonusur.com"),
   verification: {
     google: "07quE2WQ2Y35Xug7Ezge5_eyMAxSzP_WZg40homYMT8",
   },
   icons: { icon: "/favicon.svg" },
   title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
   description:
-    "Yapay zekâ destekli analiz motorumuz BIST'teki 500+ hisseyi saniyede değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik sinyalleri birleştirip size net içgörüler sunar.",
+    "Yapay zekâ destekli analiz motorumuz BIST'teki 600+ hisseyi saniyede değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik göstergeleri birleştirip anlaşılır içgörüler sunar.",
   openGraph: {
     title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
-    description: "500+ BIST hissesi için yapay zekâ destekli analiz. Erken erişim açık.",
+    description: "600+ BIST hissesi için yapay zekâ destekli analiz. Erken erişim açık.",
     url: "https://parakonusur.com",
     siteName: "ParaKonusur",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
-    description: "500+ BIST hissesi için yapay zekâ destekli analiz.",
+    description: "600+ BIST hissesi için yapay zekâ destekli analiz.",
     images: ["/og-image.png"],
   },
 };

@@ -1,10 +1,22 @@
 import { NextResponse, NextRequest } from "next/server";
+import { BIST_HISSELER } from "@/lib/bist-hisseler";
 
 const DEFAULT_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
+const ALLOWED_TICKERS = new Set(BIST_HISSELER.map((h) => h.ticker));
+const MAX_EXTRA_TICKERS = 50;
+
+type FiyatData = {
+  fiyat: string;
+  degisim: string;
+  yukselis: boolean;
+  hacim: number;
+  piyasaDegeri: number;
+  ts: number;
+};
 
 // Global in-memory cache - 15 saniye TTL
 const g = globalThis as typeof globalThis & {
-  fiyatCache?: Record<string, { fiyat: string; degisim: string; yukselis: boolean; hacim: number; piyasaDegeri: number; ts: number }>;
+  fiyatCache?: Record<string, FiyatData>;
 };
 if (!g.fiyatCache) g.fiyatCache = {};
 
@@ -21,6 +33,22 @@ function pruneCache() {
     const sorted = Object.entries(cache).sort((a, b) => a[1].ts - b[1].ts);
     sorted.slice(0, sorted.length - MAX_CACHE_SIZE).forEach(([k]) => delete cache[k]);
   }
+}
+
+function normalizeTicker(raw: string): string | null {
+  const ticker = raw.trim().toUpperCase().replace(/\.IS$/, "");
+  if (!/^[A-Z0-9]{2,10}$/.test(ticker)) return null;
+  if (!ALLOWED_TICKERS.has(ticker)) return null;
+  return ticker;
+}
+
+function parseExtraTickers(extra: string | null): string[] {
+  if (!extra) return [];
+  const normalized = extra
+    .split(",")
+    .map(normalizeTicker)
+    .filter((ticker): ticker is string => ticker !== null);
+  return [...new Set(normalized)].slice(0, MAX_EXTRA_TICKERS);
 }
 
 async function fetchFiyat(ticker: string) {
@@ -57,10 +85,10 @@ async function fetchFiyat(ticker: string) {
 export async function GET(req: NextRequest) {
   pruneCache();
   const extra = req.nextUrl.searchParams.get("extra");
-  const extraTickers = extra ? extra.split(",").filter(Boolean) : [];
+  const extraTickers = parseExtraTickers(extra);
   const allTickers = [...new Set([...DEFAULT_TICKERS, ...extraTickers])];
   const results = await Promise.all(allTickers.map(t => fetchFiyat(t)));
-  const data: Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null> = {};
+  const data: Record<string, FiyatData | null> = {};
   allTickers.forEach((t, i) => { data[t] = results[i]; });
   const response = NextResponse.json(data);
   response.headers.set("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");

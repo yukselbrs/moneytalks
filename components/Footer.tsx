@@ -87,7 +87,7 @@ export default function Footer() {
             style={{ color: "#64748B", fontFamily: "var(--font-manrope)", lineHeight: "1.6" }}
           >
             ParaKonusur bir yatırım danışmanlığı hizmeti sunmamaktadır. Platform üzerinden
-            sağlanan tüm analiz, sinyal ve içerikler yalnızca bilgilendirme amaçlıdır ve
+            sağlanan tüm analiz, gösterge özeti ve içerikler yalnızca bilgilendirme amaçlıdır ve
             yatırım tavsiyesi niteliği taşımaz. Yatırım kararları yatırımcının kendi risk ve
             tercihlerine bağlıdır. Geçmiş performans gelecek getirilerin garantisi değildir.
           </p>

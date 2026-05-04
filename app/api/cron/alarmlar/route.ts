@@ -10,6 +10,22 @@ function parseFiyat(str: string): number {
   return parseFloat(String(str).replace(/\./g, "").replace(",", "."));
 }
 
+async function fetchFiyatlar(appUrl: string, tickerler: string[]) {
+  const chunks: string[][] = [];
+  for (let i = 0; i < tickerler.length; i += 50) {
+    chunks.push(tickerler.slice(i, i + 50));
+  }
+
+  const entries = await Promise.all(
+    chunks.map(async (chunk) => {
+      const fiyatRes = await fetch(`${appUrl}/api/fiyatlar?extra=${chunk.join(",")}`);
+      return fiyatRes.json();
+    })
+  );
+
+  return Object.assign({}, ...entries);
+}
+
 export async function GET(req: NextRequest) {
   if (!verifyCronAuth(req.headers.get("authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -24,8 +40,7 @@ export async function GET(req: NextRequest) {
 
   const tickerler = [...new Set(alarmlar.map((a: { ticker: string }) => a.ticker))];
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://parakonusur.com";
-  const fiyatRes = await fetch(`${appUrl}/api/fiyatlar?extra=${tickerler.join(",")}`);
-  const fiyatlar = await fiyatRes.json();
+  const fiyatlar = await fetchFiyatlar(appUrl, tickerler);
 
   let tetiklenen = 0;
 

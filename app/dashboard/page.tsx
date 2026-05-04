@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import AppShell from "@/components/AppShell";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
@@ -26,7 +26,14 @@ function tickerRenk(ticker: string) {
   return renkler[Math.abs(hash) % renkler.length];
 }
 
-const BIST_HISSELER = [
+type DashboardHisse = {
+  ticker: string;
+  name: string;
+  kisalt?: string;
+  domain?: string;
+};
+
+const BIST_HISSELER: DashboardHisse[] = [
   { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY", domain: "turkishairlines.com" },
   { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
   { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
@@ -99,7 +106,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [ticker, setTicker] = useState("");
-  const [aramaOneri, setAramaOneri] = useState<{ ticker: string; name: string }[]>([]);
+  const [aramaOneri, setAramaOneri] = useState<DashboardHisse[]>([]);
   const [inputReady, setInputReady] = useState(false);
   const [watchlistInput, setWatchlistInput] = useState("");
   const [watchlistInputAcik, setWatchlistInputAcik] = useState(false);
@@ -142,6 +149,25 @@ export default function DashboardPage() {
   const [grafikDropdown, setGrafikDropdown] = useState(false);
   const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
   const [portfoyOzet, setPortfoyOzet] = useState<{toplamMaliyet: number; toplamGuncel: number; toplamPL: number; toplamPLYuzde: number; hisseSayisi: number; hisseDagilim?: {ticker: string; yuzde: number; renk: string}[]} | null>(null);
+  const grafikRef = useRef<HTMLDivElement>(null);
+  const grafikObserverRef = useRef<ResizeObserver | null>(null);
+  const [grafikWidth, setGrafikWidth] = useState(0);
+
+  const setGrafikContainerRef = React.useCallback((node: HTMLDivElement | null) => {
+    grafikObserverRef.current?.disconnect();
+    grafikRef.current = node;
+    grafikObserverRef.current = null;
+    if (!node) {
+      setGrafikWidth(0);
+      return;
+    }
+    setGrafikWidth(Math.floor(node.getBoundingClientRect().width));
+    const observer = new ResizeObserver(([entry]) => {
+      setGrafikWidth(Math.floor(entry.contentRect.width));
+    });
+    observer.observe(node);
+    grafikObserverRef.current = observer;
+  }, []);
 
   const fetchBuyukGrafik = React.useCallback(async (range: string, ticker?: string) => {
     setGrafikYukleniyor(true);
@@ -150,8 +176,11 @@ export default function DashboardPage() {
       const r = await fetch(`/api/grafik?ticker=${t}&range=${range}`);
       const d = await r.json();
       if (d.points) setBuyukGrafik(d.points);
-    } catch {}
-    setGrafikYukleniyor(false);
+    } catch {
+      setBuyukGrafik([]);
+    } finally {
+      setGrafikYukleniyor(false);
+    }
   }, [grafikTicker]);
 
   const fetchAiPanel = React.useCallback(async (ticker?: string) => {
@@ -159,11 +188,16 @@ export default function DashboardPage() {
     const temiz = ticker ? t : grafikTickerLabel;
     setAiPanel({ skor: 0, seviye: "", yorum: "", guven: "", yukleniyor: true });
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz için giriş gerekli.", guven: "Düşük", yukleniyor: false });
+        return;
+      }
       const [riskRes, yorumRes] = await Promise.all([
         fetch(`/api/risk?ticker=${temiz}`),
         fetch("/api/analiz", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
           body: JSON.stringify({ ticker: temiz, veriOnly: false, kisaYorum: true }),
         }),
       ]);
@@ -351,7 +385,7 @@ export default function DashboardPage() {
         .dash-main-padding { padding: 24px 32px; }
         .dash-main-grid { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 20px; align-items: start; }
         .dash-piyasa-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
-        .dash-grafik-ai-grid { display: grid; grid-template-columns: 1fr 300px; gap: 12px; }
+        .dash-grafik-ai-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; }
         .dash-popular-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
         .dash-alt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .dash-h1 { font-size: 28px; }
@@ -398,7 +432,7 @@ export default function DashboardPage() {
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                   <div onMouseDown={() => { setTicker(h.ticker); setAramaOneri([]); router.push(`/hisse/${h.ticker}`); }} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-                    <StockLogo ticker={h.ticker} domain={(h as any).domain} size={28} radius={6} color={tickerRenk(h.ticker)} />
+                    <StockLogo ticker={h.ticker} domain={h.domain} size={28} radius={6} color={tickerRenk(h.ticker)} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
                       <div style={{ fontSize: 10, color: "#475569", marginTop: 1 }}>{h.name}</div>
@@ -503,7 +537,7 @@ export default function DashboardPage() {
 
         {/* Piyasa Grafiği + AI Panel */}
         <div className="dash-grafik-ai-grid" style={{ marginTop: 4 }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
@@ -608,7 +642,7 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative", flexGrow: 1, minHeight: 220 }}>
+          <div ref={setGrafikContainerRef} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative", height: 224, minWidth: 0, boxSizing: "border-box" }}>
             {grafikYukleniyor && (
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(11,18,32,0.7)", borderRadius: 12, zIndex: 10 }}>
                 <span style={{ fontSize: 12, color: "#64748B" }}>Yükleniyor...</span>
@@ -621,9 +655,8 @@ export default function DashboardPage() {
               const mn = Math.min(...pts);
               const mx = Math.max(...pts);
               const pad = (mx - mn) * 0.05;
-              return (
-                <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-                  <AreaChart data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+              return grafikWidth > 0 ? (
+                  <AreaChart width={grafikWidth} height={200} data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="grafikGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={color} stopOpacity={0.2}/>
@@ -662,8 +695,7 @@ export default function DashboardPage() {
                       activeDot={{ r: 4, fill: color, strokeWidth: 0 }}
                     />
                   </AreaChart>
-                </ResponsiveContainer>
-              );
+              ) : null;
             })()}
           </div>
         </div>
@@ -799,7 +831,7 @@ export default function DashboardPage() {
                       style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 44px", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: i < liste.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer", transition: "background 0.12s" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                      <StockLogo ticker={s.ticker} domain={(h as any)?.domain} size={40} radius={10} color={tickerRenk(s.ticker)} />
+                      <StockLogo ticker={s.ticker} domain={h?.domain} size={40} radius={10} color={tickerRenk(s.ticker)} />
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.3px" }}>{s.ticker}</div>
                         <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || s.ticker}</div>
@@ -914,7 +946,7 @@ export default function DashboardPage() {
                   style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 36px", alignItems: "center", gap: 12, padding: "12px 16px", borderBottom: i < watchlist.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer", transition: "background 0.12s" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.04)")}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <StockLogo ticker={w.ticker} domain={(h as any)?.domain} size={40} radius={10} color={tickerRenk(w.ticker)} />
+                  <StockLogo ticker={w.ticker} domain={h?.domain} size={40} radius={10} color={tickerRenk(w.ticker)} />
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.2px" }}>{w.ticker}</div>
                     <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || w.ticker}</div>
@@ -949,7 +981,7 @@ export default function DashboardPage() {
                 return (
                   <div key={i} onClick={() => router.push(`/hisse/${r.ticker}`)}
                     style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-                    <StockLogo ticker={r.ticker} domain={(h as any)?.domain} size={32} radius={8} color={tickerRenk(r.ticker)} />
+                    <StockLogo ticker={r.ticker} domain={h?.domain} size={32} radius={8} color={tickerRenk(r.ticker)} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{r.ticker}</div>
                       <div style={{ fontSize: 10, color: "#475569" }}>{r.time}</div>

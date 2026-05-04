@@ -69,7 +69,7 @@ export default function RegisterPage() {
 
   const benefits = [
     { title: "Ücretsiz Başla", desc: "Kredi kartı gerekmez. Hemen analiz yapmaya başlayın." },
-    { title: "527+ BIST Hissesi", desc: "Tüm Borsa İstanbul hisselerini tek platformdan takip edin." },
+    { title: "600+ BIST Hissesi", desc: "Tüm Borsa İstanbul hisselerini tek platformdan takip edin." },
     { title: "Yapay Zeka Destekli", desc: "Her hisse için anında AI analizi ve risk değerlendirmesi alın." },
   ];
 

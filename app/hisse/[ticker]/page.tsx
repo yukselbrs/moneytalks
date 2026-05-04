@@ -153,12 +153,23 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     }
     setLoading(true);
     setAnaliz("");
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setAnaliz("Analiz oluşturmak için giriş yapmanız gerekir.");
+      setLoading(false);
+      return;
+    }
     const res = await fetch("/api/analiz", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify({ ticker }),
     });
     const data = await res.json();
+    if (!res.ok) {
+      setAnaliz(data.error || "Analiz alınamadı.");
+      setLoading(false);
+      return;
+    }
     setAnaliz(data.analiz);
     if (data.veri) setVeri(data.veri);
     localStorage.setItem(`pk_analiz_${ticker}`, JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: Date.now() }));
@@ -168,7 +179,6 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
     localStorage.setItem("pk_recent", JSON.stringify(updated));
     // Supabase'e kaydet
-    const { data: { session } } = await supabase.auth.getSession();
     if (session && data.analiz) {
       await supabase.from("analizler").upsert({ user_id: session.user.id, ticker, analiz: data.analiz }, { onConflict: "user_id,ticker" });
     }

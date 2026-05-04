@@ -112,8 +112,8 @@ export default function Hero({ heroVideo }: HeroProps) {
               style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
             >
               Yapay zekâ destekli analiz motorumuz, BIST&apos;teki her hisseyi saniyede bir
-              değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik sinyalleri
-              birleştirip size tek bir net yanıt verir.
+              değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik göstergeleri
+              birleştirip anlaşılır bir bilgi özeti sunar.
             </p>
 
             {/* CTAs */}
@@ -171,7 +171,7 @@ export default function Hero({ heroVideo }: HeroProps) {
             <div className="animate-fade-up delay-500">
               <div className="h-px mb-6" style={{ background: "rgba(59,130,246,0.12)" }} />
               <div className="flex flex-wrap gap-6">
-                {["527+ BIST HİSSE", "YAPAY ZEKÂ DESTEKLİ", "ERKEN ERİŞİM AÇIK"].map(
+                {["600+ BIST HİSSE", "YAPAY ZEKÂ DESTEKLİ", "ERKEN ERİŞİM AÇIK"].map(
                   (item) => (
                     <span
                       key={item}

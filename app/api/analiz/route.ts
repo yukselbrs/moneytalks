@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { createClient } from "@supabase/supabase-js";
+import { BIST_HISSELER } from "@/lib/bist-hisseler";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+const ALLOWED_TICKERS = new Set([
+  ...BIST_HISSELER.map((h) => h.ticker),
+  "XU100",
+  "XU030",
+  "XU050",
+]);
 
 async function getHisseVerisi(ticker: string) {
   try {
@@ -27,16 +40,23 @@ async function getHisseVerisi(ticker: string) {
   }
 }
 
-// IP bazlı rate limit - saatte 10 istek
 const rateLimitMap = new Map<string, { count: number; ts: number }>();
 const RATE_LIMIT = 10;
-const RATE_WINDOW = 3600000; // 1 saat
+const RATE_WINDOW = 3600000;
 
-function checkRateLimit(ip: string): boolean {
+function normalizeTicker(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const ticker = raw.trim().toUpperCase().replace(/\.IS$/, "").replace(/=X$/, "");
+  if (!/^[A-Z0-9]{2,10}$/.test(ticker)) return null;
+  if (!ALLOWED_TICKERS.has(ticker)) return null;
+  return ticker;
+}
+
+function checkRateLimit(key: string): boolean {
   const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  const entry = rateLimitMap.get(key);
   if (!entry || now - entry.ts > RATE_WINDOW) {
-    rateLimitMap.set(ip, { count: 1, ts: now });
+    rateLimitMap.set(key, { count: 1, ts: now });
     return true;
   }
   if (entry.count >= RATE_LIMIT) return false;
@@ -45,15 +65,34 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json({ error: "Saatte en fazla 10 analiz yapabilirsiniz. Lütfen daha sonra tekrar deneyin." }, { status: 429 });
+  let body: { ticker?: unknown; veriOnly?: unknown; kisaYorum?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
   }
-  const { ticker, veriOnly, kisaYorum } = await req.json();
+
+  const ticker = normalizeTicker(body.ticker);
+  if (!ticker) return NextResponse.json({ error: "Geçersiz ticker" }, { status: 400 });
+
   const veri = await getHisseVerisi(ticker);
 
-  if (veriOnly) {
+  if (body.veriOnly === true) {
     return NextResponse.json({ veri });
+  }
+
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return NextResponse.json({ error: "Analiz için giriş gerekli" }, { status: 401 });
+  }
+  const token = authHeader.slice(7);
+  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
+  if (authError || !user) {
+    return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
+  }
+
+  if (!checkRateLimit(user.id)) {
+    return NextResponse.json({ error: "Saatte en fazla 10 analiz yapabilirsiniz. Lütfen daha sonra tekrar deneyin." }, { status: 429 });
   }
 
   const veriMetni = veri
@@ -71,7 +110,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: kisaYorum
+          content: body.kisaYorum === true
             ? `Sen bir Turk borsasi uzmanisisin. ${ticker} hissesi icin asagidaki veriyi kullanarak 2-3 cumlelik kisa ve net bir degerlendirme yap. Sadece verilen veriye dayan. Fiyat, hacim veya degisim bilgisinden en az birini yorumla. Turkce yaz. Para birimi icin sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme. Al/sat/tut yonlendirmesi yapma.
 
 ${veriMetni}`

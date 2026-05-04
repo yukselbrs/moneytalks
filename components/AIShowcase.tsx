@@ -85,7 +85,7 @@ export default function AIShowcase() {
               </button>
             </form>
             <div className="flex flex-col gap-3">
-              {["Gerçek Yahoo Finance fiyat verisi", "Ücretsiz kayıt ile yapay zekâ analizi", "500+ BIST hissesi kapsama"].map((item) => (
+              {["Gerçek Yahoo Finance fiyat verisi", "Ücretsiz kayıt ile yapay zekâ analizi", "600+ BIST hissesi kapsama"].map((item) => (
                 <div key={item} className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#3B82F6" }} />
                   <span className="text-sm" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>{item}</span>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -9,7 +10,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 const SEKMELER = ["Hesap Bilgileri", "Güvenlik", "İstatistikler", "Üyelik Planı"];
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -64,6 +65,7 @@ export default function ProfilePage() {
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     setMessage(""); setError("");
+    if (!user) { setError("Oturum bulunamadı."); return; }
     const cleanUsername = username.trim().toLowerCase();
     if (cleanUsername && cleanUsername.length < 3) { setError("Kullanıcı adı en az 3 karakter olmalı."); return; }
     if (cleanUsername && !/^[a-z0-9_]{3,20}$/.test(cleanUsername)) { setError("Kullanıcı adı sadece küçük harf, rakam ve alt çizgi içerebilir."); return; }

@@ -11,8 +11,22 @@ const supabase = createClient(
 
 const SAYFA_BOYUTU = 25;
 
+type HisseSnapshot = {
+  ticker: string;
+  fiyat: number | string | null;
+  degisim_yuzde: number | string | null;
+  hacim: number | null;
+  piyasa_degeri: number | null;
+  getiri_1h: number | string | null;
+  getiri_1a: number | string | null;
+  getiri_3a: number | string | null;
+  getiri_1y: number | string | null;
+};
+
+type SnapshotSortColumn = keyof HisseSnapshot;
+
 // Whitelist — frontend'den gelen sort key'i Supabase kolonuna map'liyoruz
-const SORT_MAP: Record<string, { col: string; ascDefault: boolean }> = {
+const SORT_MAP: Record<string, { col: SnapshotSortColumn; ascDefault: boolean }> = {
   alfabetik: { col: "ticker", ascDefault: true },
   yukselis: { col: "degisim_yuzde", ascDefault: false },
   dusus: { col: "degisim_yuzde", ascDefault: true },
@@ -56,7 +70,8 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const snapMap = new Map((snaps || []).map((snap) => [snap.ticker, snap]));
+  const typedSnaps = (snaps || []) as HisseSnapshot[];
+  const snapMap = new Map(typedSnaps.map((snap) => [snap.ticker, snap]));
   const sortedTickers = [...allTickers].sort((a, b) => {
     if (sort === "alfabetik") return a.localeCompare(b, "tr");
 
@@ -88,7 +103,7 @@ export async function GET(req: NextRequest) {
   });
 }
 
-function formatRow(meta: { ticker: string; ad: string; domain?: string } | undefined, snap: any) {
+function formatRow(meta: { ticker: string; ad: string; domain?: string } | undefined, snap?: HisseSnapshot) {
   if (!meta) {
     return { ticker: snap?.ticker || "", ad: "", domain: undefined, fiyat: null };
   }

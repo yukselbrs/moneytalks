@@ -3,7 +3,7 @@ const steps = [
     number: "01",
     title: "Hisseyi Seçin",
     description:
-      "BIST'teki herhangi bir hisseyi arayın veya tarayın. 527'den fazla enstrüman anlık olarak erişilebilir.",
+      "BIST'teki herhangi bir hisseyi arayın veya tarayın. 600'den fazla enstrüman anlık olarak erişilebilir.",
   },
   {
     number: "02",
@@ -13,9 +13,9 @@ const steps = [
   },
   {
     number: "03",
-    title: "Kararınızı Verin",
+    title: "Riskleri Görün",
     description:
-      "Net sinyal, özet rapor ve risk notu size ulaşır. Yorumlama değil, bilgi.",
+      "Özet rapor, risk notu ve teknik veri görünümü tek ekranda sunulur. Yönlendirme değil, bilgi.",
   },
 ];
 

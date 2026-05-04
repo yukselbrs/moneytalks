@@ -498,7 +498,7 @@ export default function PortfoyPage() {
                                 "Volatilite (Yillik)": "Yıllık oynaklık. Yüksekse belirsizlik artar.",
                                 "52H Pozisyonu": "%90+ aşırı alım, %15- dip riski.",
                                 "Momentum (20g)": "20 günlük fiyat trendi.",
-                                "Hacim Anomalisi": ">2x anormal aktivite sinyali.",
+                                "Hacim Anomalisi": ">2x anormal aktivite göstergesi.",
                                 "RSI (14)": ">70 aşırı alım, <30 aşırı satım.",
                                 "Gunluk Range": "Intraday volatilite göstergesi.",
                               };

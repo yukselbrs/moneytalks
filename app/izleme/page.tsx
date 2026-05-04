@@ -5,7 +5,19 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
-const BIST_HISSELER = [
+
+type IzlemeHisse = {
+  ticker: string;
+  name: string;
+  kisalt?: string;
+  domain?: string;
+};
+
+type GrafikPoint = {
+  fiyat: number;
+};
+
+const BIST_HISSELER: IzlemeHisse[] = [
   { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY", domain: "turkishairlines.com" },
   { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
   { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
@@ -73,7 +85,7 @@ function SparklineSVG({ ticker, yukselis }: { ticker: string; yukselis: boolean 
       .then(r => r.json())
       .then(d => {
         const arr = Array.isArray(d) ? d : (d?.points || []);
-        if (arr.length > 0) setPts(arr.map((x: any) => x.fiyat));
+        if (arr.length > 0) setPts((arr as GrafikPoint[]).map((x) => x.fiyat));
       }).catch(() => {});
   }, [ticker]);
   if (pts.length < 2) return <div style={{width:100,height:50,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:10,color:"#334155"}}>...</span></div>;
@@ -235,14 +247,15 @@ export default function IzlemePage() {
           {/* Ozet Kartlar */}
           <div className="izleme-ozet-grid">
             {[
-              { label: "Toplam Hisse", icon: "&#9993;", value: watchlist.length, sub: "İzleme listenizde", color: "#3B82F6" },
-              { label: "Yükselenler", icon: "&#8599;", value: yukselenler.length, sub: `%${watchlist.length ? ((yukselenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#10B981" },
-              { label: "Düşenler", icon: "&#8600;", value: dusenler.length, sub: `%${watchlist.length ? ((dusenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#EF4444" },
-              { label: "Ort. Günlük Değişim", icon: "&#8786;", value: `%${Math.abs(ortDegisim).toFixed(2).replace(".",",")}`, sub: "İzleme listeniz ortalaması", color: ortDegisim >= 0 ? "#10B981" : "#EF4444" },
+              { label: "Toplam Hisse", icon: "✉", value: watchlist.length, sub: "İzleme listenizde", color: "#3B82F6" },
+              { label: "Yükselenler", icon: "↗", value: yukselenler.length, sub: `%${watchlist.length ? ((yukselenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#10B981" },
+              { label: "Düşenler", icon: "↘", value: dusenler.length, sub: `%${watchlist.length ? ((dusenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#EF4444" },
+              { label: "Ort. Günlük Değişim", icon: "≒", value: `%${Math.abs(ortDegisim).toFixed(2).replace(".",",")}`, sub: "İzleme listeniz ortalaması", color: ortDegisim >= 0 ? "#10B981" : "#EF4444" },
             ].map((k, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}
-                  dangerouslySetInnerHTML={{__html: k.icon}}/>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+                  {k.icon}
+                </div>
                 <div>
                   <p style={{ fontSize: 10, color: "#475569", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{k.label}</p>
                   <p style={{ fontSize: 22, fontWeight: 800, color: k.color, lineHeight: 1 }}>{k.value}</p>
@@ -284,10 +297,10 @@ export default function IzlemePage() {
 
                       {/* Hisse */}
                       <div onClick={() => router.push(`/hisse/${w.ticker}`)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-                        <StockLogo ticker={w.ticker} domain={(hisseInfo as any)?.domain} size={28} radius={6} color={tickerRenk(w.ticker)} />
+                        <StockLogo ticker={w.ticker} domain={hisseInfo?.domain} size={28} radius={6} color={tickerRenk(w.ticker)} />
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</div>
-                          <div style={{ fontSize: 10, color: "#475569" }}>{(hisseInfo as any)?.name || ""}</div>
+                          <div style={{ fontSize: 10, color: "#475569" }}>{hisseInfo?.name || ""}</div>
                         </div>
                       </div>
 

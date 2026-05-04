@@ -8,13 +8,13 @@ const pillars = [
   },
   {
     icon: Target,
-    title: "Net Sinyaller",
-    description: "Karmaşık veriyi tek bir aksiyon önerisine dönüştürür. Yorumlama yükü size kalmaz.",
+    title: "Anlaşılır İçgörüler",
+    description: "Karmaşık veriyi okunabilir özetlere dönüştürür. Risk ve teknik görünümü daha hızlı kavramanızı sağlar.",
   },
   {
     icon: Radio,
     title: "Derin Kapsam",
-    description: "527'den fazla BIST hissesini 7/24 kesintisiz izler. Hiçbir hareket gözden kaçmaz.",
+    description: "600'den fazla BIST hissesini 7/24 kesintisiz izler. Hiçbir hareket gözden kaçmaz.",
   },
 ];
 

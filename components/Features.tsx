@@ -9,15 +9,15 @@ const features = [
   },
   {
     icon: TrendingUp,
-    title: "Alım/Satım Sinyalleri",
+    title: "Teknik Gösterge Özeti",
     description:
-      "Piyasa yönünü işaret eden net, AI destekli sinyal önerileri. Teknik ve temel analizi tek bir yargıda birleştirir.",
+      "Fiyat, hacim ve momentum verilerini sadeleştirir. Teknik görünümü yönlendirme yapmadan anlaşılır hale getirir.",
   },
   {
     icon: Newspaper,
     title: "Haber Sentiment Analizi",
     description:
-      "Finansal haberlerin hisse fiyatı üzerindeki etkisini ölçer. Olumlu ve olumsuz sinyalleri gerçek zamanlı sıralar.",
+      "Finansal haberlerin piyasa algısındaki yerini özetler. Olumlu ve olumsuz veri noktalarını gerçek zamanlı sıralar.",
   },
   {
     icon: Briefcase,
