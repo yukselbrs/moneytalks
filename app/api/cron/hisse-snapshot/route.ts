@@ -68,7 +68,7 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
       if (closes[i] !== null && closes[i] !== undefined) {
         if (sonFiyat === null) {
           sonFiyat = closes[i] as number;
-        } else {
+        } else if (closes[i] !== sonFiyat) {
           oncekiFiyat = closes[i] as number;
           break;
         }
