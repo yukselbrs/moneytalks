@@ -50,6 +50,7 @@ export default function TakvimPage() {
   const [sekme, setSekme] = useState("Ekonomik Takvim");
   const [etkinlikler, setEtkinlikler] = useState<Record<string, Etkinlik[]>>({});
   const [yukleniyor, setYukleniyor] = useState(false);
+  const [temettuler, setTemettuler] = useState<Record<string, {ticker:string;tutar:number}[]>>({});
 
   const { offset, toplamGun } = aydakiGunler(yil, ay);
 
@@ -73,8 +74,24 @@ export default function TakvimPage() {
       .finally(() => setYukleniyor(false));
   }, [yil, ay]);
 
+  useEffect(() => {
+    if (sekme !== "Temettü Takvimi") return;
+    fetch(`/api/temettu?yil=${yil}&ay=${ay + 1}`)
+      .then(r => r.json())
+      .then(d => {
+        const map: Record<string, {ticker:string;tutar:number}[]> = {};
+        for (const e of (d.dividends || [])) {
+          if (!map[e.tarih]) map[e.tarih] = [];
+          map[e.tarih].push({ticker: e.ticker, tutar: e.tutar});
+        }
+        setTemettuler(map);
+      })
+      .catch(() => {});
+  }, [yil, ay, sekme]);
+
   const isMobil = useMediaQuery("(max-width: 767px)");
   const seciliEtkinlikler = etkinlikler[seciliGun] || [];
+  const seciliTemettuler = temettuler[seciliGun] || [];
   const seciliTarih = new Date(seciliGun + "T00:00:00");
   const bugunStr = tarihKey(bugun.getFullYear(), bugun.getMonth(), bugun.getDate());
 
@@ -134,6 +151,7 @@ export default function TakvimPage() {
                     const bugunMu = key === bugunStr;
                     const seciliMi = key === seciliGun;
                     const onemler = [...new Set(gunEtkinlikleri.map(e => e.onem))].slice(0, 3);
+                    const hasTemettu = sekme === "Temettü Takvimi" && (temettuler[key] || []).length > 0;
                     return (
                       <div key={gun} onClick={() => setSeciliGun(key)}
                         style={{ padding: "8px 4px", minHeight: 56, cursor: "pointer", borderRadius: 8, margin: 2, background: seciliMi ? "rgba(59,130,246,0.15)" : bugunMu ? "rgba(59,130,246,0.08)" : "transparent", border: seciliMi ? "1px solid rgba(59,130,246,0.4)" : "1px solid transparent", transition: "all 0.1s" }}>
@@ -141,7 +159,7 @@ export default function TakvimPage() {
                           {gun}
                         </div>
                         <div style={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap" }}>
-                          {onemler.map((o, idx) => (
+                          {sekme === "Temettü Takvimi" ? (hasTemettu ? <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#3B82F6" }} /> : null) : onemler.map((o, idx) => (
                             <div key={idx} style={{ width: 6, height: 6, borderRadius: "50%", background: ONEM_RENK[o] }} />
                           ))}
                         </div>
@@ -169,7 +187,29 @@ export default function TakvimPage() {
                     <span style={{ fontSize: 11, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", borderRadius: 20, padding: "2px 8px" }}>{seciliEtkinlikler.length} etkinlik</span>
                   )}
                 </div>
-                {seciliEtkinlikler.length === 0 ? (
+                {sekme === "Temettü Takvimi" ? (
+                  seciliTemettuler.length === 0 ? (
+                    <div style={{ padding: "24px 16px", textAlign: "center", color: "#334155", fontSize: 13 }}>Bu gün için temettü bulunmuyor.</div>
+                  ) : (
+                    <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
+                          {["Hisse", "Temettü Tutarı"].map(h => (
+                            <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.06em", textTransform: "uppercase" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {seciliTemettuler.map((t, i) => (
+                          <tr key={i} style={{ borderBottom: i < seciliTemettuler.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none" }}>
+                            <td style={{ padding: "10px 12px", color: "#3B82F6", fontWeight: 700 }}>{t.ticker}</td>
+                            <td style={{ padding: "10px 12px", color: "#10B981", fontWeight: 600 }}>{t.tutar.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )
+                ) : seciliEtkinlikler.length === 0 ? (
                   <div style={{ padding: "24px 16px", textAlign: "center", color: "#334155", fontSize: 13 }}>
                     {yukleniyor ? "Yükleniyor..." : "Bu gün için etkinlik bulunmuyor."}
                   </div>
