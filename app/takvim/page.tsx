@@ -190,6 +190,18 @@ export default function TakvimPage() {
                 {sekme === "Temettü Takvimi" ? (
                   seciliTemettuler.length === 0 ? (
                     <div style={{ padding: "24px 16px", textAlign: "center", color: "#334155", fontSize: 13 }}>Bu gün için temettü bulunmuyor.</div>
+                  ) : isMobil ? (
+                    <div>
+                      {seciliTemettuler.map((t, i) => (
+                        <div key={i} style={{ padding: "12px 16px", borderBottom: i < seciliTemettuler.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                          <div>
+                            <p style={{ fontSize: 13, color: "#3B82F6", fontWeight: 800 }}>{t.ticker}</p>
+                            <p style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Temettü Tutarı</p>
+                          </div>
+                          <span style={{ fontSize: 13, color: "#10B981", fontWeight: 700, whiteSpace: "nowrap" }}>{t.tutar.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
                       <thead>

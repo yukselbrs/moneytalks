@@ -38,6 +38,14 @@ const RISK_ACIKLAMALARI: Record<string, string> = {
   "Gunluk Range": "Intraday volatilite göstergesi.",
 };
 
+function fiyatDegeriOku(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value !== "string") return null;
+  const normalized = value.includes(",") ? value.replace(/\./g, "").replace(",", ".") : value;
+  const parsed = parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function RiskBilesenGrid({ bilesenler, mobil = false }: { bilesenler: RiskBilesen[]; mobil?: boolean }) {
   return (
     <div className={mobil ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3"}>
@@ -105,8 +113,37 @@ export default function PortfoyPage() {
 
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
   const [portfoyRiskSkor, setPortfoyRiskSkor] = useState<{ skor: number; seviye: string; yukleniyor: boolean } | null>(null);
+  const [sonFiyatGuncelleme, setSonFiyatGuncelleme] = useState<Date | null>(null);
+  const [fiyatlarYenileniyor, setFiyatlarYenileniyor] = useState(false);
   const isMobil = useMediaQuery("(max-width: 767px)");
   const [acikHisse, setAcikHisse] = useState<string | null>(null);
+
+  const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
+    const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
+    if (!tickers) return {};
+    if (!sessiz) setFiyatlarYenileniyor(true);
+    try {
+      const res = await fetch("/api/fiyatlar?extra=" + tickers);
+      const json = await res.json();
+      const map: FiyatMap = {};
+      Object.entries(json).forEach(([ticker, val]) => {
+        if (!val) return;
+        const v = val as { fiyat?: unknown; degisim?: unknown };
+        const fiyat = fiyatDegeriOku(v.fiyat);
+        const degisim = fiyatDegeriOku(v.degisim);
+        if (fiyat === null) return;
+        map[ticker] = { fiyat, degisim: degisim ?? 0 };
+      });
+      setFiyatlar((prev) => ({ ...prev, ...map }));
+      setSonFiyatGuncelleme(new Date());
+      return map;
+    } catch (e) {
+      console.error("Portfoy fiyat yenileme HATA:", e);
+      return {};
+    } finally {
+      if (!sessiz) setFiyatlarYenileniyor(false);
+    }
+  }, []);
 
   const portfoyuYukle = useCallback(async () => {
     setYükleniyor(true);
@@ -118,22 +155,15 @@ export default function PortfoyPage() {
         .select("id, ticker, adet, maliyet")
         .order("created_at", { ascending: true });
       if (error) { console.error("Portfoy yuklenemedi", error); return; }
-      if (!data || data.length === 0) { setPortfoy([]); return; }
+      if (!data || data.length === 0) {
+        setPortfoy([]);
+        setFiyatlar({});
+        setPortfoyRiskSkor(null);
+        return;
+      }
       setPortfoy(data);
-      const tickers = data.map((p: { ticker: string }) => p.ticker.trim()).join(",");
       try {
-        const res = await fetch("/api/fiyatlar?extra=" + tickers);
-        const json = await res.json();
-        const map: FiyatMap = {};
-        Object.entries(json).forEach(([ticker, val]) => {
-          if (!val) return;
-          const v = val as { fiyat: string; degisim: string };
-          map[ticker] = {
-            fiyat: parseFloat(v.fiyat.replace(/\./g, "").replace(",", ".")),
-            degisim: parseFloat(v.degisim.replace(",", ".")),
-          };
-        });
-        setFiyatlar(map);
+        const map = await fiyatlariYenile(data, true);
 
         // Portföy ortalama risk — tüm hisselerin skorlarını paralel çek
         setPortfoyRiskSkor({ skor: 0, seviye: "", yukleniyor: true });
@@ -156,9 +186,17 @@ export default function PortfoyPage() {
         setPortfoyRiskSkor({ skor: Math.round(agirlikliSkor), seviye, yukleniyor: false });
       } catch (e) { console.error("Fiyat fetch HATA:", e); }
     } finally { setYükleniyor(false); }
-  }, [router]);
+  }, [fiyatlariYenile, router]);
 
   useEffect(() => { portfoyuYukle(); }, [portfoyuYukle]);
+
+  useEffect(() => {
+    if (portfoy.length === 0) return;
+    const id = window.setInterval(() => {
+      void fiyatlariYenile(portfoy, true);
+    }, 15000);
+    return () => window.clearInterval(id);
+  }, [fiyatlariYenile, portfoy]);
 
 
 
@@ -278,13 +316,35 @@ export default function PortfoyPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Portföy Takibi</h1>
             <p className="text-slate-400 text-sm mt-1">BIST pozisyonlarınızı takip edin, her hisse için AI risk skoru alın</p>
+            {portfoy.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-semibold text-emerald-400">
+                  <span className={`h-1.5 w-1.5 rounded-full bg-emerald-400 ${fiyatlarYenileniyor ? "animate-pulse" : ""}`} />
+                  15 sn canlı fiyat
+                </span>
+                {sonFiyatGuncelleme && (
+                  <span>Son güncelleme {sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+                )}
+              </div>
+            )}
           </div>
-          <button
-            onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            + Hisse Ekle
-          </button>
+          <div className="flex items-center gap-2">
+            {portfoy.length > 0 && (
+              <button
+                onClick={() => void fiyatlariYenile(portfoy)}
+                disabled={fiyatlarYenileniyor}
+                className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 disabled:cursor-wait disabled:opacity-60"
+              >
+                {fiyatlarYenileniyor ? "Yenileniyor..." : "Yenile"}
+              </button>
+            )}
+            <button
+              onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              + Hisse Ekle
+            </button>
+          </div>
         </div>
 
         {portfoy.length > 0 && (
@@ -391,29 +451,44 @@ export default function PortfoyPage() {
               const risk = riskler[item.ticker];
               const isPos = pl ? pl.pl >= 0 : null;
               const acik = acikHisse === item.ticker;
+              const fiyatDegisim = fiyat?.degisim ?? 0;
               return (
-                <div key={item.id} className="bg-slate-800/40 border border-slate-700 rounded-xl overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 cursor-pointer" onClick={() => setAcikHisse(acik ? null : item.ticker)}>
-                    <div className="flex items-center gap-2">
-                      <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="text-white font-bold hover:text-blue-400">{item.ticker}</Link>
-                      {fiyat && <span className={`text-xs font-medium ${fiyat.degisim >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fiyat.degisim >= 0 ? "▲" : "▼"} {Math.abs(fiyat.degisim).toFixed(2)}%</span>}
+                <div key={item.id} className="overflow-hidden rounded-xl border border-slate-700/80 bg-slate-800/45 shadow-lg shadow-black/10">
+                  <div className="cursor-pointer px-4 py-3" onClick={() => setAcikHisse(acik ? null : item.ticker)}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="text-base font-bold text-white hover:text-blue-400">{item.ticker}</Link>
+                          {fiyat && <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${fiyatDegisim >= 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"} {Math.abs(fiyatDegisim).toFixed(2)}%</span>}
+                        </div>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "Fiyat bekleniyor"}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[10px] uppercase tracking-wide text-slate-500">Güncel Değer</p>
+                        <p className="text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p>
+                        <p className={`mt-1 text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                          {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-sm font-bold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                        {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
+                    <div className="mt-3 flex items-center justify-between border-t border-slate-700/45 pt-2">
+                      <span className="text-xs text-slate-500">
+                        {item.adet.toLocaleString("tr-TR")} lot · Maliyet {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
                       </span>
-                      <span className="text-slate-500 text-xs">{acik ? "▲" : "▼"}</span>
+                      <span className="text-slate-500 text-xs">{acik ? "▲ Kapat" : "▼ Detay"}</span>
                     </div>
                   </div>
                   {acik && (
                     <div className="px-4 pb-3 border-t border-slate-700/50">
-                      <div className="grid grid-cols-2 gap-2 mt-3 text-sm mb-3">
-                        <div><p className="text-slate-500 text-xs">Lot</p><p className="text-white">{item.adet.toLocaleString("tr-TR")}</p></div>
-                        <div><p className="text-slate-500 text-xs">Ort. Maliyet</p><p className="text-white">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</p></div>
-                        <div><p className="text-slate-500 text-xs">Güncel Fiyat</p><p className="text-white">{fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—"}</p></div>
-                        <div><p className="text-slate-500 text-xs">K/Z %</p><p className={`font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>{pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}</p></div>
-                        <div><p className="text-slate-500 text-xs">Ana Para</p><p className="text-white">{(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p></div>
-                        <div><p className="text-slate-500 text-xs">Güncel Değer</p><p className="text-white">{pl ? pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 }) : "—"} ₺</p></div>
+                      <div className="my-3 grid grid-cols-2 gap-2 text-sm">
+                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Lot</p><p className="text-white font-semibold">{item.adet.toLocaleString("tr-TR")}</p></div>
+                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Ort. Maliyet</p><p className="text-white font-semibold">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</p></div>
+                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Güncel Fiyat</p><p className="text-white font-semibold">{fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—"}</p></div>
+                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">K/Z %</p><p className={`font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>{pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}</p></div>
+                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Ana Para</p><p className="text-white font-semibold">{(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p></div>
+                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Güncel Değer</p><p className="text-white font-semibold">{pl ? pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 }) : "—"} ₺</p></div>
                       </div>
                       <div className="mb-3 rounded-xl border border-slate-700/60 bg-slate-900/35 p-3">
                         <div className="flex items-center justify-between gap-3">

@@ -187,10 +187,13 @@ export default function IzlemePage() {
             .izleme-ozet-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .izleme-icerik-grid { grid-template-columns: 1fr; }
             .izleme-sag-panel { display: none; }
-            .izleme-tablo-header { grid-template-columns: 1fr 80px 90px; }
-            .izleme-tablo-header span:nth-child(4), .izleme-tablo-header span:nth-child(5) { display: none; }
-            .izleme-tablo-satir { grid-template-columns: 1fr 80px 90px; }
-            .izleme-tablo-satir > div:nth-child(4), .izleme-tablo-satir > div:nth-child(5) { display: none; }
+            .izleme-tablo-header { display: none; }
+            .izleme-tablo-satir { grid-template-columns: minmax(0, 1fr) auto; row-gap: 10px; padding: 14px; }
+            .izleme-tablo-satir > div:nth-child(1) { min-width: 0; }
+            .izleme-tablo-satir > div:nth-child(2) { text-align: right; }
+            .izleme-tablo-satir > div:nth-child(3) { grid-column: 1 / 2; }
+            .izleme-tablo-satir > svg, .izleme-tablo-satir > div:nth-child(4) { grid-column: 1 / 2; width: 100%; max-width: 150px; }
+            .izleme-tablo-satir > div:nth-child(5) { grid-column: 2 / 3; grid-row: 2 / 4; justify-content: flex-end; align-self: end; }
           }
         `}</style>
         <main className="izleme-main">
