@@ -28,6 +28,39 @@ interface RiskMap {
   [ticker: string]: RiskEntry;
 }
 
+const RISK_ACIKLAMALARI: Record<string, string> = {
+  "Beta (Sistematik Risk)": "Piyasa duyarlılığı (CAPM). >1 daha oynak.",
+  "Volatilite (Yillik)": "Yıllık oynaklık. Yüksekse belirsizlik artar.",
+  "52H Pozisyonu": "%90+ aşırı alım, %15- dip riski.",
+  "Momentum (20g)": "20 günlük fiyat trendi.",
+  "Hacim Anomalisi": ">2x anormal aktivite göstergesi.",
+  "RSI (14)": ">70 aşırı alım, <30 aşırı satım.",
+  "Gunluk Range": "Intraday volatilite göstergesi.",
+};
+
+function RiskBilesenGrid({ bilesenler, mobil = false }: { bilesenler: RiskBilesen[]; mobil?: boolean }) {
+  return (
+    <div className={mobil ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3"}>
+      {bilesenler.map((b, i) => {
+        const barRenk = b.risk >= 55 ? "bg-red-500" : b.risk >= 35 ? "bg-yellow-500" : "bg-emerald-500";
+        const textRenk = b.risk >= 55 ? "text-red-400" : b.risk >= 35 ? "text-yellow-400" : "text-emerald-400";
+        return (
+          <div key={`${b.ad}-${i}`} className={mobil ? "space-y-1.5 rounded-lg border border-slate-700/60 bg-slate-800/35 p-2.5" : "space-y-1.5"}>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-slate-400 text-xs leading-tight">{b.ad}</span>
+              <span className={`text-xs font-semibold shrink-0 ${textRenk}`}>{b.deger}</span>
+            </div>
+            <div className="w-full bg-slate-700/60 rounded-full h-1">
+              <div className={`h-1 rounded-full transition-all ${barRenk}`} style={{ width: `${Math.min(Math.round((b.risk / 80) * 100), 100)}%` }} />
+            </div>
+            <p className="text-slate-600 text-xs leading-tight">{RISK_ACIKLAMALARI[b.ad] || ""}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 interface LotModal {
   open: boolean;
   ticker: string;
@@ -355,6 +388,7 @@ export default function PortfoyPage() {
             {portfoy.map((item) => {
               const pl = plHesapla(item);
               const fiyat = fiyatlar[item.ticker];
+              const risk = riskler[item.ticker];
               const isPos = pl ? pl.pl >= 0 : null;
               const acik = acikHisse === item.ticker;
               return (
@@ -380,6 +414,39 @@ export default function PortfoyPage() {
                         <div><p className="text-slate-500 text-xs">K/Z %</p><p className={`font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>{pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}</p></div>
                         <div><p className="text-slate-500 text-xs">Ana Para</p><p className="text-white">{(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p></div>
                         <div><p className="text-slate-500 text-xs">Güncel Değer</p><p className="text-white">{pl ? pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 }) : "—"} ₺</p></div>
+                      </div>
+                      <div className="mb-3 rounded-xl border border-slate-700/60 bg-slate-900/35 p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-semibold text-slate-300">AI Risk Detayı</p>
+                            {risk?.skor && !risk.yukleniyor && (
+                              <p className="mt-0.5 text-[10px] text-slate-500">
+                                {risk.skor100 !== undefined ? `${risk.skor100}/100` : risk.ozet}
+                              </p>
+                            )}
+                          </div>
+                          {risk && risk.skor ? (
+                            risk.yukleniyor ? (
+                              <span className="text-slate-500 text-xs animate-pulse">Hesaplanıyor...</span>
+                            ) : (
+                              <button
+                                onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
+                                className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
+                              >
+                                {risk.skor} Risk {risk.detay ? "▲" : "▼"}
+                              </button>
+                            )
+                          ) : (
+                            <button onClick={() => riskSkoru(item.ticker)} className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition-colors border border-slate-600">
+                              ⚡ AI Risk Al
+                            </button>
+                          )}
+                        </div>
+                        {risk?.detay && risk?.bilesenler && (
+                          <div className="mt-3">
+                            <RiskBilesenGrid bilesenler={risk.bilesenler} mobil />
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
@@ -491,33 +558,7 @@ export default function PortfoyPage() {
                     {risk?.detay && risk?.bilesenler && (
                       <tr key={item.id + "_detay"} className="border-b border-slate-700/50 bg-slate-900/30">
                         <td colSpan={9} className="px-4 py-3">
-                          <div className="grid grid-cols-7 gap-3">
-                            {risk.bilesenler.map((b, i) => {
-                              const aciklama: Record<string, string> = {
-                                "Beta (Sistematik Risk)": "Piyasa duyarlılığı (CAPM). >1 daha oynak.",
-                                "Volatilite (Yillik)": "Yıllık oynaklık. Yüksekse belirsizlik artar.",
-                                "52H Pozisyonu": "%90+ aşırı alım, %15- dip riski.",
-                                "Momentum (20g)": "20 günlük fiyat trendi.",
-                                "Hacim Anomalisi": ">2x anormal aktivite göstergesi.",
-                                "RSI (14)": ">70 aşırı alım, <30 aşırı satım.",
-                                "Gunluk Range": "Intraday volatilite göstergesi.",
-                              };
-                              const barRenk = b.risk >= 55 ? "bg-red-500" : b.risk >= 35 ? "bg-yellow-500" : "bg-emerald-500";
-                              const textRenk = b.risk >= 55 ? "text-red-400" : b.risk >= 35 ? "text-yellow-400" : "text-emerald-400";
-                              return (
-                                <div key={i} className="space-y-1.5">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-slate-400 text-xs">{b.ad}</span>
-                                    <span className={`text-xs font-semibold ${textRenk}`}>{b.deger}</span>
-                                  </div>
-                                  <div className="w-full bg-slate-700/60 rounded-full h-1">
-                                    <div className={`h-1 rounded-full transition-all ${barRenk}`} style={{ width: `${Math.min(Math.round((b.risk / 80) * 100), 100)}%` }} />
-                                  </div>
-                                  <p className="text-slate-600 text-xs leading-tight">{aciklama[b.ad] || ""}</p>
-                                </div>
-                              );
-                            })}
-                          </div>
+                          <RiskBilesenGrid bilesenler={risk.bilesenler} />
                         </td>
                       </tr>
                     )}
