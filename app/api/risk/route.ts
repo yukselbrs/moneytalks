@@ -77,7 +77,10 @@ export async function GET(req: NextRequest) {
   if (!ticker) return NextResponse.json({ error: "ticker gerekli" }, { status: 400 });
 
   try {
-    const [hisse, piyasa] = await Promise.all([
+    const endeksler = ["XU100", "XU030", "XU050"];
+  const isEndeks = endeksler.includes(ticker.toUpperCase());
+
+  const [hisse, piyasa] = await Promise.all([
       fetchOHLCV(`${ticker}.IS`),
       fetchOHLCV("XU100.IS"),
     ]);
@@ -90,8 +93,8 @@ export async function GET(req: NextRequest) {
     // === FAKTÖRLER ===
 
     // 1. Beta (sistematik risk) — CAPM
-    const beta = betaHesapla(hisseGetiri, piyasaGetiri);
-    const betaRisk = beta < 0.5 ? 10 : beta < 0.8 ? 20 : beta < 1.2 ? 35 : beta < 1.6 ? 55 : 75;
+    const beta = isEndeks ? 1 : betaHesapla(hisseGetiri, piyasaGetiri);
+    const betaRisk = isEndeks ? 0 : (beta < 0.5 ? 10 : beta < 0.8 ? 20 : beta < 1.2 ? 35 : beta < 1.6 ? 55 : 75);
 
     // 2. Volatilite (annualized)
     const volatilite = stdDev(hisseGetiri) * Math.sqrt(252) * 100;
@@ -185,7 +188,7 @@ export async function GET(req: NextRequest) {
 
     // === AĞIRLIKLI SKOR ===
     const skorBilesenleri = [
-      { ad: "Beta (Sistematik Risk)", deger: beta.toFixed(2), risk: betaRisk, agirlik: 0.25 },
+      { ad: "Beta (Sistematik Risk)", deger: isEndeks ? "N/A" : beta.toFixed(2), risk: betaRisk, agirlik: isEndeks ? 0 : 0.25 },
       { ad: "Volatilite (Yillik)", deger: volatilite.toFixed(1) + "%", risk: volRisk, agirlik: 0.20 },
       { ad: "52H Pozisyonu", deger: (pozisyon52 * 100).toFixed(0) + "%", risk: pozisyonRisk, agirlik: 0.15 },
       { ad: "Momentum (20g)", deger: (momentumRatio > 0 ? "+" : "") + momentumRatio.toFixed(1) + "%", risk: momentumRisk, agirlik: 0.15 },
@@ -197,7 +200,8 @@ export async function GET(req: NextRequest) {
       { ad: "PD/DD Orani", deger: pddd !== null ? pddd.toFixed(2) : "N/A", risk: pdddRisk, agirlik: 0.05 },
     ];
 
-    const toplamSkor = skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0);
+    const toplamAgirlik = skorBilesenleri.reduce((acc, b) => acc + b.agirlik, 0);
+    const toplamSkor = skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0) / toplamAgirlik * (isEndeks ? 1 : 1);
 
     const seviye = toplamSkor >= 60 ? "Yuksek" : toplamSkor >= 35 ? "Orta" : "Dusuk";
     const seviyeTR = toplamSkor >= 60 ? "Yüksek" : toplamSkor >= 35 ? "Orta" : "Düşük";
