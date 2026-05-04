@@ -318,9 +318,9 @@ export default function PortfoyPage() {
             <p className="text-slate-400 text-sm mt-1">BIST pozisyonlarınızı takip edin, her hisse için AI risk skoru alın</p>
             {portfoy.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-semibold text-emerald-400">
-                  <span className={`h-1.5 w-1.5 rounded-full bg-emerald-400 ${fiyatlarYenileniyor ? "animate-pulse" : ""}`} />
-                  15 sn canlı fiyat
+                <span className="inline-flex items-center gap-1 rounded-full border border-orange-500/25 bg-orange-500/10 px-2 py-0.5 font-semibold text-orange-400">
+                  <span className={`h-1.5 w-1.5 rounded-full bg-orange-400 ${fiyatlarYenileniyor ? "animate-pulse" : ""}`} />
+                  15 dk gecikmeli
                 </span>
                 {sonFiyatGuncelleme && (
                   <span>Son güncelleme {sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
