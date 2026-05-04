@@ -154,6 +154,7 @@ export default function DashboardPage() {
   const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
   const [buyukGrafik, setBuyukGrafik] = useState<{tarih: string; fiyat: number}[]>([]);
   const [grafikRange, setGrafikRange] = useState("1d");
+  const [grafikRangeDegisim, setGrafikRangeDegisim] = useState<Record<string, number>>({});
   const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
   const [grafikTicker, setGrafikTicker] = useState("XU100.IS");
   const [grafikTickerLabel, setGrafikTickerLabel] = useState("XU100");
@@ -187,7 +188,7 @@ export default function DashboardPage() {
       const t = ticker || grafikTicker;
       const r = await fetch(`/api/grafik?ticker=${t}&range=${range}`);
       const d = await r.json();
-      if (d.points) setBuyukGrafik(d.points);
+      if (d.points) { setBuyukGrafik(d.points); const pts = d.points.map((p: {fiyat: number}) => p.fiyat); if (pts.length > 1) { const pct = ((pts[pts.length - 1] - pts[0]) / pts[0]) * 100; setGrafikRangeDegisim(prev => ({ ...prev, [range]: pct })); } }
     } catch {
       setBuyukGrafik([]);
     } finally {
@@ -523,8 +524,8 @@ export default function DashboardPage() {
               const color = e.up ? "#10B981" : "#EF4444";
               const bgColor = e.up ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)";
               const flash = piyasaFlash[e.key];
-              const flashBg = flash === "up" ? "rgba(16,185,129,0.16)" : flash === "down" ? "rgba(239,68,68,0.16)" : "#0B1220";
-              const flashBorder = flash === "up" ? "rgba(16,185,129,0.42)" : flash === "down" ? "rgba(239,68,68,0.42)" : "rgba(255,255,255,0.06)";
+              const flashColor = flash === "up" ? "#10B981" : flash === "down" ? "#EF4444" : "transparent";
+              const flashBg = flash === "up" ? "rgba(16,185,129,0.14)" : flash === "down" ? "rgba(239,68,68,0.14)" : "transparent";
               // Gercek sparkline veya fallback
               const rawPts = sparklines[e.label] || [];
               const pts = rawPts.length > 1 ? rawPts : [];
@@ -536,7 +537,7 @@ export default function DashboardPage() {
               const d = pts.length > 1 ? pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i)} ${sy(v)}`).join(" ") : "";
               const area = d ? d + ` L ${w} ${h} L 0 ${h} Z` : "";
               return (
-                <div key={e.label} style={{ background: flashBg, border: `1px solid ${flashBorder}`, boxShadow: flash ? `0 0 0 1px ${flashBorder}, 0 0 22px ${flash === "up" ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)"}` : "none", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden", transition: "background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease" }}>
+                <div key={e.label} style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>{e.label}</span>
                     {e.gecikme && (
@@ -555,7 +556,7 @@ export default function DashboardPage() {
                         </>
                       ) : (
                         <>
-                          <div className="dash-piyasa-val" style={{ fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2 }}>{e.val}</div>
+                          <div className="dash-piyasa-val" style={{ display: "inline-block", fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2, borderRadius: 7, padding: "1px 5px", marginLeft: -5, background: flashBg, boxShadow: flash ? `0 0 0 1px ${flashColor}33, 0 0 18px ${flashColor}24` : "none", transition: "background 0.35s ease, box-shadow 0.35s ease" }}>{e.val}</div>
                           <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
                             <span>{e.up ? "▲" : "▼"}</span>
                             <span>{e.change}</span>
@@ -669,6 +670,11 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
+              {grafikRangeDegisim[grafikRange] !== undefined && (
+                <span style={{ fontSize: 12, fontWeight: 700, color: grafikRangeDegisim[grafikRange] >= 0 ? '#10B981' : '#EF4444', background: grafikRangeDegisim[grafikRange] >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${grafikRangeDegisim[grafikRange] >= 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`, borderRadius: 6, padding: '3px 8px' }}>
+                  {grafikRangeDegisim[grafikRange] >= 0 ? '+' : ''}{grafikRangeDegisim[grafikRange].toFixed(2).replace('.', ',')}%
+                </span>
+              )}
             </div>
             <div style={{ display: "flex", gap: 4 }}>
               {[
@@ -679,7 +685,7 @@ export default function DashboardPage() {
                 { label: "1Y", value: "1y" },
               ].map((r) => (
                 <button key={r.value} onClick={() => { setGrafikRange(r.value); fetchBuyukGrafik(r.value); }}
-                  style={{ fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 6, border: "none", cursor: "pointer", transition: "all 0.15s",
+                  style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 6, border: "none", cursor: "pointer", transition: "all 0.15s",
                     background: grafikRange === r.value ? "#3B82F6" : "rgba(255,255,255,0.05)",
                     color: grafikRange === r.value ? "#fff" : "#64748B" }}>
                   {r.label}
