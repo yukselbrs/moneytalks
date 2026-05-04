@@ -209,7 +209,7 @@ export default function DashboardPage() {
         .map((s: string) => s.replace(/[#*]/g, "").trim())
         .filter((s: string) => s.length > 20 && !s.toUpperCase().includes("PROFİL") && !s.toUpperCase().includes("ANALİZ") && !s.toUpperCase().includes("ENDEKS"));
       const yorum = satirlar[0] ? (satirlar[0].length > 150 ? satirlar[0].slice(0, 150) + "..." : satirlar[0]) : "Analiz yükleniyor...";
-      const guven = skor >= 65 ? "Yüksek" : skor >= 45 ? "Orta" : "Düşük";
+      const guven = risk.seviyeTR === "Düşük" ? "Yüksek" : risk.seviyeTR === "Orta" ? "Orta" : "Düşük";
       setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
     } catch {
       setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz alınamadı.", guven: "Düşük", yukleniyor: false });
