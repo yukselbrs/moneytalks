@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
 
     const timestamps = result.timestamp || [];
     const closes = result.indicators?.quote?.[0]?.close || [];
+    const prevClose = result.meta?.chartPreviousClose || result.meta?.previousClose || null;
 
     const formatTarih = (t: number) => {
       const d = new Date(t * 1000);
@@ -38,6 +39,10 @@ export async function GET(req: NextRequest) {
       tarih: formatTarih(t),
       fiyat: closes[i] ? parseFloat(closes[i].toFixed(2)) : null,
     })).filter((p: {tarih: string; fiyat: number | null}) => p.fiyat !== null);
+
+    if (range === "1d" && prevClose && points.length > 0) {
+      points = [{ tarih: "Onceki Kapanis", fiyat: parseFloat(prevClose.toFixed(2)) }, ...points];
+    }
 
     // Tatil/hafta sonu: 1d boş dönüyorsa son 5 günden son işlem gününü çek
     if (points.length === 0 && range === "1d") {
