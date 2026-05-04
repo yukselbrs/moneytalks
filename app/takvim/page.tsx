@@ -99,7 +99,7 @@ export default function TakvimPage() {
     .filter(([k]) => k >= bugunStr)
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(0, 5)
-    .flatMap(([tarih, evler]) => evler.filter(e => e.onem === "Yüksek").slice(0, 1).map(e => ({ tarih, ...e })));
+    .flatMap(([tarih, evler]) => evler.filter(e => e.onem === "Yüksek").slice(0, 1).map(e => ({ ...e, tarih })));
 
   const buHafta = Object.values(etkinlikler).flat();
 
