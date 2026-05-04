@@ -277,7 +277,14 @@ export default function DashboardPage() {
       } catch(e) { console.error("Portfoy ozet hatasi:", e); }
 
     });
-    const fetchDoviz = () => fetch("/api/piyasa").then(r => r.json()).then(d => { setPiyasa(d); try { localStorage.setItem("pk_piyasa", JSON.stringify(d)); } catch {} }).catch(() => {});
+    const fetchPiyasaOzeti = async () => {
+      try {
+        const r = await fetch("/api/piyasa", { cache: "no-store" });
+        const d = await r.json();
+        setPiyasa(d);
+        try { localStorage.setItem("pk_piyasa", JSON.stringify(d)); } catch {}
+      } catch {}
+    };
     const fetchSparklines = () => {
       [
         { sym: "XU100.IS", key: "XU100" },
@@ -292,7 +299,6 @@ export default function DashboardPage() {
         }).catch(() => {});
       });
     };
-    const fetchXu = () => fetch("/api/xu").then(r => r.json()).then(d => { setPiyasa((prev: {usd:{value:string;change:string};eur:{value:string;change:string};xu100:{value:string;change:string};xu030:{value:string;change:string}}) => { const next = { ...prev, ...d }; try { localStorage.setItem("pk_piyasa", JSON.stringify(next)); } catch {} return next; }); }).catch(() => {});
     const fetchFiyatlar = (extraList?: string[]) => {
       const wl = extraList || watchlistRef.current.map(w => w.ticker);
       const extra = wl.join(",");
@@ -320,22 +326,21 @@ export default function DashboardPage() {
         setTopMovers({ yukselenler, dusenler, hacimliler });
       } catch(e) { console.error("fetchPiyasa err:", e); }
     };
-    fetchDoviz();
-    fetchXu();
+    fetchPiyasaOzeti();
     fetchFiyatlar();
     fetchPiyasa();
     fetchSparklines();
-    const dovizInterval = setInterval(fetchDoviz, 900000);
+    const piyasaOzetiInterval = setInterval(fetchPiyasaOzeti, 3000);
     const piyasaInterval = setInterval(fetchPiyasa, 300000);
-    const xuInterval = setInterval(fetchXu, 15000);
     const fiyatlarInterval = setInterval(fetchFiyatlar, 30000);
+    const sparklineInterval = setInterval(fetchSparklines, 60000);
     const loadRecent = () => {
       const stored = localStorage.getItem("pk_recent");
       if (stored) setRecent(JSON.parse(stored));
     };
     loadRecent();
     window.addEventListener("focus", loadRecent);
-    return () => { clearInterval(dovizInterval); clearInterval(xuInterval); clearInterval(fiyatlarInterval); window.removeEventListener("focus", loadRecent); };
+    return () => { clearInterval(piyasaOzetiInterval); clearInterval(piyasaInterval); clearInterval(fiyatlarInterval); clearInterval(sparklineInterval); window.removeEventListener("focus", loadRecent); };
   }, [router]);
 
   async function addToWatchlist(t: string) {

@@ -12,7 +12,7 @@ if (!g.xuCache) {
   };
 }
 
-const FETCH_INTERVAL = 15000;
+const FETCH_INTERVAL = 3000;
 
 async function fetchYahoo(symbol: string) {
   try {
@@ -51,6 +51,6 @@ async function refreshCache() {
 export async function GET() {
   await refreshCache();
   const r = NextResponse.json({ xu100: g.xuCache!.xu100, xu030: g.xuCache!.xu030 });
-  r.headers.set("Cache-Control", "public, s-maxage=15, stale-while-revalidate=30");
+  r.headers.set("Cache-Control", "no-store, max-age=0");
   return r;
 }

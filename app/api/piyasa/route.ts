@@ -1,12 +1,40 @@
 import { NextResponse } from "next/server";
 
-export const revalidate = 30;
+export const revalidate = 0;
+
+type PiyasaItem = { value: string; change: string };
+
+const FETCH_INTERVAL = 3000;
+
+const g = globalThis as typeof globalThis & {
+  piyasaCache?: {
+    data: {
+      usd: PiyasaItem;
+      eur: PiyasaItem;
+      xu100: PiyasaItem;
+      xu030: PiyasaItem;
+    };
+    lastFetch: number;
+  };
+};
+
+if (!g.piyasaCache) {
+  g.piyasaCache = {
+    data: {
+      usd: { value: "-", change: "-" },
+      eur: { value: "-", change: "-" },
+      xu100: { value: "-", change: "-" },
+      xu030: { value: "-", change: "-" },
+    },
+    lastFetch: 0,
+  };
+}
 
 async function fetchYahoo(symbol: string) {
   try {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
     const res = await fetch(url, {
-      next: { revalidate: 30 },
+      cache: "no-store",
       headers: { "User-Agent": "Mozilla/5.0" },
     });
     const data = await res.json();
@@ -26,40 +54,23 @@ async function fetchYahoo(symbol: string) {
 
 export async function GET() {
   try {
-    const res = await fetch("https://finans.truncgil.com/today.json", {
-      next: { revalidate: 30 },
-      headers: { "Accept": "application/json" },
-    });
-    const data = await res.json();
+    const now = Date.now();
+    if (now - g.piyasaCache!.lastFetch >= FETCH_INTERVAL) {
+      g.piyasaCache!.lastFetch = now;
+      const [usd, eur, xu100, xu030] = await Promise.all([
+        fetchYahoo("USDTRY=X"),
+        fetchYahoo("EURTRY=X"),
+        fetchYahoo("XU100.IS"),
+        fetchYahoo("XU030.IS"),
+      ]);
+      g.piyasaCache!.data = { usd, eur, xu100, xu030 };
+    }
 
-    const usdObj = data["USD"] || {};
-    const eurObj = data["EUR"] || {};
-
-    const usdValue = usdObj[Object.keys(usdObj).find(k => k.includes("at")) || ""] || "-";
-    const usdChange = usdObj[Object.keys(usdObj).find(k => k.includes("işim") || k.includes("Degisim")) || ""] || "-";
-    const eurValue = eurObj[Object.keys(eurObj).find(k => k.includes("at")) || ""] || "-";
-    const eurChange = eurObj[Object.keys(eurObj).find(k => k.includes("işim") || k.includes("Degisim")) || ""] || "-";
-
-    const [xu100, xu030] = await Promise.all([
-      fetchYahoo("XU100.IS"),
-      fetchYahoo("XU030.IS"),
-    ]);
-
-    const res2 = NextResponse.json({
-      usd: { value: usdValue, change: usdChange },
-      eur: { value: eurValue, change: eurChange },
-      xu100,
-      xu030,
-    });
-    res2.headers.set("Cache-Control", "public, s-maxage=30, stale-while-revalidate=60");
-    return res2;
+    const res = NextResponse.json(g.piyasaCache!.data);
+    res.headers.set("Cache-Control", "no-store, max-age=0");
+    return res;
   } catch (e) {
     console.error("Piyasa API error:", e);
-    return NextResponse.json({
-      usd: { value: "-", change: "-" },
-      eur: { value: "-", change: "-" },
-      xu100: { value: "-", change: "-" },
-      xu030: { value: "-", change: "-" },
-    });
+    return NextResponse.json(g.piyasaCache!.data);
   }
 }
