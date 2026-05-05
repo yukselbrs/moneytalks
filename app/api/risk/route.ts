@@ -189,15 +189,15 @@ export async function GET(req: NextRequest) {
     // === AĞIRLIKLI SKOR ===
     const skorBilesenleri = [
       { ad: "Beta (Sistematik Risk)", deger: isEndeks ? "N/A" : beta.toFixed(2), risk: betaRisk, agirlik: isEndeks ? 0 : 0.25 },
-      { ad: "Volatilite (Yillik)", deger: volatilite.toFixed(1) + "%", risk: volRisk, agirlik: 0.20 },
-      { ad: "52H Pozisyonu", deger: (pozisyon52 * 100).toFixed(0) + "%", risk: pozisyonRisk, agirlik: 0.15 },
-      { ad: "Momentum (20g)", deger: (momentumRatio > 0 ? "+" : "") + momentumRatio.toFixed(1) + "%", risk: momentumRisk, agirlik: 0.15 },
-      { ad: "Hacim Anomalisi", deger: hacimOrani.toFixed(2) + "x", risk: hacimRisk, agirlik: 0.10 },
-      { ad: "RSI (14)", deger: rsi.toFixed(0), risk: rsiRisk, agirlik: 0.10 },
-      { ad: "Gunluk Range", deger: gunlukRange.toFixed(2) + "%", risk: gunlukRangeRisk, agirlik: 0.04 },
-      { ad: "Likidite", deger: ortHacimMutlak > 1000000 ? (ortHacimMutlak/1000000).toFixed(1)+"M" : (ortHacimMutlak/1000).toFixed(0)+"K", risk: liikiditeRisk, agirlik: 0.05 },
-      { ad: "F/K Orani", deger: fk !== null ? fk.toFixed(2) : "N/A", risk: fkRisk, agirlik: 0.05 },
-      { ad: "PD/DD Orani", deger: pddd !== null ? pddd.toFixed(2) : "N/A", risk: pdddRisk, agirlik: 0.05 },
+      { ad: "Volatilite (Yillik)", deger: volatilite.toFixed(1) + "%", risk: volRisk, agirlik: isEndeks ? 0.30 : 0.20 },
+      { ad: "52H Pozisyonu", deger: (pozisyon52 * 100).toFixed(0) + "%", risk: pozisyonRisk, agirlik: isEndeks ? 0.25 : 0.15 },
+      { ad: "Momentum (20g)", deger: (momentumRatio > 0 ? "+" : "") + momentumRatio.toFixed(1) + "%", risk: momentumRisk, agirlik: isEndeks ? 0.25 : 0.15 },
+      { ad: "Hacim Anomalisi", deger: hacimOrani.toFixed(2) + "x", risk: hacimRisk, agirlik: isEndeks ? 0.10 : 0.10 },
+      { ad: "RSI (14)", deger: rsi.toFixed(0), risk: rsiRisk, agirlik: isEndeks ? 0.10 : 0.10 },
+      { ad: "Gunluk Range", deger: gunlukRange.toFixed(2) + "%", risk: gunlukRangeRisk, agirlik: isEndeks ? 0 : 0.04 },
+      { ad: "Likidite", deger: ortHacimMutlak > 1000000 ? (ortHacimMutlak/1000000).toFixed(1)+"M" : (ortHacimMutlak/1000).toFixed(0)+"K", risk: liikiditeRisk, agirlik: isEndeks ? 0 : 0.05 },
+      { ad: "F/K Orani", deger: fk !== null ? fk.toFixed(2) : "N/A", risk: fkRisk, agirlik: isEndeks ? 0 : 0.05 },
+      { ad: "PD/DD Orani", deger: pddd !== null ? pddd.toFixed(2) : "N/A", risk: pdddRisk, agirlik: isEndeks ? 0 : 0.05 },
     ];
 
     const toplamAgirlik = skorBilesenleri.reduce((acc, b) => acc + b.agirlik, 0);
