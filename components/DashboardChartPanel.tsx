@@ -160,6 +160,25 @@ export default function DashboardChartPanel({
           ))}
         </div>
       </div>
+      {buyukGrafik.length > 0 && (() => {
+        const sonFiyat = buyukGrafik[buyukGrafik.length - 1].fiyat;
+        const isUp = buyukGrafik[buyukGrafik.length - 1].fiyat >= buyukGrafik[0].fiyat;
+        const overlayColor = isUp ? "#10B981" : "#EF4444";
+        const degisim = grafikRangeDegisim[grafikRange];
+        return (
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.6px" }}>
+              {sonFiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+            </span>
+            {degisim !== undefined && (
+              <span style={{ fontSize: 12, fontWeight: 600, color: overlayColor }}>
+                {degisim >= 0 ? "▲ +" : "▼ "}{degisim.toFixed(2).replace(".", ",")}%
+              </span>
+            )}
+            <span style={{ fontSize: 9, color: "#475569" }}>15 dk gecikmeli</span>
+          </div>
+        );
+      })()}
       <div ref={setGrafikContainerRef} className="dash-surface" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative", height: 280, minWidth: 0, boxSizing: "border-box" }}>
         {grafikYukleniyor && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(11,18,32,0.7)", borderRadius: 12, zIndex: 10 }}>
