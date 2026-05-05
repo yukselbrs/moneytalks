@@ -191,6 +191,12 @@ function findCloseAtOrAfter(timestamps: number[], closes: (number | null)[], tar
   return null;
 }
 
+function findReferenceClose(timestamps: number[], closes: (number | null)[], targetTs: number) {
+  const ilkTs = timestamps.find((_, i) => closes[i] !== null && closes[i] !== undefined);
+  if (!ilkTs || ilkTs > targetTs) return null;
+  return findCloseAtOrAfter(timestamps, closes, targetTs) ?? findCloseAtOrBefore(timestamps, closes, targetTs);
+}
+
 function kurumsalAksiyonlariAyarla(series: (number | null)[], opens: (number | null)[] = []) {
   const adjusted = [...series];
   for (let i = 1; i < adjusted.length; i++) {
@@ -231,7 +237,7 @@ async function fetchLiveGetiriler(tickers: string[]) {
 
         const getiri = (gunOnce: number) => {
           const targetTs = sonTs - gunOnce * GUN;
-          const ref = findCloseAtOrAfter(timestamps, returnSeries, targetTs) ?? findCloseAtOrBefore(timestamps, returnSeries, targetTs);
+          const ref = findReferenceClose(timestamps, returnSeries, targetTs);
           if (!ref || ref === 0) return null;
           return ((son - ref) / ref) * 100;
         };
@@ -284,10 +290,10 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string } | undef
     yukselis: degisim >= 0,
     hacim: live?.hacim ?? snap?.hacim ?? null,
     piyasaDegeri: live?.piyasaDegeri ?? snap?.piyasa_degeri ?? null,
-    getiri_1h: formatGetiri(getiriler?.getiri_1h ?? snap?.getiri_1h),
-    getiri_1a: formatGetiri(getiriler?.getiri_1a ?? snap?.getiri_1a),
-    getiri_3a: formatGetiri(getiriler?.getiri_3a ?? snap?.getiri_3a),
-    getiri_1y: formatGetiri(getiriler?.getiri_1y ?? snap?.getiri_1y),
+    getiri_1h: formatGetiri(getiriler ? getiriler.getiri_1h : snap?.getiri_1h),
+    getiri_1a: formatGetiri(getiriler ? getiriler.getiri_1a : snap?.getiri_1a),
+    getiri_3a: formatGetiri(getiriler ? getiriler.getiri_3a : snap?.getiri_3a),
+    getiri_1y: formatGetiri(getiriler ? getiriler.getiri_1y : snap?.getiri_1y),
   };
 }
 

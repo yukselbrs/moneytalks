@@ -34,6 +34,12 @@ function findCloseAtOrAfter(timestamps: number[], closes: (number | null)[], tar
   return null;
 }
 
+function findReferenceClose(timestamps: number[], closes: (number | null)[], targetTs: number) {
+  const ilkTs = timestamps.find((_, i) => closes[i] !== null && closes[i] !== undefined);
+  if (!ilkTs || ilkTs > targetTs) return null;
+  return findCloseAtOrAfter(timestamps, closes, targetTs) ?? findCloseAtOrBefore(timestamps, closes, targetTs);
+}
+
 export async function GET(req: NextRequest) {
   const ticker = req.nextUrl.searchParams.get("ticker");
   if (!ticker) return NextResponse.json({ error: "ticker gerekli" }, { status: 400 });
@@ -64,7 +70,7 @@ export async function GET(req: NextRequest) {
     } else {
       const getiri = (range: string, gunOnce: number) => {
         const targetTs = sonTs - gunOnce * gun;
-        const ref = findCloseAtOrAfter(timestamps, series, targetTs) ?? findCloseAtOrBefore(timestamps, series, targetTs);
+        const ref = findReferenceClose(timestamps, series, targetTs);
         results[range] = ref && ref !== 0 ? (((son - ref) / ref) * 100).toFixed(2) : null;
       };
 

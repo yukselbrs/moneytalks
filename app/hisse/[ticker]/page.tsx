@@ -202,6 +202,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const grafikDegisim = (() => {
     if (grafikRange === "1d") return Number.isFinite(gunlukDegisim) ? gunlukDegisim : null;
     const apiGetiri = getiriler[grafikRange];
+    if (Object.prototype.hasOwnProperty.call(getiriler, grafikRange) && apiGetiri === null) return null;
     const parsed = apiGetiri !== null && apiGetiri !== undefined ? Number(apiGetiri) : NaN;
     if (Number.isFinite(parsed)) return parsed;
     if (grafik.length < 2) return null;
