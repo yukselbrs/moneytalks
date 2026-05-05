@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 interface Mesaj {
   role: "user" | "assistant";
+  proLink?: boolean;
   content: string;
 }
 
@@ -37,6 +38,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
   ]);
   const [input, setInput] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
+  const [limitDoldu, setLimitDoldu] = useState(false);
   const altRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,7 +63,23 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
         body: JSON.stringify({ messages: yeniMesajlar, ticker, veri, analiz, portfoy }),
       });
       const data = await res.json();
-      setMesajlar(prev => [...prev, { role: "assistant", content: data.reply }]);
+      if (data.error === "gunluk_limit") {
+        setLimitDoldu(true);
+        setMesajlar(prev => [...prev, {
+          role: "assistant",
+          content: "⚡ Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz için Pro'ya geçin.",
+          proLink: true,
+        }]);
+      } else if (data.reply) {
+        const kalanBilgi = data.kalanHak === 0
+          ? " · Günlük hakkınız bitti, Pro'ya geçin."
+          : data.kalanHak === 1
+          ? ` · Son mesaj hakkınız.`
+          : "";
+        setMesajlar(prev => [...prev, { role: "assistant", content: data.reply + kalanBilgi }]);
+      } else {
+        setMesajlar(prev => [...prev, { role: "assistant", content: "Bir hata oluştu, tekrar dene." }]);
+      }
     } catch {
       setMesajlar(prev => [...prev, { role: "assistant", content: "Bir hata oluştu, tekrar dene." }]);
     }
@@ -149,6 +167,11 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
                   fontSize: 12, color: "#CBD5E1", lineHeight: 1.6,
                 }}>
                   {m.content}
+                  {m.proLink && (
+                    <a href="/pro" style={{ display: "block", marginTop: 8, padding: "6px 12px", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.3)", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#F97316", textDecoration: "none", textAlign: "center" }}>
+                      ⚡ Pro'ya Yükselt
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
@@ -163,29 +186,37 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
           </div>
 
           <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(59,130,246,0.1)", display: "flex", gap: 8 }}>
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && gonder()}
-              placeholder="Soru sor..."
-              style={{
-                flex: 1, padding: "8px 12px", borderRadius: 8,
-                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.15)",
-                color: "#F8FAFC", fontSize: 12, outline: "none",
-              }}
-            />
-            <button
-              onClick={gonder}
-              disabled={yukleniyor || !input.trim()}
-              style={{
-                width: 36, height: 36, borderRadius: 8,
-                background: "linear-gradient(135deg, #1E40AF, #3B82F6)",
-                border: "none", cursor: "pointer", color: "#fff", fontSize: 14,
-                opacity: yukleniyor || !input.trim() ? 0.4 : 1,
-              }}
-            >
-              ↑
-            </button>
+            {limitDoldu ? (
+              <a href="/pro" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 12px", borderRadius: 8, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 600, textDecoration: "none", gap: 6 }}>
+                ⚡ Pro'ya Yükselt — Sınırsız Analiz
+              </a>
+            ) : (
+              <>
+                <input
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && gonder()}
+                  placeholder="Soru sor..."
+                  style={{
+                    flex: 1, padding: "8px 12px", borderRadius: 8,
+                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.15)",
+                    color: "#F8FAFC", fontSize: 12, outline: "none",
+                  }}
+                />
+                <button
+                  onClick={gonder}
+                  disabled={yukleniyor || !input.trim()}
+                  style={{
+                    width: 36, height: 36, borderRadius: 8,
+                    background: "linear-gradient(135deg, #1E40AF, #3B82F6)",
+                    border: "none", cursor: "pointer", color: "#fff", fontSize: 14,
+                    opacity: yukleniyor || !input.trim() ? 0.4 : 1,
+                  }}
+                >
+                  ↑
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
