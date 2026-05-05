@@ -43,7 +43,7 @@ export default function StockLogo({
       style={{
         width: size,
         height: size,
-        borderRadius: hasNeutralPlate ? 999 : radius,
+        borderRadius: radius,
         background: src ? (hasNeutralPlate ? "#050914" : "transparent") : "rgba(148, 163, 184, 0.08)",
         border: src ? "none" : "1px solid rgba(148, 163, 184, 0.12)",
         display: "flex",

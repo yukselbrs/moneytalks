@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, use, useEffect } from "react";
+import { useState, use, useCallback, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import HisseChatbot from "@/components/HisseChatbot";
+import StockLogo from "@/components/StockLogo";
+import { Sparkles, Star } from "lucide-react";
 
 interface HisseVeri {
   fiyat: number;
@@ -17,6 +18,7 @@ interface HisseVeri {
   gunlukYuksek: number;
   gunlukDusuk: number;
   sirketAdi?: string;
+  domain?: string;
 }
 
 function renderMarkdown(text: string) {
@@ -90,7 +92,26 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       console.error("Izleme guncelleme hatasi:", err);
     }
   }
-  const router = useRouter();
+  const fetchGrafik = useCallback((range: string) => {
+    fetch(`/api/grafik?ticker=${ticker}.IS&range=${range}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
+  }, [ticker]);
+
+  const fetchGetiriler = useCallback(() => {
+    fetch(`/api/getiri?ticker=${ticker}`)
+      .then(r => r.json())
+      .then(d => setGetiriler({ "1wk": d["1wk"], "1mo": d["1mo"], "3mo": d["3mo"], "1y": d["1y"] }))
+      .catch(() => setGetiriler({}));
+  }, [ticker]);
+
+  const fetchVeri = useCallback(async () => {
+    const res = await fetch("/api/analiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker, veriOnly: true }),
+    });
+    const data = await res.json();
+    if (data.veri) setVeri(data.veri);
+  }, [ticker]);
 
   useEffect(() => {
     fetchVeri();
@@ -110,28 +131,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     });
     const interval = setInterval(fetchVeri, 15000);
     return () => clearInterval(interval);
-  }, [ticker]);
-
-  function fetchGrafik(range: string) {
-    fetch(`/api/grafik?ticker=${ticker}.IS&range=${range}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
-  }
-
-  function fetchGetiriler() {
-    fetch(`/api/getiri?ticker=${ticker}`)
-      .then(r => r.json())
-      .then(d => setGetiriler({ "1wk": d["1wk"], "1mo": d["1mo"], "3mo": d["3mo"], "1y": d["1y"] }))
-      .catch(() => setGetiriler({}));
-  }
-
-  async function fetchVeri() {
-    const res = await fetch("/api/analiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ticker, veriOnly: true }),
-    });
-    const data = await res.json();
-    if (data.veri) setVeri(data.veri);
-  }
+  }, [fetchGrafik, fetchVeri, ticker]);
 
   useEffect(() => {
     fetchGetiriler();
@@ -148,7 +148,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         }
       })
       .catch(() => {});
-  }, [ticker]);
+  }, [fetchGetiriler, ticker]);
 
   async function handleAnaliz() {
     const cacheKey = `pk_analiz_${ticker}`;
@@ -199,6 +199,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const sections = analiz ? renderMarkdown(analiz) : [];
 
   const gunlukDegisim = veri ? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDusuk)) / (veri.oncekiKapanis || veri.gunlukDusuk) * 100) : 0;
+  const fiyatYukselis = veri ? veri.fiyat >= veri.oncekiKapanis : true;
   const grafikDegisim = (() => {
     if (grafikRange === "1d") return Number.isFinite(gunlukDegisim) ? gunlukDegisim : null;
     const apiGetiri = getiriler[grafikRange];
@@ -225,18 +226,29 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
 
       <style>{`
-        .hisse-main { padding: 36px 24px; }
-        .hisse-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
-        .hisse-kartlar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
-        .hisse-analiz-btn { height: 38px; padding: 0 20px; background: linear-gradient(135deg, #1E40AF, #3B82F6); color: #F8FAFC; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; margin-top: 8px; }
+        .hisse-main { padding: 34px 24px 42px; }
+        .hisse-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; margin-bottom: 18px; border: 1px solid rgba(59,130,246,0.14); border-radius: 14px; padding: 18px 20px; background: linear-gradient(135deg, rgba(15,23,42,0.72), rgba(11,18,32,0.96)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.035); }
+        .hisse-title-row { display: flex; align-items: center; gap: 12px; min-height: 42px; }
+        .hisse-title-block { min-width: 0; }
+        .hisse-ticker-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .hisse-price-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .hisse-price-box { display: inline-flex; align-items: baseline; gap: 9px; }
+        .hisse-subline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .hisse-delay-pill { display: inline-flex; align-items: center; font-size: 10px; font-weight: 650; color: #F97316; background: rgba(249,115,22,0.07); border: 1px solid rgba(249,115,22,0.16); border-radius: 999px; padding: 2px 7px; white-space: nowrap; }
+        .hisse-kartlar { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 26px; }
+        .hisse-metric-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 10px; padding: 12px 14px; min-height: 68px; }
+        .hisse-analiz-btn { height: 42px; padding: 0 18px; background: linear-gradient(135deg, #1D4ED8, #3B82F6); color: #F8FAFC; border: 1px solid rgba(147,197,253,0.22); border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-top: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 12px 28px rgba(37,99,235,0.20); transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease; }
+        .hisse-analiz-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 16px 34px rgba(37,99,235,0.26); }
         .hisse-analiz-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .hisse-range-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .hisse-range-btns { display: flex; gap: 4px; }
+        .hisse-range-btns { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(148,163,184,0.10); border-radius: 8px; background: rgba(255,255,255,0.035); }
+        .hisse-chart-shell { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 12px; padding: 18px 10px 10px 0; }
         @media (max-width: 640px) {
           .hisse-main { padding: 14px 12px !important; }
-          .hisse-header { flex-direction: column; gap: 10px; }
+          .hisse-header { flex-direction: column; gap: 12px; padding: 14px !important; }
           .hisse-header-right { width: 100%; display: flex; flex-direction: row !important; align-items: center; justify-content: space-between; }
           .hisse-kartlar { grid-template-columns: 1fr 1fr; gap: 6px; }
+          .hisse-title-row { align-items: flex-start !important; }
           .hisse-ticker { font-size: 22px !important; }
           .hisse-fiyat { font-size: 17px !important; }
           .hisse-analiz-btn { margin-top: 0; height: 36px; font-size: 12px; padding: 0 14px; }
@@ -244,36 +256,44 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           .hisse-range-btns button { font-size: 10px !important; padding: 2px 6px !important; }
         }
       `}</style>
-      <main className="hisse-main" style={{ maxWidth: 800, margin: "0 auto" }}>
+      <main className="hisse-main" style={{ maxWidth: 940, margin: "0 auto" }}>
         <div className="hisse-header">
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button onClick={toggleIzleme} style={{ fontSize: 22, color: izlemede ? "#F97316" : "#334155", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1 }}>
-                {izlemede ? "★" : "☆"}
+              <button onClick={toggleIzleme} aria-label={izlemede ? "İzleme listesinden çıkar" : "İzleme listesine ekle"} style={{ width: 32, height: 32, borderRadius: 9, color: izlemede ? "#F97316" : "#475569", background: izlemede ? "rgba(249,115,22,0.10)" : "rgba(255,255,255,0.035)", border: `1px solid ${izlemede ? "rgba(249,115,22,0.28)" : "rgba(148,163,184,0.10)"}`, cursor: "pointer", padding: 0, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", alignSelf: "center" }}>
+                <Star size={18} fill={izlemede ? "currentColor" : "none"} />
               </button>
-              <h1 className="hisse-ticker" style={{ fontSize: 32, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{ticker}</h1>
-              {veri && (
-                <span className="hisse-fiyat" style={{ fontSize: 24, fontWeight: 500, color: "#F8FAFC", display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
-                    <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
-                    <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s" }} className="g-tooltip">15 dk gecikmeli</span>
+              <div className="hisse-title-row">
+                <StockLogo ticker={ticker} domain={veri?.domain} size={40} radius={10} />
+                <div className="hisse-title-block">
+                  <div className="hisse-ticker-row">
+                    <h1 className="hisse-ticker" style={{ fontSize: 30, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px", margin: 0, lineHeight: 1.05 }}>{ticker}</h1>
+                    {veri && <span className="hisse-delay-pill">15 dk gecikmeli</span>}
+                  </div>
+                  {veri?.sirketAdi && <p style={{ fontSize: 15, color: "#94A3B8", fontWeight: 400, marginTop: 5, marginBottom: 0, lineHeight: 1.1 }}>{veri.sirketAdi}</p>}
+                </div>
+              </div>
+            </div>
+            {veri && (
+              <div className="hisse-price-line">
+                <div className="hisse-price-box">
+                  <span className="hisse-fiyat" style={{ fontSize: 30, fontWeight: 760, color: "#F8FAFC", letterSpacing: "-0.6px", lineHeight: 1 }} suppressHydrationWarning>
+                    {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
                   </span>
-                  <span suppressHydrationWarning>{veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
                   {veri.oncekiKapanis && (
-                    <span style={{ fontSize: 14, fontWeight: 500, color: veri.fiyat >= veri.oncekiKapanis ? "#1D9E75" : "#E24B4A", display: "flex", alignItems: "center", gap: 3 }}>
-                      <span>{veri.fiyat >= veri.oncekiKapanis ? "▲" : "▼"}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: fiyatYukselis ? "#10B981" : "#EF4444", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <span>{fiyatYukselis ? "▲" : "▼"}</span>
                       <span suppressHydrationWarning>%{Math.abs(((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
                     </span>
                   )}
-                </span>
-              )}
-            </div>
-            {veri?.sirketAdi && <p style={{ fontSize: 15, color: "#94A3B8", fontWeight: 400, marginTop: 2, marginBottom: 0 }}>{veri.sirketAdi}</p>}
+                </div>
+              </div>
+            )}
             {veri && (
-              <p style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
-                {`Günlük: ${veri.gunlukDusuk} – ${veri.gunlukYuksek} ₺`}
-              </p>
+              <div className="hisse-subline">
+                <span style={{ fontSize: 11, color: "#475569" }}>{`Günlük: ${veri.gunlukDusuk} – ${veri.gunlukYuksek} ₺`}</span>
+              </div>
             )}
             <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>
           </div>
@@ -284,6 +304,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             className="hisse-analiz-btn"
             style={{ opacity: loading ? 0.6 : 1 }}
           >
+            <Sparkles size={15} />
             {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
           {analiz && <p style={{ fontSize: 10, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
@@ -295,7 +316,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         {!veri && (
           <div className="hisse-kartlar">
             {[1,2,3,4,5,6].map(i => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px", height: 52 }}>
+              <div key={i} className="hisse-metric-card" style={{ height: 52 }}>
                 <div style={{ width: 80, height: 10, borderRadius: 4, background: "linear-gradient(90deg,#0F1C2E 25%,#162436 50%,#0F1C2E 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", marginBottom: 8 }} />
                 <div style={{ width: 60, height: 14, borderRadius: 4, background: "linear-gradient(90deg,#0F1C2E 25%,#162436 50%,#0F1C2E 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite" }} />
               </div>
@@ -306,9 +327,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         {veri && (
           <div className="hisse-kartlar">
             {kartlar.map((k) => (
-              <div key={k.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, padding: "10px 14px" }}>
-                <div style={{ fontSize: 10, color: "#475569", fontWeight: 500, marginBottom: 4 }}>{k.label}</div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: "#E2E8F0" }}>{k.value}</div>
+              <div key={k.label} className="hisse-metric-card">
+                <div style={{ fontSize: 10, color: "#64748B", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 7 }}>{k.label}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{k.value}</div>
               </div>
             ))}
           </div>
@@ -336,8 +357,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                 ))}
               </div>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, padding: "16px 8px 8px 0" }}>
-              <ResponsiveContainer width="100%" height={200}>
+            <div className="hisse-chart-shell">
+              <ResponsiveContainer width="100%" height={260}>
                 <AreaChart data={grafik}>
                   <defs>
                     <linearGradient id="fiyatGrad" x1="0" y1="0" x2="0" y2="1">
@@ -348,7 +369,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                   <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                   <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v} ₺`} width={55} />
                   <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v: unknown) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
-                  <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={1.5} fill="url(#fiyatGrad)" dot={false} />
+                  <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={2} fill="url(#fiyatGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
