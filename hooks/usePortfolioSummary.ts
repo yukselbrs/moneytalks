@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/components/lib/supabase";
 
 type PortfolioSummary = {
@@ -63,6 +63,13 @@ export function usePortfolioSummary() {
       console.error("Portfoy ozet hatasi:", error);
     }
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadPortfolioSummary();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [loadPortfolioSummary]);
 
   return { portfoyOzet, loadPortfolioSummary };
 }
