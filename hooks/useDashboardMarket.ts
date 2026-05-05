@@ -38,7 +38,7 @@ function getCachedPiyasa() {
   }
 }
 
-export function useDashboardMarket() {
+export function useDashboardMarket(enabled = true) {
   const [piyasa, setPiyasa] = useState<Record<PiyasaKey, PiyasaItem>>(getCachedPiyasa);
   const [piyasaFlash, setPiyasaFlash] = useState<Partial<Record<PiyasaKey, PiyasaYon>>>({});
   const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
@@ -47,6 +47,7 @@ export function useDashboardMarket() {
   const flashTimeoutRef = useRef<Record<PiyasaKey, ReturnType<typeof setTimeout> | null>>({ xu100: null, xu030: null, usd: null, eur: null });
 
   useEffect(() => {
+    if (!enabled) return;
     const flashTimeouts = flashTimeoutRef.current;
 
     const fetchPiyasaOzeti = async () => {
@@ -137,7 +138,7 @@ export function useDashboardMarket() {
         if (flashTimeouts[key]) clearTimeout(flashTimeouts[key]!);
       });
     };
-  }, []);
+  }, [enabled]);
 
   return { piyasa, piyasaFlash, sparklines, topMovers };
 }

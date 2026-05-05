@@ -142,36 +142,42 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
 }
 
 function TopMoversCard({ topMovers, goToHisse }: { topMovers: TopMovers | null; goToHisse: (ticker: string) => void }) {
-  if (!topMovers) return null;
-
   return (
     <div className="dash-surface" style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Yükselenler</span>
       </div>
-      {topMovers.yukselenler.map((h, i) => (
-        <div key={h.ticker} onClick={() => goToHisse(h.ticker)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < topMovers.yukselenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "#10B981" }}>▲ %{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
+      {!topMovers ? (
+        <div style={{ padding: "12px 14px", fontSize: 12, color: "#475569" }}>Piyasa hareketleri yükleniyor.</div>
+      ) : (
+        topMovers.yukselenler.map((h, i) => (
+          <div key={h.ticker} onClick={() => goToHisse(h.ticker)}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < topMovers.yukselenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "#10B981" }}>▲ %{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", borderTop: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Düşenler</span>
       </div>
-      {topMovers.dusenler.map((h, i) => (
-        <div key={h.ticker} onClick={() => goToHisse(h.ticker)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < topMovers.dusenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>▼ %-{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
+      {!topMovers ? (
+        <div style={{ padding: "12px 14px", fontSize: 12, color: "#475569" }}>Piyasa hareketleri yükleniyor.</div>
+      ) : (
+        topMovers.dusenler.map((h, i) => (
+          <div key={h.ticker} onClick={() => goToHisse(h.ticker)}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < topMovers.dusenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>▼ %-{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 }
@@ -182,13 +188,19 @@ function MarketNewsCard({ kap }: { kap: MarketNews[] }) {
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Piyasa Haberleri</span>
       </div>
-      {kap.map((k, i) => (
-        <div key={`${k.ticker}-${k.time}-${i}`} style={{ padding: "9px 14px", borderBottom: i < kap.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", marginBottom: 2 }}>{k.ticker}</div>
-          <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.4 }}>{k.title}</div>
-          <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>{k.time}</div>
+      {kap.length === 0 ? (
+        <div style={{ padding: "14px", color: "#475569", fontSize: 12, lineHeight: 1.5 }}>
+          Güncel haberler yükleniyor.
         </div>
-      ))}
+      ) : (
+        kap.map((k, i) => (
+          <div key={`${k.ticker}-${k.time}-${i}`} style={{ padding: "9px 14px", borderBottom: i < kap.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none" }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", marginBottom: 2 }}>{k.ticker}</div>
+            <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.4 }}>{k.title}</div>
+            <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>{k.time}</div>
+          </div>
+        ))
+      )}
     </div>
   );
 }

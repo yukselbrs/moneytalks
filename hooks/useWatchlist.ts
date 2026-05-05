@@ -22,6 +22,7 @@ export function useWatchlist() {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [recent, setRecent] = useState<RecentAnalysis[]>([]);
   const [fiyatlar, setFiyatlar] = useState<Record<string, Fiyat>>({});
+  const [pricePollingActive, setPricePollingActive] = useState(false);
   const watchlistRef = useRef<WatchlistItem[]>([]);
 
   const fetchFiyatlar = useCallback((extraList?: string[]) => {
@@ -45,12 +46,14 @@ export function useWatchlist() {
     setWatchlist(data);
     watchlistRef.current = data;
     fetchFiyatlar(data.map((w: WatchlistItem) => w.ticker));
+    setPricePollingActive(true);
   }, [fetchFiyatlar]);
 
   useEffect(() => {
+    if (!pricePollingActive) return;
     const interval = setInterval(() => fetchFiyatlar(), 5000);
     return () => clearInterval(interval);
-  }, [fetchFiyatlar]);
+  }, [fetchFiyatlar, pricePollingActive]);
 
   useEffect(() => {
     const loadRecent = () => {

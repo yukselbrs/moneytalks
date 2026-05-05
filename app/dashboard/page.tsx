@@ -103,12 +103,13 @@ export default function DashboardPage() {
   const [watchlistInputAcik, setWatchlistInputAcik] = useState(false);
   const [fullName, setFullName] = useState("");
   const [piyasaOdagiTab, setPiyasaOdagiTab] = useState("one");
-  const { piyasa, piyasaFlash, sparklines, topMovers } = useDashboardMarket();
+  const { piyasa, piyasaFlash, sparklines, topMovers } = useDashboardMarket(Boolean(user));
   const { watchlist, recent, fiyatlar, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const { portfoyOzet, loadPortfolioSummary } = usePortfolioSummary();
   const [kapHaberler, setKapHaberler] = useState<{ ticker: string; title: string; time: string }[]>([]);
 
   useEffect(() => {
+    if (!user) return;
     fetch("/api/haberler")
       .then(r => r.json())
       .then(data => {
@@ -120,7 +121,7 @@ export default function DashboardPage() {
         setKapHaberler(haberler);
       })
       .catch(() => {});
-  }, []);
+  }, [user]);
 
   const selamlama = () => {
     const saat = new Date().getHours();

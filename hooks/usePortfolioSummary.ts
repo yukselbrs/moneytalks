@@ -20,6 +20,7 @@ type PortfolioRow = {
 
 export function usePortfolioSummary() {
   const [portfoyOzet, setPortfoyOzet] = useState<PortfolioSummary | null>(null);
+  const [pollingActive, setPollingActive] = useState(false);
 
   const loadPortfolioSummary = useCallback(async () => {
     try {
@@ -29,6 +30,7 @@ export function usePortfolioSummary() {
 
       if (!portfoyData || portfoyData.length === 0) {
         setPortfoyOzet(null);
+        setPollingActive(false);
         return;
       }
 
@@ -59,17 +61,19 @@ export function usePortfolioSummary() {
         .map((h: { ticker: string; deger: number; yuzde: number; renk: string }) => ({ ...h, yuzde: toplamGuncel > 0 ? (h.deger / toplamGuncel) * 100 : 0 }));
 
       setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, hisseSayisi: portfoyData.length, hisseDagilim });
+      setPollingActive(true);
     } catch (error) {
       console.error("Portfoy ozet hatasi:", error);
     }
   }, []);
 
   useEffect(() => {
+    if (!pollingActive) return;
     const interval = setInterval(() => {
       loadPortfolioSummary();
     }, 15000);
     return () => clearInterval(interval);
-  }, [loadPortfolioSummary]);
+  }, [loadPortfolioSummary, pollingActive]);
 
   return { portfoyOzet, loadPortfolioSummary };
 }
