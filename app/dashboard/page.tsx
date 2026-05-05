@@ -93,11 +93,7 @@ const POPULAR = [
   { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
 ];
 
-const KAP = [
-  { ticker: "THYAO", title: "Esas Sözleşme Tadili", time: "15:56" },
-  { ticker: "TKNSA", title: "Pay Bazında Devre Kesici Bildirimi", time: "15:56" },
-  { ticker: "AKBNK", title: "Yabancı Yatırımcı İşlemleri", time: "15:51" },
-];
+const KAP: { ticker: string; title: string; time: string }[] = [];
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
@@ -112,6 +108,21 @@ export default function DashboardPage() {
   const { piyasa, piyasaFlash, sparklines, topMovers } = useDashboardMarket();
   const { watchlist, recent, fiyatlar, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const { portfoyOzet, loadPortfolioSummary } = usePortfolioSummary();
+  const [kapHaberler, setKapHaberler] = useState<{ ticker: string; title: string; time: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/haberler")
+      .then(r => r.json())
+      .then(data => {
+        const haberler = (data.haberler || []).slice(0, 5).map((h: { ticker: string; baslik: string; tarih: string }) => ({
+          ticker: h.ticker,
+          title: h.baslik,
+          time: new Date(h.tarih).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+        }));
+        setKapHaberler(haberler);
+      })
+      .catch(() => {});
+  }, []);
 
   const selamlama = () => {
     const saat = new Date().getHours();
@@ -363,7 +374,7 @@ export default function DashboardPage() {
         <DashboardSidePanel
           portfoyOzet={portfoyOzet}
           topMovers={topMovers}
-          kap={KAP}
+          kap={kapHaberler}
           goToHisse={(t) => router.push(`/hisse/${t}`)}
         />
         </div>
