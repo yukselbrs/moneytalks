@@ -136,11 +136,7 @@ export default function DashboardChartPanel({
               </div>
             )}
           </div>
-          {grafikRangeDegisim[grafikRange] !== undefined && (
-            <span style={{ fontSize: 12, fontWeight: 700, color: grafikRangeDegisim[grafikRange] >= 0 ? "#10B981" : "#EF4444", background: grafikRangeDegisim[grafikRange] >= 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${grafikRangeDegisim[grafikRange] >= 0 ? "rgba(16,185,129,0.25)" : "rgba(239,68,68,0.25)"}`, borderRadius: 6, padding: "3px 8px" }}>
-              {grafikRangeDegisim[grafikRange] >= 0 ? "+" : ""}{grafikRangeDegisim[grafikRange].toFixed(2).replace(".", ",")}%
-            </span>
-          )}
+
         </div>
         <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 8, padding: 3, gap: 1 }}>
           {[
