@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
+import { Search, X } from "lucide-react";
 
 const RENKLER = ["#3B82F6","#8B5CF6","#EC4899","#F97316","#10B981","#06B6D4","#EAB308","#EF4444","#6366F1","#14B8A6"];
 function tickerRenk(t: string) {
@@ -22,6 +23,7 @@ type Hisse = {
   getiri_1a: string | null;
   getiri_3a: string | null;
   getiri_1y: string | null;
+  veriDurumu?: string | null;
 };
 
 type ApiResponse = {
@@ -32,9 +34,9 @@ type ApiResponse = {
 };
 
 const SIRALAMA_OPTIONS = [
-  { key: "alfabetik", label: "A-Z" },
-  { key: "yukselis", label: "▲ Yükselenler" },
-  { key: "dusus", label: "▼ Düşenler" },
+  { key: "alfabetik", label: "A-Z", short: "A-Z" },
+  { key: "yukselis", label: "Yükselenler", short: "Yükselen" },
+  { key: "dusus", label: "Düşenler", short: "Düşen" },
   { key: "hacim", label: "Hacim" },
   { key: "1wk", label: "1H %" },
   { key: "1mo", label: "1A %" },
@@ -131,17 +133,39 @@ function HisselerContent() {
   const toplam = data?.total || 0;
   const pageSize = data?.pageSize || 25;
   const toplamSayfa = Math.max(1, Math.ceil(toplam / pageSize));
+  const aktifSiralama = SIRALAMA_OPTIONS.find((s) => s.key === sort);
+  const aktifSiralamaMetni = aktifSiralama
+    ? `${aktifSiralama.label}${sortDir ? ` ${sortDir === "desc" ? "azalan" : "artan"}` : ""}`
+    : "A-Z";
+
+  const renderPercent = (value: string | null, className = "") => {
+    const val = value !== null ? parseFloat(value) : null;
+    return (
+      <span className={className} style={{ color: val === null ? "#334155" : val >= 0 ? "#10B981" : "#EF4444" }}>
+        {val === null ? "—" : `${val >= 0 ? "%" : "%-"}${Math.abs(val).toFixed(2).replace(".", ",")}`}
+      </span>
+    );
+  };
 
   return (
     <AppShell>
       <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
         <style>{`
           .hisse-row:hover { background: rgba(59,130,246,0.05) !important; }
+          .hisse-toolbar { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 10px; align-items: center; margin-bottom: 14px; }
+          .hisse-siralama button:hover { border-color: rgba(59,130,246,0.35) !important; color: #94A3B8 !important; }
+          .hisse-arama:focus-within { border-color: rgba(59,130,246,0.42) !important; background: rgba(59,130,246,0.07) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+          .hisse-mobile-returns { display: none; }
           @media (max-width: 640px) {
+            main { padding: 16px 12px !important; }
+            .hisse-toolbar { grid-template-columns: 1fr !important; }
             .hisse-tablo-header { display: none !important; }
-            .hisse-row { grid-template-columns: 1fr 90px 80px !important; }
+            .hisse-row { display: grid !important; grid-template-columns: 1fr auto !important; gap: 10px !important; margin-bottom: 8px; padding: 13px 14px !important; border: 1px solid rgba(59,130,246,0.08) !important; border-radius: 12px; background: rgba(255,255,255,0.012) !important; }
             .hisse-row .col-no { display: none !important; }
             .hisse-row .col-getiri { display: none !important; }
+            .hisse-row .col-gun { text-align: right !important; align-self: end; }
+            .hisse-row .col-fiyat { text-align: right !important; align-self: start; }
+            .hisse-mobile-returns { display: flex !important; grid-column: 1 / -1; gap: 6px; overflow-x: auto; padding-top: 2px; }
             .hisse-arama { min-width: unset !important; width: 100% !important; }
             .hisse-siralama { overflow-x: auto; flex-wrap: nowrap !important; padding-bottom: 4px; }
           }
@@ -149,7 +173,7 @@ function HisselerContent() {
         <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px" }}>
 
           {/* Başlık */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 12 }}>
             <div>
               <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Tüm Hisseler</p>
               <h1 style={{ fontSize: 24, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 10 }}>
@@ -159,19 +183,27 @@ function HisselerContent() {
                 </span>
               </h1>
             </div>
+            <div style={{ fontSize: 11, color: "#475569", display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <span style={{ color: "#64748B" }}>Aktif:</span>
+              <span style={{ color: "#94A3B8" }}>{aktifSiralamaMetni}</span>
+              {q && <span style={{ color: "#3B82F6" }}>Arama: {q}</span>}
+            </div>
+          </div>
+
+          <div className="hisse-toolbar">
             <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
               {SIRALAMA_OPTIONS.map(s => (
                 <button key={s.key} onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
-                  style={{ padding: "5px 12px", borderRadius: 20, border: `1px solid ${sort === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: sort === s.key ? "rgba(59,130,246,0.15)" : "transparent", color: sort === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: sort === s.key ? 600 : 400, cursor: "pointer", whiteSpace: "nowrap" }}>
+                  style={{ padding: "5px 11px", borderRadius: 8, border: `1px solid ${sort === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: sort === s.key ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.012)", color: sort === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: sort === s.key ? 700 : 500, cursor: "pointer", whiteSpace: "nowrap" }}>
                   {s.label}
                 </button>
               ))}
             </div>
-            <div className="hisse-arama" style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "8px 14px", minWidth: 260 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <div className="hisse-arama" style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "7px 12px", minWidth: 260 }}>
+              <Search size={14} color="#475569" />
               <input value={arama} onChange={e => setArama(e.target.value)} placeholder="Hisse kodu veya şirket adı ara..."
                 style={{ background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#94A3B8", width: "100%" }} />
-              {arama && <button onClick={() => setArama("")} style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: 14 }}>✕</button>}
+              {arama && <button onClick={() => setArama("")} aria-label="Aramayı temizle" style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", width: 22, height: 22, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0 }}><X size={14} /></button>}
             </div>
           </div>
 
@@ -192,7 +224,7 @@ function HisselerContent() {
                     style={{ display: "inline-flex", alignItems: "center", justifyContent: alignRight ? "flex-end" : "flex-start", gap: 4, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, fontWeight: 700, color: active ? "#3B82F6" : "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}
                   >
                     <span>{h.label}</span>
-                    <span style={{ fontSize: 9, color: active ? "#3B82F6" : "#1E293B" }}>{active ? (sortDir === "desc" ? "▼" : "▲") : "↕"}</span>
+                    <span style={{ fontSize: 10, color: active ? "#3B82F6" : "#1E293B" }}>{active ? (sortDir === "desc" ? "↓" : "↑") : "↕"}</span>
                   </button>
                 );
               })}
@@ -224,12 +256,24 @@ function HisselerContent() {
                       <p style={{ fontSize: 11, color: "#475569", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{hisse.ad}</p>
                     </div>
                   </div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0", textAlign: "right", margin: 0 }}>
-                    {hisse.fiyat ? `${hisse.fiyat} ₺` : <span style={{ color: "#1E293B" }}>—</span>}
+                  <p className="col-fiyat" style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0", textAlign: "right", margin: 0 }}>
+                    {hisse.fiyat ? `${hisse.fiyat} ₺` : <span style={{ color: "#334155", fontSize: 11 }}>{hisse.veriDurumu || "Veri yok"}</span>}
                   </p>
-                  <p style={{ fontSize: 12, fontWeight: 600, textAlign: "right", margin: 0, color: hisse.degisim !== null ? (hisse.yukselis ? "#10B981" : "#EF4444") : "#1E293B" }}>
+                  <p className="col-gun" style={{ fontSize: 12, fontWeight: 600, textAlign: "right", margin: 0, color: hisse.degisim !== null ? (hisse.yukselis ? "#10B981" : "#EF4444") : "#1E293B" }}>
                     {hisse.degisim !== null ? `${hisse.yukselis ? "▲" : "▼"} %${Math.abs(Number(hisse.degisim)).toFixed(2).replace(".", ",")}` : "—"}
                   </p>
+                  <div className="hisse-mobile-returns">
+                    {[
+                      ["1H", hisse.getiri_1h],
+                      ["1A", hisse.getiri_1a],
+                      ["3A", hisse.getiri_3a],
+                      ["1Y", hisse.getiri_1y],
+                    ].map(([label, value]) => (
+                      <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 10, color: "#64748B", whiteSpace: "nowrap" }}>
+                        {label} {renderPercent(value)}
+                      </span>
+                    ))}
+                  </div>
                   {(["getiri_1h","getiri_1a","getiri_3a","getiri_1y"] as const).map(key => {
                     const g = hisse[key];
                     const val = g !== null ? parseFloat(g) : null;

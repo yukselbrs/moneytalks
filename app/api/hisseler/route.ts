@@ -256,11 +256,16 @@ async function fetchLiveGetiriler(tickers: string[]) {
   return new Map(results.filter((entry): entry is [string, LiveGetiriler] => entry[1] !== null));
 }
 
-function formatRow(meta: { ticker: string; ad: string; domain?: string } | undefined, snap?: HisseSnapshot, live?: LiveFiyat, getiriler?: LiveGetiriler) {
+function formatRow(meta: { ticker: string; ad: string; domain?: string; listed?: boolean; priceAvailable?: boolean | null } | undefined, snap?: HisseSnapshot, live?: LiveFiyat, getiriler?: LiveGetiriler) {
   if (!meta) {
     return { ticker: snap?.ticker || "", ad: "", domain: undefined, fiyat: null };
   }
   if (!live && (!snap || snap.fiyat === null)) {
+    const veriDurumu = meta.listed === false
+      ? "İşleme kapalı"
+      : meta.priceAvailable === false
+        ? "Hesaplanamaz"
+        : "Veri yok";
     return {
       ticker: meta.ticker,
       ad: meta.ad,
@@ -274,6 +279,7 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string } | undef
       getiri_1a: null,
       getiri_3a: null,
       getiri_1y: null,
+      veriDurumu,
     };
   }
   const fiyat = live?.fiyat ?? Number(snap?.fiyat);
@@ -294,6 +300,7 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string } | undef
     getiri_1a: formatGetiri(getiriler ? getiriler.getiri_1a : snap?.getiri_1a),
     getiri_3a: formatGetiri(getiriler ? getiriler.getiri_3a : snap?.getiri_3a),
     getiri_1y: formatGetiri(getiriler ? getiriler.getiri_1y : snap?.getiri_1y),
+    veriDurumu: null,
   };
 }
 
