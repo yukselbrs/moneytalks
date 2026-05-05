@@ -201,7 +201,7 @@ export default function DashboardPage() {
       // Satırları gez, 30+ karakter olan ilk tam cümleyi al
       const satirlar = temizMetin.split("\n").map((s: string) => s.trim()).filter((s: string) => s.length > 30);
       const ilkSatir = satirlar[0] || temizMetin;
-      const cumleMatch = ilkSatir.match(/^.+?\.(?=\s+[A-ZÇĞİÖŞÜ]|\s*$)|^.+?[!?]/s);
+      const cumleMatch = ilkSatir.match(/^.+?\.(?=\s+[A-ZÇĞİÖŞÜ]|\s*$)|^.+?[!?]/);
       const yorum = cumleMatch ? cumleMatch[0].trim() : (ilkSatir.length > 160 ? ilkSatir.slice(0, 160) + "..." : ilkSatir);
       const guven = risk.seviyeTR === "Düşük" ? "Yüksek" : risk.seviyeTR === "Orta" ? "Orta" : "Düşük";
       setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
