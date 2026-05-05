@@ -93,8 +93,6 @@ const POPULAR = [
   { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
 ];
 
-const KAP: { ticker: string; title: string; time: string }[] = [];
-
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const [loading, setLoading] = useState(true);

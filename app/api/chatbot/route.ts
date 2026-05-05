@@ -9,6 +9,11 @@ const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
 // In-memory rate limit: user başına son istek zamanları
 const rateLimitMap = new Map<string, number[]>();
 const RATE_LIMIT = 20;       // max istek
@@ -38,7 +43,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
   }
 
-  // 2. Rate limit kontrolü
+  // 2. Günlük mesaj limiti (ücretsiz: 3 mesaj/gün)
+  const bugun = new Date().toISOString().split("T")[0];
+  const { data: usageData } = await supabaseAdmin
+    .from("chatbot_usage")
+    .select("mesaj_sayisi")
+    .eq("user_id", user.id)
+    .eq("gun", bugun)
+    .single();
+
+  const mevcutSayi = usageData?.mesaj_sayisi ?? 0;
+  const GUNLUK_LIMIT = 3;
+
+  if (mevcutSayi >= GUNLUK_LIMIT) {
+    return NextResponse.json({
+      error: "gunluk_limit",
+      mesaj: "Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz için Pro'ya geçin.",
+      kullanilanHak: mevcutSayi,
+      toplamHak: GUNLUK_LIMIT,
+    }, { status: 429 });
+  }
+
+  // 3. Dakika bazlı rate limit
   const now = Date.now();
   const userRequests = (rateLimitMap.get(user.id) || []).filter(t => now - t < RATE_WINDOW);
   if (userRequests.length >= RATE_LIMIT) {
@@ -87,5 +113,12 @@ ZORUNLU KURALLAR:
     });
   }
 
-  return NextResponse.json({ reply });
+  // Kullanım sayacını artır
+  if (mevcutSayi === 0) {
+    await supabaseAdmin.from("chatbot_usage").insert({ user_id: user.id, gun: bugun, mesaj_sayisi: 1 });
+  } else {
+    await supabaseAdmin.from("chatbot_usage").update({ mesaj_sayisi: mevcutSayi + 1 }).eq("user_id", user.id).eq("gun", bugun);
+  }
+
+  return NextResponse.json({ reply, kalanHak: GUNLUK_LIMIT - mevcutSayi - 1, toplamHak: GUNLUK_LIMIT });
 }
