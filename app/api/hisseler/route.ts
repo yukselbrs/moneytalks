@@ -30,6 +30,13 @@ type LiveFiyat = {
   piyasaDegeri: number | null;
 };
 
+type LiveGetiriler = {
+  getiri_1h: number | null;
+  getiri_1a: number | null;
+  getiri_3a: number | null;
+  getiri_1y: number | null;
+};
+
 type SnapshotSortColumn = keyof HisseSnapshot;
 
 // Whitelist — frontend'den gelen sort key'i Supabase kolonuna map'liyoruz
@@ -49,6 +56,7 @@ const SORT_MAP: Record<string, { col: SnapshotSortColumn; ascDefault: boolean }>
 
 // ticker → { ad, domain } hızlı lookup
 const HISSE_META = new Map(BIST_HISSELER.map((h) => [h.ticker, h]));
+const GUN = 24 * 60 * 60;
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
@@ -84,7 +92,9 @@ export async function GET(req: NextRequest) {
   const typedSnaps = (snaps || []) as HisseSnapshot[];
   const snapMap = new Map(typedSnaps.map((snap) => [snap.ticker, snap]));
   const shouldLiveSort = sort === "gun" || sort === "yukselis" || sort === "dusus" || sort === "fiyat";
+  const shouldReturnSort = sort === "1wk" || sort === "1mo" || sort === "3mo" || sort === "1y";
   const sortLiveMap = shouldLiveSort ? await fetchLiveFiyatlar(allTickers) : new Map<string, LiveFiyat>();
+  const sortReturnMap = shouldReturnSort ? await fetchLiveGetiriler(allTickers) : new Map<string, LiveGetiriler>();
   const sortedTickers = [...allTickers].sort((a, b) => {
     if (sort === "alfabetik") return a.localeCompare(b, "tr");
 
@@ -92,8 +102,22 @@ export async function GET(req: NextRequest) {
     const snapB = snapMap.get(b);
     const liveA = sortLiveMap.get(a);
     const liveB = sortLiveMap.get(b);
-    const rawA = sortDef.col === "fiyat" ? (liveA?.fiyat ?? snapA?.fiyat) : sortDef.col === "degisim_yuzde" ? (liveA?.degisim ?? snapA?.degisim_yuzde) : snapA?.[sortDef.col];
-    const rawB = sortDef.col === "fiyat" ? (liveB?.fiyat ?? snapB?.fiyat) : sortDef.col === "degisim_yuzde" ? (liveB?.degisim ?? snapB?.degisim_yuzde) : snapB?.[sortDef.col];
+    const returnA = sortReturnMap.get(a);
+    const returnB = sortReturnMap.get(b);
+    const rawA = sortDef.col === "fiyat"
+      ? (liveA?.fiyat ?? snapA?.fiyat)
+      : sortDef.col === "degisim_yuzde"
+        ? (liveA?.degisim ?? snapA?.degisim_yuzde)
+        : shouldReturnSort
+          ? (returnA?.[sortDef.col as keyof LiveGetiriler] ?? snapA?.[sortDef.col])
+          : snapA?.[sortDef.col];
+    const rawB = sortDef.col === "fiyat"
+      ? (liveB?.fiyat ?? snapB?.fiyat)
+      : sortDef.col === "degisim_yuzde"
+        ? (liveB?.degisim ?? snapB?.degisim_yuzde)
+        : shouldReturnSort
+          ? (returnB?.[sortDef.col as keyof LiveGetiriler] ?? snapB?.[sortDef.col])
+          : snapB?.[sortDef.col];
     const hasA = rawA !== null && rawA !== undefined;
     const hasB = rawB !== null && rawB !== undefined;
 
@@ -110,7 +134,8 @@ export async function GET(req: NextRequest) {
   const from = (page - 1) * SAYFA_BOYUTU;
   const slicedTickers = sortedTickers.slice(from, from + SAYFA_BOYUTU);
   const liveMap = shouldLiveSort ? sortLiveMap : await fetchLiveFiyatlar(slicedTickers);
-  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker), snapMap.get(ticker), liveMap.get(ticker)));
+  const returnMap = shouldReturnSort ? sortReturnMap : await fetchLiveGetiriler(slicedTickers);
+  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker), snapMap.get(ticker), liveMap.get(ticker), returnMap.get(ticker)));
 
   const response = NextResponse.json({
     items,
@@ -150,7 +175,82 @@ async function fetchLiveFiyatlar(tickers: string[]) {
   return new Map(results.filter((entry): entry is [string, LiveFiyat] => entry[1] !== null));
 }
 
-function formatRow(meta: { ticker: string; ad: string; domain?: string } | undefined, snap?: HisseSnapshot, live?: LiveFiyat) {
+function findCloseAtOrBefore(timestamps: number[], closes: (number | null)[], targetTs: number) {
+  for (let i = timestamps.length - 1; i >= 0; i--) {
+    const close = closes[i];
+    if (timestamps[i] <= targetTs && close !== null && close !== undefined) return close;
+  }
+  return null;
+}
+
+function findCloseAtOrAfter(timestamps: number[], closes: (number | null)[], targetTs: number) {
+  for (let i = 0; i < timestamps.length; i++) {
+    const close = closes[i];
+    if (timestamps[i] >= targetTs && close !== null && close !== undefined) return close;
+  }
+  return null;
+}
+
+function kurumsalAksiyonlariAyarla(series: (number | null)[], opens: (number | null)[] = []) {
+  const adjusted = [...series];
+  for (let i = 1; i < adjusted.length; i++) {
+    const prev = adjusted[i - 1];
+    const curr = adjusted[i];
+    if (!prev || !curr || prev <= 0 || curr <= 0) continue;
+    const ratio = curr / prev;
+    if (ratio < 0.55 || ratio > 1.8) {
+      const openRatio = opens[i] && opens[i]! > 0 ? opens[i]! / prev : ratio;
+      const factor = openRatio > 0 ? openRatio : ratio;
+      for (let j = 0; j < i; j++) {
+        if (adjusted[j] !== null && adjusted[j] !== undefined) adjusted[j] = adjusted[j]! * factor;
+      }
+    }
+  }
+  return adjusted;
+}
+
+async function fetchLiveGetiriler(tickers: string[]) {
+  const results = await Promise.all(
+    tickers.map(async (ticker): Promise<[string, LiveGetiriler | null]> => {
+      try {
+        const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=13mo`, {
+          headers: { "User-Agent": "Mozilla/5.0" },
+          next: { revalidate: 900 },
+        });
+        const data = await res.json();
+        const result = data?.chart?.result?.[0];
+        const timestamps: number[] = result?.timestamp || [];
+        const closes: (number | null)[] = result?.indicators?.quote?.[0]?.close || [];
+        const opens: (number | null)[] = result?.indicators?.quote?.[0]?.open || [];
+        const adjustedCloses: (number | null)[] = result?.indicators?.adjclose?.[0]?.adjclose || [];
+        const baseSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
+        const returnSeries = kurumsalAksiyonlariAyarla(baseSeries, opens);
+        const sonTs = timestamps[timestamps.length - 1];
+        const son = Number(result?.meta?.regularMarketPrice) || findCloseAtOrBefore(timestamps, returnSeries, sonTs);
+        if (!son || timestamps.length < 2) return [ticker, null];
+
+        const getiri = (gunOnce: number) => {
+          const targetTs = sonTs - gunOnce * GUN;
+          const ref = findCloseAtOrAfter(timestamps, returnSeries, targetTs) ?? findCloseAtOrBefore(timestamps, returnSeries, targetTs);
+          if (!ref || ref === 0) return null;
+          return ((son - ref) / ref) * 100;
+        };
+
+        return [ticker, {
+          getiri_1h: getiri(7),
+          getiri_1a: getiri(30),
+          getiri_3a: getiri(90),
+          getiri_1y: getiri(365),
+        }];
+      } catch {
+        return [ticker, null];
+      }
+    })
+  );
+  return new Map(results.filter((entry): entry is [string, LiveGetiriler] => entry[1] !== null));
+}
+
+function formatRow(meta: { ticker: string; ad: string; domain?: string } | undefined, snap?: HisseSnapshot, live?: LiveFiyat, getiriler?: LiveGetiriler) {
   if (!meta) {
     return { ticker: snap?.ticker || "", ad: "", domain: undefined, fiyat: null };
   }
@@ -184,9 +284,13 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string } | undef
     yukselis: degisim >= 0,
     hacim: live?.hacim ?? snap?.hacim ?? null,
     piyasaDegeri: live?.piyasaDegeri ?? snap?.piyasa_degeri ?? null,
-    getiri_1h: snap?.getiri_1h !== null && snap?.getiri_1h !== undefined ? Number(snap.getiri_1h).toFixed(2) : null,
-    getiri_1a: snap?.getiri_1a !== null && snap?.getiri_1a !== undefined ? Number(snap.getiri_1a).toFixed(2) : null,
-    getiri_3a: snap?.getiri_3a !== null && snap?.getiri_3a !== undefined ? Number(snap.getiri_3a).toFixed(2) : null,
-    getiri_1y: snap?.getiri_1y !== null && snap?.getiri_1y !== undefined ? Number(snap.getiri_1y).toFixed(2) : null,
+    getiri_1h: formatGetiri(getiriler?.getiri_1h ?? snap?.getiri_1h),
+    getiri_1a: formatGetiri(getiriler?.getiri_1a ?? snap?.getiri_1a),
+    getiri_3a: formatGetiri(getiriler?.getiri_3a ?? snap?.getiri_3a),
+    getiri_1y: formatGetiri(getiriler?.getiri_1y ?? snap?.getiri_1y),
   };
+}
+
+function formatGetiri(value: number | string | null | undefined) {
+  return value !== null && value !== undefined ? Number(value).toFixed(2) : null;
 }

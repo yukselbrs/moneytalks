@@ -51,6 +51,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [loading, setLoading] = useState(false);
   const [grafik, setGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);
   const [grafikRange, setGrafikRange] = useState("1d");
+  const [getiriler, setGetiriler] = useState<Record<string, string | null>>({});
   const [izlemede, setIzlemede] = useState(false);
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
   const [fundamentals, setFundamentals] = useState<{pe: string, pb: string} | null>(null);
@@ -115,6 +116,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     fetch(`/api/grafik?ticker=${ticker}.IS&range=${range}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
   }
 
+  function fetchGetiriler() {
+    fetch(`/api/getiri?ticker=${ticker}`)
+      .then(r => r.json())
+      .then(d => setGetiriler({ "1wk": d["1wk"], "1mo": d["1mo"], "3mo": d["3mo"], "1y": d["1y"] }))
+      .catch(() => setGetiriler({}));
+  }
+
   async function fetchVeri() {
     const res = await fetch("/api/analiz", {
       method: "POST",
@@ -126,6 +134,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   }
 
   useEffect(() => {
+    fetchGetiriler();
     fetch(`/api/risk?ticker=${ticker}`)
       .then(r => r.json())
       .then(d => {
@@ -190,6 +199,16 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const sections = analiz ? renderMarkdown(analiz) : [];
 
   const gunlukDegisim = veri ? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDusuk)) / (veri.oncekiKapanis || veri.gunlukDusuk) * 100) : 0;
+  const grafikDegisim = (() => {
+    if (grafikRange === "1d") return Number.isFinite(gunlukDegisim) ? gunlukDegisim : null;
+    const apiGetiri = getiriler[grafikRange];
+    const parsed = apiGetiri !== null && apiGetiri !== undefined ? Number(apiGetiri) : NaN;
+    if (Number.isFinite(parsed)) return parsed;
+    if (grafik.length < 2) return null;
+    const ilk = grafik[0].fiyat;
+    const son = grafik[grafik.length - 1].fiyat;
+    return ilk ? ((son - ilk) / ilk) * 100 : null;
+  })();
   const kartlar = veri ? [
     { label: "52 Hafta En Yüksek", value: `${veri.yillikYuksek} ₺` },
     { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
@@ -301,14 +320,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                 <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
                   {{ "1d": "Günlük", "1wk": "Haftalık", "1mo": "Aylık", "3mo": "3 Aylık", "1y": "Yıllık" }[grafikRange]} Fiyat Grafiği
                 </p>
-                {grafik.length >= 2 && (() => {
-                  const ilk = grafik[0].fiyat;
-                  const son = grafik[grafik.length - 1].fiyat;
-                  const degisim = ((son - ilk) / ilk) * 100;
-                  const pozitif = degisim >= 0;
+                {grafikDegisim !== null && (() => {
+                  const pozitif = grafikDegisim >= 0;
                   return (
                     <span style={{ fontSize: 11, fontWeight: 600, color: pozitif ? "#10B981" : "#EF4444" }}>
-                      {pozitif ? "▲" : "▼"} %{Math.abs(degisim).toFixed(2).replace(".", ",")}
+                      {pozitif ? "▲" : "▼"} %{Math.abs(grafikDegisim).toFixed(2).replace(".", ",")}
                     </span>
                   );
                 })()}

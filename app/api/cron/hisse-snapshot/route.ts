@@ -42,6 +42,24 @@ function findCloseAtOrBefore(
   return null;
 }
 
+function kurumsalAksiyonlariAyarla(series: (number | null)[], opens: (number | null)[] = []) {
+  const adjusted = [...series];
+  for (let i = 1; i < adjusted.length; i++) {
+    const prev = adjusted[i - 1];
+    const curr = adjusted[i];
+    if (!prev || !curr || prev <= 0 || curr <= 0) continue;
+    const ratio = curr / prev;
+    if (ratio < 0.55 || ratio > 1.8) {
+      const openRatio = opens[i] && opens[i]! > 0 ? opens[i]! / prev : ratio;
+      const factor = openRatio > 0 ? openRatio : ratio;
+      for (let j = 0; j < i; j++) {
+        if (adjusted[j] !== null && adjusted[j] !== undefined) adjusted[j] = adjusted[j]! * factor;
+      }
+    }
+  }
+  return adjusted;
+}
+
 async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
   try {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=${HISTORY_RANGE}`;
@@ -58,6 +76,10 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     const meta = result.meta;
     const timestamps: number[] = result.timestamp || [];
     const closes: (number | null)[] = result.indicators?.quote?.[0]?.close || [];
+    const opens: (number | null)[] = result.indicators?.quote?.[0]?.open || [];
+    const adjustedCloses: (number | null)[] = result.indicators?.adjclose?.[0]?.adjclose || [];
+    const baseReturnSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
+    const returnSeries = kurumsalAksiyonlariAyarla(baseReturnSeries, opens);
 
     if (timestamps.length === 0 || !meta?.regularMarketPrice) return null;
 
@@ -81,9 +103,10 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     // Getiriler: takvim gününe göre geriye git, o tarihte/öncesinde son geçerli candle
     const getiri = (gunOnce: number): number | null => {
       const targetTs = sonTs - gunOnce * GUN;
-      const ref = findCloseAtOrBefore(timestamps, closes, targetTs);
+      const ref = findCloseAtOrBefore(timestamps, returnSeries, targetTs);
+      const sonAdjusted = findCloseAtOrBefore(timestamps, returnSeries, sonTs) || fiyat;
       if (!ref || ref === 0) return null;
-      return ((fiyat - ref) / ref) * 100;
+      return ((sonAdjusted - ref) / ref) * 100;
     };
 
     return {

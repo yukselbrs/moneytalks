@@ -33,6 +33,24 @@ function findCloseAtOrBefore(timestamps, closes, targetTs) {
   return null;
 }
 
+function adjustCorporateActions(series, opens = []) {
+  const adjusted = [...series];
+  for (let i = 1; i < adjusted.length; i++) {
+    const prev = adjusted[i - 1];
+    const curr = adjusted[i];
+    if (!prev || !curr || prev <= 0 || curr <= 0) continue;
+    const ratio = curr / prev;
+    if (ratio < 0.55 || ratio > 1.8) {
+      const openRatio = opens[i] && opens[i] > 0 ? opens[i] / prev : ratio;
+      const factor = openRatio > 0 ? openRatio : ratio;
+      for (let j = 0; j < i; j++) {
+        if (adjusted[j] !== null && adjusted[j] !== undefined) adjusted[j] *= factor;
+      }
+    }
+  }
+  return adjusted;
+}
+
 async function fetchWithTimeout(url) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12000);
@@ -59,6 +77,10 @@ async function fetchHisseData(ticker) {
     const meta = result?.meta;
     const timestamps = result?.timestamp || [];
     const closes = result?.indicators?.quote?.[0]?.close || [];
+    const opens = result?.indicators?.quote?.[0]?.open || [];
+    const adjustedCloses = result?.indicators?.adjclose?.[0]?.adjclose || [];
+    const baseReturnSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
+    const returnSeries = adjustCorporateActions(baseReturnSeries, opens);
 
     if (!result || timestamps.length === 0 || typeof meta?.regularMarketPrice !== "number") {
       return { ticker, row: null, reason: "no_price" };
@@ -80,9 +102,10 @@ async function fetchHisseData(ticker) {
     const lastTs = timestamps[timestamps.length - 1];
     const change = previousClose ? ((price - previousClose) / previousClose) * 100 : 0;
     const returnForDays = (days) => {
-      const reference = findCloseAtOrBefore(timestamps, closes, lastTs - days * DAY_SECONDS);
+      const reference = findCloseAtOrBefore(timestamps, returnSeries, lastTs - days * DAY_SECONDS);
+      const adjustedPrice = findCloseAtOrBefore(timestamps, returnSeries, lastTs) || price;
       if (!reference) return null;
-      return ((price - reference) / reference) * 100;
+      return ((adjustedPrice - reference) / reference) * 100;
     };
 
     return {

@@ -1,5 +1,23 @@
 import { NextResponse, NextRequest } from "next/server";
 
+function kurumsalAksiyonlariAyarla(series: (number | null)[], opens: (number | null)[] = []) {
+  const adjusted = [...series];
+  for (let i = 1; i < adjusted.length; i++) {
+    const prev = adjusted[i - 1];
+    const curr = adjusted[i];
+    if (!prev || !curr || prev <= 0 || curr <= 0) continue;
+    const ratio = curr / prev;
+    if (ratio < 0.55 || ratio > 1.8) {
+      const openRatio = opens[i] && opens[i]! > 0 ? opens[i]! / prev : ratio;
+      const factor = openRatio > 0 ? openRatio : ratio;
+      for (let j = 0; j < i; j++) {
+        if (adjusted[j] !== null && adjusted[j] !== undefined) adjusted[j] = adjusted[j]! * factor;
+      }
+    }
+  }
+  return adjusted;
+}
+
 export async function GET(req: NextRequest) {
   const ticker = req.nextUrl.searchParams.get("ticker");
   const range = req.nextUrl.searchParams.get("range") || "1mo";
@@ -25,6 +43,10 @@ export async function GET(req: NextRequest) {
 
     const timestamps = result.timestamp || [];
     const closes = result.indicators?.quote?.[0]?.close || [];
+    const opens = result.indicators?.quote?.[0]?.open || [];
+    const adjustedCloses = result.indicators?.adjclose?.[0]?.adjclose || [];
+    const baseSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
+    const priceSeries = range === "1d" || range === "1wk" ? closes : kurumsalAksiyonlariAyarla(baseSeries, opens);
     const prevClose = result.meta?.chartPreviousClose || result.meta?.previousClose || null;
 
     const formatTarih = (t: number) => {
@@ -37,7 +59,7 @@ export async function GET(req: NextRequest) {
 
     let points = timestamps.map((t: number, i: number) => ({
       tarih: formatTarih(t),
-      fiyat: closes[i] ? parseFloat(closes[i].toFixed(2)) : null,
+      fiyat: priceSeries[i] ? parseFloat(priceSeries[i].toFixed(2)) : null,
     })).filter((p: {tarih: string; fiyat: number | null}) => p.fiyat !== null);
 
     if (range === "1d" && prevClose && points.length > 0) {
