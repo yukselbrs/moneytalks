@@ -142,7 +142,7 @@ export default function DashboardChartPanel({
             </span>
           )}
         </div>
-        <div style={{ display: "flex", gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 8, padding: 3, gap: 1 }}>
           {[
             { label: "1G", value: "1d" },
             { label: "1H", value: "1wk" },
@@ -151,9 +151,10 @@ export default function DashboardChartPanel({
             { label: "1Y", value: "1y" },
           ].map((r) => (
             <button key={r.value} onClick={() => { setGrafikRange(r.value); fetchBuyukGrafik(r.value); }}
-              style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 6, border: "none", cursor: "pointer", transition: "all 0.15s",
-                background: grafikRange === r.value ? "#3B82F6" : "rgba(255,255,255,0.05)",
-                color: grafikRange === r.value ? "#fff" : "#64748B" }}>
+              style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: grafikRange === r.value ? 600 : 500, padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer", transition: "all 0.15s",
+                background: grafikRange === r.value ? "#3B82F6" : "transparent",
+                color: grafikRange === r.value ? "#fff" : "#64748B",
+                boxShadow: grafikRange === r.value ? "0 1px 4px rgba(59,130,246,0.3)" : "none" }}>
               {r.label}
             </button>
           ))}
