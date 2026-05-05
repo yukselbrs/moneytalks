@@ -186,10 +186,12 @@ export default function DashboardPage() {
       const yorumJson = await yorumRes.json();
       const skor = risk.skor ? Math.round(100 - risk.skor) : 50;
       const analizMetin: string = yorumJson.analiz || "";
-      const satirlar = analizMetin.split("\n")
-        .map((s: string) => s.replace(/[#*]/g, "").trim())
-        .filter((s: string) => s.length > 20 && !s.toUpperCase().includes("PROFİL") && !s.toUpperCase().includes("ANALİZ") && !s.toUpperCase().includes("ENDEKS"));
-      const yorum = satirlar[0] ? (satirlar[0].length > 150 ? satirlar[0].slice(0, 150) + "..." : satirlar[0]) : "Analiz yükleniyor...";
+      const temizMetin = analizMetin.replace(/[#*]/g, "").trim();
+      // Satırları gez, 30+ karakter olan ilk tam cümleyi al
+      const satirlar = temizMetin.split("\n").map((s: string) => s.trim()).filter((s: string) => s.length > 30);
+      const ilkSatir = satirlar[0] || temizMetin;
+      const cumleMatch = ilkSatir.match(/^.+?\.(?=\s+[A-ZÇĞİÖŞÜ]|\s*$)|^.+?[!?]/s);
+      const yorum = cumleMatch ? cumleMatch[0].trim() : (ilkSatir.length > 160 ? ilkSatir.slice(0, 160) + "..." : ilkSatir);
       const guven = risk.seviyeTR === "Düşük" ? "Yüksek" : risk.seviyeTR === "Orta" ? "Orta" : "Düşük";
       setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
     } catch {

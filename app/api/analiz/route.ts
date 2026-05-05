@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
         {
           role: "user",
           content: body.kisaYorum === true
-            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} hissesi icin asagidaki veriyi kullanarak 2-3 cumlelik kisa ve net bir degerlendirme yap. Sadece verilen veriye dayan. Fiyat, hacim veya degisim bilgisinden en az birini yorumla. Turkce yaz. Para birimi icin sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme. Al/sat/tut yonlendirmesi yapma.
+            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} icin asagidaki veriyi kullanarak TAM OLARAK 1 cumlelik ozet yaz. Cümle nokta ile bitmeli. Sadece en onemli 1 gozlemi belirt. Fiyat veya degisim bilgisini kullan. Turkce yaz. ₺ sembolunu kullan. Yatirim tavsiyesi verme.
 
 ${veriMetni}`
             : `Sen bir Turk borsasi uzmanisisin. Asagidaki veriyi kullanarak ${ticker} hissesi icin somut ve analitik bir degerlendirme yap.
