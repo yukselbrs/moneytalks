@@ -45,7 +45,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
           const color = e.up ? "#10B981" : "#EF4444";
           const cardFlash = flash[e.key];
           const flashColor = cardFlash === "up" ? "#10B981" : cardFlash === "down" ? "#EF4444" : "transparent";
-          const flashBg = cardFlash === "up" ? "rgba(16,185,129,0.14)" : cardFlash === "down" ? "rgba(239,68,68,0.14)" : "transparent";
+          const flashBg = cardFlash === "up" ? "rgba(16,185,129,0.10)" : cardFlash === "down" ? "rgba(239,68,68,0.10)" : "transparent";
           const pts = (sparklines[e.label] || []).length > 1 ? sparklines[e.label] : [];
           const w = 90;
           const h = 36;
@@ -76,7 +76,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
                     </>
                   ) : (
                     <>
-                      <div className="dash-piyasa-val" style={{ display: "inline-block", fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2, borderRadius: 7, padding: "1px 5px", marginLeft: -5, background: flashBg, boxShadow: cardFlash ? `0 0 0 1px ${flashColor}33, 0 0 18px ${flashColor}24` : "none", transition: "background 0.35s ease, box-shadow 0.35s ease" }}>{e.val}</div>
+                      <div className="dash-piyasa-val" style={{ display: "inline-block", fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2, borderRadius: 7, padding: "1px 5px", marginLeft: -5, background: flashBg, boxShadow: cardFlash ? `0 0 8px ${flashColor}18` : "none", transition: "background 0.7s ease, box-shadow 0.7s ease" }}>{e.val}</div>
                       <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
                         <span>{e.up ? "▲" : "▼"}</span>
                         <span>{e.change}</span>
