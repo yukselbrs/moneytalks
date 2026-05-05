@@ -11,6 +11,10 @@ import DashboardMarketFocus from "@/components/DashboardMarketFocus";
 import DashboardWatchlistPanel from "@/components/DashboardWatchlistPanel";
 import DashboardSidePanel from "@/components/DashboardSidePanel";
 import DashboardSearchBox from "@/components/DashboardSearchBox";
+import DashboardFooter from "@/components/DashboardFooter";
+import { useDashboardMarket } from "@/hooks/useDashboardMarket";
+import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 function tickerRenk(ticker: string) {
   const renkler = ["#3B82F6","#8B5CF6","#EC4899","#F97316","#10B981","#06B6D4","#EAB308","#EF4444","#6366F1","#14B8A6"];
@@ -95,15 +99,6 @@ const KAP = [
   { ticker: "AKBNK", title: "Yabancı Yatırımcı İşlemleri", time: "15:51" },
 ];
 
-type PiyasaKey = "xu100" | "xu030" | "usd" | "eur";
-type PiyasaYon = "up" | "down";
-
-function parsePiyasaDeger(value: string) {
-  const normalized = value.replace(/\./g, "").replace(",", ".");
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -112,16 +107,11 @@ export default function DashboardPage() {
   const [inputReady, setInputReady] = useState(false);
   const [watchlistInput, setWatchlistInput] = useState("");
   const [watchlistInputAcik, setWatchlistInputAcik] = useState(false);
-  const [recent, setRecent] = useState<{ ticker: string; time: string }[]>([]);
-  const [watchlist, setWatchlist] = useState<{ ticker: string }[]>([]);
   const [fullName, setFullName] = useState("");
-  const [piyasa, setPiyasa] = useState(() => { try { const c = localStorage.getItem("pk_piyasa"); return c ? JSON.parse(c) : { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } catch { return { usd: { value: "-", change: "-" }, eur: { value: "-", change: "-" }, xu100: { value: "-", change: "-" }, xu030: { value: "-", change: "-" } }; } });
-  const piyasaRef = useRef(piyasa);
-  const piyasaFlashTimeoutRef = useRef<Record<PiyasaKey, ReturnType<typeof setTimeout> | null>>({ xu100: null, xu030: null, usd: null, eur: null });
-  const [piyasaFlash, setPiyasaFlash] = useState<Partial<Record<PiyasaKey, PiyasaYon>>>({});
-  const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean } | null>>({});
-  const [topMovers, setTopMovers] = useState<{yukselenler: {ticker:string;fiyat:string;degisim:number}[]; dusenler: {ticker:string;fiyat:string;degisim:number}[]; hacimliler: {ticker:string;fiyat:string;degisim:number}[]}|null>(null);
   const [piyasaOdagiTab, setPiyasaOdagiTab] = useState("one");
+  const { piyasa, piyasaFlash, sparklines, topMovers } = useDashboardMarket();
+  const { watchlist, recent, fiyatlar, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const { portfoyOzet, loadPortfolioSummary } = usePortfolioSummary();
 
   const selamlama = () => {
     const saat = new Date().getHours();
@@ -130,7 +120,6 @@ export default function DashboardPage() {
     if (saat >= 18 && saat < 24) return "İyi akşamlar";
     return "İyi geceler";
   };
-  const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
   const [buyukGrafik, setBuyukGrafik] = useState<{tarih: string; fiyat: number}[]>([]);
   const [grafikRange, setGrafikRange] = useState("1d");
   const [grafikRangeDegisim, setGrafikRangeDegisim] = useState<Record<string, number>>({});
@@ -140,7 +129,6 @@ export default function DashboardPage() {
   const [grafikArama, setGrafikArama] = useState("");
   const [grafikDropdown, setGrafikDropdown] = useState(false);
   const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
-  const [portfoyOzet, setPortfoyOzet] = useState<{toplamMaliyet: number; toplamGuncel: number; toplamPL: number; toplamPLYuzde: number; hisseSayisi: number; hisseDagilim?: {ticker: string; yuzde: number; renk: string}[]} | null>(null);
   const grafikRef = useRef<HTMLDivElement>(null);
   const grafikObserverRef = useRef<ResizeObserver | null>(null);
   const initialGrafikLoadedRef = useRef(false);
@@ -210,10 +198,8 @@ export default function DashboardPage() {
   }, [grafikTicker, grafikTickerLabel]);
 
   const router = useRouter();
-  const watchlistRef = useRef<{ticker:string}[]>([]);
 
   useEffect(() => {
-    const piyasaFlashTimeouts = piyasaFlashTimeoutRef.current;
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
         router.push("/login");
@@ -221,161 +207,19 @@ export default function DashboardPage() {
       }
       setUser(session.user);
       setFullName(session.user.user_metadata?.full_name || "");
-      const { data } = await supabase
-        .from("watchlist")
-        .select("ticker")
-        .eq("user_id", session.user.id)
-        .order("added_at", { ascending: false });
-      if (data) {
-        setWatchlist(data);
-        watchlistRef.current = data;
-        const tickers = data.map((w: {ticker: string}) => w.ticker);
-        fetchFiyatlar(tickers);
-      }
+      await Promise.all([
+        loadWatchlist(session.user.id),
+        loadPortfolioSummary(),
+      ]);
       setLoading(false);
-
-      // Portföy özeti
-      try {
-        const { data: portfoyData } = await supabase
-          .from("portfoy")
-          .select("ticker, adet, maliyet");
-        if (portfoyData && portfoyData.length > 0) {
-          const tickers = portfoyData.map((p: {ticker: string}) => p.ticker.trim()).join(",");
-          const fRes = await fetch("/api/fiyatlar?extra=" + tickers);
-          const fJson = await fRes.json();
-          let toplamMaliyet = 0, toplamGuncel = 0;
-          portfoyData.forEach((p: {ticker: string; adet: number; maliyet: number}) => {
-            const mal = p.adet * p.maliyet;
-            toplamMaliyet += mal;
-            const fiyatStr = fJson[p.ticker.trim()]?.fiyat;
-            const fiyat = fiyatStr ? parseFloat(fiyatStr.replace(/\./g, "").replace(",", ".")) : p.maliyet;
-            toplamGuncel += p.adet * fiyat;
-          });
-          const toplamPL = toplamGuncel - toplamMaliyet;
-          const toplamPLYuzde = toplamMaliyet > 0 ? (toplamPL / toplamMaliyet) * 100 : 0;
-          const RENK = ["#3B82F6","#8B5CF6","#10B981","#F59E0B","#EF4444","#06B6D4","#EC4899","#F97316"];
-          const hisseDagilim = portfoyData.map((p: {ticker: string; adet: number; maliyet: number}, idx: number) => {
-            const fs = fJson[p.ticker.trim()]?.fiyat;
-            const fiyat = fs ? parseFloat(fs.replace(/\./g,"").replace(",",".")) : p.maliyet;
-            return { ticker: p.ticker.trim(), deger: p.adet * fiyat, yuzde: 0, renk: RENK[idx % RENK.length] };
-          }).sort((a: {deger: number}, b: {deger: number}) => b.deger - a.deger)
-            .map((h: {ticker: string; deger: number; yuzde: number; renk: string}) => ({ ...h, yuzde: toplamGuncel > 0 ? (h.deger / toplamGuncel) * 100 : 0 }));
-          setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, hisseSayisi: portfoyData.length, hisseDagilim });
-        }
-      } catch(e) { console.error("Portfoy ozet hatasi:", e); }
-
     });
-    const fetchPiyasaOzeti = async () => {
-      try {
-        const r = await fetch("/api/piyasa", { cache: "no-store" });
-        const d = await r.json();
-        (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {
-          const onceki = parsePiyasaDeger(piyasaRef.current[key]?.value || "-");
-          const yeni = parsePiyasaDeger(d[key]?.value || "-");
-          if (onceki === null || yeni === null || onceki === yeni) return;
-          if (piyasaFlashTimeouts[key]) clearTimeout(piyasaFlashTimeouts[key]!);
-          setPiyasaFlash((prev) => ({ ...prev, [key]: yeni > onceki ? "up" : "down" }));
-          piyasaFlashTimeouts[key] = setTimeout(() => {
-            setPiyasaFlash((prev) => {
-              const next = { ...prev };
-              delete next[key];
-              return next;
-            });
-            piyasaFlashTimeouts[key] = null;
-          }, 550);
-        });
-        piyasaRef.current = d;
-        setPiyasa(d);
-        try { localStorage.setItem("pk_piyasa", JSON.stringify(d)); } catch {}
-      } catch {}
-    };
-    const fetchSparklines = () => {
-      [
-        { sym: "XU100.IS", key: "XU100" },
-        { sym: "XU030.IS", key: "XU030" },
-        { sym: "USDTRY=X", key: "USD/TRY" },
-        { sym: "EURTRY=X", key: "EUR/TRY" },
-      ].forEach(({ sym, key }) => {
-        fetch(`/api/grafik?ticker=${sym}`).then(r => r.json()).then(d => {
-          if (d.points) {
-            setSparklines(prev => ({ ...prev, [key]: d.points.map((p: {fiyat: number}) => p.fiyat) }));
-          }
-        }).catch(() => {});
-      });
-    };
-    const fetchFiyatlar = (extraList?: string[]) => {
-      const wl = extraList || watchlistRef.current.map(w => w.ticker);
-      const extra = wl.join(",");
-      const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
-      fetch(url).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
-    };
-    const fetchPiyasa = async () => {
-      try {
-        const [yukRes, dusRes, hacimRes] = await Promise.all([
-          fetch("/api/hisseler?sort=yukselis&page=1"),
-          fetch("/api/hisseler?sort=dusus&page=1"),
-          fetch("/api/hisseler?sort=hacim&page=1"),
-        ]);
-        const yukJson = await yukRes.json();
-        const dusJson = await dusRes.json();
-        const hacimJson = await hacimRes.json();
-        const mapH = (h: {ticker:string;fiyat:string|number;degisim:string|number}) => ({
-          ticker: h.ticker,
-          fiyat: typeof h.fiyat === "number" ? h.fiyat.toLocaleString("tr-TR", {minimumFractionDigits:2}) : String(h.fiyat),
-          degisim: parseFloat(String(h.degisim)),
-        });
-        const yukselenler = (yukJson.items || []).slice(0, 5).map(mapH);
-        const dusenler = (dusJson.items || []).slice(0, 5).map(mapH);
-        const hacimliler = (hacimJson.items || []).slice(0, 5).map(mapH);
-        setTopMovers({ yukselenler, dusenler, hacimliler });
-      } catch(e) { console.error("fetchPiyasa err:", e); }
-    };
-    fetchPiyasaOzeti();
-    fetchPiyasa();
-    fetchSparklines();
-    const piyasaOzetiInterval = setInterval(fetchPiyasaOzeti, 3000);
-    const piyasaInterval = setInterval(fetchPiyasa, 300000);
-    const fiyatlarInterval = setInterval(fetchFiyatlar, 5000);
-    const sparklineInterval = setInterval(fetchSparklines, 60000);
-    const loadRecent = () => {
-      const stored = localStorage.getItem("pk_recent");
-      if (stored) setRecent(JSON.parse(stored));
-    };
-    loadRecent();
-    window.addEventListener("focus", loadRecent);
-    return () => {
-      clearInterval(piyasaOzetiInterval);
-      clearInterval(piyasaInterval);
-      clearInterval(fiyatlarInterval);
-      clearInterval(sparklineInterval);
-      (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {
-        if (piyasaFlashTimeouts[key]) clearTimeout(piyasaFlashTimeouts[key]!);
-      });
-      window.removeEventListener("focus", loadRecent);
-    };
-  }, [router]);
+  }, [loadPortfolioSummary, loadWatchlist, router]);
 
   useEffect(() => {
     if (loading || initialGrafikLoadedRef.current) return;
     initialGrafikLoadedRef.current = true;
     fetchBuyukGrafik("1d");
   }, [fetchBuyukGrafik, loading]);
-
-  async function addToWatchlist(t: string) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const already = watchlist.find((w) => w.ticker === t);
-    if (already) return;
-    await supabase.from("watchlist").insert({ user_id: session.user.id, ticker: t });
-    setWatchlist((prev) => { const next = [{ ticker: t }, ...prev]; watchlistRef.current = next; return next; });
-  }
-
-  async function removeFromWatchlist(t: string) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", t);
-    setWatchlist((prev) => { const next = prev.filter((w) => w.ticker !== t); watchlistRef.current = next; return next; });
-  }
 
   function handleAnaliz(e: React.FormEvent) {
     e.preventDefault();
@@ -524,29 +368,7 @@ export default function DashboardPage() {
 
       </main>
     </div>
-    <div style={{ textAlign: "center", padding: "24px 0 8px", borderTop: "1px solid rgba(59,130,246,0.06)", marginTop: 32 }}>
-        {[
-          { label: "Gizlilik Politikası", href: "/gizlilik" },
-          { label: "Kullanım Şartları", href: "/kullanim-sartlari" },
-          { label: "KVKK", href: "/kvkk" },
-          { label: "Risk Uyarısı", href: "/risk-uyarisi" },
-        ].map(({ label, href }, i, arr) => (
-          <span key={label}>
-            <a href={href} style={{ fontSize: 11, color: "#475569", textDecoration: "none" }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#94A3B8")}
-              onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
-              {label}
-            </a>
-            {i < arr.length - 1 && <span style={{ color: "#334155", margin: "0 8px" }}>·</span>}
-          </span>
-        ))}
-        <p style={{ fontSize: 10, color: "#334155", marginTop: 8, lineHeight: 1.6 }}>
-          ParaKonuşur yatırım danışmanlığı hizmeti sunmamaktadır. İçerikler yalnızca bilgilendirme amaçlıdır.
-        </p>
-        <p style={{ fontSize: 10, color: "#334155", marginTop: 4, lineHeight: 1.6 }}>
-          Veriler 15 dakika gecikmeli olarak sunulmaktadır.
-        </p>
-      </div>
+    <DashboardFooter />
     </AppShell>
   );
 }
