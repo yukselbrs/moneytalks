@@ -339,6 +339,35 @@ export default function PortfoyPage() {
           .portfolio-number { font-variant-numeric: tabular-nums; }
           .portfolio-summary-card { transition: border-color 0.16s ease, background 0.16s ease; }
           .portfolio-summary-card:hover { border-color: rgba(59,130,246,0.24); background: rgba(30,41,59,0.68); }
+          .instant-tooltip { position: relative; }
+          .instant-tooltip-content {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            transform: translateX(-50%) translateY(2px);
+            width: max-content;
+            max-width: 260px;
+            border: 1px solid rgba(59,130,246,0.24);
+            border-radius: 8px;
+            background: #0F172A;
+            color: #CBD5E1;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.32);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.35;
+            letter-spacing: 0;
+            padding: 8px 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.08s ease, transform 0.08s ease;
+            white-space: normal;
+            z-index: 40;
+          }
+          .instant-tooltip:hover .instant-tooltip-content,
+          .instant-tooltip:focus-within .instant-tooltip-content {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
         `}</style>
 
         <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
@@ -415,11 +444,17 @@ export default function PortfoyPage() {
               <div className="mb-2 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
                   <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em]">{getiriModu === "daily" ? "Günlük K/Z" : "Toplam K/Z"}</p>
-                  <span
-                    title="Günlük K/Z, pozisyonların portföydeki ağırlığına göre hesaplanır."
-                    className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-slate-600 text-[9px] font-bold text-slate-500"
-                  >
-                    i
+                  <span className="instant-tooltip inline-flex">
+                    <button
+                      type="button"
+                      aria-label="Günlük K/Z açıklaması"
+                      className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-slate-600 text-[9px] font-bold text-slate-500"
+                    >
+                      i
+                    </button>
+                    <span className="instant-tooltip-content">
+                      Günlük K/Z, pozisyonların portföydeki ağırlığına göre hesaplanır.
+                    </span>
                   </span>
                 </div>
                 <div className="inline-flex rounded-lg border border-slate-700/80 bg-slate-900/40 p-0.5">

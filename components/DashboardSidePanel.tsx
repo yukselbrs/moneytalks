@@ -68,11 +68,17 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
             <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
             <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
           </span>
-          <span
-            title="Günlük getiri, hisselerin portföydeki ağırlığına göre hesaplanır."
-            style={{ width: 14, height: 14, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.22)", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, cursor: "help" }}
-          >
-            i
+          <span style={{ position: "relative", display: "inline-flex" }} className="portfolio-info-tooltip">
+            <button
+              type="button"
+              aria-label="Günlük getiri açıklaması"
+              style={{ width: 14, height: 14, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.22)", background: "transparent", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, cursor: "help", padding: 0 }}
+            >
+              i
+            </button>
+            <span style={{ position: "absolute", left: "50%", bottom: "calc(100% + 8px)", transform: "translateX(-50%) translateY(2px)", width: 220, background: "#0F172A", border: "1px solid rgba(59,130,246,0.24)", color: "#CBD5E1", fontSize: 10, fontWeight: 600, lineHeight: 1.35, padding: "7px 9px", borderRadius: 8, boxShadow: "0 12px 28px rgba(0,0,0,0.32)", opacity: 0, pointerEvents: "none", transition: "opacity 0.08s ease, transform 0.08s ease", zIndex: 30 }} className="portfolio-info-tooltip-content">
+              Günlük getiri, hisselerin portföydeki ağırlığına göre hesaplanır.
+            </span>
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

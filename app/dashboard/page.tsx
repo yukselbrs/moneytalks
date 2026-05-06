@@ -260,6 +260,8 @@ export default function DashboardPage() {
     <AppShell>
     <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }
+        .portfolio-info-tooltip:hover .portfolio-info-tooltip-content,
+        .portfolio-info-tooltip:focus-within .portfolio-info-tooltip-content { opacity: 1 !important; transform: translateX(-50%) translateY(0) !important; }
         .dash-surface { transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease; }
         .dash-surface:hover { border-color: rgba(59,130,246,0.18) !important; background: rgba(15,23,42,0.58) !important; box-shadow: 0 10px 28px rgba(2,6,23,0.14); }
         .dash-search-box:focus-within { border-color: rgba(59,130,246,0.42) !important; background: rgba(59,130,246,0.075) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
