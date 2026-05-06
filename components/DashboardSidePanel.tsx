@@ -120,7 +120,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
         const grafikDilims = digerYuzde > 0
           ? [...topDilims, { ticker: "Diğer", deger: digerDilims.reduce((a, h) => a + h.deger, 0), yuzde: digerYuzde, renk: "#475569" }]
           : topDilims;
-        const digerBaslik = digerDilims.map((h) => `${h.ticker} %${h.yuzde.toFixed(1)}`).join(", ");
+        const digerEtiket = digerDilims.map((h) => h.ticker).join(" · ");
 
         return (
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
@@ -157,12 +157,17 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                 </div>
               ))}
               {digerDilims.length > 0 && (
-                <div title={digerBaslik} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "help" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#475569" }} />
-                    <span style={{ fontSize: 10, color: "#94A3B8" }}>Diğer ({digerDilims.length})</span>
+                <div style={{ borderTop: "1px solid rgba(71,85,105,0.22)", marginTop: 2, paddingTop: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#475569" }} />
+                      <span style={{ fontSize: 10, color: "#94A3B8" }}>Diğer</span>
+                    </div>
+                    <span style={{ fontSize: 10, color: "#64748B" }}>%{digerYuzde.toFixed(1)}</span>
                   </div>
-                  <span style={{ fontSize: 10, color: "#64748B" }}>%{digerYuzde.toFixed(1)}</span>
+                  <div style={{ marginLeft: 10, marginTop: 2, maxWidth: 118, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 9, color: "#475569" }}>
+                    {digerEtiket}
+                  </div>
                 </div>
               )}
             </div>
