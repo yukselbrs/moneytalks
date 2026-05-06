@@ -66,7 +66,7 @@ export default function AIShowcase() {
             <p className="text-[10px] tracking-[0.3em] font-medium mb-4" style={{ color: "#60A5FA", fontFamily: "var(--font-manrope)" }}>
               CANLI DEMO
             </p>
-            <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-6" style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}>
+            <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-6" style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}>
               Hemen dene, kayıt gerekmez
             </h2>
             <p className="text-[17px] leading-relaxed mb-8" style={{ color: "#64748B", fontFamily: "var(--font-manrope)" }}>
@@ -128,17 +128,17 @@ export default function AIShowcase() {
                       )}
                     </div>
                   </div>
-                  <span style={{ fontSize: 9, color: "#475569", border: "1px solid rgba(71,85,105,0.2)", borderRadius: 4, padding: "3px 8px", letterSpacing: "0.1em" }}>DEMO</span>
+                  <span style={{ fontSize: 12, color: "#475569", border: "1px solid rgba(71,85,105,0.2)", borderRadius: 4, padding: "3px 8px", letterSpacing: "0.1em" }}>DEMO</span>
                 </div>
 
                 {/* Metrikler */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 20 }}>
                   <div style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 12px" }}>
-                    <div style={{ fontSize: 9, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Yüksek</div>
+                    <div style={{ fontSize: 12, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Yüksek</div>
                     <div style={{ fontSize: 14, fontWeight: 600, color: "#1D9E75" }}><span suppressHydrationWarning>{veri.gunlukYuksek.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span></div>
                   </div>
                   <div style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 12px" }}>
-                    <div style={{ fontSize: 9, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Düşük</div>
+                    <div style={{ fontSize: 12, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Düşük</div>
                     <div style={{ fontSize: 14, fontWeight: 600, color: "#E24B4A" }}><span suppressHydrationWarning>{veri.gunlukDusuk.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span></div>
                   </div>
                 </div>
@@ -153,7 +153,7 @@ export default function AIShowcase() {
                   </a>
                 </div>
 
-                <p style={{ marginTop: 12, textAlign: "center", fontSize: 10, color: "#1E293B" }}>
+                <p style={{ marginTop: 12, textAlign: "center", fontSize: 12, color: "#1E293B" }}>
                   15 dk gecikmeli · Yatırım tavsiyesi değildir
                 </p>
               </div>

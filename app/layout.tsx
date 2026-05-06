@@ -4,7 +4,7 @@ import { Geist, Manrope } from "next/font/google";
 import "./globals.css";
 
 const geist = Geist({
-  variable: "--font-syne",
+  variable: "--font-geist",
   subsets: ["latin", "latin-ext"],
   weight: ["500", "600", "700"],
 });
@@ -17,7 +17,6 @@ const manrope = Manrope({
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export const metadata: Metadata = {

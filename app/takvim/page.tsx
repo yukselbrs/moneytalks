@@ -207,7 +207,7 @@ export default function TakvimPage() {
                       <thead>
                         <tr style={{ borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                           {["Hisse", "Temettü Tutarı"].map(h => (
-                            <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.06em", textTransform: "uppercase" }}>{h}</th>
+                            <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#334155", letterSpacing: "0.06em", textTransform: "uppercase" }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -232,7 +232,7 @@ export default function TakvimPage() {
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                           <span style={{ fontSize: 14 }}>{e.ulke || "🌍"}</span>
                           <span style={{ fontSize: 12, color: "#64748B", fontWeight: 500 }}>{e.saat}</span>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: ONEM_RENK[e.onem], background: ONEM_RENK[e.onem] + "22", borderRadius: 20, padding: "2px 8px" }}>{e.onem}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: ONEM_RENK[e.onem], background: ONEM_RENK[e.onem] + "22", borderRadius: 20, padding: "2px 8px" }}>{e.onem}</span>
                         </div>
                         <p style={{ fontSize: 13, color: "#E2E8F0", fontWeight: 500, marginBottom: 4 }}>{e.baslik}</p>
                         {(e.beklenti || e.onceki) && (
@@ -249,7 +249,7 @@ export default function TakvimPage() {
                     <thead>
                       <tr style={{ borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                         {["Saat", "Ülke", "Etkinlik", "Önem", "Beklenti", "Önceki", "Gerçekleşen"].map(h => (
-                          <th key={h} style={{ padding: "8px 12px", textAlign: h === "Etkinlik" ? "left" : "center", fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.06em", textTransform: "uppercase" }}>{h}</th>
+                          <th key={h} style={{ padding: "8px 12px", textAlign: h === "Etkinlik" ? "left" : "center", fontSize: 12, fontWeight: 600, color: "#334155", letterSpacing: "0.06em", textTransform: "uppercase" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -260,7 +260,7 @@ export default function TakvimPage() {
                           <td style={{ padding: "10px 12px", textAlign: "center", fontSize: 16 }}>{e.ulke || "🌍"}</td>
                           <td style={{ padding: "10px 12px", color: "#E2E8F0", fontWeight: 500 }}>{e.baslik}</td>
                           <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: ONEM_RENK[e.onem], background: ONEM_RENK[e.onem] + "22", borderRadius: 20, padding: "2px 8px" }}>{e.onem}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: ONEM_RENK[e.onem], background: ONEM_RENK[e.onem] + "22", borderRadius: 20, padding: "2px 8px" }}>{e.onem}</span>
                           </td>
                           <td style={{ padding: "10px 12px", textAlign: "center", color: "#94A3B8" }}>{e.beklenti || "—"}</td>
                           <td style={{ padding: "10px 12px", textAlign: "center", color: "#64748B" }}>{e.onceki || "—"}</td>
@@ -312,7 +312,7 @@ export default function TakvimPage() {
                   ].map(s => (
                     <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px", textAlign: "center" }}>
                       <p style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</p>
-                      <p style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>{s.label}</p>
+                      <p style={{ fontSize: 12, color: "#475569", marginTop: 2 }}>{s.label}</p>
                     </div>
                   ))}
                 </div>

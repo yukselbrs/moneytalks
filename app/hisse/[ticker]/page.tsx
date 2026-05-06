@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, use, useCallback, useEffect } from "react";
+import dynamic from "next/dynamic";
 import AppShell from "@/components/AppShell";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "@/components/lib/supabase";
-import HisseChatbot from "@/components/HisseChatbot";
 import StockLogo from "@/components/StockLogo";
 import { Sparkles, Star } from "lucide-react";
+
+const HisseGrafik = dynamic(() => import("@/components/HisseGrafik"), {
+  ssr: false,
+  loading: () => <div style={{ height: 310, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, marginBottom: 24 }} />,
+});
+
+const HisseChatbot = dynamic(() => import("@/components/HisseChatbot"), { ssr: false });
 
 interface HisseVeri {
   fiyat: number;
@@ -307,8 +313,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             <Sparkles size={15} />
             {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
           </button>
-          {analiz && <p style={{ fontSize: 10, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
-          {analiz && <p style={{ fontSize: 10, color: "#334155", marginTop: 4, lineHeight: 1.6, textAlign: "right", maxWidth: 280 }}>Bu analiz teknik göstergeler, fiyat ve hacim verilerini kapsar. Temel analiz, bilanço ve KAP haberleri dahil değildir. Yatırım tavsiyesi değildir.</p>}
+          {analiz && <p style={{ fontSize: 12, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
+          {analiz && <p style={{ fontSize: 12, color: "#334155", marginTop: 4, lineHeight: 1.6, textAlign: "right", maxWidth: 280 }}>Bu analiz teknik göstergeler, fiyat ve hacim verilerini kapsar. Temel analiz, bilanço ve KAP haberleri dahil değildir. Yatırım tavsiyesi değildir.</p>}
           </div>
 
         </div>
@@ -328,7 +334,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           <div className="hisse-kartlar">
             {kartlar.map((k) => (
               <div key={k.label} className="hisse-metric-card">
-                <div style={{ fontSize: 10, color: "#64748B", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 7 }}>{k.label}</div>
+                <div style={{ fontSize: 12, color: "#64748B", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 7 }}>{k.label}</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{k.value}</div>
               </div>
             ))}
@@ -336,48 +342,17 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         )}
 
         {grafik.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <div className="hisse-range-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
-                  {{ "1d": "Günlük", "1wk": "Haftalık", "1mo": "Aylık", "3mo": "3 Aylık", "1y": "Yıllık" }[grafikRange]} Fiyat Grafiği
-                </p>
-                {grafikDegisim !== null && (() => {
-                  const pozitif = grafikDegisim >= 0;
-                  return (
-                    <span style={{ fontSize: 11, fontWeight: 600, color: pozitif ? "#10B981" : "#EF4444" }}>
-                      {pozitif ? "▲" : "▼"} %{Math.abs(grafikDegisim).toFixed(2).replace(".", ",")}
-                    </span>
-                  );
-                })()}
-              </div>
-              <div className="hisse-range-btns" style={{ display: "flex", gap: 4 }}>
-                {([["1d","1G"],["1wk","1H"],["1mo","1A"],["3mo","3A"],["1y","1Y"]] as [string,string][]).map(([val, label]) => (
-                  <button key={val} onClick={() => { setGrafikRange(val); fetchGrafik(val); }} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 5, border: "1px solid", cursor: "pointer", transition: "all 0.15s", background: grafikRange === val ? "#3B82F6" : "transparent", color: grafikRange === val ? "#fff" : "#64748B", borderColor: grafikRange === val ? "#3B82F6" : "rgba(255,255,255,0.08)" }}>{label}</button>
-                ))}
-              </div>
-            </div>
-            <div className="hisse-chart-shell">
-              <ResponsiveContainer width="100%" height={260}>
-                <AreaChart data={grafik}>
-                  <defs>
-                    <linearGradient id="fiyatGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                  <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v} ₺`} width={55} />
-                  <Tooltip contentStyle={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, fontSize: 12 }} formatter={(v: unknown) => [`${v} ₺`, "Fiyat"]} labelStyle={{ color: "#94A3B8" }} />
-                  <Area type="monotone" dataKey="fiyat" stroke="#3B82F6" strokeWidth={2} fill="url(#fiyatGrad)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <HisseGrafik
+            grafik={grafik}
+            grafikRange={grafikRange}
+            grafikDegisim={grafikDegisim}
+            setGrafikRange={setGrafikRange}
+            fetchGrafik={fetchGrafik}
+          />
         )}
         {sections.length > 0 && (
           <>
-            <p style={{ fontSize: 10, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>AI Analiz Özeti</p>
+            <h2 style={{ fontSize: 12, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, marginTop: 0 }}>AI Analiz Özeti</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {sections.map((s, i) => (
                 <div key={i} style={{ border: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "1px solid rgba(226,75,74,0.25)" : "1px solid rgba(59,130,246,0.12)", borderRadius: 10, overflow: "hidden", background: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "rgba(226,75,74,0.04)" : "rgba(255,255,255,0.01)" }}>

@@ -1,12 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { normalizeTicker, extractBearerToken } from "@/lib/utils";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
+  const token = extractBearerToken(req);
   if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
+  const token = extractBearerToken(req);
   if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
@@ -29,8 +30,8 @@ export async function POST(req: NextRequest) {
 
   if (!ticker || !tip || !kosul) return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
 
-  const normalizedTicker = typeof ticker === "string" ? ticker.trim().toUpperCase() : "";
-  if (!/^[A-Z0-9]{2,10}$/.test(normalizedTicker)) return NextResponse.json({ error: "Geçersiz ticker formatı" }, { status: 400 });
+  const normalizedTicker = normalizeTicker(ticker);
+  if (!normalizedTicker) return NextResponse.json({ error: "Geçersiz ticker formatı" }, { status: 400 });
 
   if (!["fiyat_seviye", "fiyat_yuzde", "yuzde_degisim", "gosterge"].includes(tip)) return NextResponse.json({ error: "Geçersiz alarm tipi" }, { status: 400 });
   if (!["yukari", "asagi"].includes(kosul)) return NextResponse.json({ error: "Geçersiz koşul" }, { status: 400 });
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
+  const token = extractBearerToken(req);
   if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
@@ -138,7 +139,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
+  const token = extractBearerToken(req);
   if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });

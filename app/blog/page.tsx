@@ -43,7 +43,7 @@ export default async function BlogPage() {
                   style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "20px 24px", display: "block", textDecoration: "none", background: "rgba(255,255,255,0.02)", transition: "all 0.15s" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                     {(post as {category?: string}).category && (
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 4, padding: "2px 7px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 4, padding: "2px 7px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                         {(post as {category?: string}).category}
                       </span>
                     )}

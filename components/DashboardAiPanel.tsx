@@ -31,9 +31,9 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
   return (
     <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "#64748B", letterSpacing: "0.1em", textTransform: "uppercase" }}>Yapay Zekâ Analizi</p>
+        <h2 style={{ fontSize: 11, fontWeight: 700, color: "#64748B", letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>Yapay Zekâ Analizi</h2>
         <button onClick={onAnalyze}
-          style={{ fontSize: 10, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 20, padding: "3px 12px", cursor: "pointer" }}>
+          style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 20, padding: "3px 12px", cursor: "pointer" }}>
           ↻ Yeni
         </button>
       </div>
@@ -58,7 +58,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
               </svg>
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1.2px" }}>{aiPanel.skor}</span>
-                <span style={{ fontSize: 9, color: "#64748B", fontWeight: 600 }}>AI Skoru</span>
+                <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>AI Skoru</span>
               </div>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -77,7 +77,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
                   </a>
                 </div>
               )}
-              <p style={{ fontSize: 10, color: "#334155", marginTop: 6 }}>
+              <p style={{ fontSize: 12, color: "#334155", marginTop: 6 }}>
                 Güven: <span style={{ color: aiPanel.guven === "Yüksek" ? "#10B981" : aiPanel.guven === "Orta" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
               </p>
               <a href="/pro" style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8, fontSize: 11, fontWeight: 500, color: "#64748B", textDecoration: "none" }}>
@@ -99,7 +99,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
             </div>
           </div>
           <style>{`.pro-btn-wrap:hover .pro-tooltip { display: block !important; }`}</style>
-          <p style={{ fontSize: 9, color: "#334155", marginTop: 6, textAlign: "center", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 12, color: "#334155", marginTop: 6, textAlign: "center", lineHeight: 1.5 }}>
             Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.
           </p>
         </>
@@ -111,7 +111,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
             style={{ padding: "9px 24px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", boxShadow: "0 4px 12px rgba(59,130,246,0.3)" }}>
             ✦ Analiz Et
           </button>
-          <p style={{ fontSize: 9, color: "#334155", textAlign: "center", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir.</p>
+          <p style={{ fontSize: 12, color: "#334155", textAlign: "center", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir.</p>
         </div>
       )}
     </div>

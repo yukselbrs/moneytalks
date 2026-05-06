@@ -260,9 +260,9 @@ export default function IzlemePage() {
                   {k.icon}
                 </div>
                 <div>
-                  <p style={{ fontSize: 10, color: "#475569", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{k.label}</p>
+                  <p style={{ fontSize: 12, color: "#475569", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{k.label}</p>
                   <p style={{ fontSize: 22, fontWeight: 800, color: k.color, lineHeight: 1 }}>{k.value}</p>
-                  <p style={{ fontSize: 10, color: "#334155", marginTop: 3 }}>{k.sub}</p>
+                  <p style={{ fontSize: 12, color: "#334155", marginTop: 3 }}>{k.sub}</p>
                 </div>
               </div>
             ))}
@@ -276,7 +276,7 @@ export default function IzlemePage() {
               {/* Tablo Baslik */}
               <div className="izleme-tablo-header">
                 {["HİSSE","SON FİYAT","GÜNLÜK DEĞİŞİM","GRAFİK","İŞLEM"].map(h => (
-                  <span key={h} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em" }}>{h}</span>
+                  <span key={h} style={{ fontSize: 12, fontWeight: 600, color: "#334155", letterSpacing: "0.07em" }}>{h}</span>
                 ))}
               </div>
 
@@ -303,14 +303,14 @@ export default function IzlemePage() {
                         <StockLogo ticker={w.ticker} domain={hisseInfo?.domain} size={28} radius={6} color={tickerRenk(w.ticker)} />
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</div>
-                          <div style={{ fontSize: 10, color: "#475569" }}>{hisseInfo?.name || ""}</div>
+                          <div style={{ fontSize: 12, color: "#475569" }}>{hisseInfo?.name || ""}</div>
                         </div>
                       </div>
 
                       {/* Fiyat */}
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{f ? `${f.fiyat} ₺` : "-"}</div>
-                        <div style={{ fontSize: 10, color: "#334155" }}>{addedDate}</div>
+                        <div style={{ fontSize: 12, color: "#334155" }}>{addedDate}</div>
                       </div>
 
                       {/* Degisim */}
@@ -320,7 +320,7 @@ export default function IzlemePage() {
                             <div style={{ fontSize: 13, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
                               {f.yukselis ? "+" : "-"}%{Math.abs(degisim).toFixed(2).replace(".",",")}
                             </div>
-                            <div style={{ fontSize: 10, color: "#334155" }}>0,00 ₺</div>
+                            <div style={{ fontSize: 12, color: "#334155" }}>0,00 ₺</div>
                           </>
                         ) : <span style={{ fontSize: 12, color: "#334155" }}>-</span>}
                       </div>
@@ -466,7 +466,7 @@ export default function IzlemePage() {
                     <StockLogo ticker={w.ticker} size={28} radius={6} color={tickerRenk(w.ticker)} />
                     <div>
                       <div style={{ fontSize: 11, color: "#E2E8F0", lineHeight: 1.4 }}>{w.ticker} guncel gelisme takipte</div>
-                      <div style={{ fontSize: 10, color: "#334155", marginTop: 3 }}>{new Date(w.added_at).toLocaleDateString("tr-TR", {day:"2-digit",month:"short",year:"numeric"})}</div>
+                      <div style={{ fontSize: 12, color: "#334155", marginTop: 3 }}>{new Date(w.added_at).toLocaleDateString("tr-TR", {day:"2-digit",month:"short",year:"numeric"})}</div>
                     </div>
                   </div>
                 ))}

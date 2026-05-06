@@ -1,8 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
-import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { normalizeTicker } from "@/lib/utils";
 
 const DEFAULT_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
-const ALLOWED_TICKERS = new Set(BIST_HISSELER.map((h) => h.ticker));
 const MAX_EXTRA_TICKERS = 50;
 
 type FiyatData = {
@@ -33,13 +32,6 @@ function pruneCache() {
     const sorted = Object.entries(cache).sort((a, b) => a[1].ts - b[1].ts);
     sorted.slice(0, sorted.length - MAX_CACHE_SIZE).forEach(([k]) => delete cache[k]);
   }
-}
-
-function normalizeTicker(raw: string): string | null {
-  const ticker = raw.trim().toUpperCase().replace(/\.IS$/, "");
-  if (!/^[A-Z0-9]{2,10}$/.test(ticker)) return null;
-  if (!ALLOWED_TICKERS.has(ticker)) return null;
-  return ticker;
 }
 
 function parseExtraTickers(extra: string | null): string[] {

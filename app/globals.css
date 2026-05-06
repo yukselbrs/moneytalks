@@ -3,14 +3,35 @@
 :root {
   --bg-primary: #0F172A;
   --bg-secondary: #0B1220;
+  --bg-card: rgba(255, 255, 255, 0.02);
   --blue-royal: #1E40AF;
   --blue-signal: #3B82F6;
   --blue-pulse: #60A5FA;
+  --blue-alpha-10: rgba(59, 130, 246, 0.1);
+  --blue-alpha-15: rgba(59, 130, 246, 0.15);
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --orange: #F97316;
   --white: #F8FAFC;
-  --text-muted: #64748B;
+  --text-primary: #E2E8F0;
   --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-dim: #475569;
   --border: rgba(59, 130, 246, 0.12);
+  --border-card: rgba(59, 130, 246, 0.1);
   --border-hover: rgba(59, 130, 246, 0.3);
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
 }
 
 * {

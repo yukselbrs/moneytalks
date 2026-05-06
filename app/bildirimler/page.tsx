@@ -111,7 +111,7 @@ export default function BildirimlerPage() {
                 style={{ fontSize: 13, fontWeight: 500, padding: "8px 14px", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap", color: sekme === s ? "#3B82F6" : "#475569", borderBottom: sekme === s ? "2px solid #3B82F6" : "2px solid transparent", marginBottom: -1, display: "flex", alignItems: "center", gap: 6 }}>
                 {s}
                 {s === "Okunmamış" && okunmamisSayi > 0 && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.1)", borderRadius: 99, padding: "1px 6px" }}>{okunmamisSayi}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.1)", borderRadius: 99, padding: "1px 6px" }}>{okunmamisSayi}</span>
                 )}
               </button>
             ))}

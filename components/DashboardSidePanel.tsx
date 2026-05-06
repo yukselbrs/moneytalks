@@ -63,20 +63,20 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
     <div className="dash-surface" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 0 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Portföy Özeti</span>
+          <h2 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>Portföy Özeti</h2>
           <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
-            <span style={{ fontSize: 9, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
-            <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 10, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
+            <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
           </span>
           <span style={{ position: "relative", display: "inline-flex" }} className="portfolio-info-tooltip">
             <button
               type="button"
               aria-label="Günlük getiri açıklaması"
-              style={{ width: 14, height: 14, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.22)", background: "transparent", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 800, cursor: "help", padding: 0 }}
+              style={{ width: 14, height: 14, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.22)", background: "transparent", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, cursor: "help", padding: 0 }}
             >
               i
             </button>
-            <span style={{ position: "absolute", left: "50%", bottom: "calc(100% + 8px)", transform: "translateX(-50%) translateY(2px)", width: 220, background: "#0F172A", border: "1px solid rgba(59,130,246,0.24)", color: "#CBD5E1", fontSize: 10, fontWeight: 600, lineHeight: 1.35, padding: "7px 9px", borderRadius: 8, boxShadow: "0 12px 28px rgba(0,0,0,0.32)", opacity: 0, pointerEvents: "none", transition: "opacity 0.08s ease, transform 0.08s ease", zIndex: 30 }} className="portfolio-info-tooltip-content">
+            <span style={{ position: "absolute", left: "50%", bottom: "calc(100% + 8px)", transform: "translateX(-50%) translateY(2px)", width: 220, background: "#0F172A", border: "1px solid rgba(59,130,246,0.24)", color: "#CBD5E1", fontSize: 12, fontWeight: 600, lineHeight: 1.35, padding: "7px 9px", borderRadius: 8, boxShadow: "0 12px 28px rgba(0,0,0,0.32)", opacity: 0, pointerEvents: "none", transition: "opacity 0.08s ease, transform 0.08s ease", zIndex: 30 }} className="portfolio-info-tooltip-content">
               Günlük getiri, hisselerin portföydeki ağırlığına göre hesaplanır.
             </span>
           </span>
@@ -90,13 +90,13 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
               <button
                 key={item.key}
                 onClick={() => setMod(item.key)}
-                style={{ border: "none", borderRadius: 5, padding: "3px 7px", fontSize: 9, fontWeight: 700, cursor: "pointer", background: mod === item.key ? "#3B82F6" : "transparent", color: mod === item.key ? "#fff" : "#64748B" }}
+                style={{ border: "none", borderRadius: 5, padding: "3px 7px", fontSize: 12, fontWeight: 700, cursor: "pointer", background: mod === item.key ? "#3B82F6" : "transparent", color: mod === item.key ? "#fff" : "#64748B" }}
               >
                 {item.label}
               </button>
             ))}
           </div>
-          <a href="/portfoy" style={{ fontSize: 10, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
+          <a href="/portfoy" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
         </div>
       </div>
       <div style={{ marginBottom: 12 }}>
@@ -104,7 +104,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
         <p style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px" }}>
           {portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
         </p>
-        <p style={{ fontSize: 10, color: "#475569", marginTop: 5, marginBottom: 1 }}>{aktifLabel}</p>
+        <p style={{ fontSize: 12, color: "#475569", marginTop: 5, marginBottom: 1 }}>{aktifLabel}</p>
         <p style={{ fontSize: 13, fontWeight: 600, color: aktifPozitif ? "#10B981" : "#EF4444", marginTop: 2 }}>
           {aktifPLYuzde >= 0 ? "%" : "%-"}{Math.abs(aktifPLYuzde).toFixed(2).replace(".", ",")} ({aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺)
         </p>
@@ -151,9 +151,9 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                 <div key={`${h.ticker}-${i}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: h.renk }} />
-                    <span style={{ fontSize: 10, color: "#94A3B8" }}>{h.ticker}</span>
+                    <span style={{ fontSize: 12, color: "#94A3B8" }}>{h.ticker}</span>
                   </div>
-                  <span style={{ fontSize: 10, color: "#64748B" }}>%{h.yuzde.toFixed(1)}</span>
+                  <span style={{ fontSize: 12, color: "#64748B" }}>%{h.yuzde.toFixed(1)}</span>
                 </div>
               ))}
               {digerDilims.length > 0 && (
@@ -161,11 +161,11 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                       <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#475569" }} />
-                      <span style={{ fontSize: 10, color: "#94A3B8" }}>Diğer</span>
+                      <span style={{ fontSize: 12, color: "#94A3B8" }}>Diğer</span>
                     </div>
-                    <span style={{ fontSize: 10, color: "#64748B" }}>%{digerYuzde.toFixed(1)}</span>
+                    <span style={{ fontSize: 12, color: "#64748B" }}>%{digerYuzde.toFixed(1)}</span>
                   </div>
-                  <div style={{ marginLeft: 10, marginTop: 2, maxWidth: 118, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 9, color: "#475569" }}>
+                  <div style={{ marginLeft: 10, marginTop: 2, maxWidth: 118, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, color: "#475569" }}>
                     {digerEtiket}
                   </div>
                 </div>
@@ -183,7 +183,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
           { label: mod === "daily" ? "Günlük" : "Getiri", value: `${aktifPLYuzde >= 0 ? "+" : ""}${aktifPLYuzde.toFixed(2)}%`, color: aktifPozitif ? "#10B981" : "#EF4444" },
         ].map((item) => (
           <div key={item.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 6, padding: "7px 10px" }}>
-            <p style={{ fontSize: 9, color: "#475569", marginBottom: 2 }}>{item.label}</p>
+            <p style={{ fontSize: 12, color: "#475569", marginBottom: 2 }}>{item.label}</p>
             <p style={{ fontSize: 12, fontWeight: 700, color: item.color }} suppressHydrationWarning>{item.value}</p>
           </div>
         ))}
@@ -196,7 +196,7 @@ function TopMoversCard({ topMovers, goToHisse }: { topMovers: TopMovers | null; 
   return (
     <div className="dash-surface" style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Yükselenler</span>
+        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>En Çok Yükselenler</h3>
       </div>
       {!topMovers ? (
         <div style={{ padding: "12px 14px", fontSize: 12, color: "#475569" }}>Piyasa hareketleri yükleniyor.</div>
@@ -213,7 +213,7 @@ function TopMoversCard({ topMovers, goToHisse }: { topMovers: TopMovers | null; 
         ))
       )}
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", borderTop: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Çok Düşenler</span>
+        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>En Çok Düşenler</h3>
       </div>
       {!topMovers ? (
         <div style={{ padding: "12px 14px", fontSize: 12, color: "#475569" }}>Piyasa hareketleri yükleniyor.</div>
@@ -237,7 +237,7 @@ function MarketNewsCard({ kap }: { kap: MarketNews[] }) {
   return (
     <div className="dash-surface" style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Piyasa Haberleri</span>
+        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>Piyasa Haberleri</h3>
       </div>
       {kap.length === 0 ? (
         <div style={{ padding: "14px", color: "#475569", fontSize: 12, lineHeight: 1.5 }}>

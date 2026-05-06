@@ -32,7 +32,7 @@ export default function ValueProp() {
           </p>
           <h2
             className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-5"
-            style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+            style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
           >
             Tek platformda finansal zekâ
           </h2>
@@ -59,7 +59,7 @@ export default function ValueProp() {
               </div>
               <h3
                 className="text-lg font-bold mb-3"
-                style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+                style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
               >
                 {title}
               </h3>

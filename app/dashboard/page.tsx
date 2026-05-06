@@ -6,22 +6,21 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import DashboardMarketSummary from "@/components/DashboardMarketSummary";
 import DashboardAiPanel from "@/components/DashboardAiPanel";
-import DashboardChartPanel from "@/components/DashboardChartPanel";
 import DashboardMarketFocus from "@/components/DashboardMarketFocus";
 import DashboardWatchlistPanel from "@/components/DashboardWatchlistPanel";
 import DashboardSidePanel from "@/components/DashboardSidePanel";
 import DashboardSearchBox from "@/components/DashboardSearchBox";
 import DashboardFooter from "@/components/DashboardFooter";
+import dynamic from "next/dynamic";
 import { useDashboardMarket } from "@/hooks/useDashboardMarket";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { tickerRenk } from "@/lib/utils";
 
-function tickerRenk(ticker: string) {
-  const renkler = ["#3B82F6","#8B5CF6","#EC4899","#F97316","#10B981","#06B6D4","#EAB308","#EF4444","#6366F1","#14B8A6"];
-  let hash = 0;
-  for (let i = 0; i < ticker.length; i++) hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
-  return renkler[Math.abs(hash) % renkler.length];
-}
+const DashboardChartPanel = dynamic(() => import("@/components/DashboardChartPanel"), {
+  ssr: false,
+  loading: () => <div style={{ flex: 1, height: 360, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12 }} />,
+});
 
 type DashboardHisse = {
   ticker: string;
@@ -97,8 +96,6 @@ export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [ticker, setTicker] = useState("");
-  const [aramaOneri, setAramaOneri] = useState<DashboardHisse[]>([]);
-  const [inputReady, setInputReady] = useState(false);
   const [watchlistInput, setWatchlistInput] = useState("");
   const [watchlistInputAcik, setWatchlistInputAcik] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -296,19 +293,14 @@ export default function DashboardPage() {
         <h1 className="dash-h1" style={{ fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px" }}>{selamlama()}, {firstName}</h1>
 
         <DashboardSearchBox
-          ticker={ticker}
-          inputReady={inputReady}
-          aramaOneri={aramaOneri}
+          value={ticker}
+          onValueChange={setTicker}
           bistHisseler={BIST_HISSELER}
           watchlist={watchlist}
-          tickerRenk={tickerRenk}
-          setTicker={setTicker}
-          setInputReady={setInputReady}
-          setAramaOneri={setAramaOneri}
-          addToWatchlist={addToWatchlist}
-          removeFromWatchlist={removeFromWatchlist}
+          onAddToWatchlist={addToWatchlist}
+          onRemoveFromWatchlist={removeFromWatchlist}
           onSubmit={handleAnaliz}
-          goToHisse={(t) => router.push(`/hisse/${t}`)}
+          onSelectHisse={(t) => router.push(`/hisse/${t}`)}
         />
 
         {/* Piyasa Özeti */}

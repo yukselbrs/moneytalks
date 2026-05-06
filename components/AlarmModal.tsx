@@ -148,7 +148,7 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
                     <button key={t.value} onClick={() => setTip(t.value as "fiyat_seviye" | "fiyat_yuzde")}
                       style={{ padding: "10px 12px", borderRadius: 8, border: `1px solid ${tip === t.value ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: tip === t.value ? "rgba(59,130,246,0.1)" : "transparent", cursor: "pointer", textAlign: "left" }}>
                       <p style={{ fontSize: 12, fontWeight: 600, color: tip === t.value ? "#3B82F6" : "#94A3B8", margin: 0 }}>{t.label}</p>
-                      <p style={{ fontSize: 10, color: "#475569", margin: "2px 0 0" }}>{t.desc}</p>
+                      <p style={{ fontSize: 12, color: "#475569", margin: "2px 0 0" }}>{t.desc}</p>
                     </button>
                   ))}
                 </div>
@@ -202,7 +202,7 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
                 style={{ width: "100%", padding: "12px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 10, color: "#fff", fontSize: 14, fontWeight: 600, cursor: yukleniyor ? "not-allowed" : "pointer", opacity: yukleniyor ? 0.6 : 1 }}>
                 {yukleniyor ? "Kaydediliyor..." : "Alarmı Kaydet"}
               </button>
-              <p style={{ fontSize: 10, color: "#334155", marginTop: 8, textAlign: "center" }}>Alarm tetiklendiğinde e-posta bildirim alacaksınız.</p>
+              <p style={{ fontSize: 12, color: "#334155", marginTop: 8, textAlign: "center" }}>Alarm tetiklendiğinde e-posta bildirim alacaksınız.</p>
             </>)}
 
             {/* GÖSTERGE ALARMI */}
@@ -254,7 +254,7 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
                 style={{ width: "100%", padding: "12px", background: "linear-gradient(135deg, #5B21B6, #8B5CF6)", border: "none", borderRadius: 10, color: "#fff", fontSize: 14, fontWeight: 600, cursor: yukleniyor ? "not-allowed" : "pointer", opacity: yukleniyor ? 0.6 : 1 }}>
                 {yukleniyor ? "Kaydediliyor..." : "Alarmı Kaydet"}
               </button>
-              <p style={{ fontSize: 10, color: "#334155", marginTop: 8, textAlign: "center" }}>Alarm tetiklendiğinde e-posta bildirim alacaksınız.</p>
+              <p style={{ fontSize: 12, color: "#334155", marginTop: 8, textAlign: "center" }}>Alarm tetiklendiğinde e-posta bildirim alacaksınız.</p>
             </>)}
 
             {/* HABER ALARMI - YAKINDA */}
@@ -299,7 +299,7 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
                     <button key={f.value} onClick={() => setFrekans(f.value as "aninda" | "gunluk")}
                       style={{ padding: "10px 12px", borderRadius: 8, border: `1px solid ${frekans === f.value ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: frekans === f.value ? "rgba(59,130,246,0.1)" : "transparent", cursor: "pointer", textAlign: "left" }}>
                       <p style={{ fontSize: 12, fontWeight: 600, color: frekans === f.value ? "#3B82F6" : "#94A3B8", margin: 0 }}>{f.label}</p>
-                      <p style={{ fontSize: 10, color: "#475569", margin: "2px 0 0" }}>{f.desc}</p>
+                      <p style={{ fontSize: 12, color: "#475569", margin: "2px 0 0" }}>{f.desc}</p>
                     </button>
                   ))}
                 </div>

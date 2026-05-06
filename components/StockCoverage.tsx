@@ -30,7 +30,7 @@ export default function StockCoverage() {
           </p>
           <h2
             className="text-4xl lg:text-5xl font-bold tracking-tight mb-5"
-            style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+            style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
           >
             600&apos;den fazla BIST hissesi.
             <br />
@@ -107,7 +107,7 @@ export default function StockCoverage() {
                     : "text-2xl font-medium mb-3"
                 }
                 style={{
-                  fontFamily: type === "numeric" ? "var(--font-syne)" : "var(--font-manrope)",
+                  fontFamily: type === "numeric" ? "var(--font-geist)" : "var(--font-manrope)",
                   ...(type === "text" ? { color: "#F8FAFC" } : {}),
                 }}
               >

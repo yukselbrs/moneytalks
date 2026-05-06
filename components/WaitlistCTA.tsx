@@ -65,7 +65,7 @@ export default function WaitlistCTA() {
         </p>
         <h2
           className="text-4xl lg:text-5xl font-bold tracking-tight mb-5"
-          style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+          style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
         >
           Erken erişim fırsatını
           <br />

@@ -69,7 +69,7 @@ export default function DashboardChartPanel({
     <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase" }}>Piyasa Grafiği</p>
+          <h2 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>Piyasa Grafiği</h2>
           <div style={{ position: "relative" }}>
             <button onClick={() => setGrafikDropdown(v => !v)}
               style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, padding: "3px 10px", cursor: "pointer" }}>
@@ -171,7 +171,7 @@ export default function DashboardChartPanel({
                 {degisim >= 0 ? "▲ +" : "▼ "}{degisim.toFixed(2).replace(".", ",")}%
               </span>
             )}
-            <span style={{ fontSize: 9, color: "#475569" }}>15 dk gecikmeli</span>
+            <span style={{ fontSize: 12, color: "#475569" }}>15 dk gecikmeli</span>
           </div>
         );
       })()}
@@ -197,10 +197,10 @@ export default function DashboardChartPanel({
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false}/>
-                <XAxis dataKey="tarih" tick={{ fontSize: 10, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                <XAxis dataKey="tarih" tick={{ fontSize: 12, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                 <YAxis
                   domain={[mn - pad, mx + pad]}
-                  tick={{ fontSize: 10, fill: "#334155" }}
+                  tick={{ fontSize: 12, fill: "#334155" }}
                   tickLine={false}
                   axisLine={false}
                   width={60}

@@ -43,7 +43,7 @@ export default function Features() {
           </p>
           <h2
             className="text-4xl lg:text-5xl font-bold tracking-tight"
-            style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+            style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
           >
             İhtiyacınız olan her analiz aracı
           </h2>
@@ -68,7 +68,7 @@ export default function Features() {
               <div>
                 <h3
                   className="text-base font-bold mb-2"
-                  style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+                  style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
                 >
                   {title}
                 </h3>

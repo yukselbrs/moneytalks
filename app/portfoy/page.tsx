@@ -528,7 +528,7 @@ export default function PortfoyPage() {
               ].map(f => (
                 <div key={f.text} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{f.icon}</div>
-                  <div style={{ fontSize: 10, color: "#475569", fontWeight: 500 }}>{f.text}</div>
+                  <div style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>{f.text}</div>
                 </div>
               ))}
             </div>

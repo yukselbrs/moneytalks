@@ -23,10 +23,10 @@ export default function DashboardFooter() {
           {i < FOOTER_LINKS.length - 1 && <span style={{ color: "#334155", margin: "0 8px" }}>·</span>}
         </span>
       ))}
-      <p style={{ fontSize: 10, color: "#334155", marginTop: 8, lineHeight: 1.6 }}>
+      <p style={{ fontSize: 12, color: "#334155", marginTop: 8, lineHeight: 1.6 }}>
         ParaKonuşur yatırım danışmanlığı hizmeti sunmamaktadır. İçerikler yalnızca bilgilendirme amaçlıdır.
       </p>
-      <p style={{ fontSize: 10, color: "#334155", marginTop: 4, lineHeight: 1.6 }}>
+      <p style={{ fontSize: 12, color: "#334155", marginTop: 4, lineHeight: 1.6 }}>
         Veriler 15 dakika gecikmeli olarak sunulmaktadır.
       </p>
     </div>

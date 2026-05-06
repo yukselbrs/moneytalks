@@ -237,7 +237,7 @@ export default function ProfilePage() {
                     { label: "İzleme", value: istatistik.watchlistSayisi },
                   ].map((s) => (
                     <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
-                      <p style={{ fontSize: 10, color: "#475569", marginBottom: 4 }}>{s.label}</p>
+                      <p style={{ fontSize: 12, color: "#475569", marginBottom: 4 }}>{s.label}</p>
                       <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{s.value}</p>
                     </div>
                   ))}
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                 <div key={plan.isim} style={{ border: `1px solid ${plan.aktif ? "rgba(59,130,246,0.2)" : "rgba(249,115,22,0.2)"}`, borderRadius: 12, padding: "20px", background: plan.aktif ? "rgba(59,130,246,0.04)" : "rgba(249,115,22,0.04)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                     <p style={{ fontSize: 16, fontWeight: 700, color: "#F1F5F9" }}>{plan.isim}</p>
-                    {plan.aktif && <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.12)", borderRadius: 20, padding: "3px 10px" }}>AKTİF</span>}
+                    {plan.aktif && <span style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.12)", borderRadius: 20, padding: "3px 10px" }}>AKTİF</span>}
                   </div>
                   <p style={{ fontSize: 22, fontWeight: 800, color: "#F1F5F9", marginBottom: 16 }}>{plan.fiyat}</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>

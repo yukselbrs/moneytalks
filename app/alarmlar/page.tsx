@@ -187,7 +187,7 @@ export default function AlarmlarPage() {
           ].map(s => (
             <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
               <p style={{ fontSize: 20, fontWeight: 800, color: s.renk, margin: 0 }}>{s.value}</p>
-              <p style={{ fontSize: 10, color: "#475569", marginTop: 2 }}>{s.label}</p>
+              <p style={{ fontSize: 12, color: "#475569", marginTop: 2 }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -206,7 +206,7 @@ export default function AlarmlarPage() {
               <p style={{ fontSize: 12, fontWeight: 600, color: h.tip === "haber" ? "#475569" : "#E2E8F0", margin: 0 }}>
                 {h.baslik}
                 {h.tip === "haber" && (
-                  <span style={{ fontSize: 10, marginLeft: 6, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 4, padding: "1px 6px" }}>Yakında</span>
+                  <span style={{ fontSize: 12, marginLeft: 6, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 4, padding: "1px 6px" }}>Yakında</span>
                 )}
               </p>
               <p style={{ fontSize: 11, color: "#475569", margin: "2px 0 0" }}>{h.aciklama}</p>
@@ -246,7 +246,7 @@ export default function AlarmlarPage() {
                     onClick={() => setSekme(s.label)}
                     style={{ fontSize: isMobil ? 12 : 13, fontWeight: 500, padding: isMobil ? "7px 10px" : "8px 14px", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap", color: sekme === s.label ? "#3B82F6" : "#475569", borderBottom: sekme === s.label ? "2px solid #3B82F6" : "2px solid transparent", marginBottom: -1, display: "flex", alignItems: "center", gap: 5 }}>
                     {s.label}
-                    <span style={{ fontSize: 10, fontWeight: 700, color: sekme === s.label ? "#3B82F6" : "#334155", background: sekme === s.label ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.05)", borderRadius: 99, padding: "1px 6px" }}>{s.badge}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: sekme === s.label ? "#3B82F6" : "#334155", background: sekme === s.label ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.05)", borderRadius: 99, padding: "1px 6px" }}>{s.badge}</span>
                   </button>
                 ))}
               </div>

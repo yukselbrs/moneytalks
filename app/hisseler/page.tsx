@@ -4,12 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
 import { Search, X } from "lucide-react";
-
-const RENKLER = ["#3B82F6","#8B5CF6","#EC4899","#F97316","#10B981","#06B6D4","#EAB308","#EF4444","#6366F1","#14B8A6"];
-function tickerRenk(t: string) {
-  let h = 0; for (let i = 0; i < t.length; i++) h = t.charCodeAt(i) + ((h << 5) - h);
-  return RENKLER[Math.abs(h) % RENKLER.length];
-}
+import { tickerRenk } from "@/lib/utils";
 
 type Hisse = {
   ticker: string;
@@ -214,17 +209,17 @@ function HisselerContent() {
                 const active = h.sort && sort === h.sort && sortDir;
                 const alignRight = h.align === "right";
                 if (!h.sort) {
-                  return <p key={h.label} style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}>{h.label}</p>;
+                  return <p key={h.label} style={{ fontSize: 12, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}>{h.label}</p>;
                 }
                 return (
                   <button
                     key={h.label}
                     onClick={() => handleHeaderSort(h.sort!)}
                     title={`${h.label} sıralaması`}
-                    style={{ display: "inline-flex", alignItems: "center", justifyContent: alignRight ? "flex-end" : "flex-start", gap: 4, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 10, fontWeight: 700, color: active ? "#3B82F6" : "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}
+                    style={{ display: "inline-flex", alignItems: "center", justifyContent: alignRight ? "flex-end" : "flex-start", gap: 4, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 12, fontWeight: 700, color: active ? "#3B82F6" : "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}
                   >
                     <span>{h.label}</span>
-                    <span style={{ fontSize: 10, color: active ? "#3B82F6" : "#1E293B" }}>{active ? (sortDir === "desc" ? "↓" : "↑") : "↕"}</span>
+                    <span style={{ fontSize: 12, color: active ? "#3B82F6" : "#1E293B" }}>{active ? (sortDir === "desc" ? "↓" : "↑") : "↕"}</span>
                   </button>
                 );
               })}
@@ -269,7 +264,7 @@ function HisselerContent() {
                       ["3A", hisse.getiri_3a],
                       ["1Y", hisse.getiri_1y],
                     ].map(([label, value]) => (
-                      <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 10, color: "#64748B", whiteSpace: "nowrap" }}>
+                      <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#64748B", whiteSpace: "nowrap" }}>
                         {label} {renderPercent(value)}
                       </span>
                     ))}

@@ -65,7 +65,7 @@ export default function HaberlerPage() {
             </div>
             <button onClick={() => fetchHaberler(aktifTip)} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "7px 14px", fontSize: 12, color: "#64748B", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
               ↻ Yenile
-              {guncelleme && <span style={{ fontSize: 10, color: "#334155" }}>{gorececeZaman(guncelleme)}</span>}
+              {guncelleme && <span style={{ fontSize: 12, color: "#334155" }}>{gorececeZaman(guncelleme)}</span>}
             </button>
           </div>
 
@@ -97,11 +97,11 @@ export default function HaberlerPage() {
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: TIP_RENK[haber.tip] || "#64748B", background: `${TIP_RENK[haber.tip]}18`, border: `1px solid ${TIP_RENK[haber.tip]}33`, borderRadius: 4, padding: "1px 6px", letterSpacing: "0.04em", flexShrink: 0 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: TIP_RENK[haber.tip] || "#64748B", background: `${TIP_RENK[haber.tip]}18`, border: `1px solid ${TIP_RENK[haber.tip]}33`, borderRadius: 4, padding: "1px 6px", letterSpacing: "0.04em", flexShrink: 0 }}>
                           {TIP_ETIKET[haber.tip] || haber.kaynak}
                         </span>
                         {haber.ticker && (
-                          <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.08)", borderRadius: 4, padding: "1px 6px" }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.08)", borderRadius: 4, padding: "1px 6px" }}>
                             {haber.ticker}
                           </span>
                         )}

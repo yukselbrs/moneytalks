@@ -66,7 +66,7 @@ export default function DashboardWatchlistPanel({
   return (
     <div className="dash-surface" style={{ border: "1px solid rgba(59,130,246,0.1)", borderRadius: 14, overflow: "hidden", background: "rgba(255,255,255,0.01)" }}>
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>İzleme Listem</span>
+        <h2 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>İzleme Listem</h2>
         <button
           onClick={() => {
             setWatchlistInputAcik(!watchlistInputAcik);
@@ -144,7 +144,7 @@ export default function DashboardWatchlistPanel({
               { label: "ORT. DEĞİŞİM", value: ortLabel, renk: ortRenk },
             ].map((s, i) => (
               <div key={s.label} style={{ padding: "12px 16px", borderRight: i < 2 ? "1px solid rgba(59,130,246,0.06)" : "none" }}>
-                <div style={{ fontSize: 9, color: "#475569", fontWeight: 600, letterSpacing: "0.07em", marginBottom: 3 }}>{s.label}</div>
+                <div style={{ fontSize: 12, color: "#475569", fontWeight: 600, letterSpacing: "0.07em", marginBottom: 3 }}>{s.label}</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: s.renk }}>{s.value}</div>
               </div>
             ))}
@@ -176,11 +176,11 @@ export default function DashboardWatchlistPanel({
                 <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || w.ticker}</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>FİYAT</div>
+                <div style={{ fontSize: 12, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>FİYAT</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9" }}>{f?.fiyat || "-"} ₺</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>GÜNLÜK</div>
+                <div style={{ fontSize: 12, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>GÜNLÜK</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: f?.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 2 }}>
                   {f ? <><span>{f.yukselis ? "▲" : "▼"}</span><span>{f.yukselis ? "%" : "%-"}{Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}</span></> : "-"}
                 </div>
@@ -200,7 +200,7 @@ export default function DashboardWatchlistPanel({
       )}
 
       <div style={{ borderTop: "1px solid rgba(59,130,246,0.08)", padding: "12px 16px 4px" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 8 }}>Son Analizlerim</div>
+        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 8, marginTop: 0 }}>Son Analizlerim</h3>
         {recent.length === 0 ? (
           <p style={{ fontSize: 12, color: "#1E293B", padding: "8px 0 12px" }}>Henüz analiz yapmadınız</p>
         ) : (
@@ -215,7 +215,7 @@ export default function DashboardWatchlistPanel({
                 <StockLogo ticker={r.ticker} domain={h?.domain} size={32} radius={8} color={tickerRenk(r.ticker)} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{r.ticker}</div>
-                  <div style={{ fontSize: 10, color: "#475569" }}>{r.time}</div>
+                  <div style={{ fontSize: 12, color: "#475569" }}>{r.time}</div>
                 </div>
                 <span style={{ fontSize: 12, color: "#3B82F6" }}>→</span>
               </div>

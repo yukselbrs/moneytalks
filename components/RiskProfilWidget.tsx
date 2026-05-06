@@ -94,7 +94,7 @@ export default function RiskProfilWidget() {
         </div>
         {oneri && (
           <button onClick={() => { setOneri(null); setMevcutProfil(null); setAdim(0); setCevaplar({}); }}
-            style={{ fontSize: 10, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "2px 10px", cursor: "pointer" }}>
+            style={{ fontSize: 12, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "2px 10px", cursor: "pointer" }}>
             Yenile
           </button>
         )}
@@ -110,7 +110,7 @@ export default function RiskProfilWidget() {
         ) : oneri ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <p style={{ fontSize: 12, color: "#64748B", lineHeight: 1.6, fontStyle: "italic" }}>"{oneri.profil}"</p>
-            <p style={{ fontSize: 10, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Önerilen Hisseler</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Önerilen Hisseler</p>
             {oneri.hisseler?.map((h) => (
               <div key={h.ticker} onClick={() => router.push(`/hisse/${h.ticker}`)}
                 style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 12px", background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, cursor: "pointer" }}
@@ -120,7 +120,7 @@ export default function RiskProfilWidget() {
                 <span style={{ fontSize: 11, color: "#475569", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.neden}</span>
               </div>
             ))}
-            <p style={{ fontSize: 9, color: "#1E293B", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.</p>
+            <p style={{ fontSize: 12, color: "#1E293B", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

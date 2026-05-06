@@ -37,7 +37,7 @@ export default function SecuritySection() {
           </p>
           <h2
             className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-5"
-            style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+            style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
           >
             Güvenlik ve Şeffaflık
           </h2>
@@ -64,7 +64,7 @@ export default function SecuritySection() {
               </div>
               <h3
                 className="text-base font-bold mb-3"
-                style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+                style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
               >
                 {title}
               </h3>

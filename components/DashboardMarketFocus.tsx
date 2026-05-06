@@ -85,7 +85,7 @@ export default function DashboardMarketFocus({
               {t.label}
             </button>
           ))}
-          <span style={{ marginLeft: "auto", fontSize: 10, color: "#334155" }}>15 dk gecikmeli</span>
+          <span style={{ marginLeft: "auto", fontSize: 12, color: "#334155" }}>15 dk gecikmeli</span>
         </div>
         {liste.map((s, i) => {
           const h = bistHisseler.find(b => b.ticker === s.ticker);
@@ -101,11 +101,11 @@ export default function DashboardMarketFocus({
                 <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h?.name || s.ticker}</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>FİYAT</div>
+                <div style={{ fontSize: 12, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>FİYAT</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.3px" }}>{s.fiyat} ₺</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>GÜNLÜK</div>
+                <div style={{ fontSize: 12, color: "#334155", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 2 }}>GÜNLÜK</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: s.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 3 }}>
                   <span>{s.yukselis ? "▲" : "▼"}</span>
                   <span>{s.yukselis ? "%" : "%-"}{Math.abs(Number(s.degisim)).toFixed(2).replace(".", ",")}</span>

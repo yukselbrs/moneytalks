@@ -35,7 +35,7 @@ export default function HowItWorks() {
           </p>
           <h2
             className="text-4xl lg:text-5xl font-extrabold tracking-tight"
-            style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+            style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
           >
             Üç adımda piyasayı anlayın
           </h2>
@@ -76,7 +76,7 @@ export default function HowItWorks() {
 
                 <h3
                   className="text-xl font-bold mb-4"
-                  style={{ color: "#F8FAFC", fontFamily: "var(--font-syne)" }}
+                  style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
                 >
                   {step.title}
                 </h3>

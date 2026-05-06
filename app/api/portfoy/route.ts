@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { extractBearerToken } from "@/lib/utils";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -11,9 +12,8 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl!, supabaseKey!);
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
-  const token = authHeader.replace("Bearer ", "");
+  const token = extractBearerToken(req);
+  if (!token) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
 
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
@@ -29,9 +29,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
-  const token = authHeader.replace("Bearer ", "");
+  const token = extractBearerToken(req);
+  if (!token) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
 
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
@@ -55,9 +54,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
-  const token = authHeader.replace("Bearer ", "");
+  const token = extractBearerToken(req);
+  if (!token) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
 
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });

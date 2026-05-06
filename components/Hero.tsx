@@ -99,7 +99,7 @@ export default function Hero({ heroVideo }: HeroProps) {
             {/* Headline */}
             <h1
               className="animate-fade-up delay-200 text-5xl lg:text-[72px] leading-[1.05] font-bold tracking-tight mb-6"
-              style={{ fontFamily: "var(--font-syne)" }}
+              style={{ fontFamily: "var(--font-geist)" }}
             >
               <span style={{ color: "#F8FAFC" }}>Borsa artık</span>
               <br />

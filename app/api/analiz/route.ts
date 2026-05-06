@@ -2,19 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { normalizeTicker, extractBearerToken } from "@/lib/utils";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-const ALLOWED_TICKERS = new Set([
-  ...BIST_HISSELER.map((h) => h.ticker),
-  "XU100",
-  "XU030",
-  "XU050",
-]);
 
 function titleCaseTr(value: string) {
   return value
@@ -63,23 +57,27 @@ async function getHisseVerisi(ticker: string) {
   }
 }
 
-const rateLimitMap = new Map<string, { count: number; ts: number }>();
 const RATE_LIMIT = 10;
 const RATE_WINDOW = 3600000;
 
-function normalizeTicker(raw: unknown): string | null {
-  if (typeof raw !== "string") return null;
-  const ticker = raw.trim().toUpperCase().replace(/\.IS$/, "").replace(/=X$/, "");
-  if (!/^[A-Z0-9]{2,10}$/.test(ticker)) return null;
-  if (!ALLOWED_TICKERS.has(ticker)) return null;
-  return ticker;
+const g = globalThis as typeof globalThis & {
+  analizRateLimit?: Map<string, { count: number; ts: number }>;
+  analizRateLimitCleanup?: NodeJS.Timeout;
+};
+if (!g.analizRateLimit) g.analizRateLimit = new Map();
+if (!g.analizRateLimitCleanup) {
+  g.analizRateLimitCleanup = setInterval(() => {
+    const now = Date.now();
+    g.analizRateLimit!.forEach((v, k) => { if (now - v.ts > RATE_WINDOW * 2) g.analizRateLimit!.delete(k); });
+  }, RATE_WINDOW);
 }
 
 function checkRateLimit(key: string): boolean {
   const now = Date.now();
-  const entry = rateLimitMap.get(key);
+  const map = g.analizRateLimit!;
+  const entry = map.get(key);
   if (!entry || now - entry.ts > RATE_WINDOW) {
-    rateLimitMap.set(key, { count: 1, ts: now });
+    map.set(key, { count: 1, ts: now });
     return true;
   }
   if (entry.count >= RATE_LIMIT) return false;
@@ -104,11 +102,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ veri });
   }
 
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+  const token = extractBearerToken(req);
+  if (!token) {
     return NextResponse.json({ error: "Analiz için giriş gerekli" }, { status: 401 });
   }
-  const token = authHeader.slice(7);
   const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
   if (authError || !user) {
     return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
