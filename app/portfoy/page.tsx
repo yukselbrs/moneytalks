@@ -117,6 +117,7 @@ export default function PortfoyPage() {
   const [fiyatlarYenileniyor, setFiyatlarYenileniyor] = useState(false);
   const isMobil = useMediaQuery("(max-width: 767px)");
   const [acikHisse, setAcikHisse] = useState<string | null>(null);
+  const [getiriModu, setGetiriModu] = useState<"daily" | "total">("total");
 
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
     const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
@@ -290,6 +291,17 @@ export default function PortfoyPage() {
     return { maliyet_toplam, guncel_toplam, pl, plYuzde };
   };
 
+  const gunlukHesapla = (item: PortfoyItem) => {
+    const fiyat = fiyatlar[item.ticker]?.fiyat;
+    if (!fiyat) return null;
+    const degisim = fiyatlar[item.ticker]?.degisim ?? 0;
+    const oncekiFiyat = degisim !== -100 ? fiyat / (1 + degisim / 100) : fiyat;
+    const gunluk = item.adet * (fiyat - oncekiFiyat);
+    const oncekiDeger = item.adet * oncekiFiyat;
+    const gunlukYuzde = oncekiDeger > 0 ? (gunluk / oncekiDeger) * 100 : 0;
+    return { gunluk, gunlukYuzde };
+  };
+
   const toplamMaliyet = portfoy.reduce((acc, p) => acc + p.adet * p.maliyet, 0);
   const toplamGuncel = portfoy.reduce((acc, p) => {
     const f = fiyatlar[p.ticker]?.fiyat;
@@ -297,6 +309,18 @@ export default function PortfoyPage() {
   }, 0);
   const toplamPL = toplamGuncel - toplamMaliyet;
   const toplamPLYuzde = toplamMaliyet > 0 ? (toplamPL / toplamMaliyet) * 100 : 0;
+  const oncekiToplam = portfoy.reduce((acc, p) => {
+    const fiyat = fiyatlar[p.ticker]?.fiyat;
+    if (!fiyat) return acc + p.adet * p.maliyet;
+    const degisim = fiyatlar[p.ticker]?.degisim ?? 0;
+    const oncekiFiyat = degisim !== -100 ? fiyat / (1 + degisim / 100) : fiyat;
+    return acc + p.adet * oncekiFiyat;
+  }, 0);
+  const gunlukPL = toplamGuncel - oncekiToplam;
+  const gunlukPLYuzde = oncekiToplam > 0 ? (gunlukPL / oncekiToplam) * 100 : 0;
+  const aktifPL = getiriModu === "daily" ? gunlukPL : toplamPL;
+  const aktifPLYuzde = getiriModu === "daily" ? gunlukPLYuzde : toplamPLYuzde;
+  const aktifPozitif = aktifPL >= 0;
 
 
 
@@ -387,13 +411,37 @@ export default function PortfoyPage() {
               <p className="portfolio-number text-white font-extrabold text-xl tracking-tight">{toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
               <p className="text-orange-400 text-[11px] font-semibold mt-1">15 dk gecikmeli</p>
             </div>
-            <div className={`portfolio-summary-card border rounded-xl p-4 ${toplamPL >= 0 ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
-              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Toplam K/Z</p>
-              <p className={`portfolio-number font-extrabold text-xl tracking-tight ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                {toplamPL >= 0 ? "+" : ""}{toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+            <div className={`portfolio-summary-card border rounded-xl p-4 ${aktifPozitif ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em]">{getiriModu === "daily" ? "Günlük K/Z" : "Toplam K/Z"}</p>
+                  <span
+                    title="Günlük K/Z, pozisyonların portföydeki ağırlığına göre hesaplanır."
+                    className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-slate-600 text-[9px] font-bold text-slate-500"
+                  >
+                    i
+                  </span>
+                </div>
+                <div className="inline-flex rounded-lg border border-slate-700/80 bg-slate-900/40 p-0.5">
+                  {[
+                    { key: "daily" as const, label: "Günlük" },
+                    { key: "total" as const, label: "Total" },
+                  ].map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={() => setGetiriModu(item.key)}
+                      className={`rounded-md px-2 py-1 text-[10px] font-bold transition-colors ${getiriModu === item.key ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className={`portfolio-number font-extrabold text-xl tracking-tight ${aktifPozitif ? "text-emerald-400" : "text-red-400"}`}>
+                {aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
               </p>
-              <p className={`portfolio-number text-xs font-semibold ${toplamPL >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                {toplamPLYuzde >= 0 ? "+" : ""}{toplamPLYuzde.toFixed(2)}%
+              <p className={`portfolio-number text-xs font-semibold ${aktifPozitif ? "text-emerald-500" : "text-red-500"}`}>
+                {aktifPLYuzde >= 0 ? "+" : ""}{aktifPLYuzde.toFixed(2)}%
               </p>
             </div>
             {portfoyRiskSkor && (
@@ -496,6 +544,16 @@ export default function PortfoyPage() {
                         <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">K/Z %</p><p className={`font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>{pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}</p></div>
                         <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Ana Para</p><p className="text-white font-semibold">{(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p></div>
                         <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Güncel Değer</p><p className="text-white font-semibold">{pl ? pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 }) : "—"} ₺</p></div>
+                        {(() => {
+                          const gunluk = gunlukHesapla(item);
+                          const pozitif = gunluk ? gunluk.gunluk >= 0 : null;
+                          return (
+                            <>
+                              <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Günlük ₺</p><p className={`font-semibold ${pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400"}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p></div>
+                              <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Günlük %</p><p className={`font-semibold ${pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400"}`}>{gunluk ? `${gunluk.gunlukYuzde >= 0 ? "+" : ""}${gunluk.gunlukYuzde.toFixed(2)}%` : "—"}</p></div>
+                            </>
+                          );
+                        })()}
                       </div>
                       <div className="mb-3 rounded-xl border border-slate-700/60 bg-slate-900/35 p-3">
                         <div className="flex items-center justify-between gap-3">
@@ -554,6 +612,7 @@ export default function PortfoyPage() {
                   <th className="text-right px-3 py-3 font-medium">Güncel Fiyat</th>
                   <th className="text-right px-4 py-3 font-medium">Ana Para</th>
                   <th className="text-right px-4 py-3 font-medium">Güncel Değer</th>
+                  <th className="text-right px-4 py-3 font-medium hidden md:table-cell">Günlük Katkı</th>
                   <th className="text-right px-4 py-3 font-medium">K/Z ₺</th>
                   <th className="text-right px-4 py-3 font-medium">K/Z %</th>
                   <th className="px-4 py-3"></th>
@@ -565,6 +624,8 @@ export default function PortfoyPage() {
                   const fiyat = fiyatlar[item.ticker];
                   const risk = riskler[item.ticker];
                   const isPos = pl ? pl.pl >= 0 : null;
+                  const gunluk = gunlukHesapla(item);
+                  const gunlukPozitif = gunluk ? gunluk.gunluk >= 0 : null;
                   return (
                     <React.Fragment key={item.id}>
                     <tr className={`hover:bg-slate-700/20 transition-colors ${!risk?.detay && idx !== portfoy.length - 1 ? "border-b border-slate-700/50" : ""}`}>
@@ -609,6 +670,14 @@ export default function PortfoyPage() {
                       <td className="portfolio-number px-4 py-4 text-right text-white hidden sm:table-cell">
                         {pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : <span className="text-slate-500">—</span>}
                       </td>
+                      <td className={`portfolio-number px-4 py-4 text-right font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-500" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
+                        {gunluk ? (
+                          <div>
+                            <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</div>
+                            <div className="text-[11px] opacity-75">{gunluk.gunlukYuzde >= 0 ? "+" : ""}{gunluk.gunlukYuzde.toFixed(2)}%</div>
+                          </div>
+                        ) : "—"}
+                      </td>
                       <td className={`portfolio-number px-4 py-4 text-right font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                         {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
                       </td>
@@ -639,7 +708,7 @@ export default function PortfoyPage() {
                     </tr>
                     {risk?.detay && risk?.bilesenler && (
                       <tr key={item.id + "_detay"} className="border-b border-slate-700/50 bg-slate-900/30">
-                        <td colSpan={9} className="px-4 py-3">
+                        <td colSpan={10} className="px-4 py-3">
                           <RiskBilesenGrid bilesenler={risk.bilesenler} />
                         </td>
                       </tr>
