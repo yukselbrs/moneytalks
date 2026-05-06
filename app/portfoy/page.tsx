@@ -311,6 +311,11 @@ export default function PortfoyPage() {
   return (
     <AppShell>
       <div className="max-w-6xl mx-auto py-6" style={{overflowX: "hidden", paddingLeft: "12px", paddingRight: "12px", boxSizing: "border-box", width: "100%"}}>
+        <style>{`
+          .portfolio-number { font-variant-numeric: tabular-nums; }
+          .portfolio-summary-card { transition: border-color 0.16s ease, background 0.16s ease; }
+          .portfolio-summary-card:hover { border-color: rgba(59,130,246,0.24); background: rgba(30,41,59,0.68); }
+        `}</style>
 
         <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
           <div>
@@ -372,31 +377,33 @@ export default function PortfoyPage() {
         )}
         {portfoy.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
-              <p className="text-slate-400 text-xs mb-1">Toplam Maliyet</p>
-              <p className="text-white font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+            <div className="portfolio-summary-card bg-slate-800/60 border border-slate-700 rounded-xl p-3">
+              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Toplam Maliyet</p>
+              <p className="portfolio-number text-slate-100 font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+              <p className="text-slate-600 text-[11px] mt-1">{portfoy.length} pozisyon</p>
             </div>
-            <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
-              <p className="text-slate-400 text-xs mb-1">Güncel Değer</p>
-              <p className="text-white font-bold text-lg">{toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+            <div className="portfolio-summary-card bg-slate-800/60 border border-slate-700 rounded-xl p-3">
+              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Güncel Değer</p>
+              <p className="portfolio-number text-white font-extrabold text-xl tracking-tight">{toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+              <p className="text-orange-400 text-[11px] font-semibold mt-1">15 dk gecikmeli</p>
             </div>
-            <div className={`border rounded-xl p-4 ${toplamPL >= 0 ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
-              <p className="text-slate-400 text-xs mb-1">Toplam K/Z</p>
-              <p className={`font-bold text-lg ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            <div className={`portfolio-summary-card border rounded-xl p-4 ${toplamPL >= 0 ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
+              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Toplam K/Z</p>
+              <p className={`portfolio-number font-extrabold text-xl tracking-tight ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {toplamPL >= 0 ? "+" : ""}{toplamPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
               </p>
-              <p className={`text-xs ${toplamPL >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+              <p className={`portfolio-number text-xs font-semibold ${toplamPL >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                 {toplamPLYuzde >= 0 ? "+" : ""}{toplamPLYuzde.toFixed(2)}%
               </p>
             </div>
             {portfoyRiskSkor && (
-              <div className={`border rounded-xl p-4 ${
+              <div className={`portfolio-summary-card border rounded-xl p-4 ${
                 portfoyRiskSkor.yukleniyor ? "bg-slate-800/60 border-slate-700" :
                 portfoyRiskSkor.seviye === "Yüksek" ? "bg-red-900/20 border-red-800/40" :
                 portfoyRiskSkor.seviye === "Orta" ? "bg-yellow-900/20 border-yellow-800/40" :
                 "bg-emerald-900/20 border-emerald-800/40"
               }`}>
-                <p className="text-slate-400 text-xs mb-1">Portföy Riski</p>
+                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Portföy Riski</p>
                 {portfoyRiskSkor.yukleniyor ? (
                   <p className="text-slate-500 text-sm animate-pulse">Hesaplanıyor...</p>
                 ) : (
@@ -591,21 +598,21 @@ export default function PortfoyPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-3 py-4 text-right text-white hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
-                      <td className="px-4 py-4 text-right text-slate-300">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
-                      <td className="px-4 py-4 text-right text-white">
+                      <td className="portfolio-number px-3 py-4 text-right text-white hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
+                      <td className="portfolio-number px-4 py-4 text-right text-slate-300">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
+                      <td className="portfolio-number px-4 py-4 text-right text-white">
                         {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : <span className="text-slate-500">—</span>}
                       </td>
-                      <td className="px-4 py-4 text-right text-slate-300 hidden sm:table-cell">
+                      <td className="portfolio-number px-4 py-4 text-right text-slate-300 hidden sm:table-cell">
                         {(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
                       </td>
-                      <td className="px-4 py-4 text-right text-white hidden sm:table-cell">
+                      <td className="portfolio-number px-4 py-4 text-right text-white hidden sm:table-cell">
                         {pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : <span className="text-slate-500">—</span>}
                       </td>
-                      <td className={`px-4 py-4 text-right font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                      <td className={`portfolio-number px-4 py-4 text-right font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                         {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
                       </td>
-                      <td className={`px-4 py-4 text-right font-medium hidden sm:table-cell ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                      <td className={`portfolio-number px-4 py-4 text-right font-medium hidden sm:table-cell ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                         {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
                       </td>
                       <td className="px-4 py-4">
