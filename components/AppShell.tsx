@@ -180,11 +180,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     },
   ];
 
+  // Desktop nav groups (index into navItems)
+  // 0:Dashboard 1:Portföy 2:Analizler 3:Hisseler 4:İzleme 5:Haberler 6:Blog 7:Takvim 8:Alarmlar 9:Bildirimler
+  const navGroups: { label?: string; indices: number[] }[] = [
+    { indices: [0] },
+    { label: "PİYASA", indices: [3, 4, 5] },
+    { label: "KİŞİSEL", indices: [1, 2, 8] },
+    { label: "KEŞFET", indices: [7, 6, 9] },
+  ];
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#060C18", fontFamily: "var(--font-manrope, sans-serif)" }}>
       <style>{`
         .sb-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border-radius: 10px; cursor: pointer; text-decoration: none; transition: background 0.15s; font-size: 14px; font-weight: 500; }
         .sb-item:hover { background: rgba(255,255,255,0.05); }
+        .sb-nav-item { display: flex; align-items: center; border-radius: 8px; text-decoration: none; cursor: pointer; font-size: 13.5px; transition: background 0.12s; width: 100%; border: none; background: transparent; text-align: left; }
+        .sb-nav-item:hover { background: rgba(255,255,255,0.045) !important; }
+        .sb-nav-sep { height: 1px; background: rgba(255,255,255,0.045); margin: 6px 4px; }
         .sb-sidebar { transition: width 0.22s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
         @media (max-width: 767px) {
           .sb-desktop { display: none !important; }
@@ -266,29 +278,47 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        {/* Nav Items */}
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
-          return (
-            <a key={item.label} href={item.href} className="sb-item"
-              onMouseEnter={collapsed ? e => showTip(e, item.label) : undefined}
-              onMouseLeave={collapsed ? () => setTip(null) : undefined}
-              style={{
-              color: isActive ? "#fff" : "#64748B",
-              background: isActive ? "rgba(59,130,246,0.15)" : undefined,
-              border: isActive ? "1px solid rgba(59,130,246,0.2)" : "1px solid transparent",
-              justifyContent: collapsed ? "center" : undefined,
-              padding: collapsed ? "10px 0" : undefined,
-              gap: collapsed ? 0 : undefined,
-            }}>
-              <span style={{ color: isActive ? "#3B82F6" : "#475569", flexShrink: 0 }}>{item.icon}</span>
-              {!collapsed && item.label}
-            </a>
-          );
-        })}
+        {/* Nav Groups */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
+          {navGroups.map((group, gi) => (
+            <div key={gi}>
+              {gi > 0 && <div className="sb-nav-sep" />}
+              {!collapsed && group.label && (
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#2D3F55", letterSpacing: "0.1em", textTransform: "uppercase", padding: "10px 12px 4px" }}>
+                  {group.label}
+                </div>
+              )}
+              {group.indices.map(idx => {
+                const item = navItems[idx];
+                const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="sb-nav-item"
+                    onMouseEnter={collapsed ? e => showTip(e, item.label) : undefined}
+                    onMouseLeave={collapsed ? () => setTip(null) : undefined}
+                    style={{
+                      gap: collapsed ? 0 : 10,
+                      justifyContent: collapsed ? "center" : undefined,
+                      padding: collapsed ? "9px 0" : `9px 10px 9px ${isActive ? "9px" : "12px"}`,
+                      borderLeft: collapsed ? "none" : isActive ? "3px solid #3B82F6" : "3px solid transparent",
+                      background: isActive ? "rgba(59,130,246,0.1)" : undefined,
+                      color: isActive ? "#E2E8F0" : "#64748B",
+                      fontWeight: isActive ? 600 : 500,
+                    }}
+                  >
+                    <span style={{ color: isActive ? "#60A5FA" : "#3D5066", flexShrink: 0, display: "flex" }}>{item.icon}</span>
+                    {!collapsed && <span style={{ whiteSpace: "nowrap" }}>{item.label}</span>}
+                  </a>
+                );
+              })}
+            </div>
+          ))}
+        </div>
 
         {/* Pro Banner */}
-        <div style={{ marginTop: "auto", paddingBottom: 4 }}>
+        <div style={{ paddingBottom: 4 }}>
           {collapsed ? (
             <a href="/pro" onMouseEnter={e => showTip(e, "Pro'ya Yükselt")} onMouseLeave={() => setTip(null)}
               style={{ display: "flex", justifyContent: "center", padding: "10px 0", textDecoration: "none" }}>
