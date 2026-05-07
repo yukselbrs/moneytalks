@@ -104,7 +104,6 @@ export default function DashboardPage() {
   const { watchlist, recent, fiyatlar, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const { portfoyOzet, loadPortfolioSummary } = usePortfolioSummary();
   const [kapHaberler, setKapHaberler] = useState<{ ticker: string; title: string; time: string }[]>([]);
-  const [recentAnalizler, setRecentAnalizler] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) return;
@@ -222,20 +221,6 @@ export default function DashboardPage() {
         loadPortfolioSummary(),
       ]);
       setLoading(false);
-      // Recent analizleri Supabase'den çek
-      supabase.from("analizler").select("ticker, analiz").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(20).then(({ data }) => {
-        if (!data) return;
-        const map: Record<string, string> = {};
-        data.forEach((row: { ticker: string; analiz: string }) => {
-          if (map[row.ticker]) return;
-          const temiz = row.analiz.replace(/[#*]/g, "").trim();
-          const satirlar = temiz.split("\n").map((s: string) => s.trim()).filter((s: string) => s.length > 30);
-          const ilk = satirlar[0] || temiz;
-          const cumle = ilk.match(/^.+?[.!?]/)?.[0]?.trim() || ilk;
-          map[row.ticker] = cumle.length > 95 ? cumle.slice(0, 95) + "…" : cumle;
-        });
-        setRecentAnalizler(map);
-      });
     });
   }, [loadPortfolioSummary, loadWatchlist, router]);
 
@@ -373,7 +358,6 @@ export default function DashboardPage() {
           watchlist={watchlist}
           fiyatlar={fiyatlar}
           recent={recent}
-          recentAnalizler={recentAnalizler}
           watchlistInput={watchlistInput}
           watchlistInputAcik={watchlistInputAcik}
           tickerRenk={tickerRenk}

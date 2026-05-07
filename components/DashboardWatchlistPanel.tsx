@@ -28,7 +28,6 @@ type DashboardWatchlistPanelProps = {
   watchlist: WatchlistItem[];
   fiyatlar: Record<string, Fiyat>;
   recent: RecentAnalysis[];
-  recentAnalizler?: Record<string, string>;
   watchlistInput: string;
   watchlistInputAcik: boolean;
   tickerRenk: (ticker: string) => string;
@@ -44,7 +43,6 @@ export default function DashboardWatchlistPanel({
   watchlist,
   fiyatlar,
   recent,
-  recentAnalizler,
   watchlistInput,
   watchlistInputAcik,
   tickerRenk,
@@ -212,25 +210,23 @@ export default function DashboardWatchlistPanel({
           recent.map((r, i) => {
             const h = bistHisseler.find((b) => b.ticker === r.ticker);
             const f = fiyatlar[r.ticker];
-            const ozet = recentAnalizler?.[r.ticker];
             return (
               <div
                 key={`${r.ticker}-${r.time}-${i}`}
                 onClick={() => goToHisse(r.ticker)}
-                style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(59,130,246,0.03)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 <StockLogo ticker={r.ticker} domain={h?.domain} size={36} radius={9} color={tickerRenk(r.ticker)} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: ozet ? 3 : 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{r.ticker}</span>
-                    {h?.name && <span style={{ fontSize: 10, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</span>}
+                    {h?.name && <span style={{ fontSize: 10, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</span>}
                   </div>
-                  {ozet && <div style={{ fontSize: 11, color: "#64748B", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 2 }}>{ozet}</div>}
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
-                    <span style={{ fontSize: 10, color: "#334155" }}>{r.time}</span>
+                    <span style={{ fontSize: 10, color: "#475569" }}>{r.time}</span>
                   </div>
                 </div>
                 {f && (
