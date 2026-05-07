@@ -40,6 +40,7 @@ type DashboardSidePanelProps = {
 
 function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary | null }) {
   const [mod, setMod] = useState<"total" | "daily">("total");
+  const [infoTip, setInfoTip] = useState<{ x: number; y: number } | null>(null);
 
   if (!portfoyOzet) {
     return (
@@ -68,18 +69,20 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
             <span style={{ fontSize: 12, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
             <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
           </span>
-          <span style={{ position: "relative", display: "inline-flex" }} className="portfolio-info-tooltip">
-            <button
-              type="button"
-              aria-label="Günlük getiri açıklaması"
-              style={{ width: 14, height: 14, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.22)", background: "transparent", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, cursor: "help", padding: 0 }}
-            >
-              i
-            </button>
-            <span style={{ position: "absolute", left: "50%", bottom: "calc(100% + 8px)", transform: "translateX(-50%) translateY(2px)", width: 220, background: "#0F172A", border: "1px solid rgba(59,130,246,0.24)", color: "#CBD5E1", fontSize: 12, fontWeight: 600, lineHeight: 1.35, padding: "7px 9px", borderRadius: 8, boxShadow: "0 12px 28px rgba(0,0,0,0.32)", opacity: 0, pointerEvents: "none", transition: "opacity 0.08s ease, transform 0.08s ease", zIndex: 30 }} className="portfolio-info-tooltip-content">
+          <button
+            type="button"
+            aria-label="Günlük getiri açıklaması"
+            onMouseEnter={e => { const r = e.currentTarget.getBoundingClientRect(); setInfoTip({ x: r.left + r.width / 2, y: r.top - 8 }); }}
+            onMouseLeave={() => setInfoTip(null)}
+            style={{ width: 15, height: 15, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, cursor: "help", padding: 0, flexShrink: 0 }}
+          >
+            i
+          </button>
+          {infoTip && (
+            <div style={{ position: "fixed", left: infoTip.x, top: infoTip.y, transform: "translate(-50%, -100%)", width: 210, background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", color: "#94A3B8", fontSize: 11, fontWeight: 500, lineHeight: 1.5, padding: "8px 10px", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.4)", pointerEvents: "none", zIndex: 9999 }}>
               Günlük getiri, hisselerin portföydeki ağırlığına göre hesaplanır.
-            </span>
-          </span>
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(148,163,184,0.10)", borderRadius: 7, padding: 2 }}>
