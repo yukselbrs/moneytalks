@@ -63,44 +63,44 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
 
   return (
     <div className="dash-surface" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <h2 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>Portföy Özeti</h2>
-          <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
-            <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
-          </span>
-          <button
-            type="button"
-            aria-label="Günlük getiri açıklaması"
-            onMouseEnter={e => { const r = e.currentTarget.getBoundingClientRect(); setInfoTip({ x: r.left + r.width / 2, y: r.top - 8 }); }}
-            onMouseLeave={() => setInfoTip(null)}
-            style={{ width: 15, height: 15, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, cursor: "help", padding: 0, flexShrink: 0 }}
-          >
-            i
-          </button>
-          {infoTip && (
-            <div style={{ position: "fixed", left: infoTip.x, top: infoTip.y, transform: "translate(-50%, -100%)", width: 210, background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", color: "#94A3B8", fontSize: 11, fontWeight: 500, lineHeight: 1.5, padding: "8px 10px", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.4)", pointerEvents: "none", zIndex: 9999 }}>
-              Günlük getiri, hisselerin portföydeki ağırlığına göre hesaplanır.
-            </div>
-          )}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(148,163,184,0.10)", borderRadius: 7, padding: 2 }}>
-            {[
-              { key: "daily" as const, label: "Günlük" },
-              { key: "total" as const, label: "Total" },
-            ].map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setMod(item.key)}
-                style={{ border: "none", borderRadius: 5, padding: "3px 7px", fontSize: 12, fontWeight: 700, cursor: "pointer", background: mod === item.key ? "#3B82F6" : "transparent", color: mod === item.key ? "#fff" : "#64748B" }}
-              >
-                {item.label}
-              </button>
-            ))}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <h2 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0, whiteSpace: "nowrap" }}>Portföy Özeti</h2>
+            <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
+              <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
+            </span>
+            <button
+              type="button"
+              aria-label="Günlük getiri açıklaması"
+              onMouseEnter={e => { const r = e.currentTarget.getBoundingClientRect(); setInfoTip({ x: r.left + r.width / 2, y: r.top - 8 }); }}
+              onMouseLeave={() => setInfoTip(null)}
+              style={{ width: 15, height: 15, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, cursor: "help", padding: 0, flexShrink: 0 }}
+            >
+              i
+            </button>
+            {infoTip && (
+              <div style={{ position: "fixed", left: infoTip.x, top: infoTip.y, transform: "translate(-50%, -100%)", width: 210, background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", color: "#94A3B8", fontSize: 11, fontWeight: 500, lineHeight: 1.5, padding: "8px 10px", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.4)", pointerEvents: "none", zIndex: 9999 }}>
+                Günlük getiri, hisselerin portföydeki ağırlığına göre hesaplanır.
+              </div>
+            )}
           </div>
-          <a href="/portfoy" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
+          <a href="/portfoy" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none", whiteSpace: "nowrap" }}>Tümü →</a>
+        </div>
+        <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(148,163,184,0.10)", borderRadius: 7, padding: 2 }}>
+          {[
+            { key: "daily" as const, label: "Günlük" },
+            { key: "total" as const, label: "Total" },
+          ].map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setMod(item.key)}
+              style={{ border: "none", borderRadius: 5, padding: "3px 9px", fontSize: 11, fontWeight: 700, cursor: "pointer", background: mod === item.key ? "#3B82F6" : "transparent", color: mod === item.key ? "#fff" : "#64748B" }}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
       </div>
       <div style={{ marginBottom: 12 }}>
