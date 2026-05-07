@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 import StockLogo from "@/components/StockLogo";
-import { Sparkles, Star } from "lucide-react";
+import { Sparkles, Star, Building2, TrendingUp, Target, AlertTriangle, Activity } from "lucide-react";
 
 const HisseGrafik = dynamic(() => import("@/components/HisseGrafik"), {
   ssr: false,
@@ -28,17 +28,19 @@ interface HisseVeri {
 }
 
 function renderMarkdown(text: string) {
-  const sections: { title: string; body: string }[] = [];
+  const sections: { title: string; body: string; bullets: string[] }[] = [];
   const lines = text.split("\n");
-  let current: { title: string; body: string } | null = null;
+  let current: { title: string; body: string; bullets: string[] } | null = null;
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith("#")) continue;
     if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
       if (current) sections.push(current);
-      current = { title: trimmed.replace(/\*\*/g, ""), body: "" };
+      current = { title: trimmed.replace(/\*\*/g, ""), body: "", bullets: [] };
+    } else if ((trimmed.startsWith("- ") || trimmed.startsWith("• ")) && current) {
+      current.bullets.push(trimmed.replace(/^[-•]\s*/, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1"));
     } else if (trimmed && current) {
-      current.body += (current.body ? " " : "") + trimmed;
+      current.body += (current.body ? " " : "") + trimmed.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1");
     }
   }
   if (current) sections.push(current);
@@ -63,6 +65,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [izlemede, setIzlemede] = useState(false);
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
   const [fundamentals, setFundamentals] = useState<{pe: string, pb: string} | null>(null);
+  const [riskVeri, setRiskVeri] = useState<{ skor: number; seviyeTR: string } | null>(null);
 
   useEffect(() => {
     document.title = `${ticker} Analizi | ParaKonusur — BIST Yapay Zeka`;
@@ -144,6 +147,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     fetch(`/api/risk?ticker=${ticker}`)
       .then(r => r.json())
       .then(d => {
+        if (d.skor !== undefined) setRiskVeri({ skor: Math.round(d.skor), seviyeTR: d.seviyeTR || "" });
         if (d.bilesenler) {
           const pe = d.bilesenler.find((f: {ad: string}) => f.ad === "F/K Orani");
           const pb = d.bilesenler.find((f: {ad: string}) => f.ad === "PD/DD Orani");
@@ -249,11 +253,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         .hisse-range-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .hisse-range-btns { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(148,163,184,0.10); border-radius: 8px; background: rgba(255,255,255,0.035); }
         .hisse-chart-shell { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 12px; padding: 18px 10px 10px 0; }
+        .hisse-analiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         @media (max-width: 640px) {
           .hisse-main { padding: 14px 12px !important; }
           .hisse-header { flex-direction: column; gap: 12px; padding: 14px !important; }
           .hisse-header-right { width: 100%; display: flex; flex-direction: row !important; align-items: center; justify-content: space-between; }
           .hisse-kartlar { grid-template-columns: 1fr 1fr; gap: 6px; }
+          .hisse-analiz-grid { grid-template-columns: 1fr !important; }
           .hisse-title-row { align-items: flex-start !important; }
           .hisse-ticker { font-size: 22px !important; }
           .hisse-fiyat { font-size: 17px !important; }
@@ -350,29 +356,73 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             fetchGrafik={fetchGrafik}
           />
         )}
-        {sections.length > 0 && (
-          <>
-            <h2 style={{ fontSize: 12, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, marginTop: 0 }}>AI Analiz Özeti</h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {sections.map((s, i) => (
-                <div key={i} style={{ border: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "1px solid rgba(226,75,74,0.25)" : "1px solid rgba(59,130,246,0.12)", borderRadius: 10, overflow: "hidden", background: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "rgba(226,75,74,0.04)" : "rgba(255,255,255,0.01)" }}>
-                  <div style={{ padding: "12px 16px", borderBottom: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "1px solid rgba(226,75,74,0.12)" : "1px solid rgba(59,130,246,0.07)", display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ width: 7, height: 7, borderRadius: "50%", background: s.title === "Dikkat Noktalari" || s.title === "Dikkat Noktaları" ? "#E24B4A" : "#3B82F6", flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: s.title === "Dikkat Noktaları" || s.title === "Dikkat Noktalari" ? "#E24B4A" : "#CBD5E1" }}>{s.title}</span>
+        {sections.length > 0 && (() => {
+          const riskColor = riskVeri
+            ? riskVeri.skor < 35
+              ? { color: "#10B981", bg: "rgba(16,185,129,0.06)", border: "rgba(16,185,129,0.22)" }
+              : riskVeri.skor < 65
+              ? { color: "#F59E0B", bg: "rgba(245,158,11,0.06)", border: "rgba(245,158,11,0.22)" }
+              : { color: "#EF4444", bg: "rgba(239,68,68,0.06)", border: "rgba(239,68,68,0.22)" }
+            : null;
+          return (
+            <>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, marginTop: 4 }}>
+                <h2 style={{ fontSize: 12, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>AI Analiz</h2>
+              </div>
+              {riskColor && riskVeri && (
+                <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 18px", border: `1px solid ${riskColor.border}`, borderRadius: 12, background: riskColor.bg, marginBottom: 14 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: "50%", border: `2.5px solid ${riskColor.color}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(0,0,0,0.18)" }}>
+                    <span style={{ fontSize: 17, fontWeight: 800, color: riskColor.color, lineHeight: 1 }}>{riskVeri.skor}</span>
                   </div>
-                  <div style={{ padding: "12px 16px" }}>
-                    <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.75 }}>{s.body.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/^-\s*/gm, "• ").trim()}</p>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 11, color: "#475569", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 3 }}>Risk Skoru</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: riskColor.color }}>{riskVeri.seviyeTR}</div>
+                    <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>100 üzerinden · düşük = daha az riskli</div>
                   </div>
+                  <Activity size={20} color={riskColor.color} style={{ opacity: 0.4, flexShrink: 0 }} />
                 </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 16, padding: "12px 16px", border: "1px solid rgba(59,130,246,0.06)", borderRadius: 8 }}>
-              <p style={{ fontSize: 11, color: "#1E293B", lineHeight: 1.6 }}>
-                Bu içerik yalnızca teknik veri analizi amacıyla sunulmakta olup SPK mevzuatı kapsamında yatırım tavsiyesi niteliği taşımamaktadır. Yatırım kararlarınız için lisanslı aracı kurumlardan destek alınız.
-              </p>
-            </div>
-          </>
-        )}
+              )}
+              <div className="hisse-analiz-grid">
+                {sections.map((s, i) => {
+                  const isDikkat = s.title.includes("Dikkat");
+                  const isFinansal = s.title.includes("Finansal");
+                  const isPiyasa = s.title.includes("Piyasa");
+                  const color = isDikkat ? "#F87171" : isFinansal ? "#34D399" : isPiyasa ? "#A78BFA" : "#60A5FA";
+                  const bg = isDikkat ? "rgba(239,68,68,0.04)" : isFinansal ? "rgba(16,185,129,0.04)" : isPiyasa ? "rgba(139,92,246,0.04)" : "rgba(59,130,246,0.04)";
+                  const border = isDikkat ? "rgba(239,68,68,0.16)" : isFinansal ? "rgba(16,185,129,0.16)" : isPiyasa ? "rgba(139,92,246,0.16)" : "rgba(59,130,246,0.16)";
+                  const headerBorder = isDikkat ? "rgba(239,68,68,0.08)" : isFinansal ? "rgba(16,185,129,0.08)" : isPiyasa ? "rgba(139,92,246,0.08)" : "rgba(59,130,246,0.08)";
+                  const IconComp = isDikkat ? AlertTriangle : isFinansal ? TrendingUp : isPiyasa ? Target : Building2;
+                  return (
+                    <div key={i} style={{ border: `1px solid ${border}`, borderRadius: 12, overflow: "hidden", background: bg }}>
+                      <div style={{ padding: "11px 15px", borderBottom: `1px solid ${headerBorder}`, display: "flex", alignItems: "center", gap: 8 }}>
+                        <IconComp size={13} color={color} />
+                        <span style={{ fontSize: 12, fontWeight: 700, color, letterSpacing: "0.01em" }}>{s.title}</span>
+                      </div>
+                      <div style={{ padding: "13px 15px" }}>
+                        {s.body && <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.75, margin: 0, marginBottom: s.bullets.length > 0 ? 10 : 0 }}>{s.body}</p>}
+                        {s.bullets.length > 0 && (
+                          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 7 }}>
+                            {s.bullets.map((b, bi) => (
+                              <li key={bi} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13, color: "#94A3B8", lineHeight: 1.65 }}>
+                                <span style={{ width: 5, height: 5, borderRadius: "50%", background: color, flexShrink: 0, marginTop: 7 }} />
+                                <span>{b}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 14, padding: "11px 15px", border: "1px solid rgba(59,130,246,0.06)", borderRadius: 8 }}>
+                <p style={{ fontSize: 11, color: "#1E293B", lineHeight: 1.6, margin: 0 }}>
+                  Bu içerik yalnızca teknik veri analizi amacıyla sunulmakta olup SPK mevzuatı kapsamında yatırım tavsiyesi niteliği taşımamaktadır. Yatırım kararlarınız için lisanslı aracı kurumlardan destek alınız.
+                </p>
+              </div>
+            </>
+          );
+        })()}
       </main>
     </div>
       <HisseChatbot ticker={ticker} veri={veri} analiz={analiz} portfoy={portfoy} />
