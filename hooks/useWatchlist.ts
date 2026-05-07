@@ -26,8 +26,14 @@ export function useWatchlist() {
   const watchlistRef = useRef<WatchlistItem[]>([]);
 
   const fetchFiyatlar = useCallback((extraList?: string[]) => {
-    const wl = extraList || watchlistRef.current.map((w) => w.ticker);
-    const extra = wl.join(",");
+    const wl = extraList ?? watchlistRef.current.map((w) => w.ticker);
+    let recentTickers: string[] = [];
+    try {
+      const stored = localStorage.getItem("pk_recent");
+      if (stored) recentTickers = (JSON.parse(stored) as { ticker: string }[]).map((r) => r.ticker);
+    } catch { /* ignore */ }
+    const allTickers = [...new Set([...wl, ...recentTickers])];
+    const extra = allTickers.join(",");
     const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
     fetch(url)
       .then((r) => r.json())
