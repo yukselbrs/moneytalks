@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import StockLogo from "@/components/StockLogo";
 import { tickerRenk } from "@/lib/utils";
 
@@ -37,19 +37,31 @@ export default function DashboardSearchBox({
 }: DashboardSearchBoxProps) {
   const [inputReady, setInputReady] = useState(false);
   const [aramaOneri, setAramaOneri] = useState<DashboardHisse[]>([]);
+  const [aramaFiyatlar, setAramaFiyatlar] = useState<Record<string, Fiyat>>({});
+  const fetchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const updateSearch = (val: string) => {
     onValueChange(val);
     if (val.trim().length < 1) {
       setAramaOneri([]);
+      setAramaFiyatlar({});
       return;
     }
     const q = val.trim().toUpperCase();
-    setAramaOneri(
-      bistHisseler
-        .filter((h) => h.ticker.startsWith(q) || h.name.toUpperCase().startsWith(q))
-        .slice(0, 6)
-    );
+    const sonuclar = bistHisseler
+      .filter((h) => h.ticker.startsWith(q) || h.name.toUpperCase().startsWith(q))
+      .slice(0, 6);
+    setAramaOneri(sonuclar);
+
+    if (fetchRef.current) clearTimeout(fetchRef.current);
+    if (sonuclar.length === 0) return;
+    fetchRef.current = setTimeout(() => {
+      const extra = sonuclar.map((h) => h.ticker).join(",");
+      fetch(`/api/fiyatlar?extra=${extra}`)
+        .then((r) => r.json())
+        .then((data) => setAramaFiyatlar(data))
+        .catch(() => {});
+    }, 250);
   };
 
   return (
@@ -59,12 +71,12 @@ export default function DashboardSearchBox({
       </svg>
       <div className="dash-search-field" style={{ flex: 1, position: "relative" }}>
         <input
-          type="search"
+          type="text"
           value={value}
           onChange={(e) => updateSearch(e.target.value)}
-          onBlur={() => setTimeout(() => setAramaOneri([]), 150)}
+          onBlur={() => setTimeout(() => { setAramaOneri([]); setAramaFiyatlar({}); }, 150)}
           style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }}
-          autoComplete="off"
+          autoComplete="new-password"
           readOnly={!inputReady}
           onFocus={() => setInputReady(true)}
           placeholder="Hisse kodu veya şirket adı ara..."
@@ -93,14 +105,14 @@ export default function DashboardSearchBox({
                       <div style={{ fontSize: 12, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</div>
                       <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h.name}</div>
                     </div>
-                    {fiyatlar[h.ticker] && (
+                    {(() => { const f = aramaFiyatlar[h.ticker] ?? fiyatlar[h.ticker]; return f ? (
                       <div style={{ textAlign: "right", marginRight: 4 }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{fiyatlar[h.ticker]!.fiyat} ₺</div>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: fiyatlar[h.ticker]!.yukselis ? "#10B981" : "#EF4444" }}>
-                          {fiyatlar[h.ticker]!.yukselis ? "▲" : "▼"} %{Math.abs(Number(fiyatlar[h.ticker]!.degisim)).toFixed(2).replace(".", ",")}
+                        <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{f.fiyat} ₺</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
+                          {f.yukselis ? "▲" : "▼"} %{Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}
                         </div>
                       </div>
-                    )}
+                    ) : null; })()}
                   </div>
                   <button
                     onMouseDown={(e) => {
