@@ -287,33 +287,33 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           );
         })}
 
-        {/* AI Promo Kutusu */}
-        {!collapsed && (
-          <div style={{
-            margin: "16px 0", borderRadius: 14,
-            background: "linear-gradient(135deg, #0f1e3a 0%, #0a1628 100%)",
-            border: "1px solid rgba(59,130,246,0.2)",
-            padding: "16px 14px", textAlign: "center",
-          }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
-            <p style={{ color: "#F8FAFC", fontSize: 13, fontWeight: 600, marginBottom: 6, lineHeight: 1.4 }}>
-              Pro'ya Yükseltin!
-            </p>
-            <p style={{ color: "#64748B", fontSize: 11, marginBottom: 12, lineHeight: 1.5 }}>
-              Sınırsız analiz, gerçek zamanlı veriler ve çok daha fazlası.
-            </p>
-            <a href="/pro" style={{
-              display: "block", background: "linear-gradient(90deg, #2563EB, #3B82F6)",
-              color: "#fff", fontSize: 12, fontWeight: 600,
-              padding: "8px 12px", borderRadius: 8, textDecoration: "none",
-            }}>
-              Pro'ya Yükselt &gt;
+        {/* Pro Banner */}
+        <div style={{ marginTop: "auto", paddingBottom: 4 }}>
+          {collapsed ? (
+            <a href="/pro" onMouseEnter={e => showTip(e, "Pro'ya Yükselt")} onMouseLeave={() => setTip(null)}
+              style={{ display: "flex", justifyContent: "center", padding: "10px 0", textDecoration: "none" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
             </a>
-          </div>
-        )}
+          ) : (
+            <div style={{ borderRadius: 10, background: "linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(59,130,246,0.06) 100%)", border: "1px solid rgba(59,130,246,0.16)", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ color: "#F8FAFC", fontSize: 12, fontWeight: 600, margin: 0, lineHeight: 1.3 }}>Pro'ya Yükselt</p>
+                <p style={{ color: "#475569", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Sınırsız analiz & gerçek zamanlı veri</p>
+              </div>
+              <a href="/pro" style={{ flexShrink: 0, background: "linear-gradient(90deg, #2563EB, #3B82F6)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "5px 8px", borderRadius: 6, textDecoration: "none", whiteSpace: "nowrap" }}>
+                Yükselt →
+              </a>
+            </div>
+          )}
+        </div>
 
         {/* Bottom */}
-        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <a href="/profile" className="sb-item"
             onMouseEnter={collapsed ? e => showTip(e, "Profil") : undefined}
             onMouseLeave={collapsed ? () => setTip(null) : undefined}

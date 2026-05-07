@@ -57,34 +57,34 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
           const area = d ? d + ` L ${w} ${h} L 0 ${h} Z` : "";
 
           return (
-            <div key={e.label} className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
+            <div key={e.label} className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>{e.label}</span>
+                <span style={{ fontSize: 11, color: "#64748B", fontWeight: 600, letterSpacing: "0.04em" }}>{e.label}</span>
                 {e.gecikme && (
                   <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
                     <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
                   </span>
                 )}
               </div>
-              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 6 }}>
-                <div>
+              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 4 }}>
+                <div style={{ minWidth: 0 }}>
                   {e.val === "-" ? (
                     <>
-                      <div style={{ width: 110, height: 24, borderRadius: 6, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", marginBottom: 8 }} />
-                      <div style={{ width: 64, height: 14, borderRadius: 4, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite" }} />
+                      <div style={{ width: 90, height: 22, borderRadius: 6, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", marginBottom: 6 }} />
+                      <div style={{ width: 56, height: 12, borderRadius: 4, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite" }} />
                     </>
                   ) : (
                     <>
-                      <div className="dash-piyasa-val" style={{ display: "inline-block", fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", lineHeight: 1.2, borderRadius: 7, padding: "1px 5px", marginLeft: -5, background: flashBg, boxShadow: cardFlash ? `0 0 8px ${flashColor}18` : "none", transition: "background 0.7s ease, box-shadow 0.7s ease" }}>{e.val}</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3, marginTop: 4 }}>
+                      <div className="dash-piyasa-val" style={{ display: "inline-block", fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.6px", lineHeight: 1.2, borderRadius: 6, padding: "1px 4px", marginLeft: -4, whiteSpace: "nowrap", background: flashBg, boxShadow: cardFlash ? `0 0 8px ${flashColor}18` : "none", transition: "background 0.7s ease, box-shadow 0.7s ease" }}>{e.val}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 2, marginTop: 3 }}>
                         <span>{e.up ? "▲" : "▼"}</span>
-                        <span>{e.change}</span>
+                        <span style={{ whiteSpace: "nowrap" }}>{e.change}</span>
                       </div>
                     </>
                   )}
                 </div>
-                <svg width="90" height="36" viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
+                <svg width="72" height="32" viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
                   <defs>
                     <linearGradient id={`sg-${e.label}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={color} stopOpacity="0.3"/>

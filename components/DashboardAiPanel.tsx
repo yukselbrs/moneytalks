@@ -29,7 +29,7 @@ function gorunumMetni(skor: number) {
 
 export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
   return (
-    <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.12)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280 }}>
+    <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <h2 style={{ fontSize: 11, fontWeight: 700, color: "#64748B", letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>Yapay Zekâ Analizi</h2>
         <button onClick={onAnalyze}
