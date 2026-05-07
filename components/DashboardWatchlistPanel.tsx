@@ -1,6 +1,11 @@
 "use client";
 
 import StockLogo from "@/components/StockLogo";
+import bistSirketler from "@/data/bist-companies.json";
+
+const sirketAdlari: Record<string, string> = Object.fromEntries(
+  (bistSirketler as { ticker: string; ad: string }[]).map((s) => [s.ticker, s.ad])
+);
 
 type DashboardHisse = {
   ticker: string;
@@ -210,6 +215,7 @@ export default function DashboardWatchlistPanel({
           recent.map((r, i) => {
             const h = bistHisseler.find((b) => b.ticker === r.ticker);
             const f = fiyatlar[r.ticker];
+            const sirketAdi = h?.name || sirketAdlari[r.ticker] || "";
             return (
               <div
                 key={`${r.ticker}-${r.time}-${i}`}
@@ -222,7 +228,7 @@ export default function DashboardWatchlistPanel({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{r.ticker}</span>
-                    {h?.name && <span style={{ fontSize: 10, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</span>}
+                    {sirketAdi && <span style={{ fontSize: 10, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sirketAdi}</span>}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
