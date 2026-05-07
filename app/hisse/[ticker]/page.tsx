@@ -253,7 +253,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         .hisse-range-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .hisse-range-btns { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(148,163,184,0.10); border-radius: 8px; background: rgba(255,255,255,0.035); }
         .hisse-chart-shell { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 12px; padding: 18px 10px 10px 0; }
-        .hisse-analiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hisse-analiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
         @media (max-width: 640px) {
           .hisse-main { padding: 14px 12px !important; }
           .hisse-header { flex-direction: column; gap: 12px; padding: 14px !important; }
@@ -393,8 +393,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                   const headerBorder = isDikkat ? "rgba(239,68,68,0.08)" : isFinansal ? "rgba(16,185,129,0.08)" : isPiyasa ? "rgba(139,92,246,0.08)" : "rgba(59,130,246,0.08)";
                   const IconComp = isDikkat ? AlertTriangle : isFinansal ? TrendingUp : isPiyasa ? Target : Building2;
                   return (
-                    <div key={i} style={{ border: `1px solid ${border}`, borderRadius: 12, overflow: "hidden", background: bg }}>
-                      <div style={{ padding: "11px 15px", borderBottom: `1px solid ${headerBorder}`, display: "flex", alignItems: "center", gap: 8 }}>
+                    <div key={i} style={{ border: `1px solid ${border}`, borderRadius: 12, background: bg }}>
+                      <div style={{ padding: "11px 15px", borderBottom: `1px solid ${headerBorder}`, display: "flex", alignItems: "center", gap: 8, borderRadius: "10px 10px 0 0" }}>
                         <IconComp size={13} color={color} />
                         <span style={{ fontSize: 12, fontWeight: 700, color, letterSpacing: "0.01em" }}>{s.title}</span>
                       </div>
