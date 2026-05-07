@@ -41,6 +41,7 @@ type DashboardSidePanelProps = {
 function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary | null }) {
   const [mod, setMod] = useState<"total" | "daily">("total");
   const [infoTip, setInfoTip] = useState<{ x: number; y: number } | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   if (!portfoyOzet) {
     return (
@@ -114,9 +115,8 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
       </div>
 
       {portfoyOzet.hisseDagilim && portfoyOzet.hisseDagilim.length > 0 && (() => {
-        const R = 36, cx = 46, cy = 46, sw = 10;
+        const R = 36, cx = 46, cy = 46, sw = 10, GAP = 1.5;
         const circ = 2 * Math.PI * R;
-        let acc = 0;
         const topDilims = portfoyOzet.hisseDagilim!.slice(0, 3);
         const digerDilims = portfoyOzet.hisseDagilim!.slice(3);
         const digerYuzde = digerDilims.reduce((a, h) => a + h.yuzde, 0);
@@ -124,30 +124,50 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
           ? [...topDilims, { ticker: "Diğer", deger: digerDilims.reduce((a, h) => a + h.deger, 0), yuzde: digerYuzde, renk: "#475569" }]
           : topDilims;
         const digerEtiket = digerDilims.map((h) => h.ticker).join(" · ");
+        let accDl = 0;
+        const segs = grafikDilims.map((h) => {
+          const dl = (h.yuzde / 100) * circ;
+          const dashOff = circ * 0.25 - accDl;
+          const visLen = Math.max(0, dl - GAP);
+          const startRad = ((accDl / circ) * 360 - 90) * (Math.PI / 180);
+          const endRad = (((accDl + dl) / circ) * 360 - 90) * (Math.PI / 180);
+          const x1 = (cx + R * Math.cos(startRad)).toFixed(2);
+          const y1 = (cy + R * Math.sin(startRad)).toFixed(2);
+          const x2 = (cx + R * Math.cos(endRad)).toFixed(2);
+          const y2 = (cy + R * Math.sin(endRad)).toFixed(2);
+          const hitPath = `M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${dl / circ > 0.5 ? 1 : 0} 1 ${x2} ${y2} Z`;
+          accDl += dl;
+          return { ...h, dashOff, visLen, hitPath };
+        });
+        const hov = hoveredIdx !== null ? segs[hoveredIdx] : null;
 
         return (
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
             <svg width="92" height="92" viewBox="0 0 92 92" style={{ flexShrink: 0 }}>
               <circle cx={cx} cy={cy} r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={sw} />
-              {grafikDilims.map((h, i) => {
-                const dl = (h.yuzde / 100) * circ;
-                const el = (
-                  <circle
-                    key={i}
-                    cx={cx}
-                    cy={cy}
-                    r={R}
-                    fill="none"
-                    stroke={h.renk}
-                    strokeWidth={sw}
-                    strokeDasharray={`${dl} ${circ - dl}`}
-                    strokeDashoffset={circ * 0.25 - acc}
-                    strokeLinecap="butt"
-                  />
-                );
-                acc += dl;
-                return el;
-              })}
+              {segs.map((seg, i) => (
+                <circle key={i} cx={cx} cy={cy} r={R} fill="none"
+                  stroke={seg.renk}
+                  strokeWidth={hoveredIdx === i ? sw + 4 : sw}
+                  strokeDasharray={`${seg.visLen} ${circ - seg.visLen}`}
+                  strokeDashoffset={seg.dashOff}
+                  strokeLinecap="butt"
+                  style={{ transition: "stroke-width 0.15s ease" }}
+                />
+              ))}
+              {segs.map((seg, i) => (
+                <path key={`h${i}`} d={seg.hitPath} fill="transparent"
+                  onMouseEnter={() => setHoveredIdx(i)}
+                  onMouseLeave={() => setHoveredIdx(null)}
+                  style={{ cursor: "pointer" }}
+                />
+              ))}
+              {hov && (
+                <>
+                  <text x={cx} y={cy - 4} textAnchor="middle" fontSize="8" fill="#CBD5E1" fontWeight="700" fontFamily="sans-serif">{hov.ticker}</text>
+                  <text x={cx} y={cy + 7} textAnchor="middle" fontSize="9" fill={hov.renk} fontWeight="700" fontFamily="sans-serif">%{hov.yuzde.toFixed(1)}</text>
+                </>
+              )}
             </svg>
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
               {topDilims.map((h, i) => (

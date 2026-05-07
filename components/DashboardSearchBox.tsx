@@ -10,6 +10,8 @@ type DashboardHisse = {
   domain?: string;
 };
 
+type Fiyat = { fiyat: string; degisim: string; yukselis: boolean } | null;
+
 type DashboardSearchBoxProps = {
   value: string;
   onValueChange: (ticker: string) => void;
@@ -17,6 +19,7 @@ type DashboardSearchBoxProps = {
   onSelectHisse: (ticker: string) => void;
   bistHisseler: DashboardHisse[];
   watchlist: { ticker: string }[];
+  fiyatlar: Record<string, Fiyat>;
   onAddToWatchlist: (ticker: string) => void;
   onRemoveFromWatchlist: (ticker: string) => void;
 };
@@ -28,6 +31,7 @@ export default function DashboardSearchBox({
   onSelectHisse,
   bistHisseler,
   watchlist,
+  fiyatlar,
   onAddToWatchlist,
   onRemoveFromWatchlist,
 }: DashboardSearchBoxProps) {
@@ -86,9 +90,17 @@ export default function DashboardSearchBox({
                   >
                     <StockLogo ticker={h.ticker} domain={h.domain} size={28} radius={6} color={tickerRenk(h.ticker)} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</div>
-                      <div style={{ fontSize: 12, color: "#475569", marginTop: 1 }}>{h.name}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</div>
+                      <div style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h.name}</div>
                     </div>
+                    {fiyatlar[h.ticker] && (
+                      <div style={{ textAlign: "right", marginRight: 4 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{fiyatlar[h.ticker]!.fiyat} ₺</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: fiyatlar[h.ticker]!.yukselis ? "#10B981" : "#EF4444" }}>
+                          {fiyatlar[h.ticker]!.yukselis ? "▲" : "▼"} %{Math.abs(Number(fiyatlar[h.ticker]!.degisim)).toFixed(2).replace(".", ",")}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <button
                     onMouseDown={(e) => {

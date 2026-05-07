@@ -28,6 +28,7 @@ type DashboardWatchlistPanelProps = {
   watchlist: WatchlistItem[];
   fiyatlar: Record<string, Fiyat>;
   recent: RecentAnalysis[];
+  recentAnalizler?: Record<string, string>;
   watchlistInput: string;
   watchlistInputAcik: boolean;
   tickerRenk: (ticker: string) => string;
@@ -43,6 +44,7 @@ export default function DashboardWatchlistPanel({
   watchlist,
   fiyatlar,
   recent,
+  recentAnalizler,
   watchlistInput,
   watchlistInputAcik,
   tickerRenk,
@@ -199,25 +201,46 @@ export default function DashboardWatchlistPanel({
         })
       )}
 
-      <div style={{ borderTop: "1px solid rgba(59,130,246,0.08)", padding: "12px 16px 4px" }}>
-        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 8, marginTop: 0 }}>Son Analizlerim</h3>
+      <div style={{ borderTop: "1px solid rgba(59,130,246,0.08)", padding: "12px 16px 8px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>Son Analizlerim</h3>
+          <a href="/analizler" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none" }}>Tümü →</a>
+        </div>
         {recent.length === 0 ? (
-          <p style={{ fontSize: 12, color: "#1E293B", padding: "8px 0 12px" }}>Henüz analiz yapmadınız</p>
+          <p style={{ fontSize: 12, color: "#334155", padding: "6px 0 8px" }}>Henüz analiz yapmadınız</p>
         ) : (
           recent.map((r, i) => {
             const h = bistHisseler.find((b) => b.ticker === r.ticker);
+            const f = fiyatlar[r.ticker];
+            const ozet = recentAnalizler?.[r.ticker];
             return (
               <div
                 key={`${r.ticker}-${r.time}-${i}`}
                 onClick={() => goToHisse(r.ticker)}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(59,130,246,0.03)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                <StockLogo ticker={r.ticker} domain={h?.domain} size={32} radius={8} color={tickerRenk(r.ticker)} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{r.ticker}</div>
-                  <div style={{ fontSize: 12, color: "#475569" }}>{r.time}</div>
+                <StockLogo ticker={r.ticker} domain={h?.domain} size={36} radius={9} color={tickerRenk(r.ticker)} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: ozet ? 3 : 1 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{r.ticker}</span>
+                    {h?.name && <span style={{ fontSize: 10, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</span>}
+                  </div>
+                  {ozet && <div style={{ fontSize: 11, color: "#64748B", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 2 }}>{ozet}</div>}
+                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+                    <span style={{ fontSize: 10, color: "#334155" }}>{r.time}</span>
+                  </div>
                 </div>
-                <span style={{ fontSize: 12, color: "#3B82F6" }}>→</span>
+                {f && (
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{f.fiyat} ₺</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
+                      {f.yukselis ? "▲" : "▼"} %{Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })
