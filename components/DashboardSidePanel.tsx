@@ -76,7 +76,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
               aria-label="Günlük getiri açıklaması"
               onMouseEnter={e => { const r = e.currentTarget.getBoundingClientRect(); setInfoTip({ x: r.left + r.width / 2, y: r.top - 8 }); }}
               onMouseLeave={() => setInfoTip(null)}
-              style={{ width: 15, height: 15, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, cursor: "help", padding: 0, flexShrink: 0 }}
+              style={{ width: 15, height: 15, borderRadius: "50%", border: "1px solid rgba(148,163,184,0.3)", background: "rgba(148,163,184,0.08)", color: "#64748B", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, cursor: "default", padding: 0, flexShrink: 0 }}
             >
               i
             </button>
