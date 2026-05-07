@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import StockLogo from "@/components/StockLogo";
 import { tickerRenk } from "@/lib/utils";
 
@@ -35,7 +35,6 @@ export default function DashboardSearchBox({
   onAddToWatchlist,
   onRemoveFromWatchlist,
 }: DashboardSearchBoxProps) {
-  const [inputReady, setInputReady] = useState(false);
   const [aramaOneri, setAramaOneri] = useState<DashboardHisse[]>([]);
   const [aramaFiyatlar, setAramaFiyatlar] = useState<Record<string, Fiyat>>({});
   const fetchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -64,8 +63,15 @@ export default function DashboardSearchBox({
     }, 250);
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onSubmit(e as unknown as FormEvent<HTMLFormElement>);
+    }
+  };
+
   return (
-    <form className="dash-search-box" onSubmit={onSubmit} autoComplete="off" style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: "10px 16px", transition: "border-color 0.2s" }}>
+    <div className="dash-search-box" style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 12, padding: "10px 16px", transition: "border-color 0.2s" }}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
         <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
       </svg>
@@ -74,11 +80,13 @@ export default function DashboardSearchBox({
           type="text"
           value={value}
           onChange={(e) => updateSearch(e.target.value)}
+          onKeyDown={handleKeyDown}
           onBlur={() => setTimeout(() => { setAramaOneri([]); setAramaFiyatlar({}); }, 150)}
           style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }}
-          autoComplete="new-password"
-          readOnly={!inputReady}
-          onFocus={() => setInputReady(true)}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
           placeholder="Hisse kodu veya şirket adı ara..."
         />
         {aramaOneri.length > 0 && (
@@ -130,9 +138,9 @@ export default function DashboardSearchBox({
           </div>
         )}
       </div>
-      <button className="dash-search-submit" type="submit" style={{ height: 32, padding: "0 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+      <button className="dash-search-submit" type="button" onClick={(e) => onSubmit(e as unknown as FormEvent<HTMLFormElement>)} style={{ height: 32, padding: "0 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
         Analiz Et
       </button>
-    </form>
+    </div>
   );
 }
