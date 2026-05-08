@@ -662,18 +662,18 @@ export default function PortfoyPage() {
                       <AreaChart data={grafik} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
                         <defs>
                           <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={renk} stopOpacity="0.25" />
+                            <stop offset="0%" stopColor={renk} stopOpacity="0.15" />
                             <stop offset="100%" stopColor={renk} stopOpacity="0" />
                           </linearGradient>
                         </defs>
                         <XAxis dataKey="tarih" tick={{ fontSize: 9, fill: "#475569" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                        <YAxis hide domain={["auto", "auto"]} />
+                        <YAxis hide domain={["dataMin", "dataMax"]} />
                         <Tooltip
                           contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
                           labelStyle={{ color: "#94A3B8", fontSize: 10 }}
                           formatter={(v: unknown) => [`${(v as number) >= 0 ? "+" : ""}${(v as number).toFixed(2)}%`, "Getiri"]}
                         />
-                        <Area type="monotone" dataKey="degisim" stroke={renk} strokeWidth={1.5} fill="url(#pg)" dot={false} />
+                        <Area type="monotone" dataKey="degisim" stroke={renk} strokeWidth={1.5} fill="url(#pg)" fillOpacity={1} dot={false} baseValue="dataMin" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
