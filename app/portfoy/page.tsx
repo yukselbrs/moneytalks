@@ -6,7 +6,7 @@ import { supabase } from "@/components/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "next/link";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const PASTA_RENKLER = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#EF4444","#06B6D4","#F97316","#EC4899","#84CC16","#14B8A6"];
 
@@ -133,10 +133,6 @@ export default function PortfoyPage() {
   const [sortYon, setSortYon] = useState<"asc" | "desc">("desc");
   const [flashTickers, setFlashTickers] = useState<Record<string, "up" | "down">>({});
   const prevFiyatlarRef = useRef<FiyatMap>({});
-  const [grafik, setGrafik] = useState<{ tarih: string; deger: number }[]>([]);
-  const [grafikAralik, setGrafikAralik] = useState<"1d" | "1mo" | "3mo" | "1y">("1d");
-  const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
-  const [grafikAcik, setGrafikAcik] = useState(true);
 
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
     const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
@@ -218,48 +214,6 @@ export default function PortfoyPage() {
     return () => window.clearInterval(id);
   }, [fiyatlariYenile, portfoy]);
 
-  const grafikCek = useCallback(async (aralik: "1d" | "1mo" | "3mo" | "1y", items: PortfoyItem[]) => {
-    if (items.length === 0) return;
-    setGrafikYukleniyor(true);
-    try {
-      const sonuclar = await Promise.all(
-        items.map(async (p) => {
-          const res = await fetch(`/api/grafik?ticker=${p.ticker}&range=${aralik}`);
-          const json = await res.json();
-          const fiyatMap: Record<string, number> = {};
-          (json.points || []).forEach((pt: { tarih: string; fiyat: number }) => {
-            if (pt.fiyat) fiyatMap[pt.tarih] = pt.fiyat;
-          });
-          return { adet: p.adet, fiyatMap, tarihler: Object.keys(fiyatMap) };
-        })
-      );
-      const tarihler = sonuclar[0]?.tarihler || [];
-      const noktalar = tarihler.map(tarih => {
-        let deger = 0;
-        let tamam = true;
-        for (const s of sonuclar) {
-          if (!s.fiyatMap[tarih]) { tamam = false; break; }
-          deger += s.adet * s.fiyatMap[tarih];
-        }
-        return tamam ? { tarih, deger } : null;
-      }).filter((n): n is { tarih: string; deger: number } => n !== null);
-      setGrafik(noktalar);
-    } catch (e) {
-      console.error("Portföy grafik hatası:", e);
-    } finally {
-      setGrafikYukleniyor(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (portfoy.length > 0) void grafikCek(grafikAralik, portfoy);
-  }, [portfoy, grafikAralik, grafikCek]);
-
-  useEffect(() => {
-    if (grafikAralik !== "1d" || portfoy.length === 0) return;
-    const id = window.setInterval(() => void grafikCek("1d", portfoy), 15000);
-    return () => window.clearInterval(id);
-  }, [grafikAralik, portfoy, grafikCek]);
 
   useEffect(() => {
     const prev = prevFiyatlarRef.current;
@@ -623,63 +577,6 @@ export default function PortfoyPage() {
           </div>
         )}
 
-        {portfoy.length > 0 && (
-          <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ background: "rgba(8,14,26,0.9)", border: "1px solid rgba(59,130,246,0.1)" }}>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
-            <div className="px-5 pt-4 pb-3">
-              <div className="flex items-center justify-between cursor-pointer select-none" onClick={() => setGrafikAcik(a => !a)}>
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(96,165,250,0.6)" }}>
-                  Portföy Performansı <span style={{ opacity: 0.4 }}>{grafikAcik ? "▲" : "▼"}</span>
-                </p>
-                {grafikAcik && (
-                  <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                    {(["1d", "1mo", "3mo", "1y"] as const).map(a => (
-                      <button key={a} onClick={() => setGrafikAralik(a)}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${grafikAralik === a ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}>
-                        {a === "1d" ? "Bugün" : a === "1mo" ? "1A" : a === "3mo" ? "3A" : "1Y"}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {grafikAcik && (grafikYukleniyor ? (
-                <div className="h-28 flex items-center justify-center text-slate-600 text-xs animate-pulse mt-3">Yükleniyor...</div>
-              ) : grafik.length > 1 ? (() => {
-                const pozitif = grafik[grafik.length - 1].deger >= grafik[0].deger;
-                const renk = pozitif ? "#10B981" : "#EF4444";
-                const degisimYuzde = ((grafik[grafik.length - 1].deger - grafik[0].deger) / grafik[0].deger) * 100;
-                return (
-                  <div>
-                    <p className={`text-xs font-bold mb-2 ${pozitif ? "text-emerald-400" : "text-red-400"}`}>
-                      {pozitif ? "▲" : "▼"} {Math.abs(degisimYuzde).toFixed(2)}% dönem getirisi
-                    </p>
-                    <ResponsiveContainer width="100%" height={100}>
-                      <AreaChart data={grafik} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-                        <defs>
-                          <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={renk} stopOpacity="0.25" />
-                            <stop offset="100%" stopColor={renk} stopOpacity="0" />
-                          </linearGradient>
-                        </defs>
-                        <XAxis dataKey="tarih" tick={{ fontSize: 9, fill: "#475569" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                        <YAxis hide domain={["auto", "auto"]} />
-                        <Tooltip
-                          contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
-                          labelStyle={{ color: "#94A3B8", fontSize: 10 }}
-                          formatter={(v: unknown) => [`${(v as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, "Portföy"]}
-                        />
-                        <Area type="monotone" dataKey="deger" stroke={renk} strokeWidth={1.5} fill="url(#pg)" dot={false} />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                );
-              })() : (
-                <div className="h-28 flex items-center justify-center text-slate-600 text-xs">Veri yok</div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {yükleniyor ? (
           <div className="text-slate-400 text-sm text-center py-12">Yükleniyor...</div>
