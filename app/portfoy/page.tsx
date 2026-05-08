@@ -400,7 +400,7 @@ export default function PortfoyPage() {
                 </div>
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`portfolio-number text-sm font-bold ${aktifPozitif ? "text-emerald-400" : "text-red-400"}`}>
-                    {aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                    {aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
                   </span>
                   <span className={`portfolio-number text-xs font-semibold ${aktifPozitif ? "text-emerald-600" : "text-red-600"}`}>
                     ({aktifPLYuzde >= 0 ? "+" : ""}{aktifPLYuzde.toFixed(2)}%)
@@ -565,7 +565,7 @@ export default function PortfoyPage() {
                         <p className="text-[10px] uppercase tracking-wide text-slate-500">Güncel Değer</p>
                         <p className="text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p>
                         <p className={`mt-1 text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                          {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
+                          {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
                         </p>
                       </div>
                     </div>
@@ -590,7 +590,7 @@ export default function PortfoyPage() {
                           const pozitif = gunluk ? gunluk.gunluk >= 0 : null;
                           return (
                             <>
-                              <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Günlük ₺</p><p className={`font-semibold ${pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400"}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p></div>
+                              <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Günlük ₺</p><p className={`font-semibold ${pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400"}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p></div>
                               <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Günlük %</p><p className={`font-semibold ${pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400"}`}>{gunluk ? `${gunluk.gunlukYuzde >= 0 ? "+" : ""}${gunluk.gunlukYuzde.toFixed(2)}%` : "—"}</p></div>
                             </>
                           );
@@ -707,13 +707,13 @@ export default function PortfoyPage() {
                       <td className={`portfolio-number px-4 py-4 text-right font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-500" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
                         {gunluk ? (
                           <div>
-                            <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</div>
+                            <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</div>
                             <div className="text-[11px] opacity-75">{gunluk.gunlukYuzde >= 0 ? "+" : ""}{gunluk.gunlukYuzde.toFixed(2)}%</div>
                           </div>
                         ) : "—"}
                       </td>
                       <td className={`portfolio-number px-4 py-4 text-right font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                        {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}
+                        {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
                       </td>
                       <td className={`portfolio-number px-4 py-4 text-right font-medium hidden sm:table-cell ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                         {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
