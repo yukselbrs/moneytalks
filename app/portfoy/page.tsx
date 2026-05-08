@@ -533,7 +533,7 @@ export default function PortfoyPage() {
                     </ResponsiveContainer>
                   </div>
                   <div className="flex flex-col gap-1 min-w-0">
-                    {portfoy.slice(0, 4).map((item, i) => {
+                    {portfoy.map((item, i) => {
                       const deger = fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet;
                       const oran = toplamGuncel > 0 ? (deger / toplamGuncel) * 100 : 0;
                       return (
@@ -544,7 +544,6 @@ export default function PortfoyPage() {
                         </div>
                       );
                     })}
-                    {portfoy.length > 4 && <span className="text-slate-600 text-[10px]">+{portfoy.length - 4} daha</span>}
                   </div>
                 </div>
               </div>
