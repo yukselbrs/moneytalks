@@ -51,20 +51,25 @@ function fiyatDegeriOku(value: unknown): number | null {
 
 function RiskBilesenGrid({ bilesenler, mobil = false }: { bilesenler: RiskBilesen[]; mobil?: boolean }) {
   return (
-    <div className={mobil ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3"}>
+    <div className={mobil ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2"}>
       {bilesenler.map((b, i) => {
-        const barRenk = b.risk >= 55 ? "bg-red-500" : b.risk >= 35 ? "bg-yellow-500" : "bg-emerald-500";
-        const textRenk = b.risk >= 55 ? "text-red-400" : b.risk >= 35 ? "text-yellow-400" : "text-emerald-400";
+        const renk = b.risk >= 55
+          ? { bar: "#EF4444", text: "#F87171", glow: "rgba(239,68,68,0.35)", accent: "rgba(239,68,68,0.6)" }
+          : b.risk >= 35
+          ? { bar: "#F59E0B", text: "#FCD34D", glow: "rgba(245,158,11,0.35)", accent: "rgba(245,158,11,0.6)" }
+          : { bar: "#10B981", text: "#34D399", glow: "rgba(16,185,129,0.35)", accent: "rgba(16,185,129,0.6)" };
+        const pct = Math.min(Math.round((b.risk / 80) * 100), 100);
+        const aciklama = RISK_ACIKLAMALARI[b.ad];
         return (
-          <div key={`${b.ad}-${i}`} className={mobil ? "space-y-1.5 rounded-lg border border-slate-700/60 bg-slate-800/35 p-2.5" : "space-y-1.5"}>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-slate-400 text-xs leading-tight">{b.ad}</span>
-              <span className={`text-xs font-semibold shrink-0 ${textRenk}`}>{b.deger}</span>
+          <div key={`${b.ad}-${i}`} className="relative overflow-hidden rounded-lg p-2.5 group/risk" title={aciklama}
+            style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", borderLeft: `2px solid ${renk.accent}`, cursor: aciklama ? "help" : "default" }}>
+            <div className="flex items-start justify-between gap-1 mb-2">
+              <span className="text-slate-500 text-[10px] leading-tight">{b.ad}</span>
+              <span className="text-xs font-bold shrink-0 leading-none" style={{ color: renk.text }}>{b.deger}</span>
             </div>
-            <div className="w-full bg-slate-700/60 rounded-full h-1">
-              <div className={`h-1 rounded-full transition-all ${barRenk}`} style={{ width: `${Math.min(Math.round((b.risk / 80) * 100), 100)}%` }} />
+            <div className="w-full rounded-full" style={{ height: 3, background: "rgba(255,255,255,0.06)" }}>
+              <div className="rounded-full transition-all" style={{ width: `${pct}%`, height: 3, background: renk.bar, boxShadow: `0 0 8px ${renk.glow}` }} />
             </div>
-            <p className="text-slate-600 text-xs leading-tight">{RISK_ACIKLAMALARI[b.ad] || ""}</p>
           </div>
         );
       })}
@@ -822,8 +827,9 @@ export default function PortfoyPage() {
                           </td>
                         </tr>
                         {risk?.detay && risk?.bilesenler && (
-                          <tr key={item.id + "_detay"} style={{ background: "rgba(8,14,26,0.98)", borderBottom: "1px solid rgba(59,130,246,0.08)", borderLeft: "2px solid rgba(59,130,246,0.4)" }}>
+                          <tr key={item.id + "_detay"} style={{ background: "rgba(6,11,22,0.98)", borderBottom: "1px solid rgba(59,130,246,0.1)", borderLeft: "2px solid rgba(59,130,246,0.35)" }}>
                             <td colSpan={10} className="px-4 py-3">
+                              <p className="text-[9px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: "rgba(96,165,250,0.45)" }}>Risk Bileşenleri</p>
                               <RiskBilesenGrid bilesenler={risk.bilesenler} />
                             </td>
                           </tr>
