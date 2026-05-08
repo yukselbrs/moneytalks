@@ -364,10 +364,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {!collapsed && (
               <>
                 <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 600 }}>{displayName}</span>
+                  <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 600 }}>Profil</span>
                   <span style={{ color: "#F97316", fontSize: 10, fontWeight: 600, letterSpacing: "0.05em" }}>DEMO</span>
                 </div>
-                <svg style={{ marginLeft: "auto" }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
               </>
             )}
           </a>
