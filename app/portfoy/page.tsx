@@ -565,93 +565,108 @@ export default function PortfoyPage() {
               const isPos = pl ? pl.pl >= 0 : null;
               const acik = acikHisse === item.ticker;
               const fiyatDegisim = fiyat?.degisim ?? 0;
+              const accentColor = isPos === null ? "rgba(71,85,105,0.9)" : isPos ? "rgba(16,185,129,0.85)" : "rgba(239,68,68,0.85)";
               return (
-                <div key={item.id} className="overflow-hidden rounded-xl border border-slate-700/80 bg-slate-800/45 shadow-lg shadow-black/10">
+                <div key={item.id} className="relative overflow-hidden rounded-xl" style={{ background: isPos === null ? "rgba(11,18,32,0.92)" : isPos ? "rgba(10,22,17,0.92)" : "rgba(22,10,10,0.92)", border: "1px solid rgba(255,255,255,0.05)", borderLeft: `2px solid ${accentColor}` }}>
                   <div className="cursor-pointer px-4 py-3" onClick={() => setAcikHisse(acik ? null : item.ticker)}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="text-base font-bold text-white hover:text-blue-400">{item.ticker}</Link>
-                          {fiyat && <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${fiyatDegisim >= 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"} {Math.abs(fiyatDegisim).toFixed(2)}%</span>}
+                          <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="font-mono font-bold text-white hover:text-blue-400 text-[15px] tracking-wide">{item.ticker}</Link>
+                          {fiyat && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyatDegisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"}{Math.abs(fiyatDegisim).toFixed(2)}%</span>}
                         </div>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "Fiyat bekleniyor"}
+                        <p className="mt-0.5 font-mono text-xs text-slate-500">
+                          {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—"} · {item.adet.toLocaleString("tr-TR")} lot
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="text-[10px] uppercase tracking-wide text-slate-500">Güncel Değer</p>
-                        <p className="text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p>
-                        <p className={`mt-1 text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                        <p className="portfolio-number font-mono text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p>
+                        <p className={`portfolio-number mt-0.5 font-mono text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                           {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
                         </p>
+                        {pl && <p className={`portfolio-number font-mono text-[10px] ${isPos ? "text-emerald-600" : "text-red-600"}`}>{pl.plYuzde >= 0 ? "+" : ""}{pl.plYuzde.toFixed(2)}%</p>}
                       </div>
                     </div>
-                    <div className="mt-3 flex items-center justify-between border-t border-slate-700/45 pt-2">
-                      <span className="text-xs text-slate-500">
-                        {item.adet.toLocaleString("tr-TR")} lot · Maliyet {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
-                      </span>
-                      <span className="text-slate-500 text-xs">{acik ? "▲ Kapat" : "▼ Detay"}</span>
+                    <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[10px] text-slate-600">Maliyet {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
+                        {(() => {
+                          const gunluk = gunlukHesapla(item);
+                          if (!gunluk) return null;
+                          const pozitif = gunluk.gunluk >= 0;
+                          return <span className={`portfolio-number font-mono text-[10px] font-semibold ${pozitif ? "text-emerald-500" : "text-red-500"}`}>Günlük {gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</span>;
+                        })()}
+                      </div>
+                      <span className="text-slate-600 text-[10px]">{acik ? "▲" : "▼"}</span>
                     </div>
                   </div>
                   {acik && (
-                    <div className="px-4 pb-3 border-t border-slate-700/50">
-                      <div className="my-3 grid grid-cols-2 gap-2 text-sm">
-                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Lot</p><p className="text-white font-semibold">{item.adet.toLocaleString("tr-TR")}</p></div>
-                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Ort. Maliyet</p><p className="text-white font-semibold">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</p></div>
-                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Güncel Fiyat</p><p className="text-white font-semibold">{fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—"}</p></div>
-                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">K/Z %</p><p className={`font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>{pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}</p></div>
-                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Ana Para</p><p className="text-white font-semibold">{(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p></div>
-                        <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Güncel Değer</p><p className="text-white font-semibold">{pl ? pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 }) : "—"} ₺</p></div>
+                    <div className="px-4 pb-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                      <div className="my-3 grid grid-cols-2 gap-2">
+                        {[
+                          { label: "Lot", value: item.adet.toLocaleString("tr-TR"), cls: "text-white" },
+                          { label: "Ort. Maliyet", value: `${item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺`, cls: "text-white" },
+                          { label: "Güncel Fiyat", value: fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—", cls: "text-white" },
+                          { label: "K/Z %", value: pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—", cls: isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400" },
+                          { label: "Ana Para", value: `${(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, cls: "text-slate-300" },
+                          { label: "Güncel Değer", value: pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—", cls: "text-white" },
+                        ].map(s => (
+                          <div key={s.label} className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                            <p className="text-slate-600 text-[10px] mb-1">{s.label}</p>
+                            <p className={`portfolio-number font-mono text-sm font-semibold ${s.cls}`}>{s.value}</p>
+                          </div>
+                        ))}
                         {(() => {
                           const gunluk = gunlukHesapla(item);
                           const pozitif = gunluk ? gunluk.gunluk >= 0 : null;
+                          const cls = pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400";
                           return (
                             <>
-                              <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Günlük ₺</p><p className={`font-semibold ${pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400"}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p></div>
-                              <div className="rounded-lg bg-slate-900/40 p-2.5"><p className="text-slate-500 text-xs">Günlük %</p><p className={`font-semibold ${pozitif === null ? "text-slate-500" : pozitif ? "text-emerald-400" : "text-red-400"}`}>{gunluk ? `${gunluk.gunlukYuzde >= 0 ? "+" : ""}${gunluk.gunlukYuzde.toFixed(2)}%` : "—"}</p></div>
+                              <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                                <p className="text-slate-600 text-[10px] mb-1">Günlük ₺</p>
+                                <p className={`portfolio-number font-mono text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p>
+                              </div>
+                              <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                                <p className="text-slate-600 text-[10px] mb-1">Günlük %</p>
+                                <p className={`portfolio-number font-mono text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunlukYuzde >= 0 ? "+" : ""}${gunluk.gunlukYuzde.toFixed(2)}%` : "—"}</p>
+                              </div>
                             </>
                           );
                         })()}
                       </div>
-                      <div className="mb-3 rounded-xl border border-slate-700/60 bg-slate-900/35 p-3">
+                      <div className="rounded-xl p-3 mb-3" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.06)" }}>
                         <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-xs font-semibold text-slate-300">AI Risk Detayı</p>
-                            {risk?.skor && !risk.yukleniyor && (
-                              <p className="mt-0.5 text-[10px] text-slate-500">
-                                {risk.skor100 !== undefined ? `${risk.skor100}/100` : risk.ozet}
-                              </p>
-                            )}
-                          </div>
+                          <p className="text-xs font-semibold text-slate-400">AI Risk Skoru</p>
                           {risk && risk.skor ? (
                             risk.yukleniyor ? (
                               <span className="text-slate-500 text-xs animate-pulse">Hesaplanıyor...</span>
                             ) : (
                               <button
                                 onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
-                                className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
+                                className={`text-[10px] font-bold px-2.5 py-1 rounded border cursor-pointer transition-all ${risk.skor === "Düşük" ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" : risk.skor === "Yüksek" ? "text-red-400 bg-red-400/10 border-red-400/20" : "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"}`}
                               >
-                                {risk.skor} Risk {risk.detay ? "▲" : "▼"}
+                                ⚡ {risk.skor} {risk.skor100 !== undefined ? `· ${risk.skor100}/100` : ""} {risk.detay ? "▲" : "▼"}
                               </button>
                             )
                           ) : (
-                            <button onClick={() => riskSkoru(item.ticker)} className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition-colors border border-slate-600">
-                              ⚡ AI Risk Al
+                            <button onClick={() => riskSkoru(item.ticker)} className="text-xs font-semibold px-2.5 py-1 rounded border border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors">
+                              ⚡ Risk Al
                             </button>
                           )}
                         </div>
                         {risk?.detay && risk?.bilesenler && (
-                          <div className="mt-3">
-                            <RiskBilesenGrid bilesenler={risk.bilesenler} mobil />
-                          </div>
+                          <div className="mt-3"><RiskBilesenGrid bilesenler={risk.bilesenler} mobil /></div>
                         )}
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
-                          className="flex-1 py-2 rounded-lg text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white transition-colors">± Lot Güncelle</button>
-                        <Link href={`/hisse/${item.ticker}`} className="flex-1 py-2 rounded-lg text-xs font-medium bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 transition-colors text-center">Analiz →</Link>
+                          className="flex-1 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>± Lot</button>
+                        <Link href={`/hisse/${item.ticker}`} className="flex-1 py-2 rounded-lg text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors text-center"
+                          style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)" }}>Analiz →</Link>
                         <button onClick={() => setSilModal({ open: true, ticker: item.ticker })}
-                          className="px-3 py-2 rounded-lg text-xs bg-red-900/20 hover:bg-red-900/40 text-red-400 transition-colors">🗑</button>
+                          className="px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors"
+                          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>✕</button>
                       </div>
                     </div>
                   )}
@@ -660,120 +675,122 @@ export default function PortfoyPage() {
             })}
           </div>
         ) : (
-          <div className="border border-slate-700/60 rounded-xl overflow-x-auto" style={{ background: "rgba(11,25,41,0.6)" }}>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-[11px] text-slate-600 uppercase tracking-[0.08em]" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.015)" }}>
-                  <th className="text-left px-4 py-3 font-semibold">Hisse</th>
-                  <th className="text-right px-3 py-3 font-semibold hidden sm:table-cell">Lot</th>
-                  <th className="text-right px-3 py-3 font-semibold">Ort. Maliyet</th>
-                  <th className="text-right px-3 py-3 font-semibold">Güncel Fiyat</th>
-                  <th className="text-right px-4 py-3 font-semibold hidden sm:table-cell">Ana Para</th>
-                  <th className="text-right px-4 py-3 font-semibold hidden sm:table-cell">Güncel Değer</th>
-                  <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Günlük</th>
-                  <th className="text-right px-4 py-3 font-semibold">K/Z ₺</th>
-                  <th className="text-right px-4 py-3 font-semibold hidden sm:table-cell">K/Z %</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {portfoy.map((item, idx) => {
-                  const pl = plHesapla(item);
-                  const fiyat = fiyatlar[item.ticker];
-                  const risk = riskler[item.ticker];
-                  const isPos = pl ? pl.pl >= 0 : null;
-                  const gunluk = gunlukHesapla(item);
-                  const gunlukPozitif = gunluk ? gunluk.gunluk >= 0 : null;
-                  return (
-                    <React.Fragment key={item.id}>
-                    <tr className={`transition-colors group ${!risk?.detay && idx !== portfoy.length - 1 ? "border-b border-slate-700/30" : ""}`} style={{ borderLeft: "2px solid transparent" }} onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.borderLeftColor = "rgba(59,130,246,0.4)"; (e.currentTarget as HTMLTableRowElement).style.background = "rgba(59,130,246,0.03)"; }} onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.borderLeftColor = "transparent"; (e.currentTarget as HTMLTableRowElement).style.background = ""; }}>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <Link href={`/hisse/${item.ticker}`} className="text-white font-bold hover:text-blue-400 transition-colors">
-                            {item.ticker}
-                          </Link>
-                          {fiyat && (
-                            <span className={`text-xs font-medium ${fiyat.degisim >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                              {fiyat.degisim >= 0 ? "▲" : "▼"} {Math.abs(fiyat.degisim).toFixed(2)}%
-                            </span>
-                          )}
-                        </div>
-                        {risk?.skor && !risk.yukleniyor && (
-                          <button
-                            onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
-                            className={`mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
-                          >
-                            {risk.skor} {risk.skor100 !== undefined ? `· ${risk.skor100}/100` : ""} {risk.detay ? "▲" : "▼"}
-                          </button>
+          <div className="relative overflow-hidden rounded-xl" style={{ background: "rgba(8,14,26,0.9)", border: "1px solid rgba(59,130,246,0.1)", boxShadow: "0 0 48px rgba(59,130,246,0.04), inset 0 0 60px rgba(0,0,0,0.2)" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ background: "linear-gradient(90deg, rgba(59,130,246,0.07) 0%, rgba(139,92,246,0.04) 100%)", borderBottom: "1px solid rgba(59,130,246,0.12)" }}>
+                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Hisse</th>
+                    <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Lot</th>
+                    <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Maliyet</th>
+                    <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Fiyat</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Ana Para</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Güncel</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden md:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Günlük</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>K/Z ₺</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>K/Z %</th>
+                    <th className="px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {portfoy.map((item) => {
+                    const pl = plHesapla(item);
+                    const fiyat = fiyatlar[item.ticker];
+                    const risk = riskler[item.ticker];
+                    const isPos = pl ? pl.pl >= 0 : null;
+                    const gunluk = gunlukHesapla(item);
+                    const gunlukPozitif = gunluk ? gunluk.gunluk >= 0 : null;
+                    const accentColor = isPos === null ? "rgba(51,65,85,0.8)" : isPos ? "rgba(16,185,129,0.6)" : "rgba(239,68,68,0.6)";
+                    const rowBg = isPos === null ? "transparent" : isPos ? "rgba(16,185,129,0.018)" : "rgba(239,68,68,0.018)";
+                    return (
+                      <React.Fragment key={item.id}>
+                        <tr
+                          style={{ borderLeft: `2px solid ${accentColor}`, background: rowBg, borderBottom: "1px solid rgba(255,255,255,0.03)", transition: "background 0.15s ease, border-left-color 0.15s ease" }}
+                          onMouseEnter={e => {
+                            const el = e.currentTarget as HTMLTableRowElement;
+                            el.style.background = isPos === null ? "rgba(59,130,246,0.045)" : isPos ? "rgba(16,185,129,0.055)" : "rgba(239,68,68,0.055)";
+                            el.style.borderLeftColor = isPos === null ? "rgba(59,130,246,0.7)" : isPos ? "rgba(16,185,129,1)" : "rgba(239,68,68,1)";
+                          }}
+                          onMouseLeave={e => {
+                            const el = e.currentTarget as HTMLTableRowElement;
+                            el.style.background = rowBg;
+                            el.style.borderLeftColor = accentColor;
+                          }}
+                        >
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center gap-2">
+                              <Link href={`/hisse/${item.ticker}`} className="font-mono font-bold text-white hover:text-blue-400 transition-colors tracking-wide text-[14px]">
+                                {item.ticker}
+                              </Link>
+                              {fiyat && (
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyat.degisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>
+                                  {fiyat.degisim >= 0 ? "▲" : "▼"}{Math.abs(fiyat.degisim).toFixed(2)}%
+                                </span>
+                              )}
+                            </div>
+                            {risk?.skor && !risk.yukleniyor && (
+                              <button
+                                onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
+                                className={`mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded border cursor-pointer transition-all ${risk.skor === "Düşük" ? "text-emerald-400 bg-emerald-400/8 border-emerald-400/20" : risk.skor === "Yüksek" ? "text-red-400 bg-red-400/8 border-red-400/20" : "text-yellow-400 bg-yellow-400/8 border-yellow-400/20"}`}
+                              >
+                                ⚡ {risk.skor} {risk.skor100 !== undefined ? `${risk.skor100}/100` : ""} {risk.detay ? "▲" : "▼"}
+                              </button>
+                            )}
+                            {risk?.yukleniyor && (
+                              <span className="mt-1 text-slate-600 text-[10px] animate-pulse block">Hesaplanıyor...</span>
+                            )}
+                          </td>
+                          <td className="portfolio-number px-3 py-3.5 text-right font-mono text-slate-300 text-sm hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
+                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-slate-500 text-sm">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-700">₺</span></td>
+                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-sm">
+                            {fiyat ? <span className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-600">₺</span></span> : <span className="text-slate-700">—</span>}
+                          </td>
+                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-slate-500 text-sm hidden sm:table-cell">
+                            {(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-700">₺</span>
+                          </td>
+                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-white text-sm font-semibold hidden sm:table-cell">
+                            {pl ? <>{pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-600">₺</span></> : <span className="text-slate-700">—</span>}
+                          </td>
+                          <td className={`portfolio-number px-4 py-3.5 text-right font-mono text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
+                            {gunluk ? (
+                              <div>
+                                <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</div>
+                                <div className="text-[11px] opacity-60">{gunluk.gunlukYuzde >= 0 ? "+" : ""}{gunluk.gunlukYuzde.toFixed(2)}%</div>
+                              </div>
+                            ) : "—"}
+                          </td>
+                          <td className={`portfolio-number px-4 py-3.5 text-right font-mono font-semibold text-sm ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                            {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
+                          </td>
+                          <td className={`portfolio-number px-4 py-3.5 text-right font-mono font-semibold text-sm hidden sm:table-cell ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                            {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
+                          </td>
+                          <td className="px-3 py-3.5">
+                            <div className="flex items-center gap-0.5 justify-end">
+                              {!risk?.skor && !risk?.yukleniyor && (
+                                <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">⚡</button>
+                              )}
+                              <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Lot Ekle/Çıkar" className="p-1.5 rounded text-slate-600 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
+                              <Link href={`/hisse/${item.ticker}`} title="Analiz" className="p-1.5 rounded text-slate-600 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-sm">→</Link>
+                              <button onClick={() => setSilModal({ open: true, ticker: item.ticker })} title="Sil" className="p-1.5 rounded text-slate-700 hover:text-red-400 hover:bg-red-900/20 transition-colors text-xs">✕</button>
+                            </div>
+                          </td>
+                        </tr>
+                        {risk?.detay && risk?.bilesenler && (
+                          <tr key={item.id + "_detay"} style={{ background: "rgba(8,14,26,0.98)", borderBottom: "1px solid rgba(59,130,246,0.08)", borderLeft: "2px solid rgba(59,130,246,0.4)" }}>
+                            <td colSpan={10} className="px-4 py-3">
+                              <RiskBilesenGrid bilesenler={risk.bilesenler} />
+                            </td>
+                          </tr>
                         )}
-                        {risk?.yukleniyor && (
-                          <span className="mt-1 text-slate-500 text-xs animate-pulse block">Hesaplanıyor...</span>
-                        )}
-                      </td>
-                      <td className="portfolio-number px-3 py-4 text-right text-white hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
-                      <td className="portfolio-number px-4 py-4 text-right text-slate-300">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
-                      <td className="portfolio-number px-4 py-4 text-right text-white">
-                        {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : <span className="text-slate-500">—</span>}
-                      </td>
-                      <td className="portfolio-number px-4 py-4 text-right text-slate-300 hidden sm:table-cell">
-                        {(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
-                      </td>
-                      <td className="portfolio-number px-4 py-4 text-right text-white hidden sm:table-cell">
-                        {pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : <span className="text-slate-500">—</span>}
-                      </td>
-                      <td className={`portfolio-number px-4 py-4 text-right font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-500" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
-                        {gunluk ? (
-                          <div>
-                            <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</div>
-                            <div className="text-[11px] opacity-75">{gunluk.gunlukYuzde >= 0 ? "+" : ""}{gunluk.gunlukYuzde.toFixed(2)}%</div>
-                          </div>
-                        ) : "—"}
-                      </td>
-                      <td className={`portfolio-number px-4 py-4 text-right font-medium ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                        {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
-                      </td>
-                      <td className={`portfolio-number px-4 py-4 text-right font-medium hidden sm:table-cell ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                        {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-1 justify-end">
-                          {!risk?.skor && !risk?.yukleniyor && (
-                            <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded-lg text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">
-                              ⚡
-                            </button>
-                          )}
-                          <button
-                            onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
-                            title="Lot Ekle/Cikar"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-600 transition-colors font-bold"
-                          >
-                            ±
-                          </button>
-                          <Link href={`/hisse/${item.ticker}`} title="Analiz" className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-600 transition-colors">
-                            →
-                          </Link>
-                          <button
-                            onClick={() => setSilModal({ open: true, ticker: item.ticker })}
-                            title="Sil"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-900/20 transition-colors"
-                          >
-                            🗑
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    {risk?.detay && risk?.bilesenler && (
-                      <tr key={item.id + "_detay"} className="border-b border-slate-700/50 bg-slate-900/30">
-                        <td colSpan={10} className="px-4 py-3">
-                          <RiskBilesenGrid bilesenler={risk.bilesenler} />
-                        </td>
-                      </tr>
-                    )}
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
