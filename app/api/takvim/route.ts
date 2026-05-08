@@ -48,6 +48,29 @@ const EVENT_TR: Record<string, string> = {
   "Harmonised Inflation Rate YoY": "Uyumlaştırılmış Enflasyon (Yıllık)",
 };
 
+const MERKEZ_BANKASI_TAKVIM = [
+  { tarih: "2026-01-22", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-03-12", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-04-22", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-06-11", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-07-23", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-09-10", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-10-22", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-12-10", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-02-12", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-05-14", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-08-13", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-11-12", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
+  { tarih: "2026-01-28", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+  { tarih: "2026-03-18", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+  { tarih: "2026-04-29", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+  { tarih: "2026-06-17", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+  { tarih: "2026-07-29", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+  { tarih: "2026-09-16", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+  { tarih: "2026-10-28", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+  { tarih: "2026-12-09", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
+];
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const from = searchParams.get("from") || new Date().toISOString().slice(0, 10);
@@ -85,5 +108,11 @@ export async function GET(req: NextRequest) {
       };
     });
 
-  return NextResponse.json({ events });
+  const hardcodedEvents = MERKEZ_BANKASI_TAKVIM
+    .filter(e => e.tarih >= from && e.tarih <= to)
+    .map(e => ({ ...e, beklenti: null, onceki: null, gerceklesen: null }));
+
+  const allEvents = [...events, ...hardcodedEvents].sort((a, b) => a.tarih.localeCompare(b.tarih) || a.saat.localeCompare(b.saat));
+
+  return NextResponse.json({ events: allEvents });
 }

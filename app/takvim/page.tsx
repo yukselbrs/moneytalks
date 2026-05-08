@@ -112,7 +112,7 @@ export default function TakvimPage() {
           <p style={{ fontSize: 13, color: "#475569", marginBottom: 20 }}>Finansal takvimdeki tüm önemli ekonomik ve şirket etkinliklerini takip edin.</p>
 
           <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid rgba(59,130,246,0.08)", overflowX: "auto" }}>
-            {["Ekonomik Takvim", "Şirket Takvimi", "Temettü Takvimi", "Halka Arz Takvimi"].map(s => (
+            {["Ekonomik Takvim", "Bilanço Takvimi", "Temettü Takvimi", "Halka Arz Takvimi"].map(s => (
               <button key={s} onClick={() => setSekme(s)} style={{ fontSize: 13, fontWeight: 500, padding: "8px 16px", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap", color: sekme === s ? "#3B82F6" : "#475569", borderBottom: sekme === s ? "2px solid #3B82F6" : "2px solid transparent", marginBottom: -1 }}>
                 {s}
               </button>

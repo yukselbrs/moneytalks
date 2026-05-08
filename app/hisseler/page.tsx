@@ -144,9 +144,9 @@ function HisselerContent() {
 
   return (
     <AppShell>
-      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
         <style>{`
-          .hisse-row:hover { background: rgba(59,130,246,0.05) !important; }
+          .hisse-row:hover { background: rgba(59,130,246,0.06) !important; box-shadow: 0 0 22px rgba(59,130,246,0.08); }
           .hisse-toolbar { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 10px; align-items: center; margin-bottom: 14px; }
           .hisse-siralama button:hover { border-color: rgba(59,130,246,0.35) !important; color: #94A3B8 !important; }
           .hisse-arama:focus-within { border-color: rgba(59,130,246,0.42) !important; background: rgba(59,130,246,0.07) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
@@ -168,7 +168,7 @@ function HisselerContent() {
         <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px" }}>
 
           {/* Başlık */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 12 }}>
+          <div className="animate-fade-up" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 12 }}>
             <div>
               <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Tüm Hisseler</p>
               <h1 style={{ fontSize: 24, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 10 }}>
@@ -194,7 +194,7 @@ function HisselerContent() {
                 </button>
               ))}
             </div>
-            <div className="hisse-arama" style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "7px 12px", minWidth: 260 }}>
+            <div className="hisse-arama card-glass" style={{ display: "flex", alignItems: "center", gap: 8, borderRadius: 10, padding: "7px 12px", minWidth: 260 }}>
               <Search size={14} color="#475569" />
               <input value={arama} onChange={e => setArama(e.target.value)} placeholder="Hisse kodu veya şirket adı ara..."
                 style={{ background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#94A3B8", width: "100%" }} />
@@ -203,7 +203,7 @@ function HisselerContent() {
           </div>
 
           {/* Tablo */}
-            <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
+            <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
               <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
               {TABLO_BASLIKLARI.map((h) => {
                 const active = h.sort && sort === h.sort && sortDir;
