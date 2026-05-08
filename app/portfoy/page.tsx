@@ -134,7 +134,7 @@ export default function PortfoyPage() {
   const [flashTickers, setFlashTickers] = useState<Record<string, "up" | "down">>({});
   const prevFiyatlarRef = useRef<FiyatMap>({});
   const [grafik, setGrafik] = useState<{ tarih: string; deger: number }[]>([]);
-  const [grafikAralik, setGrafikAralik] = useState<"1mo" | "3mo" | "1y">("1mo");
+  const [grafikAralik, setGrafikAralik] = useState<"1d" | "1mo" | "3mo" | "1y">("1d");
   const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
   const [grafikAcik, setGrafikAcik] = useState(true);
 
@@ -218,7 +218,7 @@ export default function PortfoyPage() {
     return () => window.clearInterval(id);
   }, [fiyatlariYenile, portfoy]);
 
-  const grafikCek = useCallback(async (aralik: "1mo" | "3mo" | "1y", items: PortfoyItem[]) => {
+  const grafikCek = useCallback(async (aralik: "1d" | "1mo" | "3mo" | "1y", items: PortfoyItem[]) => {
     if (items.length === 0) return;
     setGrafikYukleniyor(true);
     try {
@@ -628,10 +628,10 @@ export default function PortfoyPage() {
                 </p>
                 {grafikAcik && (
                   <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                    {(["1mo", "3mo", "1y"] as const).map(a => (
+                    {(["1d", "1mo", "3mo", "1y"] as const).map(a => (
                       <button key={a} onClick={() => setGrafikAralik(a)}
                         className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${grafikAralik === a ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}>
-                        {a === "1mo" ? "1A" : a === "3mo" ? "3A" : "1Y"}
+                        {a === "1d" ? "Bugün" : a === "1mo" ? "1A" : a === "3mo" ? "3A" : "1Y"}
                       </button>
                     ))}
                   </div>
