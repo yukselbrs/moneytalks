@@ -123,6 +123,10 @@ export default function PortfoyPage() {
   const isMobil = useMediaQuery("(max-width: 767px)");
   const [acikHisse, setAcikHisse] = useState<string | null>(null);
   const [getiriModu, setGetiriModu] = useState<"daily" | "total">("total");
+  const [sortKolon, setSortKolon] = useState<"kz" | "kzYuzde" | "gunluk" | "guncel" | null>(null);
+  const [sortYon, setSortYon] = useState<"asc" | "desc">("desc");
+  const [flashTickers, setFlashTickers] = useState<Record<string, "up" | "down">>({});
+  const prevFiyatlarRef = useRef<FiyatMap>({});
 
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
     const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
@@ -203,6 +207,22 @@ export default function PortfoyPage() {
     }, 15000);
     return () => window.clearInterval(id);
   }, [fiyatlariYenile, portfoy]);
+
+  useEffect(() => {
+    const prev = prevFiyatlarRef.current;
+    const changed: Record<string, "up" | "down"> = {};
+    Object.entries(fiyatlar).forEach(([ticker, { fiyat }]) => {
+      const prevFiyat = prev[ticker]?.fiyat;
+      if (prevFiyat !== undefined && prevFiyat !== fiyat) {
+        changed[ticker] = fiyat > prevFiyat ? "up" : "down";
+      }
+    });
+    prevFiyatlarRef.current = fiyatlar;
+    if (Object.keys(changed).length === 0) return;
+    setFlashTickers(changed);
+    const t = setTimeout(() => setFlashTickers({}), 700);
+    return () => clearTimeout(t);
+  }, [fiyatlar]);
 
 
 
@@ -348,6 +368,26 @@ export default function PortfoyPage() {
     if (skor === "Yüksek") return "text-red-400 bg-red-400/10";
     return "text-yellow-400 bg-yellow-400/10";
   };
+
+  const sortTikla = (kolon: "kz" | "kzYuzde" | "gunluk" | "guncel") => {
+    if (sortKolon === kolon) setSortYon(y => y === "desc" ? "asc" : "desc");
+    else { setSortKolon(kolon); setSortYon("desc"); }
+  };
+  const sortIkon = (kolon: string) => sortKolon === kolon ? (sortYon === "desc" ? " ↓" : " ↑") : "";
+
+  const siraliPortfoy = [...portfoy].sort((a, b) => {
+    if (!sortKolon) return 0;
+    const plA = plHesapla(a);
+    const plB = plHesapla(b);
+    const gA = gunlukHesapla(a);
+    const gB = gunlukHesapla(b);
+    let vA = 0, vB = 0;
+    if (sortKolon === "kz") { vA = plA?.pl ?? 0; vB = plB?.pl ?? 0; }
+    else if (sortKolon === "kzYuzde") { vA = plA?.plYuzde ?? 0; vB = plB?.plYuzde ?? 0; }
+    else if (sortKolon === "gunluk") { vA = gA?.gunluk ?? 0; vB = gB?.gunluk ?? 0; }
+    else if (sortKolon === "guncel") { vA = plA?.guncel_toplam ?? 0; vB = plB?.guncel_toplam ?? 0; }
+    return sortYon === "desc" ? vB - vA : vA - vB;
+  });
 
   const inputCls = "w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500";
 
@@ -687,15 +727,15 @@ export default function PortfoyPage() {
                     <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Maliyet</th>
                     <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Fiyat</th>
                     <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Ana Para</th>
-                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Güncel</th>
-                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden md:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Günlük</th>
-                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>K/Z ₺</th>
-                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>K/Z %</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell cursor-pointer select-none hover:text-blue-300 transition-colors" style={{ color: sortKolon === "guncel" ? "rgba(96,165,250,1)" : "rgba(96,165,250,0.7)" }} onClick={() => sortTikla("guncel")}>Güncel{sortIkon("guncel")}</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden md:table-cell cursor-pointer select-none hover:text-blue-300 transition-colors" style={{ color: sortKolon === "gunluk" ? "rgba(96,165,250,1)" : "rgba(96,165,250,0.7)" }} onClick={() => sortTikla("gunluk")}>Günlük{sortIkon("gunluk")}</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] cursor-pointer select-none hover:text-blue-300 transition-colors" style={{ color: sortKolon === "kz" ? "rgba(96,165,250,1)" : "rgba(96,165,250,0.7)" }} onClick={() => sortTikla("kz")}>K/Z ₺{sortIkon("kz")}</th>
+                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell cursor-pointer select-none hover:text-blue-300 transition-colors" style={{ color: sortKolon === "kzYuzde" ? "rgba(96,165,250,1)" : "rgba(96,165,250,0.7)" }} onClick={() => sortTikla("kzYuzde")}>K/Z %{sortIkon("kzYuzde")}</th>
                     <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {portfoy.map((item) => {
+                  {siraliPortfoy.map((item) => {
                     const pl = plHesapla(item);
                     const fiyat = fiyatlar[item.ticker];
                     const risk = riskler[item.ticker];
@@ -704,6 +744,8 @@ export default function PortfoyPage() {
                     const gunlukPozitif = gunluk ? gunluk.gunluk >= 0 : null;
                     const accentColor = isPos === null ? "rgba(51,65,85,0.8)" : isPos ? "rgba(16,185,129,0.6)" : "rgba(239,68,68,0.6)";
                     const rowBg = isPos === null ? "transparent" : isPos ? "rgba(16,185,129,0.018)" : "rgba(239,68,68,0.018)";
+                    const flash = flashTickers[item.ticker];
+                    const sirketAdi = BIST_HISSELER.find(h => h.ticker === item.ticker)?.ad;
                     return (
                       <React.Fragment key={item.id}>
                         <tr
@@ -730,6 +772,7 @@ export default function PortfoyPage() {
                                 </span>
                               )}
                             </div>
+                            {sirketAdi && <p className="text-[10px] text-slate-600 mt-0.5 leading-none truncate max-w-[140px]">{sirketAdi}</p>}
                             {risk?.skor && !risk.yukleniyor && (
                               <button
                                 onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
@@ -744,7 +787,7 @@ export default function PortfoyPage() {
                           </td>
                           <td className="portfolio-number px-3 py-2.5 text-right text-slate-300 text-sm hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-700">₺</span></td>
-                          <td className="portfolio-number px-4 py-2.5 text-right text-sm">
+                          <td className="portfolio-number px-4 py-2.5 text-right text-sm" style={{ transition: "background 0.7s ease", background: flash === "up" ? "rgba(16,185,129,0.12)" : flash === "down" ? "rgba(239,68,68,0.12)" : "transparent" }}>
                             {fiyat ? <span className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-600">₺</span></span> : <span className="text-slate-700">—</span>}
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm hidden sm:table-cell">
@@ -789,6 +832,21 @@ export default function PortfoyPage() {
                     );
                   })}
                 </tbody>
+                <tfoot>
+                  <tr style={{ borderTop: "1px solid rgba(59,130,246,0.15)", background: "linear-gradient(90deg, rgba(59,130,246,0.06) 0%, rgba(139,92,246,0.04) 100%)" }}>
+                    <td className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.6)" }} colSpan={6}>Toplam</td>
+                    <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {gunlukPL >= 0 ? "+" : ""}{gunlukPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                    </td>
+                    <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {toplamPL >= 0 ? "+" : ""}{toplamPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                    </td>
+                    <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] hidden sm:table-cell ${toplamPLYuzde >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {toplamPLYuzde >= 0 ? "+" : ""}{toplamPLYuzde.toFixed(2)}%
+                    </td>
+                    <td className="px-3 py-2.5" />
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
