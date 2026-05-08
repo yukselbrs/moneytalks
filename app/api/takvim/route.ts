@@ -81,38 +81,37 @@ export async function GET(req: NextRequest) {
     { cache: "no-store" }
   );
 
-  if (!res.ok) return NextResponse.json({ error: "Finnhub error" }, { status: 500 });
-
-  const data = await res.json();
-
-  const events = (data.economicCalendar || [])
-    .filter((e: { country: string }) => e.country === "TR")
-    .map((e: {
-      time: string; event: string; impact: string; country: string;
-      estimate: number | null; prev: number | null; actual: number | null; unit: string;
-    }) => {
-      // UTC saatini TR saatine çevir (+3)
-      const utcDate = new Date(e.time.replace(" ", "T") + "Z");
-      const trSaat = utcDate.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
-
-      return {
-        tarih: e.time.slice(0, 10),
-        saat: trSaat,
-        baslik: EVENT_TR[e.event] || e.event,
-        onem: IMPACT_MAP[e.impact] || "Düşük",
-        ulke: "🇹🇷",
-        ulkeKod: "TR",
-        beklenti: e.estimate !== null ? `${e.estimate}${e.unit ? " " + e.unit : ""}` : null,
-        onceki: e.prev !== null ? `${e.prev}${e.unit ? " " + e.unit : ""}` : null,
-        gerceklesen: e.actual !== null ? `${e.actual}${e.unit ? " " + e.unit : ""}` : null,
-      };
-    });
-
   const hardcodedEvents = MERKEZ_BANKASI_TAKVIM
     .filter(e => e.tarih >= from && e.tarih <= to)
     .map(e => ({ ...e, beklenti: null, onceki: null, gerceklesen: null }));
 
-  const allEvents = [...events, ...hardcodedEvents].sort((a, b) => a.tarih.localeCompare(b.tarih) || a.saat.localeCompare(b.saat));
+  let finnhubEvents: typeof hardcodedEvents = [];
+
+  if (res.ok) {
+    const data = await res.json();
+    finnhubEvents = (data.economicCalendar || [])
+      .filter((e: { country: string }) => e.country === "TR")
+      .map((e: {
+        time: string; event: string; impact: string; country: string;
+        estimate: number | null; prev: number | null; actual: number | null; unit: string;
+      }) => {
+        const utcDate = new Date(e.time.replace(" ", "T") + "Z");
+        const trSaat = utcDate.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
+        return {
+          tarih: e.time.slice(0, 10),
+          saat: trSaat,
+          baslik: EVENT_TR[e.event] || e.event,
+          onem: IMPACT_MAP[e.impact] || "Düşük",
+          ulke: "🇹🇷",
+          ulkeKod: "TR",
+          beklenti: e.estimate !== null ? `${e.estimate}${e.unit ? " " + e.unit : ""}` : null,
+          onceki: e.prev !== null ? `${e.prev}${e.unit ? " " + e.unit : ""}` : null,
+          gerceklesen: e.actual !== null ? `${e.actual}${e.unit ? " " + e.unit : ""}` : null,
+        };
+      });
+  }
+
+  const allEvents = [...finnhubEvents, ...hardcodedEvents].sort((a, b) => a.tarih.localeCompare(b.tarih) || a.saat.localeCompare(b.saat));
 
   return NextResponse.json({ events: allEvents });
 }
