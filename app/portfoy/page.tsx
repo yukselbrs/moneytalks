@@ -406,148 +406,127 @@ export default function PortfoyPage() {
         </div>
 
         {portfoy.length > 0 && (
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={() => {
-                portfoy.forEach(item => {
-                  if (!riskler[item.ticker] || !riskler[item.ticker].skor) {
-                    setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
-                    fetch(`/api/risk?ticker=${item.ticker}`)
-                      .then(r => r.json())
-                      .then(json => {
-                        if (json.error) throw new Error(json.error);
-                        setRiskler(prev => ({ ...prev, [item.ticker]: { skor: json.seviyeTR || "Orta", ozet: "", yukleniyor: false, acik: false, skor100: json.skor, bilesenler: json.bilesenler } }));
-                      })
-                      .catch(() => setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "?", ozet: "", yukleniyor: false, acik: false } })));
-                  }
-                });
-              }}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-700"
-            >
-              ⚡ Portföy Riskini Hesapla
-            </button>
-          </div>
-        )}
-        {portfoy.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4">
-            <div className="portfolio-summary-card bg-slate-800/60 border border-slate-700 rounded-xl p-3">
-              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Toplam Maliyet</p>
-              <p className="portfolio-number text-slate-100 font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
-              <p className="text-slate-600 text-[11px] mt-1">{portfoy.length} pozisyon</p>
-            </div>
-            <div className="portfolio-summary-card bg-slate-800/60 border border-slate-700 rounded-xl p-3">
-              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Güncel Değer</p>
-              <p className="portfolio-number text-white font-extrabold text-xl tracking-tight">{toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
-              <p className="text-orange-400 text-[11px] font-semibold mt-1">15 dk gecikmeli</p>
-            </div>
-            <div className={`portfolio-summary-card border rounded-xl p-4 ${aktifPozitif ? "bg-emerald-900/20 border-emerald-800/40" : "bg-red-900/20 border-red-800/40"}`}>
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em]">{getiriModu === "daily" ? "Günlük K/Z" : "Toplam K/Z"}</p>
-                  <span className="instant-tooltip inline-flex">
-                    <button
-                      type="button"
-                      aria-label="Günlük K/Z açıklaması"
-                      className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-slate-600 text-[9px] font-bold text-slate-500"
-                    >
-                      i
-                    </button>
-                    <span className="instant-tooltip-content">
-                      Günlük K/Z, pozisyonların portföydeki ağırlığına göre hesaplanır.
-                    </span>
+          <div className="mb-4 relative overflow-hidden rounded-2xl border border-slate-700/50" style={{ background: "linear-gradient(135deg, #0B1929 0%, #0F172A 60%, #0B1929 100%)", boxShadow: "0 0 60px rgba(59,130,246,0.06)" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
+            <div className="p-5 flex items-start gap-0">
+              <div className="flex-1 min-w-0">
+                <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <p className="portfolio-number text-white font-black tracking-tight" style={{ fontSize: 38, lineHeight: 1 }}>
+                    {toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+                  </p>
+                  <span className="text-slate-500 font-bold text-xl">₺</span>
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className={`portfolio-number text-sm font-bold ${aktifPozitif ? "text-emerald-400" : "text-red-400"}`}>
+                    {aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                  </span>
+                  <span className={`portfolio-number text-xs font-semibold ${aktifPozitif ? "text-emerald-600" : "text-red-600"}`}>
+                    ({aktifPLYuzde >= 0 ? "+" : ""}{aktifPLYuzde.toFixed(2)}%)
+                  </span>
+                  <div className="inline-flex rounded-lg border border-slate-700/60 bg-slate-900/60 p-0.5 ml-1">
+                    {[{ key: "daily" as const, label: "Günlük" }, { key: "total" as const, label: "Toplam" }].map(m => (
+                      <button key={m.key} onClick={() => setGetiriModu(m.key)}
+                        className={`rounded-md px-2 py-0.5 text-[10px] font-bold transition-colors ${getiriModu === m.key ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}>
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-3 border-t border-slate-800/80">
+                  <div>
+                    <p className="text-slate-600 text-[10px] font-medium mb-0.5">Ana Para</p>
+                    <p className="portfolio-number text-slate-300 text-sm font-semibold">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+                  </div>
+                  <div className="w-px h-5 bg-slate-800" />
+                  <div>
+                    <p className="text-slate-600 text-[10px] font-medium mb-0.5">Pozisyon</p>
+                    <p className="text-slate-300 text-sm font-semibold">{portfoy.length} hisse</p>
+                  </div>
+                  {portfoyRiskSkor && !portfoyRiskSkor.yukleniyor && (
+                    <>
+                      <div className="w-px h-5 bg-slate-800" />
+                      <div>
+                        <p className="text-slate-600 text-[10px] font-medium mb-0.5">Portföy Riski</p>
+                        <p className={`text-sm font-bold ${portfoyRiskSkor.seviye === "Yüksek" ? "text-red-400" : portfoyRiskSkor.seviye === "Orta" ? "text-yellow-400" : "text-emerald-400"}`}>
+                          {portfoyRiskSkor.seviye} · {portfoyRiskSkor.skor}/100
+                        </p>
+                      </div>
+                    </>
+                  )}
+                  {portfoyRiskSkor?.yukleniyor && (
+                    <span className="text-slate-500 text-xs animate-pulse">Risk hesaplanıyor...</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  <button
+                    onClick={() => {
+                      portfoy.forEach(item => {
+                        if (!riskler[item.ticker] || !riskler[item.ticker].skor) {
+                          setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
+                          fetch(`/api/risk?ticker=${item.ticker}`)
+                            .then(r => r.json())
+                            .then(json => {
+                              if (json.error) throw new Error(json.error);
+                              setRiskler(prev => ({ ...prev, [item.ticker]: { skor: json.seviyeTR || "Orta", ozet: "", yukleniyor: false, acik: false, skor100: json.skor, bilesenler: json.bilesenler } }));
+                            })
+                            .catch(() => setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "?", ozet: "", yukleniyor: false, acik: false } })));
+                        }
+                      });
+                    }}
+                    className="flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-700/60"
+                  >
+                    ⚡ Portföy Riskini Hesapla
+                  </button>
+                  <button
+                    onClick={() => void fiyatlariYenile(portfoy)}
+                    disabled={fiyatlarYenileniyor}
+                    className="flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-700/60 disabled:opacity-50"
+                  >
+                    {fiyatlarYenileniyor ? "Yenileniyor..." : "Yenile"}
+                  </button>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/8 px-2.5 py-1 text-[10px] font-semibold text-orange-400 ml-auto">
+                    <span className={`h-1.5 w-1.5 rounded-full bg-orange-400 ${fiyatlarYenileniyor ? "animate-pulse" : ""}`} />
+                    {fiyatlarYenileniyor ? "Güncelleniyor..." : sonFiyatGuncelleme ? `Son: ${sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` : "15 dk gecikmeli"}
                   </span>
                 </div>
-                <div className="inline-flex rounded-lg border border-slate-700/80 bg-slate-900/40 p-0.5">
-                  {[
-                    { key: "daily" as const, label: "Günlük" },
-                    { key: "total" as const, label: "Total" },
-                  ].map((item) => (
-                    <button
-                      key={item.key}
-                      onClick={() => setGetiriModu(item.key)}
-                      className={`rounded-md px-2 py-1 text-[10px] font-bold transition-colors ${getiriModu === item.key ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
               </div>
-              <p className={`portfolio-number font-extrabold text-xl tracking-tight ${aktifPozitif ? "text-emerald-400" : "text-red-400"}`}>
-                {aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
-              </p>
-              <p className={`portfolio-number text-xs font-semibold ${aktifPozitif ? "text-emerald-500" : "text-red-500"}`}>
-                {aktifPLYuzde >= 0 ? "+" : ""}{aktifPLYuzde.toFixed(2)}%
-              </p>
-            </div>
-            {portfoyRiskSkor && (
-              <div className={`portfolio-summary-card border rounded-xl p-4 ${
-                portfoyRiskSkor.yukleniyor ? "bg-slate-800/60 border-slate-700" :
-                portfoyRiskSkor.seviye === "Yüksek" ? "bg-red-900/20 border-red-800/40" :
-                portfoyRiskSkor.seviye === "Orta" ? "bg-yellow-900/20 border-yellow-800/40" :
-                "bg-emerald-900/20 border-emerald-800/40"
-              }`}>
-                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Portföy Riski</p>
-                {portfoyRiskSkor.yukleniyor ? (
-                  <p className="text-slate-500 text-sm animate-pulse">Hesaplanıyor...</p>
-                ) : (
-                  <>
-                    <p className={`font-bold text-lg ${
-                      portfoyRiskSkor.seviye === "Yüksek" ? "text-red-400" :
-                      portfoyRiskSkor.seviye === "Orta" ? "text-yellow-400" : "text-emerald-400"
-                    }`}>
-                      {portfoyRiskSkor.seviye === "Yüksek" ? "🔴" : portfoyRiskSkor.seviye === "Orta" ? "🟡" : "🟢"} {portfoyRiskSkor.seviye}
-                    </p>
-                    <p className="text-slate-500 text-xs mt-1">{portfoy.length} hisse · {portfoyRiskSkor.skor}/100</p>
-                  </>
-                )}
-              </div>
-            )}
-            {toplamGuncel > 0 && (
-              <div className="portfolio-summary-card bg-slate-800/60 border border-slate-700 rounded-xl p-3 hidden sm:flex flex-col">
-                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Dağılım</p>
-                <div className="flex items-center gap-2 flex-1">
-                  <div style={{ width: 64, height: 64, flexShrink: 0 }}>
+              {toplamGuncel > 0 && (
+                <div className="hidden lg:flex items-center gap-5 pl-6 ml-6 border-l border-slate-800 self-stretch">
+                  <div style={{ width: 120, height: 120, flexShrink: 0 }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={portfoy.map(item => ({
-                            name: item.ticker,
-                            value: fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet,
-                          }))}
-                          cx="50%" cy="50%"
-                          innerRadius={20} outerRadius={30}
-                          dataKey="value"
-                          strokeWidth={1.5}
-                          stroke="rgba(15,23,42,0.9)"
+                          data={portfoy.map(item => ({ name: item.ticker, value: fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet }))}
+                          cx="50%" cy="50%" innerRadius={36} outerRadius={54}
+                          dataKey="value" strokeWidth={2} stroke="rgba(11,25,41,0.95)"
                         >
-                          {portfoy.map((_, i) => (
-                            <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />
-                          ))}
+                          {portfoy.map((_, i) => <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />)}
                         </Pie>
                         <Tooltip
-                          formatter={(value: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, "Değer"]}
+                          formatter={(value: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, ""]}
                           contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
                           labelStyle={{ color: "#E2E8F0", fontWeight: 700 }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex flex-col gap-1 min-w-0">
+                  <div className="flex flex-col gap-2">
                     {portfoy.map((item, i) => {
-                      const deger = fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet;
-                      const oran = toplamGuncel > 0 ? (deger / toplamGuncel) * 100 : 0;
+                      const d = fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet;
+                      const o = toplamGuncel > 0 ? (d / toplamGuncel) * 100 : 0;
                       return (
-                        <div key={item.ticker} className="flex items-center gap-1.5">
-                          <span style={{ width: 5, height: 5, borderRadius: "50%", background: PASTA_RENKLER[i % PASTA_RENKLER.length], flexShrink: 0 }} />
-                          <span className="text-slate-400 text-[10px] truncate">{item.ticker}</span>
-                          <span className="text-slate-600 text-[10px] tabular-nums ml-auto">{oran.toFixed(0)}%</span>
+                        <div key={item.ticker} className="flex items-center gap-2">
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: PASTA_RENKLER[i % PASTA_RENKLER.length], flexShrink: 0 }} />
+                          <span className="text-slate-400 text-xs font-medium w-12">{item.ticker}</span>
+                          <span className="text-slate-600 text-xs tabular-nums">{o.toFixed(1)}%</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 
@@ -683,19 +662,19 @@ export default function PortfoyPage() {
             })}
           </div>
         ) : (
-          <div className="bg-slate-800/40 border border-slate-700 rounded-xl overflow-x-auto">
+          <div className="border border-slate-700/60 rounded-xl overflow-x-auto" style={{ background: "rgba(11,25,41,0.6)" }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-700 text-xs text-slate-500 uppercase tracking-wide">
-                  <th className="text-left px-3 py-3 font-medium">Hisse</th>
-                  <th className="text-right px-3 py-3 font-medium">Lot</th>
-                  <th className="text-right px-3 py-3 font-medium">Ort. Maliyet</th>
-                  <th className="text-right px-3 py-3 font-medium">Güncel Fiyat</th>
-                  <th className="text-right px-4 py-3 font-medium">Ana Para</th>
-                  <th className="text-right px-4 py-3 font-medium">Güncel Değer</th>
-                  <th className="text-right px-4 py-3 font-medium hidden md:table-cell">Günlük Katkı</th>
-                  <th className="text-right px-4 py-3 font-medium">K/Z ₺</th>
-                  <th className="text-right px-4 py-3 font-medium">K/Z %</th>
+                <tr className="text-[11px] text-slate-600 uppercase tracking-[0.08em]" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.015)" }}>
+                  <th className="text-left px-4 py-3 font-semibold">Hisse</th>
+                  <th className="text-right px-3 py-3 font-semibold hidden sm:table-cell">Lot</th>
+                  <th className="text-right px-3 py-3 font-semibold">Ort. Maliyet</th>
+                  <th className="text-right px-3 py-3 font-semibold">Güncel Fiyat</th>
+                  <th className="text-right px-4 py-3 font-semibold hidden sm:table-cell">Ana Para</th>
+                  <th className="text-right px-4 py-3 font-semibold hidden sm:table-cell">Güncel Değer</th>
+                  <th className="text-right px-4 py-3 font-semibold hidden md:table-cell">Günlük</th>
+                  <th className="text-right px-4 py-3 font-semibold">K/Z ₺</th>
+                  <th className="text-right px-4 py-3 font-semibold hidden sm:table-cell">K/Z %</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -709,7 +688,7 @@ export default function PortfoyPage() {
                   const gunlukPozitif = gunluk ? gunluk.gunluk >= 0 : null;
                   return (
                     <React.Fragment key={item.id}>
-                    <tr className={`hover:bg-slate-700/20 transition-colors ${!risk?.detay && idx !== portfoy.length - 1 ? "border-b border-slate-700/50" : ""}`}>
+                    <tr className={`transition-colors group ${!risk?.detay && idx !== portfoy.length - 1 ? "border-b border-slate-700/30" : ""}`} style={{ borderLeft: "2px solid transparent" }} onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.borderLeftColor = "rgba(59,130,246,0.4)"; (e.currentTarget as HTMLTableRowElement).style.background = "rgba(59,130,246,0.03)"; }} onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.borderLeftColor = "transparent"; (e.currentTarget as HTMLTableRowElement).style.background = ""; }}>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
                           <Link href={`/hisse/${item.ticker}`} className="text-white font-bold hover:text-blue-400 transition-colors">
