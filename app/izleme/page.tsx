@@ -170,7 +170,7 @@ export default function IzlemePage() {
 
   return (
     <AppShell>
-      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
         <style>{`
           .izleme-main { max-width: 1280px; margin: 0 auto; padding: 28px 28px; }
           .izleme-baslik { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
@@ -178,7 +178,9 @@ export default function IzlemePage() {
           .izleme-ozet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
           .izleme-icerik-grid { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
           .izleme-tablo-header { display: grid; grid-template-columns: 2fr 1fr 1fr 120px 100px; padding: 10px 18px; border-bottom: 1px solid rgba(59,130,246,0.06); gap: 8px; }
-          .izleme-tablo-satir { display: grid; grid-template-columns: 2fr 1fr 1fr 120px 100px; padding: 12px 18px; border-bottom: 1px solid rgba(59,130,246,0.04); gap: 8px; align-items: center; }
+          .izleme-tablo-satir { display: grid; grid-template-columns: 2fr 1fr 1fr 120px 100px; padding: 12px 18px; border-bottom: 1px solid rgba(59,130,246,0.04); gap: 8px; align-items: center; transition: background 0.15s ease, transform 0.15s ease; }
+          @keyframes donut-draw { from { stroke-dashoffset: 314; } }
+          .donut-segment { animation: donut-draw 1s cubic-bezier(0.4,0,0.2,1) forwards; }
           .izleme-sag-panel { display: flex; flex-direction: column; gap: 12px; }
           @media (max-width: 768px) {
             .izleme-main { padding: 14px 12px; }
@@ -199,7 +201,7 @@ export default function IzlemePage() {
         <main className="izleme-main">
 
           {/* Baslik */}
-          <div className="izleme-baslik">
+          <div className="izleme-baslik animate-fade-up">
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
                 <span style={{ fontSize: 20 }}>&#9733;</span>
@@ -255,7 +257,7 @@ export default function IzlemePage() {
               { label: "Düşenler", icon: "↘", value: dusenler.length, sub: `%${watchlist.length ? ((dusenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#EF4444" },
               { label: "Ort. Günlük Değişim", icon: "≒", value: `%${Math.abs(ortDegisim).toFixed(2).replace(".",",")}`, sub: "İzleme listeniz ortalaması", color: ortDegisim >= 0 ? "#10B981" : "#EF4444" },
             ].map((k, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
+              <div key={i} className="card-glass hover-glow" style={{ borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
                   {k.icon}
                 </div>
@@ -272,7 +274,7 @@ export default function IzlemePage() {
           <div className="izleme-icerik-grid">
 
             {/* Tablo */}
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
+            <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
               {/* Tablo Baslik */}
               <div className="izleme-tablo-header">
                 {["HİSSE","SON FİYAT","GÜNLÜK DEĞİŞİM","GRAFİK","İŞLEM"].map(h => (
@@ -295,8 +297,8 @@ export default function IzlemePage() {
                   return (
                     <div key={w.ticker} className="izleme-tablo-satir" style={{ borderBottom: "1px solid rgba(59,130,246,0.04)", alignItems: "center",
                       background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.005)" }}
-                      onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
-                      onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.005)"}>
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.06)"; (e.currentTarget as HTMLDivElement).style.transform = "translateX(2px)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.005)"; (e.currentTarget as HTMLDivElement).style.transform = "translateX(0)"; }}>
 
                       {/* Hisse */}
                       <div onClick={() => router.push(`/hisse/${w.ticker}`)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
@@ -395,7 +397,7 @@ export default function IzlemePage() {
                         {segments.map((s, i) => {
                           const dl = s.pct * circ;
                           const el = <circle key={i} cx={cx} cy={cy} r={R} fill="none" stroke={s.color} strokeWidth={sw}
-                            strokeDasharray={`${dl} ${circ-dl}`} strokeDashoffset={circ*0.25 - acc} strokeLinecap="butt"/>;
+                            strokeDasharray={`${dl} ${circ-dl}`} strokeDashoffset={circ*0.25 - acc} strokeLinecap="butt" className="donut-segment" style={{ animationDelay: `${i * 0.15}s` }}/>;
                           acc += dl; return el;
                         })}
                       </svg>
@@ -414,7 +416,7 @@ export default function IzlemePage() {
               </div>
 
               {/* En Cok Yükselen */}
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
+              <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Cok Yükselen</span>
                 </div>
@@ -435,7 +437,7 @@ export default function IzlemePage() {
               </div>
 
               {/* En Cok Düşen */}
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
+              <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>En Cok Düşen</span>
                 </div>
@@ -456,7 +458,7 @@ export default function IzlemePage() {
               </div>
 
               {/* Son Haberler */}
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden" }}>
+              <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>Son Haberler</span>
                   <span style={{ fontSize: 11, color: "#3B82F6", cursor: "pointer" }}>Tumunu Gor</span>
