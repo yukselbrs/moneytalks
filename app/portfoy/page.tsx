@@ -405,52 +405,6 @@ export default function PortfoyPage() {
           </div>
         </div>
 
-        {portfoy.length > 0 && toplamGuncel > 0 && (
-          <div className="mb-4 rounded-xl border border-slate-700 bg-slate-800/40 p-4">
-            <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-3">Portföy Dağılımı</p>
-            <div className="flex items-center gap-6">
-              <div style={{ width: 160, height: 160, flexShrink: 0 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={portfoy.map(item => ({
-                        name: item.ticker,
-                        value: fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet,
-                      }))}
-                      cx="50%" cy="50%"
-                      innerRadius={48} outerRadius={70}
-                      dataKey="value"
-                      strokeWidth={2}
-                      stroke="rgba(15,23,42,0.9)"
-                    >
-                      {portfoy.map((_, i) => (
-                        <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, "Değer"]}
-                      contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 12 }}
-                      labelStyle={{ color: "#E2E8F0", fontWeight: 700 }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex flex-col gap-2">
-                {portfoy.map((item, i) => {
-                  const deger = fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet;
-                  const oran = toplamGuncel > 0 ? (deger / toplamGuncel) * 100 : 0;
-                  return (
-                    <div key={item.ticker} className="flex items-center gap-2">
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: PASTA_RENKLER[i % PASTA_RENKLER.length], flexShrink: 0 }} />
-                      <span className="text-slate-300 text-xs font-semibold w-14">{item.ticker}</span>
-                      <span className="text-slate-500 text-xs tabular-nums">{oran.toFixed(1)}%</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
         {portfoy.length > 0 && (
           <div className="flex justify-end mb-2">
             <button
@@ -475,7 +429,7 @@ export default function PortfoyPage() {
           </div>
         )}
         {portfoy.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4">
             <div className="portfolio-summary-card bg-slate-800/60 border border-slate-700 rounded-xl p-3">
               <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Toplam Maliyet</p>
               <p className="portfolio-number text-slate-100 font-bold text-lg">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
@@ -546,6 +500,53 @@ export default function PortfoyPage() {
                     <p className="text-slate-500 text-xs mt-1">{portfoy.length} hisse · {portfoyRiskSkor.skor}/100</p>
                   </>
                 )}
+              </div>
+            )}
+            {toplamGuncel > 0 && (
+              <div className="portfolio-summary-card bg-slate-800/60 border border-slate-700 rounded-xl p-3 hidden sm:flex flex-col">
+                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-1">Dağılım</p>
+                <div className="flex items-center gap-2 flex-1">
+                  <div style={{ width: 64, height: 64, flexShrink: 0 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={portfoy.map(item => ({
+                            name: item.ticker,
+                            value: fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet,
+                          }))}
+                          cx="50%" cy="50%"
+                          innerRadius={20} outerRadius={30}
+                          dataKey="value"
+                          strokeWidth={1.5}
+                          stroke="rgba(15,23,42,0.9)"
+                        >
+                          {portfoy.map((_, i) => (
+                            <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, "Değer"]}
+                          contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
+                          labelStyle={{ color: "#E2E8F0", fontWeight: 700 }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex flex-col gap-1 min-w-0">
+                    {portfoy.slice(0, 4).map((item, i) => {
+                      const deger = fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet;
+                      const oran = toplamGuncel > 0 ? (deger / toplamGuncel) * 100 : 0;
+                      return (
+                        <div key={item.ticker} className="flex items-center gap-1.5">
+                          <span style={{ width: 5, height: 5, borderRadius: "50%", background: PASTA_RENKLER[i % PASTA_RENKLER.length], flexShrink: 0 }} />
+                          <span className="text-slate-400 text-[10px] truncate">{item.ticker}</span>
+                          <span className="text-slate-600 text-[10px] tabular-nums ml-auto">{oran.toFixed(0)}%</span>
+                        </div>
+                      );
+                    })}
+                    {portfoy.length > 4 && <span className="text-slate-600 text-[10px]">+{portfoy.length - 4} daha</span>}
+                  </div>
+                </div>
               </div>
             )}
           </div>
