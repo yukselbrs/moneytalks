@@ -377,32 +377,13 @@ export default function PortfoyPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Portföy Takibi</h1>
             <p className="text-slate-400 text-sm mt-1">BIST pozisyonlarınızı takip edin, her hisse için AI risk skoru alın</p>
-            {portfoy.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-                <span className="inline-flex items-center gap-1 rounded-full border border-orange-500/25 bg-orange-500/10 px-2 py-0.5 font-semibold text-orange-400">
-                  <span className={`h-1.5 w-1.5 rounded-full bg-orange-400 ${fiyatlarYenileniyor ? "animate-pulse" : ""}`} />
-                  15 dk gecikmeli · {fiyatlarYenileniyor ? "güncelleniyor..." : sonFiyatGuncelleme ? `Son: ${sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` : ""}
-                </span>
-              </div>
-            )}
           </div>
-          <div className="flex items-center gap-2">
-            {portfoy.length > 0 && (
-              <button
-                onClick={() => void fiyatlariYenile(portfoy)}
-                disabled={fiyatlarYenileniyor}
-                className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 disabled:cursor-wait disabled:opacity-60"
-              >
-                {fiyatlarYenileniyor ? "Yenileniyor..." : "Yenile"}
-              </button>
-            )}
-            <button
-              onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              + Hisse Ekle
-            </button>
-          </div>
+          <button
+            onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            + Hisse Ekle
+          </button>
         </div>
 
         {portfoy.length > 0 && (
@@ -412,7 +393,7 @@ export default function PortfoyPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
                 <div className="flex items-baseline gap-2 mb-1">
-                  <p className="portfolio-number text-white font-black tracking-tight" style={{ fontSize: 38, lineHeight: 1 }}>
+                  <p className="portfolio-number text-white" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1 }}>
                     {toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
                   </p>
                   <span className="text-slate-500 font-bold text-xl">₺</span>
