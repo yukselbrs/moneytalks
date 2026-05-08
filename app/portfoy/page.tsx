@@ -584,7 +584,7 @@ export default function PortfoyPage() {
                   </button>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/8 px-2.5 py-1 text-[10px] font-semibold text-orange-400 ml-auto">
                     <span className="h-1.5 w-1.5 rounded-full bg-orange-400 live-dot text-orange-400" />
-                    {fiyatlarYenileniyor ? "Güncelleniyor..." : sonFiyatGuncelleme ? `Son: ${sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` : "—"}
+                    {fiyatlarYenileniyor ? "Güncelleniyor..." : sonFiyatGuncelleme ? `Son: ${new Date(sonFiyatGuncelleme.getTime() - 15 * 60 * 1000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` : "—"}
                     <span className="text-orange-400/50 font-normal">· ~15dk gecikmeli</span>
                   </span>
                 </div>
