@@ -58,6 +58,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
 
           return (
             <div key={e.label} className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 11, color: "#64748B", fontWeight: 600, letterSpacing: "0.04em" }}>{e.label}</span>
                 {e.gecikme && (

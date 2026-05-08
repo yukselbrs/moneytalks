@@ -218,6 +218,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         position: "fixed", top: 0, left: 0, height: "100vh",
         zIndex: 50, overflowY: "auto", overflowX: "hidden",
       }}>
+        <div style={{ position: "fixed", top: 0, left: 0, width: SB_W, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 50%, transparent 100%)", zIndex: 51 }} />
         {/* Logo + Toggle */}
         {collapsed ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginBottom: 12 }}>

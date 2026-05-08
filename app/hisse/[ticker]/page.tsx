@@ -237,7 +237,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
       <style>{`
         .hisse-main { padding: 34px 24px 42px; }
-        .hisse-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; margin-bottom: 18px; border: 1px solid rgba(59,130,246,0.14); border-radius: 14px; padding: 18px 20px; background: linear-gradient(135deg, rgba(15,23,42,0.72), rgba(11,18,32,0.96)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.035); }
+        .hisse-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; margin-bottom: 18px; border: 1px solid rgba(59,130,246,0.14); border-radius: 14px; padding: 18px 20px; background: linear-gradient(135deg, rgba(15,23,42,0.72), rgba(11,18,32,0.96)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.035); position: relative; overflow: hidden; }
         .hisse-title-row { display: flex; align-items: center; gap: 12px; min-height: 42px; }
         .hisse-title-block { min-width: 0; }
         .hisse-ticker-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -270,6 +270,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       `}</style>
       <main className="hisse-main" style={{ maxWidth: 940, margin: "0 auto" }}>
         <div className="hisse-header">
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
