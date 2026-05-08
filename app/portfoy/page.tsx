@@ -61,8 +61,8 @@ function RiskBilesenGrid({ bilesenler, mobil = false }: { bilesenler: RiskBilese
         const pct = Math.min(Math.round((b.risk / 80) * 100), 100);
         const aciklama = RISK_ACIKLAMALARI[b.ad];
         return (
-          <div key={`${b.ad}-${i}`} className="relative overflow-hidden rounded-lg p-2.5 group/risk" title={aciklama}
-            style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", borderLeft: `2px solid ${renk.accent}`, cursor: aciklama ? "help" : "default" }}>
+          <div key={`${b.ad}-${i}`} className="rounded-lg p-2.5"
+            style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", borderLeft: `2px solid ${renk.accent}` }}>
             <div className="flex items-start justify-between gap-1 mb-2">
               <span className="text-slate-500 text-[10px] leading-tight">{b.ad}</span>
               <span className="text-xs font-bold shrink-0 leading-none" style={{ color: renk.text }}>{b.deger}</span>
@@ -70,6 +70,7 @@ function RiskBilesenGrid({ bilesenler, mobil = false }: { bilesenler: RiskBilese
             <div className="w-full rounded-full" style={{ height: 3, background: "rgba(255,255,255,0.06)" }}>
               <div className="rounded-full transition-all" style={{ width: `${pct}%`, height: 3, background: renk.bar, boxShadow: `0 0 8px ${renk.glow}` }} />
             </div>
+            {aciklama && <p className="text-[9px] mt-1.5 leading-tight" style={{ color: "rgba(100,116,139,0.7)" }}>{aciklama}</p>}
           </div>
         );
       })}
