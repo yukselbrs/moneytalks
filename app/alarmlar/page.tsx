@@ -4,6 +4,8 @@ import AppShell from "@/components/AppShell";
 import AlarmModal from "@/components/AlarmModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { supabase } from "@/components/lib/supabase";
+import StockLogo from "@/components/StockLogo";
+import { tickerRenk } from "@/lib/utils";
 
 type AlarmModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "bildirim_tercihleri";
 type QuickTip = AlarmModalTip | "haber";
@@ -120,12 +122,12 @@ export default function AlarmlarPage() {
     const degisimText = Number.isFinite(parsedDegisim) ? `${Math.abs(parsedDegisim).toFixed(2).replace(".", ",")}` : "-";
 
     return (
-      <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div className="hover-glow" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", flexDirection: "column", gap: 10, transition: "background 0.15s ease", borderRadius: 0 }}
+        onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
+        onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: renk.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: renk.fg, flexShrink: 0 }}>
-              {a.hisse.slice(0, 2)}
-            </div>
+            <StockLogo ticker={a.hisse} size={36} radius={8} color={tickerRenk(a.hisse)} />
             <div>
               <p style={{ fontSize: 15, fontWeight: 700, color: "#E2E8F0", margin: 0 }}>{a.hisse}</p>
               <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>{a.kosul} · {a.detay}</p>
@@ -176,7 +178,7 @@ export default function AlarmlarPage() {
 
   const OzetPanel = () => (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, padding: "16px", background: "rgba(255,255,255,0.01)" }}>
+      <div className="card-glass animate-fade-up" style={{ borderRadius: 12, padding: "16px", animationDelay: "0.15s" }}>
         <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 12 }}>Alarm Özeti</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {[
@@ -185,14 +187,14 @@ export default function AlarmlarPage() {
             { label: "Beklemede", value: beklemeSayi, renk: "#F59E0B" },
             { label: "Devre Dışı", value: devreDisiSayi, renk: "#EF4444" },
           ].map(s => (
-            <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px" }}>
+            <div key={s.label} className="hover-glow" style={{ background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: "10px 12px", transition: "all 0.15s", cursor: "default" }}>
               <p style={{ fontSize: 20, fontWeight: 800, color: s.renk, margin: 0 }}>{s.value}</p>
               <p style={{ fontSize: 12, color: "#475569", marginTop: 2 }}>{s.label}</p>
             </div>
           ))}
         </div>
       </div>
-      <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.01)" }}>
+      <div className="card-glass animate-fade-up" style={{ borderRadius: 12, overflow: "hidden", animationDelay: "0.2s" }}>
         <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", margin: 0 }}>Hızlı İşlemler</p>
         {HIZLI.map((h, i) => (
           <div
@@ -220,9 +222,9 @@ export default function AlarmlarPage() {
 
   return (
     <AppShell>
-      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)", width: "100%", maxWidth: "100vw", overflowX: "hidden", boxSizing: "border-box" }}>
+      <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)", width: "100%", maxWidth: "100vw", overflowX: "hidden", boxSizing: "border-box" }}>
         <main style={{ maxWidth: isMobil ? "100%" : 1400, width: "100%", margin: "0 auto", padding: isMobil ? "16px 14px" : "24px 24px", overflowX: "hidden", boxSizing: "border-box" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+          <div className="animate-fade-up" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC", margin: 0 }}>Alarmlar</h1>
             <button
               onClick={() => openModal("fiyat_seviye")}
@@ -251,7 +253,7 @@ export default function AlarmlarPage() {
                 ))}
               </div>
 
-              <div style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 12, overflow: "hidden", background: "rgba(255,255,255,0.01)" }}>
+              <div className="card-glass animate-fade-up" style={{ borderRadius: 12, overflow: "hidden", animationDelay: "0.1s" }}>
                 {filtreli.length === 0 ? (
                   <div style={{ padding: "48px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
                     <div style={{ fontSize: 36 }}>{sekme === "Haber & Duyurular" ? "📰" : "🔔"}</div>
