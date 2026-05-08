@@ -572,29 +572,29 @@ export default function PortfoyPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="font-mono font-bold text-white hover:text-blue-400 text-[15px] tracking-wide">{item.ticker}</Link>
+                          <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="font-bold text-white hover:text-blue-400 text-[15px]">{item.ticker}</Link>
                           {fiyat && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyatDegisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"}{Math.abs(fiyatDegisim).toFixed(2)}%</span>}
                         </div>
-                        <p className="mt-0.5 font-mono text-xs text-slate-500">
+                        <p className="mt-0.5 text-xs text-slate-500">
                           {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—"} · {item.adet.toLocaleString("tr-TR")} lot
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="portfolio-number font-mono text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p>
-                        <p className={`portfolio-number mt-0.5 font-mono text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                        <p className="portfolio-number text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p>
+                        <p className={`portfolio-number mt-0.5 text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                           {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
                         </p>
-                        {pl && <p className={`portfolio-number font-mono text-[10px] ${isPos ? "text-emerald-600" : "text-red-600"}`}>{pl.plYuzde >= 0 ? "+" : ""}{pl.plYuzde.toFixed(2)}%</p>}
+                        {pl && <p className={`portfolio-number text-[10px] ${isPos ? "text-emerald-600" : "text-red-600"}`}>{pl.plYuzde >= 0 ? "+" : ""}{pl.plYuzde.toFixed(2)}%</p>}
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                       <div className="flex items-center gap-3">
-                        <span className="font-mono text-[10px] text-slate-600">Maliyet {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
+                        <span className="text-[10px] text-slate-600">Maliyet {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
                         {(() => {
                           const gunluk = gunlukHesapla(item);
                           if (!gunluk) return null;
                           const pozitif = gunluk.gunluk >= 0;
-                          return <span className={`portfolio-number font-mono text-[10px] font-semibold ${pozitif ? "text-emerald-500" : "text-red-500"}`}>Günlük {gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</span>;
+                          return <span className={`portfolio-number text-[10px] font-semibold ${pozitif ? "text-emerald-500" : "text-red-500"}`}>Günlük {gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</span>;
                         })()}
                       </div>
                       <span className="text-slate-600 text-[10px]">{acik ? "▲" : "▼"}</span>
@@ -613,7 +613,7 @@ export default function PortfoyPage() {
                         ].map(s => (
                           <div key={s.label} className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
                             <p className="text-slate-600 text-[10px] mb-1">{s.label}</p>
-                            <p className={`portfolio-number font-mono text-sm font-semibold ${s.cls}`}>{s.value}</p>
+                            <p className={`portfolio-number text-sm font-semibold ${s.cls}`}>{s.value}</p>
                           </div>
                         ))}
                         {(() => {
@@ -624,11 +624,11 @@ export default function PortfoyPage() {
                             <>
                               <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
                                 <p className="text-slate-600 text-[10px] mb-1">Günlük ₺</p>
-                                <p className={`portfolio-number font-mono text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p>
+                                <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p>
                               </div>
                               <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
                                 <p className="text-slate-600 text-[10px] mb-1">Günlük %</p>
-                                <p className={`portfolio-number font-mono text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunlukYuzde >= 0 ? "+" : ""}${gunluk.gunlukYuzde.toFixed(2)}%` : "—"}</p>
+                                <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunlukYuzde >= 0 ? "+" : ""}${gunluk.gunlukYuzde.toFixed(2)}%` : "—"}</p>
                               </div>
                             </>
                           );
@@ -721,7 +721,7 @@ export default function PortfoyPage() {
                         >
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-2">
-                              <Link href={`/hisse/${item.ticker}`} className="font-mono font-bold text-white hover:text-blue-400 transition-colors tracking-wide text-[14px]">
+                              <Link href={`/hisse/${item.ticker}`} className="font-bold text-white hover:text-blue-400 transition-colors text-[14px]">
                                 {item.ticker}
                               </Link>
                               {fiyat && (
@@ -742,18 +742,18 @@ export default function PortfoyPage() {
                               <span className="mt-1 text-slate-600 text-[10px] animate-pulse block">Hesaplanıyor...</span>
                             )}
                           </td>
-                          <td className="portfolio-number px-3 py-3.5 text-right font-mono text-slate-300 text-sm hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
-                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-slate-500 text-sm">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-700">₺</span></td>
-                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-sm">
+                          <td className="portfolio-number px-3 py-3.5 text-right text-slate-300 text-sm hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
+                          <td className="portfolio-number px-4 py-3.5 text-right text-slate-500 text-sm">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-700">₺</span></td>
+                          <td className="portfolio-number px-4 py-3.5 text-right text-sm">
                             {fiyat ? <span className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-600">₺</span></span> : <span className="text-slate-700">—</span>}
                           </td>
-                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-slate-500 text-sm hidden sm:table-cell">
+                          <td className="portfolio-number px-4 py-3.5 text-right text-slate-500 text-sm hidden sm:table-cell">
                             {(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-700">₺</span>
                           </td>
-                          <td className="portfolio-number px-4 py-3.5 text-right font-mono text-white text-sm font-semibold hidden sm:table-cell">
+                          <td className="portfolio-number px-4 py-3.5 text-right text-white text-sm font-semibold hidden sm:table-cell">
                             {pl ? <>{pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-600">₺</span></> : <span className="text-slate-700">—</span>}
                           </td>
-                          <td className={`portfolio-number px-4 py-3.5 text-right font-mono text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-3.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
                             {gunluk ? (
                               <div>
                                 <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</div>
@@ -761,10 +761,10 @@ export default function PortfoyPage() {
                               </div>
                             ) : "—"}
                           </td>
-                          <td className={`portfolio-number px-4 py-3.5 text-right font-mono font-semibold text-sm ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-3.5 text-right font-semibold text-sm ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                             {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
                           </td>
-                          <td className={`portfolio-number px-4 py-3.5 text-right font-mono font-semibold text-sm hidden sm:table-cell ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-3.5 text-right font-semibold text-sm hidden sm:table-cell ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                             {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
                           </td>
                           <td className="px-3 py-3.5">
