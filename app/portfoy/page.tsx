@@ -548,7 +548,7 @@ export default function PortfoyPage() {
                           {portfoy.map((_, i) => <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />)}
                         </Pie>
                         <Tooltip
-                          formatter={(value: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, ""]}
+                          formatter={(value: unknown, name: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, name as string]}
                           contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
                           labelStyle={{ color: "#E2E8F0", fontWeight: 700 }}
                         />
