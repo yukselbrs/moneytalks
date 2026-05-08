@@ -256,6 +256,12 @@ export default function PortfoyPage() {
   }, [portfoy, grafikAralik, grafikCek]);
 
   useEffect(() => {
+    if (grafikAralik !== "1d" || portfoy.length === 0) return;
+    const id = window.setInterval(() => void grafikCek("1d", portfoy), 15000);
+    return () => window.clearInterval(id);
+  }, [grafikAralik, portfoy, grafikCek]);
+
+  useEffect(() => {
     const prev = prevFiyatlarRef.current;
     const changed: Record<string, "up" | "down"> = {};
     Object.entries(fiyatlar).forEach(([ticker, { fiyat }]) => {
