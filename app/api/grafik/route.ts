@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     })).filter((p: {tarih: string; fiyat: number | null}) => p.fiyat !== null);
 
     if (range === "1d" && prevClose && points.length > 0) {
-      points = [{ tarih: "Onceki Kapanis", fiyat: parseFloat(prevClose.toFixed(2)) }, ...points];
+      points = [{ tarih: "Önceki Kapanış", fiyat: parseFloat(prevClose.toFixed(2)) }, ...points];
     }
 
     // Tatil/hafta sonu: 1d boş dönüyorsa son 5 günden son işlem gününü çek
