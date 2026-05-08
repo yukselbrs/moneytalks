@@ -387,6 +387,15 @@ export default function PortfoyPage() {
             )}
           </div>
           <div className="flex items-center gap-2">
+            {portfoy.length > 0 && (
+              <button
+                onClick={() => void fiyatlariYenile(portfoy)}
+                disabled={fiyatlarYenileniyor}
+                className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 disabled:cursor-wait disabled:opacity-60"
+              >
+                {fiyatlarYenileniyor ? "Yenileniyor..." : "Yenile"}
+              </button>
+            )}
             <button
               onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -399,8 +408,8 @@ export default function PortfoyPage() {
         {portfoy.length > 0 && toplamGuncel > 0 && (
           <div className="mb-4 rounded-xl border border-slate-700 bg-slate-800/40 p-4">
             <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-3">Portföy Dağılımı</p>
-            <div className="flex items-center gap-4">
-              <div style={{ width: 140, height: 140, flexShrink: 0 }}>
+            <div className="flex items-center gap-6">
+              <div style={{ width: 160, height: 160, flexShrink: 0 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -409,10 +418,10 @@ export default function PortfoyPage() {
                         value: fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet,
                       }))}
                       cx="50%" cy="50%"
-                      innerRadius={42} outerRadius={62}
+                      innerRadius={48} outerRadius={70}
                       dataKey="value"
-                      strokeWidth={1.5}
-                      stroke="rgba(15,23,42,0.8)"
+                      strokeWidth={2}
+                      stroke="rgba(15,23,42,0.9)"
                     >
                       {portfoy.map((_, i) => (
                         <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />
@@ -426,23 +435,43 @@ export default function PortfoyPage() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+              <div className="flex flex-col gap-2">
                 {portfoy.map((item, i) => {
                   const deger = fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet;
                   const oran = toplamGuncel > 0 ? (deger / toplamGuncel) * 100 : 0;
                   return (
-                    <div key={item.ticker} className="flex items-center gap-2 min-w-0">
+                    <div key={item.ticker} className="flex items-center gap-2">
                       <span style={{ width: 8, height: 8, borderRadius: "50%", background: PASTA_RENKLER[i % PASTA_RENKLER.length], flexShrink: 0 }} />
-                      <span className="text-slate-300 text-xs font-semibold w-16 shrink-0">{item.ticker}</span>
-                      <div className="flex-1 bg-slate-700/50 rounded-full h-1 min-w-0">
-                        <div style={{ width: `${oran}%`, background: PASTA_RENKLER[i % PASTA_RENKLER.length] }} className="h-1 rounded-full" />
-                      </div>
-                      <span className="text-slate-400 text-xs tabular-nums w-10 text-right shrink-0">{oran.toFixed(1)}%</span>
+                      <span className="text-slate-300 text-xs font-semibold w-14">{item.ticker}</span>
+                      <span className="text-slate-500 text-xs tabular-nums">{oran.toFixed(1)}%</span>
                     </div>
                   );
                 })}
               </div>
             </div>
+          </div>
+        )}
+        {portfoy.length > 0 && (
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => {
+                portfoy.forEach(item => {
+                  if (!riskler[item.ticker] || !riskler[item.ticker].skor) {
+                    setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
+                    fetch(`/api/risk?ticker=${item.ticker}`)
+                      .then(r => r.json())
+                      .then(json => {
+                        if (json.error) throw new Error(json.error);
+                        setRiskler(prev => ({ ...prev, [item.ticker]: { skor: json.seviyeTR || "Orta", ozet: "", yukleniyor: false, acik: false, skor100: json.skor, bilesenler: json.bilesenler } }));
+                      })
+                      .catch(() => setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "?", ozet: "", yukleniyor: false, acik: false } })));
+                  }
+                });
+              }}
+              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-700"
+            >
+              ⚡ Portföy Riskini Hesapla
+            </button>
           </div>
         )}
         {portfoy.length > 0 && (
