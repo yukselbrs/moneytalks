@@ -6,6 +6,9 @@ import { supabase } from "@/components/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "next/link";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+
+const PASTA_RENKLER = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#EF4444","#06B6D4","#F97316","#EC4899","#84CC16","#14B8A6"];
 
 interface PortfoyItem {
   id: string;
@@ -378,24 +381,12 @@ export default function PortfoyPage() {
               <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
                 <span className="inline-flex items-center gap-1 rounded-full border border-orange-500/25 bg-orange-500/10 px-2 py-0.5 font-semibold text-orange-400">
                   <span className={`h-1.5 w-1.5 rounded-full bg-orange-400 ${fiyatlarYenileniyor ? "animate-pulse" : ""}`} />
-                  15 dk gecikmeli
+                  15 dk gecikmeli · {fiyatlarYenileniyor ? "güncelleniyor..." : sonFiyatGuncelleme ? `Son: ${sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` : ""}
                 </span>
-                {sonFiyatGuncelleme && (
-                  <span>Son güncelleme {sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
-                )}
               </div>
             )}
           </div>
           <div className="flex items-center gap-2">
-            {portfoy.length > 0 && (
-              <button
-                onClick={() => void fiyatlariYenile(portfoy)}
-                disabled={fiyatlarYenileniyor}
-                className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 disabled:cursor-wait disabled:opacity-60"
-              >
-                {fiyatlarYenileniyor ? "Yenileniyor..." : "Yenile"}
-              </button>
-            )}
             <button
               onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -405,27 +396,53 @@ export default function PortfoyPage() {
           </div>
         </div>
 
-        {portfoy.length > 0 && (
-          <div className="flex justify-end mb-2">
-            <button
-              onClick={() => {
-                portfoy.forEach(item => {
-                  if (!riskler[item.ticker] || !riskler[item.ticker].skor) {
-                    setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
-                    fetch(`/api/risk?ticker=${item.ticker}`)
-                      .then(r => r.json())
-                      .then(json => {
-                        if (json.error) throw new Error(json.error);
-                        setRiskler(prev => ({ ...prev, [item.ticker]: { skor: json.seviyeTR || "Orta", ozet: "", yukleniyor: false, acik: false, skor100: json.skor, bilesenler: json.bilesenler } }));
-                      })
-                      .catch(() => setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "?", ozet: "", yukleniyor: false, acik: false } })));
-                  }
-                });
-              }}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-700"
-            >
-              ⚡ Portföy Riskini Hesapla
-            </button>
+        {portfoy.length > 0 && toplamGuncel > 0 && (
+          <div className="mb-4 rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+            <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-[0.08em] mb-3">Portföy Dağılımı</p>
+            <div className="flex items-center gap-4">
+              <div style={{ width: 140, height: 140, flexShrink: 0 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={portfoy.map(item => ({
+                        name: item.ticker,
+                        value: fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet,
+                      }))}
+                      cx="50%" cy="50%"
+                      innerRadius={42} outerRadius={62}
+                      dataKey="value"
+                      strokeWidth={1.5}
+                      stroke="rgba(15,23,42,0.8)"
+                    >
+                      {portfoy.map((_, i) => (
+                        <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, "Değer"]}
+                      contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 12 }}
+                      labelStyle={{ color: "#E2E8F0", fontWeight: 700 }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                {portfoy.map((item, i) => {
+                  const deger = fiyatlar[item.ticker]?.fiyat ? item.adet * fiyatlar[item.ticker].fiyat : item.adet * item.maliyet;
+                  const oran = toplamGuncel > 0 ? (deger / toplamGuncel) * 100 : 0;
+                  return (
+                    <div key={item.ticker} className="flex items-center gap-2 min-w-0">
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: PASTA_RENKLER[i % PASTA_RENKLER.length], flexShrink: 0 }} />
+                      <span className="text-slate-300 text-xs font-semibold w-16 shrink-0">{item.ticker}</span>
+                      <div className="flex-1 bg-slate-700/50 rounded-full h-1 min-w-0">
+                        <div style={{ width: `${oran}%`, background: PASTA_RENKLER[i % PASTA_RENKLER.length] }} className="h-1 rounded-full" />
+                      </div>
+                      <span className="text-slate-400 text-xs tabular-nums w-10 text-right shrink-0">{oran.toFixed(1)}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
         {portfoy.length > 0 && (
@@ -675,24 +692,17 @@ export default function PortfoyPage() {
                             </span>
                           )}
                         </div>
-                        <div className="mt-1">
-                          {risk && risk.skor ? (
-                            risk.yukleniyor ? (
-                              <span className="text-slate-500 text-xs animate-pulse">Hesaplanıyor...</span>
-                            ) : (
-                              <button
-                                onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
-                                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
-                              >
-                                {risk.skor} Risk {risk.skor100 !== undefined ? `(${risk.skor100}/100)` : ""} {risk.detay ? "▲" : "▼"}
-                              </button>
-                            )
-                          ) : (
-                            <button onClick={() => riskSkoru(item.ticker)} className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition-colors border border-slate-600">
-                              ⚡ AI Risk Al
-                            </button>
-                          )}
-                        </div>
+                        {risk?.skor && !risk.yukleniyor && (
+                          <button
+                            onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
+                            className={`mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${riskRenk(risk.skor)} cursor-pointer`}
+                          >
+                            {risk.skor} {risk.skor100 !== undefined ? `· ${risk.skor100}/100` : ""} {risk.detay ? "▲" : "▼"}
+                          </button>
+                        )}
+                        {risk?.yukleniyor && (
+                          <span className="mt-1 text-slate-500 text-xs animate-pulse block">Hesaplanıyor...</span>
+                        )}
                       </td>
                       <td className="portfolio-number px-3 py-4 text-right text-white hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
                       <td className="portfolio-number px-4 py-4 text-right text-slate-300">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
@@ -721,6 +731,11 @@ export default function PortfoyPage() {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-1 justify-end">
+                          {!risk?.skor && !risk?.yukleniyor && (
+                            <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded-lg text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">
+                              ⚡
+                            </button>
+                          )}
                           <button
                             onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
                             title="Lot Ekle/Cikar"
