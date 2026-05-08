@@ -394,7 +394,7 @@ export default function PortfoyPage() {
                 <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
                 <div className="flex items-baseline gap-2 mb-1">
                   <p className="portfolio-number text-white" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1 }}>
-                    {toplamGuncel.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+                    {toplamGuncel.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <span className="text-slate-500 font-bold text-xl">₺</span>
                 </div>
