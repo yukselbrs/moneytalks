@@ -136,6 +136,7 @@ export default function PortfoyPage() {
   const [grafik, setGrafik] = useState<{ tarih: string; deger: number }[]>([]);
   const [grafikAralik, setGrafikAralik] = useState<"1mo" | "3mo" | "1y">("1mo");
   const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
+  const [grafikAcik, setGrafikAcik] = useState(true);
 
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
     const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
@@ -621,19 +622,23 @@ export default function PortfoyPage() {
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div className="px-5 pt-4 pb-3">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(96,165,250,0.6)" }}>Portföy Performansı</p>
-                <div className="flex gap-1">
-                  {(["1mo", "3mo", "1y"] as const).map(a => (
-                    <button key={a} onClick={() => setGrafikAralik(a)}
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${grafikAralik === a ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}>
-                      {a === "1mo" ? "1A" : a === "3mo" ? "3A" : "1Y"}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center justify-between cursor-pointer select-none" onClick={() => setGrafikAcik(a => !a)}>
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(96,165,250,0.6)" }}>
+                  Portföy Performansı <span style={{ opacity: 0.4 }}>{grafikAcik ? "▲" : "▼"}</span>
+                </p>
+                {grafikAcik && (
+                  <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                    {(["1mo", "3mo", "1y"] as const).map(a => (
+                      <button key={a} onClick={() => setGrafikAralik(a)}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${grafikAralik === a ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}>
+                        {a === "1mo" ? "1A" : a === "3mo" ? "3A" : "1Y"}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              {grafikYukleniyor ? (
-                <div className="h-28 flex items-center justify-center text-slate-600 text-xs animate-pulse">Yükleniyor...</div>
+              {grafikAcik && (grafikYukleniyor ? (
+                <div className="h-28 flex items-center justify-center text-slate-600 text-xs animate-pulse mt-3">Yükleniyor...</div>
               ) : grafik.length > 1 ? (() => {
                 const pozitif = grafik[grafik.length - 1].deger >= grafik[0].deger;
                 const renk = pozitif ? "#10B981" : "#EF4444";
@@ -665,7 +670,7 @@ export default function PortfoyPage() {
                 );
               })() : (
                 <div className="h-28 flex items-center justify-center text-slate-600 text-xs">Veri yok</div>
-              )}
+              ))}
             </div>
           </div>
         )}
