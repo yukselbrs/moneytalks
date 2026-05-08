@@ -635,7 +635,7 @@ export default function PortfoyPage() {
             <div className="px-5 pt-4 pb-3">
               <div className="flex items-center justify-between cursor-pointer select-none" onClick={() => setGrafikAcik(a => !a)}>
                 <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(96,165,250,0.6)" }}>
-                  Portföy Performansı <span style={{ opacity: 0.4 }}>{grafikAcik ? "▲" : "▼"}</span>
+                  Portföy Performansı <span style={{ opacity: 0.7, fontSize: 10, marginLeft: 2 }}>{grafikAcik ? "▲" : "▼"}</span>
                 </p>
                 {grafikAcik && (
                   <div className="flex gap-1" onClick={e => e.stopPropagation()}>
