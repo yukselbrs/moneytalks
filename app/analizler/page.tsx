@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
+import StockLogo from "@/components/StockLogo";
+import { tickerRenk } from "@/lib/utils";
 
 function gorececeZaman(tarih: string) {
   const saniye = Math.floor((Date.now() - new Date(tarih).getTime()) / 1000);
@@ -52,9 +54,9 @@ export default function AnalizlerPage() {
 
   return (
     <AppShell>
-      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
         <main style={{ maxWidth: 860, margin: "0 auto", padding: "32px 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+          <div className="animate-fade-up" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
             <div>
               <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.3px" }}>Analiz Geçmişi</h1>
               <p style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>Yapay zeka ile incelediğiniz tüm hisseler</p>
@@ -90,14 +92,11 @@ export default function AnalizlerPage() {
                 const renk = f ? (f.yukselis ? "#10B981" : "#EF4444") : "#64748B";
                 return (
                   <div key={i} onClick={() => router.push(`/hisse/${a.ticker}`)}
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 20px", cursor: "pointer", transition: "all 0.15s" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.05)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(59,130,246,0.25)"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.02)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(59,130,246,0.1)"; }}>
+                    className="card-glass hover-glow animate-fade-up"
+                    style={{ borderRadius: 12, padding: "16px 20px", cursor: "pointer", animationDelay: `${i * 0.05}s` }}>
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#3B82F6", flexShrink: 0 }}>
-                          {a.ticker.slice(0, 2)}
-                        </div>
+                        <StockLogo ticker={a.ticker} size={40} radius={10} color={tickerRenk(a.ticker)} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
                             <span style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9" }}>{a.ticker}</span>
