@@ -72,6 +72,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [collapsed, setCollapsed] = useState(false);
   const [tip, setTip] = useState<{ text: string; y: number } | null>(null);
+  const [xu100, setXu100] = useState<{ value: string; change: string } | null>(null);
 
   const showTip = (e: React.MouseEvent, text: string) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -101,6 +102,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     };
     guncelle();
     const interval = setInterval(guncelle, 60000);
+    fetch("/api/xu").then(r => r.json()).then(d => { if (d.xu100) setXu100(d.xu100); }).catch(() => {});
     return () => clearInterval(interval);
   }, []);
 
@@ -328,15 +330,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </svg>
             </a>
           ) : (
-            <div style={{ borderRadius: 10, background: "linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(59,130,246,0.06) 100%)", border: "1px solid rgba(59,130,246,0.16)", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <div style={{ position: "relative", overflow: "hidden", borderRadius: 10, background: "linear-gradient(135deg, rgba(146,64,14,0.22) 0%, rgba(180,83,9,0.14) 50%, rgba(120,53,15,0.20) 100%)", border: "1px solid rgba(245,158,11,0.28)", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, marginBottom: 4, boxShadow: "0 0 18px rgba(245,158,11,0.08)" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(245,158,11,0.6), rgba(251,191,36,0.6), transparent)" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(245,158,11,0.6), rgba(251,191,36,0.6), transparent)" }} />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, filter: "drop-shadow(0 0 4px rgba(245,158,11,0.5))" }}>
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ color: "#F8FAFC", fontSize: 12, fontWeight: 600, margin: 0, lineHeight: 1.3 }}>Pro'ya Yükselt</p>
-                <p style={{ color: "#475569", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Sınırsız analiz & gerçek zamanlı veri</p>
+                <p style={{ color: "#FEF3C7", fontSize: 12, fontWeight: 700, margin: 0, lineHeight: 1.3 }}>Pro'ya Yükselt</p>
+                <p style={{ color: "#92400E", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Gerçek zamanlı & sınırsız analiz</p>
               </div>
-              <a href="/pro" style={{ flexShrink: 0, background: "linear-gradient(90deg, #2563EB, #3B82F6)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "5px 8px", borderRadius: 6, textDecoration: "none", whiteSpace: "nowrap" }}>
+              <a href="/pro" style={{ flexShrink: 0, background: "linear-gradient(135deg, #D97706, #F59E0B)", color: "#1C0A00", fontSize: 10, fontWeight: 800, padding: "5px 8px", borderRadius: 6, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 2px 8px rgba(245,158,11,0.35)" }}>
                 Yükselt →
               </a>
             </div>
@@ -383,16 +387,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <div className="sb-main" style={{ marginLeft: SB_W, flex: 1, display: "flex", flexDirection: "column", transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1)" }}>
-        {/* Topbar - sadece mobilde */}
-        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#080F1E", position: "sticky", top: 0, zIndex: 40 }}>
+      <div className="sb-main dot-grid" style={{ marginLeft: SB_W, flex: 1, display: "flex", flexDirection: "column", transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1)" }}>
+        {/* Topbar */}
+        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(8,15,30,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 40 }}>
           <a href="/" style={{ fontSize: 14, fontWeight: 600, color: "#F8FAFC", textDecoration: "none" }}>
             para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
           </a>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>
-              {tarihSaat}
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            {xu100 && (() => {
+              const isUp = !xu100.change.startsWith("%-") && xu100.change !== "-";
+              return (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 6, background: isUp ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${isUp ? "rgba(16,185,129,0.18)" : "rgba(239,68,68,0.18)"}` }}>
+                  <span style={{ fontSize: 10, color: "#64748B", fontWeight: 600, letterSpacing: "0.04em" }}>XU100</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{xu100.value}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: isUp ? "#10B981" : "#EF4444", fontVariantNumeric: "tabular-nums" }}>{xu100.change}</span>
+                </div>
+              );
+            })()}
+            <span className="sb-topbar-date" style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>{tarihSaat}</span>
             <span style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
           </div>
         </div>

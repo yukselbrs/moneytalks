@@ -150,6 +150,52 @@ body {
 .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
 .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
 
+/* ── Custom scrollbar ──────────────────────────────── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.22); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.44); }
+
+/* ── Tabular nums ──────────────────────────────────── */
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* ── Dot grid background ───────────────────────────── */
+.dot-grid {
+  background-image: radial-gradient(rgba(59,130,246,0.055) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ── Hover glow card ───────────────────────────────── */
+.hover-glow {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.hover-glow:hover {
+  box-shadow: 0 0 22px rgba(59,130,246,0.13), 0 0 44px rgba(59,130,246,0.05);
+  border-color: rgba(59,130,246,0.28) !important;
+}
+
+/* ── Sinematik live dot (ripple) ───────────────────── */
+@keyframes live-ripple {
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+.live-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: live-ripple 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
 /* ── Reduced motion ────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

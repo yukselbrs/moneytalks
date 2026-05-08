@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
@@ -102,6 +102,8 @@ export default function PortfoyPage() {
   const [fiyatlar, setFiyatlar] = useState<FiyatMap>({});
   const [riskler, setRiskler] = useState<RiskMap>({});
   const [yükleniyor, setYükleniyor] = useState(true);
+  const [displayDeger, setDisplayDeger] = useState(0);
+  const prevDegerRef = useRef(0);
 
   const [lotModal, setLotModal] = useState<LotModal>({
     open: false, ticker: "", mevcutAdet: 0, mevcutMaliyet: 0,
@@ -325,7 +327,21 @@ export default function PortfoyPage() {
   const aktifPLYuzde = getiriModu === "daily" ? gunlukPLYuzde : toplamPLYuzde;
   const aktifPozitif = aktifPL >= 0;
 
-
+  useEffect(() => {
+    if (toplamGuncel === 0) return;
+    const start = prevDegerRef.current;
+    const end = toplamGuncel;
+    const duration = 700;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplayDeger(start + (end - start) * eased);
+      if (p < 1) requestAnimationFrame(tick);
+      else prevDegerRef.current = end;
+    };
+    requestAnimationFrame(tick);
+  }, [toplamGuncel]);
 
   const riskRenk = (skor: string) => {
     if (skor === "Düşük") return "text-emerald-400 bg-emerald-400/10";
@@ -395,7 +411,7 @@ export default function PortfoyPage() {
                 <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
                 <div className="flex items-baseline gap-2 mb-1">
                   <p className="portfolio-number text-white" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1 }}>
-                    {toplamGuncel.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {displayDeger.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <span className="text-slate-500 font-bold text-xl">₺</span>
                 </div>
@@ -468,7 +484,7 @@ export default function PortfoyPage() {
                     {fiyatlarYenileniyor ? "Yenileniyor..." : "Yenile"}
                   </button>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/8 px-2.5 py-1 text-[10px] font-semibold text-orange-400 ml-auto">
-                    <span className={`h-1.5 w-1.5 rounded-full bg-orange-400 ${fiyatlarYenileniyor ? "animate-pulse" : ""}`} />
+                    <span className={`h-1.5 w-1.5 rounded-full bg-orange-400 live-dot text-orange-400`} />
                     {fiyatlarYenileniyor ? "Güncelleniyor..." : sonFiyatGuncelleme ? `Son: ${sonFiyatGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` : "15 dk gecikmeli"}
                   </span>
                 </div>
