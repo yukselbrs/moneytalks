@@ -719,9 +719,9 @@ export default function PortfoyPage() {
                             el.style.borderLeftColor = accentColor;
                           }}
                         >
-                          <td className="px-4 py-3.5">
-                            <div className="flex items-center gap-2">
-                              <Link href={`/hisse/${item.ticker}`} className="font-bold text-white hover:text-blue-400 transition-colors text-[14px]">
+                          <td className="px-4 py-2.5">
+                            <div className="flex items-center gap-2.5">
+                              <Link href={`/hisse/${item.ticker}`} className="font-extrabold text-white hover:text-blue-400 transition-colors text-[15px] leading-none">
                                 {item.ticker}
                               </Link>
                               {fiyat && (
@@ -733,7 +733,7 @@ export default function PortfoyPage() {
                             {risk?.skor && !risk.yukleniyor && (
                               <button
                                 onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
-                                className={`mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded border cursor-pointer transition-all ${risk.skor === "Düşük" ? "text-emerald-400 bg-emerald-400/8 border-emerald-400/20" : risk.skor === "Yüksek" ? "text-red-400 bg-red-400/8 border-red-400/20" : "text-yellow-400 bg-yellow-400/8 border-yellow-400/20"}`}
+                                className={`mt-1 text-[10px] font-bold px-2 py-0.5 rounded border cursor-pointer transition-all ${risk.skor === "Düşük" ? "text-emerald-400 bg-emerald-400/8 border-emerald-400/20" : risk.skor === "Yüksek" ? "text-red-400 bg-red-400/8 border-red-400/20" : "text-yellow-400 bg-yellow-400/8 border-yellow-400/20"}`}
                               >
                                 ⚡ {risk.skor} {risk.skor100 !== undefined ? `${risk.skor100}/100` : ""} {risk.detay ? "▲" : "▼"}
                               </button>
@@ -742,18 +742,18 @@ export default function PortfoyPage() {
                               <span className="mt-1 text-slate-600 text-[10px] animate-pulse block">Hesaplanıyor...</span>
                             )}
                           </td>
-                          <td className="portfolio-number px-3 py-3.5 text-right text-slate-300 text-sm hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
-                          <td className="portfolio-number px-4 py-3.5 text-right text-slate-500 text-sm">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-700">₺</span></td>
-                          <td className="portfolio-number px-4 py-3.5 text-right text-sm">
+                          <td className="portfolio-number px-3 py-2.5 text-right text-slate-300 text-sm hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
+                          <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-700">₺</span></td>
+                          <td className="portfolio-number px-4 py-2.5 text-right text-sm">
                             {fiyat ? <span className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-600">₺</span></span> : <span className="text-slate-700">—</span>}
                           </td>
-                          <td className="portfolio-number px-4 py-3.5 text-right text-slate-500 text-sm hidden sm:table-cell">
+                          <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm hidden sm:table-cell">
                             {(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-700">₺</span>
                           </td>
-                          <td className="portfolio-number px-4 py-3.5 text-right text-white text-sm font-semibold hidden sm:table-cell">
+                          <td className="portfolio-number px-4 py-2.5 text-right text-white text-sm font-semibold hidden sm:table-cell">
                             {pl ? <>{pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-600">₺</span></> : <span className="text-slate-700">—</span>}
                           </td>
-                          <td className={`portfolio-number px-4 py-3.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
                             {gunluk ? (
                               <div>
                                 <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</div>
@@ -761,13 +761,13 @@ export default function PortfoyPage() {
                               </div>
                             ) : "—"}
                           </td>
-                          <td className={`portfolio-number px-4 py-3.5 text-right font-semibold text-sm ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                             {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
                           </td>
-                          <td className={`portfolio-number px-4 py-3.5 text-right font-semibold text-sm hidden sm:table-cell ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] hidden sm:table-cell ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                             {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
                           </td>
-                          <td className="px-3 py-3.5">
+                          <td className="px-3 py-2.5">
                             <div className="flex items-center gap-0.5 justify-end">
                               {!risk?.skor && !risk?.yukleniyor && (
                                 <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">⚡</button>
