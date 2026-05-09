@@ -16,6 +16,7 @@ import { useDashboardMarket } from "@/hooks/useDashboardMarket";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { tickerRenk } from "@/lib/utils";
+import { BIST_HISSELER as TUM_BIST_HISSELER } from "@/lib/bist-hisseler";
 
 const DashboardChartPanel = dynamic(() => import("@/components/DashboardChartPanel"), {
   ssr: false,
@@ -300,7 +301,7 @@ export default function DashboardPage() {
         <DashboardSearchBox
           value={ticker}
           onValueChange={setTicker}
-          bistHisseler={BIST_HISSELER}
+          bistHisseler={TUM_BIST_HISSELER.map(h => ({ ticker: h.ticker, name: h.ad, domain: h.domain }))}
           watchlist={watchlist}
           fiyatlar={fiyatlar}
           onAddToWatchlist={addToWatchlist}
