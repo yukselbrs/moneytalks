@@ -4,12 +4,43 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 
+function inlineFormat(text: string, key?: number): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  const re = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`)/g;
+  let last = 0; let m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m[2]) parts.push(<strong key={m.index} style={{ color: "#E2D9FF", fontWeight: 700 }}>{m[2]}</strong>);
+    else if (m[3]) parts.push(<em key={m.index}>{m[3]}</em>);
+    else if (m[4]) parts.push(<code key={m.index} style={{ background: "rgba(99,102,241,0.18)", color: "#A5B4FC", borderRadius: 4, padding: "1px 7px", fontSize: 12.5, fontFamily: "monospace" }}>{m[4]}</code>);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return <Fragment key={key}>{parts}</Fragment>;
+}
+
 function renderMarkdown(text: string) {
   const lines = text.split("\n");
   const out: React.ReactNode[] = [];
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
+
+    // H1
+    if (line.startsWith("# ")) {
+      out.push(<h2 key={i} style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.3px", lineHeight: 1.3 }}>{inlineFormat(line.slice(2))}</h2>);
+      i++; continue;
+    }
+    // H2
+    if (line.startsWith("## ")) {
+      out.push(<h3 key={i} style={{ margin: i === 0 ? "0 0 10px" : "18px 0 10px", fontSize: 16, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px", lineHeight: 1.3 }}>{inlineFormat(line.slice(3))}</h3>);
+      i++; continue;
+    }
+    // H3
+    if (line.startsWith("### ")) {
+      out.push(<h4 key={i} style={{ margin: "14px 0 6px", fontSize: 14, fontWeight: 600, color: "#CBD5E1", lineHeight: 1.3 }}>{inlineFormat(line.slice(4))}</h4>);
+      i++; continue;
+    }
     // Table
     if (line.startsWith("|") && lines[i + 1]?.match(/^\|[-| :]+\|$/)) {
       const headers = line.split("|").filter(c => c.trim()).map(c => c.trim());
@@ -20,44 +51,50 @@ function renderMarkdown(text: string) {
         j++;
       }
       out.push(
-        <div key={i} style={{ overflowX: "auto", margin: "10px 0" }}>
+        <div key={i} style={{ overflowX: "auto", margin: "12px 0", borderRadius: 10, border: "1px solid rgba(99,102,241,0.2)" }}>
           <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13 }}>
             <thead>
-              <tr>{headers.map((h, hi) => <th key={hi} style={{ padding: "7px 12px", borderBottom: "1px solid rgba(99,102,241,0.3)", color: "#A5B4FC", fontWeight: 600, textAlign: "left", whiteSpace: "nowrap" }}>{h}</th>)}</tr>
+              <tr style={{ background: "rgba(99,102,241,0.1)" }}>
+                {headers.map((h, hi) => <th key={hi} style={{ padding: "9px 14px", color: "#A5B4FC", fontWeight: 600, textAlign: "left", whiteSpace: "nowrap", borderBottom: "1px solid rgba(99,102,241,0.2)" }}>{inlineFormat(h)}</th>)}
+              </tr>
             </thead>
             <tbody>
-              {rows.map((row, ri) => <tr key={ri}>{row.map((cell, ci) => <td key={ci} style={{ padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "#94A3B8" }}>{cell}</td>)}</tr>)}
+              {rows.map((row, ri) => (
+                <tr key={ri} style={{ borderBottom: ri < rows.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                  {row.map((cell, ci) => <td key={ci} style={{ padding: "8px 14px", color: "#94A3B8" }}>{inlineFormat(cell)}</td>)}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       );
-      i = j;
-      continue;
+      i = j; continue;
+    }
+    // Blockquote
+    if (line.startsWith("> ")) {
+      out.push(<div key={i} style={{ borderLeft: "3px solid rgba(99,102,241,0.4)", paddingLeft: 12, margin: "8px 0", color: "#7A94B0", fontSize: 13, fontStyle: "italic" }}>{inlineFormat(line.slice(2))}</div>);
+      i++; continue;
+    }
+    // List item
+    if (line.match(/^[-*] /)) {
+      out.push(<div key={i} style={{ display: "flex", gap: 8, margin: "3px 0", color: "#94A3B8", fontSize: 14, lineHeight: 1.6 }}>
+        <span style={{ color: "#6366F1", marginTop: 2, flexShrink: 0 }}>›</span>
+        <span>{inlineFormat(line.slice(2))}</span>
+      </div>);
+      i++; continue;
     }
     // HR
-    if (line.match(/^--+$/)) { out.push(<hr key={i} style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.06)", margin: "10px 0" }} />); i++; continue; }
-    // Empty line
-    if (!line.trim()) { out.push(<br key={i} />); i++; continue; }
-    // Normal line with inline formatting
-    out.push(<span key={i} style={{ display: "block" }}>{inlineFormat(line)}</span>);
+    if (line.match(/^---+$/)) {
+      out.push(<hr key={i} style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.06)", margin: "14px 0" }} />);
+      i++; continue;
+    }
+    // Empty line → spacing
+    if (!line.trim()) { out.push(<div key={i} style={{ height: 8 }} />); i++; continue; }
+    // Paragraph
+    out.push(<p key={i} style={{ margin: "0 0 2px", color: "#94A3B8", fontSize: 14, lineHeight: 1.75 }}>{inlineFormat(line)}</p>);
     i++;
   }
-  return out;
-}
-
-function inlineFormat(text: string): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const re = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`)/g;
-  let last = 0, m;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) parts.push(text.slice(last, m.index));
-    if (m[2]) parts.push(<strong key={m.index} style={{ color: "#C4B5FD", fontWeight: 700 }}>{m[2]}</strong>);
-    else if (m[3]) parts.push(<em key={m.index} style={{ color: "#BAE6FD" }}>{m[3]}</em>);
-    else if (m[4]) parts.push(<code key={m.index} style={{ background: "rgba(99,102,241,0.15)", color: "#A5B4FC", borderRadius: 4, padding: "1px 6px", fontSize: 13, fontFamily: "monospace" }}>{m[4]}</code>);
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) parts.push(text.slice(last));
-  return parts;
+  return <div style={{ display: "flex", flexDirection: "column" }}>{out}</div>;
 }
 
 interface Message {
@@ -415,11 +452,11 @@ export default function YapayZekaPage() {
                       </div>
                     )}
                     <div style={{
-                      maxWidth: "78%", padding: msg.role === "user" ? "10px 16px" : "13px 16px",
-                      borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "4px 16px 16px 16px",
-                      background: msg.role === "user" ? "linear-gradient(135deg,rgba(99,102,241,0.22),rgba(59,130,246,0.16))" : "rgba(255,255,255,0.025)",
-                      border: `1px solid ${msg.role === "user" ? "rgba(99,102,241,0.38)" : "rgba(255,255,255,0.05)"}`,
-                      borderLeft: msg.role === "assistant" ? "2px solid rgba(99,102,241,0.45)" : undefined,
+                      maxWidth: msg.role === "user" ? "72%" : "88%",
+                      padding: msg.role === "user" ? "10px 16px" : "16px 20px",
+                      borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "12px",
+                      background: msg.role === "user" ? "linear-gradient(135deg,rgba(99,102,241,0.22),rgba(59,130,246,0.16))" : "rgba(255,255,255,0.04)",
+                      border: `1px solid ${msg.role === "user" ? "rgba(99,102,241,0.35)" : "rgba(255,255,255,0.07)"}`,
                       color: msg.role === "user" ? "#DDD6FE" : "#94A3B8",
                       fontSize: 14, lineHeight: 1.75,
                     }}>
