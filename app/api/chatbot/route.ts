@@ -74,7 +74,8 @@ export async function POST(req: NextRequest) {
 
   const { messages, ticker, veri, analiz, portfoy } = await req.json();
 
-  const systemPrompt = `Sen ParaKonusur'un AI finans asistanısın. BIST hisseleri hakkında kullanıcılara yardım ediyorsun.
+  const systemPrompt = ticker
+    ? `Sen ParaKonusur'un AI finans asistanısın. BIST hisseleri hakkında kullanıcılara yardım ediyorsun.
 
 Şu an kullanıcı ${ticker} hissesini inceliyor.
 
@@ -93,6 +94,14 @@ ${portfoy && portfoy.length > 0 ? `KULLANICININ PORTFÖYÜ:\n${portfoy.map((p: {
 
 ZORUNLU KURALLAR:
 - Kısa, net ve Türkçe cevaplar ver. Her cevabı 3-4 cümleyle sınırla.
+- Kesinlikle yatırım tavsiyesi verme. "Al", "sat", "kesin yükselir" gibi ifadeler kullanma.
+- Her cevabın sonuna "Bu analiz yatırım tavsiyesi değildir." ekle.`
+    : `Sen ParaKonusur'un AI finans asistanısın. BIST piyasası, Türk ekonomisi ve genel finans konularında kullanıcılara yardım ediyorsun.
+
+Kullanıcılar sana hisse senetleri, sektörler, piyasa dinamikleri, teknik/temel analiz ve yatırım kavramları hakkında soru sorabilir.
+
+ZORUNLU KURALLAR:
+- Kısa, net ve Türkçe cevaplar ver. Her cevabı 4-5 cümleyle sınırla.
 - Kesinlikle yatırım tavsiyesi verme. "Al", "sat", "kesin yükselir" gibi ifadeler kullanma.
 - Her cevabın sonuna "Bu analiz yatırım tavsiyesi değildir." ekle.`;
 

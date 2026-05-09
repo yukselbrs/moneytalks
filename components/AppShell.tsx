@@ -180,13 +180,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
       label: "Bildirimler", href: "/bildirimler",
     },
+    {
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+      label: "AI Asistan", href: "/yapay-zeka",
+    },
   ];
 
   // Desktop nav groups (index into navItems)
-  // 0:Dashboard 1:Portföy 2:Analizler 3:Hisseler 4:İzleme 5:Haberler 6:Blog 7:Takvim 8:Alarmlar 9:Bildirimler
+  // 0:Dashboard 1:Portföy 2:Analizler 3:Hisseler 4:İzleme 5:Haberler 6:Blog 7:Takvim 8:Alarmlar 9:Bildirimler 10:AI Asistan
   const navGroups: { label?: string; indices: number[] }[] = [
     { indices: [0] },
-    { label: "PİYASA", indices: [3, 4, 5] },
+    { label: "PİYASA", indices: [10, 3, 4, 5] },
     { label: "KİŞİSEL", indices: [1, 2, 8] },
     { label: "KEŞFET", indices: [7, 6, 9] },
   ];
