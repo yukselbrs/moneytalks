@@ -6,7 +6,6 @@ import Features from "@/components/Features";
 import AIShowcase from "@/components/AIShowcase";
 import StockCoverage from "@/components/StockCoverage";
 import SecuritySection from "@/components/SecuritySection";
-import WaitlistCTA from "@/components/WaitlistCTA";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -21,7 +20,6 @@ export default function Home() {
         <AIShowcase />
         <StockCoverage />
         <SecuritySection />
-        <WaitlistCTA />
       </main>
       <Footer />
     </>

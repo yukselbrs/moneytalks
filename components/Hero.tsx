@@ -119,7 +119,7 @@ export default function Hero({ heroVideo }: HeroProps) {
             {/* CTAs */}
             <div className="animate-fade-up delay-400 flex flex-col sm:flex-row gap-4 mb-12">
               <a
-                href="#waitlist"
+                href="/register"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-full text-sm font-semibold transition-all duration-300"
                 style={{
                   background: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
@@ -139,7 +139,7 @@ export default function Hero({ heroVideo }: HeroProps) {
                   (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
                 }}
               >
-                Erken erişim listesine katıl →
+                Ücretsiz Kayıt Ol →
               </a>
               <a
                 href="#nasil-calisir"

@@ -155,8 +155,7 @@ export default function Navbar() {
           ) : (
             <>
               <a href="/login" className="px-4 py-2 text-sm font-medium" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>Giriş Yap</a>
-              <a href="/register" className="px-4 py-2 text-sm font-medium" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>Kayıt Ol</a>
-              <a href="/#waitlist" className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)", boxShadow: "0 0 0 1px rgba(59,130,246,0.3)" }}>Erken Erişim</a>
+              <a href="/register" className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)", boxShadow: "0 0 0 1px rgba(59,130,246,0.3)" }}>Ücretsiz Kayıt Ol</a>
             </>
           )}
         </div>
@@ -242,8 +241,7 @@ export default function Navbar() {
           ) : (
             <>
               <a href="/login" className="text-sm font-medium py-1" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Giriş Yap</a>
-              <a href="/register" className="text-sm font-medium py-1" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Kayıt Ol</a>
-              <a href="/#waitlist" className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Erken Erişim</a>
+              <a href="/register" className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Ücretsiz Kayıt Ol</a>
             </>
           )}
         </div>

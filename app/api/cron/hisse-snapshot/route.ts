@@ -85,20 +85,21 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
 
     // Son iki geçerli candle'ı bul
     let sonFiyat: number | null = null;
+    const degisimSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
     let oncekiFiyat: number | null = null;
-    for (let i = closes.length - 1; i >= 0; i--) {
-      if (closes[i] !== null && closes[i] !== undefined) {
+    for (let i = degisimSeries.length - 1; i >= 0; i--) {
+      if (degisimSeries[i] !== null && degisimSeries[i] !== undefined) {
         if (sonFiyat === null) {
-          sonFiyat = closes[i] as number;
-        } else if (closes[i] !== sonFiyat) {
-          oncekiFiyat = closes[i] as number;
+          sonFiyat = degisimSeries[i] as number;
+        } else if (degisimSeries[i] !== sonFiyat) {
+          oncekiFiyat = degisimSeries[i] as number;
           break;
         }
       }
     }
-    const fiyat = sonFiyat || meta.regularMarketPrice;
+    const fiyat = meta.regularMarketPrice || sonFiyat || 0;
     const sonTs = timestamps[timestamps.length - 1];
-    const degisim = meta.regularMarketChangePercent ?? (oncekiFiyat ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : 0);
+    const degisim = oncekiFiyat && oncekiFiyat > 0 ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : (meta.regularMarketChangePercent ?? 0);
 
     // Getiriler: takvim gününe göre geriye git, o tarihte/öncesinde son geçerli candle
     const getiri = (gunOnce: number): number | null => {
