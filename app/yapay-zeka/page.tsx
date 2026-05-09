@@ -158,7 +158,6 @@ export default function YapayZekaPage() {
   return (
     <div style={{ display: "flex", height: "calc(100vh - 53px)", overflow: "hidden", background: "#04080F" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600;1,700&display=swap');
         @keyframes aurora-1 { 0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2) rotate(180deg);opacity:0.8} }
         @keyframes aurora-2 { 0%,100%{transform:translate(-50%,-50%) scale(1.1);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(0.9);opacity:0.55} }
         @keyframes ring-pulse { 0%,100%{opacity:0.18;transform:scale(1)} 50%{opacity:0.45;transform:scale(1.08)} }
@@ -170,23 +169,23 @@ export default function YapayZekaPage() {
         @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0)} 50%{box-shadow:0 0 0 4px rgba(99,102,241,0.12)} }
 
         .pk-sidebar { width:244px; background:#050A12; border-right:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
-        .pk-back { display:flex; align-items:center; gap:7px; background:none; border:none; color:#1E3048; cursor:pointer; font-size:12px; font-weight:500; font-family:inherit; padding:8px 10px; border-radius:8px; transition:all 0.15s; }
+        .pk-back { display:flex; align-items:center; gap:7px; background:none; border:none; color:#4A6B8A; cursor:pointer; font-size:12px; font-weight:500; font-family:inherit; padding:8px 10px; border-radius:8px; transition:all 0.15s; }
         .pk-back:hover { color:#60A5FA; background:rgba(59,130,246,0.07); }
-        .pk-new { display:flex; align-items:center; gap:8px; border-radius:10px; padding:10px 14px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; transition:all 0.2s; border:1px solid rgba(99,102,241,0.3); background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(59,130,246,0.07)); color:#8B8CF8; width:100%; }
+        .pk-new { display:flex; align-items:center; gap:8px; border-radius:10px; padding:10px 14px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; transition:all 0.2s; border:1px solid rgba(99,102,241,0.3); background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(59,130,246,0.07)); color:#A5B4FC; width:100%; }
         .pk-new:hover { border-color:rgba(99,102,241,0.55); background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(59,130,246,0.12)); box-shadow:0 0 20px rgba(99,102,241,0.18); color:#C4B5FD; }
         .pk-chat-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; transition:all 0.12s; border:none; background:none; width:100%; font-family:inherit; text-align:left; position:relative; }
-        .pk-chat-item:hover { background:rgba(255,255,255,0.035); }
+        .pk-chat-item:hover { background:rgba(255,255,255,0.04); }
         .pk-chat-item.active { background:rgba(99,102,241,0.1); }
-        .pk-del-btn { opacity:0; transition:opacity 0.15s; background:none; border:none; cursor:pointer; color:#2A3F58; padding:3px; border-radius:5px; display:flex; align-items:center; flex-shrink:0; }
+        .pk-del-btn { opacity:0; transition:opacity 0.15s; background:none; border:none; cursor:pointer; color:#4A6B8A; padding:3px; border-radius:5px; display:flex; align-items:center; flex-shrink:0; }
         .pk-chat-item:hover .pk-del-btn { opacity:1; }
         .pk-del-btn:hover { color:#EF4444 !important; background:rgba(239,68,68,0.1); }
-        .pk-onerilen { display:flex; align-items:flex-start; gap:8px; background:none; border:none; cursor:pointer; color:#243650; font-size:11.5px; font-weight:500; text-align:left; padding:6px 10px; border-radius:7px; line-height:1.45; width:100%; transition:all 0.12s; font-family:inherit; }
-        .pk-onerilen:hover { background:rgba(99,102,241,0.07); color:#5B7A9E; }
-        .pk-chip { display:flex; align-items:flex-start; gap:10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.055); color:#334E6A; font-size:13px; font-weight:500; padding:12px 15px; border-radius:13px; cursor:pointer; transition:all 0.2s; font-family:inherit; text-align:left; line-height:1.45; }
+        .pk-onerilen { display:flex; align-items:flex-start; gap:8px; background:none; border:none; cursor:pointer; color:#4E6A8A; font-size:11.5px; font-weight:500; text-align:left; padding:6px 10px; border-radius:7px; line-height:1.45; width:100%; transition:all 0.12s; font-family:inherit; }
+        .pk-onerilen:hover { background:rgba(99,102,241,0.07); color:#8AABB8; }
+        .pk-chip { display:flex; align-items:flex-start; gap:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#5E7E9E; font-size:13px; font-weight:500; padding:12px 15px; border-radius:13px; cursor:pointer; transition:all 0.2s; font-family:inherit; text-align:left; line-height:1.45; }
         .pk-chip:hover { background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.38); color:#A78BFA; transform:translateY(-2px); box-shadow:0 8px 28px rgba(99,102,241,0.12); }
         .pk-textarea { flex:1; background:none; border:none; outline:none; color:#D1D5DB; font-size:15px; resize:none; line-height:1.6; font-family:inherit; overflow-y:auto; }
-        .pk-textarea::placeholder { color:#182A3A; }
-        .pk-yetenek { background:rgba(255,255,255,0.018); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:10px; }
+        .pk-textarea::placeholder { color:#334F6A; }
+        .pk-yetenek { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:10px; }
         @media (max-width:767px) { .pk-sidebar { display:none!important; } }
       `}</style>
 
@@ -205,7 +204,7 @@ export default function YapayZekaPage() {
             </div>
             <div>
               <p style={{ margin: 0, fontSize: 14, fontWeight: 700, background: "linear-gradient(90deg,#A78BFA,#60A5FA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Pako AI</p>
-              <p style={{ margin: 0, fontSize: 10, color: "#1A2E44", letterSpacing: "0.04em" }}>BIST Finans Asistanı</p>
+              <p style={{ margin: 0, fontSize: 10, color: "#4A6888", letterSpacing: "0.04em" }}>BIST Finans Asistanı</p>
             </div>
           </div>
         </div>
@@ -222,7 +221,7 @@ export default function YapayZekaPage() {
         <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", paddingBottom: 12 }}>
           {sohbetler.length > 0 && (
             <div style={{ padding: "4px 0 6px" }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: "#0F1E2E", letterSpacing: "0.1em", textTransform: "uppercase", padding: "0 18px 6px" }}>Geçmiş</p>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "#3A5878", letterSpacing: "0.1em", textTransform: "uppercase", padding: "0 18px 6px" }}>Geçmiş</p>
               {sohbetler.map(s => (
                 <div key={s.id} className={`pk-chat-item ${s.id === aktifId ? "active" : ""}`}
                   onClick={() => setAktifId(s.id)}
@@ -230,10 +229,10 @@ export default function YapayZekaPage() {
                   onMouseLeave={() => setHoveredSohbet(null)}
                   style={{ margin: "0 4px" }}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.id === aktifId ? "#6366F1" : "#1A2E44"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.id === aktifId ? "#6366F1" : "#3A5878"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                   </svg>
-                  <span style={{ fontSize: 12, fontWeight: 500, color: s.id === aktifId ? "#8B9CF4" : "#243650", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, lineHeight: 1.4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: s.id === aktifId ? "#A5B4FC" : "#5E7E9E", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, lineHeight: 1.4 }}>
                     {s.baslik}
                   </span>
                   <button className="pk-del-btn" onClick={e => sohbetSil(s.id, e)} title="Sil"
@@ -248,7 +247,7 @@ export default function YapayZekaPage() {
             </div>
           )}
 
-          <p style={{ fontSize: 10, fontWeight: 700, color: "#0F1E2E", letterSpacing: "0.1em", textTransform: "uppercase", padding: "0 18px 6px" }}>Önerilen</p>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "#3A5878", letterSpacing: "0.1em", textTransform: "uppercase", padding: "0 18px 6px" }}>Önerilen</p>
           {ONERILEN_SORULAR.map((s, i) => (
             <button key={i} className="pk-onerilen" onClick={() => sendMessage(s.metin)}>
               <span style={{ fontSize: 12, flexShrink: 0 }}>{s.ikon}</span>
@@ -289,14 +288,14 @@ export default function YapayZekaPage() {
                 <span style={{ fontSize: 10, fontWeight: 700, color: "#6366F1", letterSpacing: "0.12em" }}>ÇEVRİMİÇİ</span>
               </div>
               <h1 style={{
-                margin: "0 0 14px", fontSize: 44, fontStyle: "italic", letterSpacing: "0.5px",
-                fontFamily: "'Cormorant Garamond', 'Georgia', serif", fontWeight: 700,
-                background: "linear-gradient(135deg,#E0D7FF 0%,#A78BFA 35%,#7DD3FC 75%,#BAE6FD 100%)",
+                margin: "0 0 14px", fontSize: 46, fontWeight: 800, letterSpacing: "-2px",
+                fontFamily: "var(--font-manrope, sans-serif)",
+                background: "linear-gradient(135deg,#E9E4FF 0%,#A78BFA 40%,#60A5FA 100%)",
                 WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.05,
               }}>
                 Pako AI
               </h1>
-              <p style={{ color: "#243650", fontSize: 15, margin: 0, lineHeight: 1.7, maxWidth: 420 }}>
+              <p style={{ color: "#5A7A9E", fontSize: 15, margin: 0, lineHeight: 1.7, maxWidth: 420 }}>
                 BIST piyasası hakkında her şeyi sorun — hisseler, sektörler, teknik analiz
               </p>
             </div>
@@ -317,8 +316,8 @@ export default function YapayZekaPage() {
                 <div key={i} className="pk-yetenek" style={{ flex: 1 }}>
                   <span style={{ fontSize: 16 }}>{y.ikon}</span>
                   <div>
-                    <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "#2A3F58", marginBottom: 2 }}>{y.baslik}</p>
-                    <p style={{ margin: 0, fontSize: 11, color: "#152030", lineHeight: 1.4 }}>{y.aciklama}</p>
+                    <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "#6B84A0", marginBottom: 2 }}>{y.baslik}</p>
+                    <p style={{ margin: 0, fontSize: 11, color: "#435E7A", lineHeight: 1.4 }}>{y.aciklama}</p>
                   </div>
                 </div>
               ))}
@@ -340,7 +339,7 @@ export default function YapayZekaPage() {
                     background: msg.role === "user" ? "linear-gradient(135deg,rgba(99,102,241,0.22),rgba(59,130,246,0.16))" : "rgba(255,255,255,0.025)",
                     border: `1px solid ${msg.role === "user" ? "rgba(99,102,241,0.38)" : "rgba(255,255,255,0.05)"}`,
                     borderLeft: msg.role === "assistant" ? "2px solid rgba(99,102,241,0.45)" : undefined,
-                    color: msg.role === "user" ? "#C4B5FD" : "#7A92AC",
+                    color: msg.role === "user" ? "#DDD6FE" : "#94A3B8",
                     fontSize: 14, lineHeight: 1.75, whiteSpace: "pre-wrap",
                   }}>
                     {msg.content}
@@ -378,15 +377,15 @@ export default function YapayZekaPage() {
               />
               <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading}
                 style={{ width: 38, height: 38, borderRadius: 10, border: "none", cursor: input.trim() && !loading ? "pointer" : "default", background: input.trim() && !loading ? "linear-gradient(135deg,#6366F1,#3B82F6)" : "rgba(99,102,241,0.09)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s", boxShadow: input.trim() && !loading ? "0 0 20px rgba(99,102,241,0.4)" : "none" }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={input.trim() && !loading ? "#fff" : "#2D4560"} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={input.trim() && !loading ? "#fff" : "#4A6888"} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                 </svg>
               </button>
             </div>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 9 }}>
               {kalanHak !== null
-                ? <span style={{ fontSize: 11, color: "#1A2E44" }}>{kalanHak} mesaj hakkı kaldı · <a href="/pro" style={{ color: "#6366F1", textDecoration: "none" }}>Pro&apos;ya geç →</a></span>
-                : <span style={{ fontSize: 11, color: "#111E2E" }}>AI analizlerinde hata olabilir — kendi kontrollerinizi yapın</span>
+                ? <span style={{ fontSize: 11, color: "#4A6888" }}>{kalanHak} mesaj hakkı kaldı · <a href="/pro" style={{ color: "#818CF8", textDecoration: "none" }}>Pro&apos;ya geç →</a></span>
+                : <span style={{ fontSize: 11, color: "#2E4A64" }}>AI analizlerinde hata olabilir — kendi kontrollerinizi yapın</span>
               }
             </div>
           </div>
