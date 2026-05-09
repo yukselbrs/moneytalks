@@ -182,7 +182,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     },
     {
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
-      label: "AI Asistan", href: "/yapay-zeka",
+      label: "Pako AI", href: "/yapay-zeka",
     },
   ];
 
@@ -364,7 +364,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         background: "linear-gradient(90deg, #A78BFA, #60A5FA)",
                         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                       }}>
-                        AI Asistan
+                        Pako AI
                       </span>
                     )}
                   </a>

@@ -146,8 +146,8 @@ export default function YapayZekaPage() {
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
               </div>
-              <h2 style={{ color: "#F1F5F9", fontSize: 22, fontWeight: 700, margin: "0 0 10px", letterSpacing: "-0.3px" }}>
-                BIST AI Asistan
+              <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 10px", letterSpacing: "-0.3px", background: "linear-gradient(90deg, #A78BFA, #60A5FA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                Pako AI
               </h2>
               <p style={{ color: "#475569", fontSize: 14, margin: 0, maxWidth: 420, lineHeight: 1.65 }}>
                 BIST hisseleri, piyasa dinamikleri ve finans hakkındaki sorularınızı sorun.
