@@ -107,14 +107,14 @@ export async function GET(req: NextRequest) {
     const rawA = sortDef.col === "fiyat"
       ? (liveA?.fiyat ?? snapA?.fiyat)
       : sortDef.col === "degisim_yuzde"
-        ? (liveA?.degisim ?? snapA?.degisim_yuzde)
+        ? (snapA?.degisim_yuzde ?? liveA?.degisim)
         : shouldReturnSort
           ? (returnA?.[sortDef.col as keyof LiveGetiriler] ?? snapA?.[sortDef.col])
           : snapA?.[sortDef.col];
     const rawB = sortDef.col === "fiyat"
       ? (liveB?.fiyat ?? snapB?.fiyat)
       : sortDef.col === "degisim_yuzde"
-        ? (liveB?.degisim ?? snapB?.degisim_yuzde)
+        ? (snapB?.degisim_yuzde ?? liveB?.degisim)
         : shouldReturnSort
           ? (returnB?.[sortDef.col as keyof LiveGetiriler] ?? snapB?.[sortDef.col])
           : snapB?.[sortDef.col];
@@ -159,8 +159,10 @@ async function fetchLiveFiyatlar(tickers: string[]) {
         const meta = data?.chart?.result?.[0]?.meta;
         const fiyat = Number(meta?.regularMarketPrice);
         if (!Number.isFinite(fiyat)) return [ticker, null];
+        const changePercent = meta?.regularMarketChangePercent;
         const onceki = Number(meta?.chartPreviousClose ?? meta?.previousClose);
-        const degisim = Number.isFinite(onceki) && onceki > 0 ? ((fiyat - onceki) / onceki) * 100 : 0;
+        const rawDegisim = Number.isFinite(onceki) && onceki > 0 ? ((fiyat - onceki) / onceki) * 100 : 0;
+        const degisim = typeof changePercent === "number" ? changePercent : rawDegisim;
         return [ticker, {
           fiyat,
           degisim,
