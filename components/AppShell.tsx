@@ -190,7 +190,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // 0:Dashboard 1:Portföy 2:Analizler 3:Hisseler 4:İzleme 5:Haberler 6:Blog 7:Takvim 8:Alarmlar 9:Bildirimler 10:AI Asistan
   const navGroups: { label?: string; indices: number[] }[] = [
     { indices: [0] },
-    { label: "PİYASA", indices: [10, 3, 4, 5] },
+    { label: "PİYASA", indices: [3, 4, 5] },
     { label: "KİŞİSEL", indices: [1, 2, 8] },
     { label: "KEŞFET", indices: [7, 6, 9] },
   ];
@@ -204,6 +204,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         .sb-nav-item:hover { background: rgba(255,255,255,0.045) !important; }
         .sb-nav-sep { height: 1px; background: rgba(255,255,255,0.045); margin: 6px 4px; }
         .sb-sidebar { transition: width 0.22s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
+        @keyframes ai-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); } 50% { box-shadow: 0 0 10px 2px rgba(99,102,241,0.25); } }
+        @keyframes ai-dot { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+        .sb-ai-btn { display:flex; align-items:center; border-radius:10px; text-decoration:none; cursor:pointer; width:100%; border:none; text-align:left; transition:all 0.18s; position:relative; overflow:hidden; }
+        .sb-ai-btn::before { content:''; position:absolute; inset:0; border-radius:10px; padding:1px; background:linear-gradient(135deg,rgba(99,102,241,0.6),rgba(59,130,246,0.4),rgba(139,92,246,0.5)); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; }
+        .sb-ai-btn:hover { background:rgba(99,102,241,0.12) !important; animation:ai-pulse 1.5s ease-in-out infinite; }
         @media (max-width: 767px) {
           .sb-desktop { display: none !important; }
           .sb-main { margin-left: 0 !important; padding-bottom: 64px; overflow-x: hidden; max-width: 100vw; }
@@ -320,6 +325,51 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   </a>
                 );
               })}
+              {/* AI Asistan — Dashboard'dan hemen sonra */}
+              {gi === 0 && (() => {
+                const isActive = pathname === "/yapay-zeka";
+                return (
+                  <a
+                    href="/yapay-zeka"
+                    className="sb-ai-btn"
+                    onMouseEnter={collapsed ? e => showTip(e, "AI Asistan") : undefined}
+                    onMouseLeave={collapsed ? () => setTip(null) : undefined}
+                    style={{
+                      marginTop: 6,
+                      gap: collapsed ? 0 : 10,
+                      justifyContent: collapsed ? "center" : undefined,
+                      padding: collapsed ? "9px 0" : "9px 12px",
+                      background: isActive
+                        ? "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(59,130,246,0.15))"
+                        : "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(59,130,246,0.05))",
+                      animation: isActive ? "ai-pulse 2s ease-in-out infinite" : undefined,
+                    }}
+                  >
+                    {/* İkon + canlı nokta */}
+                    <span style={{ position: "relative", flexShrink: 0, display: "flex" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive ? "#A78BFA" : "#6366F1"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                      </svg>
+                      <span style={{
+                        position: "absolute", top: -2, right: -2,
+                        width: 6, height: 6, borderRadius: "50%",
+                        background: "#818CF8",
+                        boxShadow: "0 0 6px 2px rgba(129,140,248,0.6)",
+                        animation: "ai-dot 2s ease-in-out infinite",
+                      }} />
+                    </span>
+                    {!collapsed && (
+                      <span style={{
+                        whiteSpace: "nowrap", fontWeight: 600, fontSize: 13.5,
+                        background: "linear-gradient(90deg, #A78BFA, #60A5FA)",
+                        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                      }}>
+                        AI Asistan
+                      </span>
+                    )}
+                  </a>
+                );
+              })()}
             </div>
           ))}
         </div>
