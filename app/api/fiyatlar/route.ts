@@ -75,7 +75,14 @@ async function fetchFiyat(ticker: string) {
         if (!allSame) {
           const prev = validAdj[validAdj.length - 2];
           const last = validAdj[validAdj.length - 1];
-          change = ((last - prev) / prev) * 100;
+          const candidate = ((last - prev) / prev) * 100;
+          // adj stale kalabilir split günü — aşırı değişimde regularMarketChangePercent'e geç
+          if (Math.abs(candidate) > 50) {
+            const fallbackPrev = meta.chartPreviousClose || meta.previousClose;
+            change = meta.regularMarketChangePercent ?? (fallbackPrev ? ((price - fallbackPrev) / fallbackPrev) * 100 : 0);
+          } else {
+            change = candidate;
+          }
         } else {
           const prev = meta.chartPreviousClose || meta.previousClose;
           change = prev ? ((price - prev) / prev) * 100 : 0;

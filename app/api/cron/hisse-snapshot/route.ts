@@ -113,7 +113,15 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
       const adj5dStuck = validAdj5d.length >= 2 && validAdj5d.every(v => Math.abs(v - validAdj5d[0]) < 0.01);
       if (validAdj5d.length >= 2 && !adj5dStuck) {
         const prev5d = validAdj5d[validAdj5d.length - 2];
-        degisim = prev5d > 0 ? ((fiyat - prev5d) / prev5d) * 100 : 0;
+        const candidate = prev5d > 0 ? ((fiyat - prev5d) / prev5d) * 100 : 0;
+        // adj5d split günü stale kalabilir — aşırı değişimde güvenilir kaynağa geç
+        if (Math.abs(candidate) > 50) {
+          degisim = prevClose1d && prevClose1d > 0
+            ? ((fiyat - prevClose1d) / prevClose1d) * 100
+            : (meta.regularMarketChangePercent ?? candidate);
+        } else {
+          degisim = candidate;
+        }
       } else if (prevClose1d && prevClose1d > 0) {
         // range=1d'den gelen doğru önceki kapanış (en güvenilir kaynak)
         degisim = ((fiyat - prevClose1d) / prevClose1d) * 100;
