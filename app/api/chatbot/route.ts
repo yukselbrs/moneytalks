@@ -53,9 +53,11 @@ export async function POST(req: NextRequest) {
     .single();
 
   const mevcutSayi = usageData?.mesaj_sayisi ?? 0;
-  const GUNLUK_LIMIT = 100;
+  const BYPASS_EMAILS = (process.env.CHATBOT_BYPASS_EMAILS ?? "").split(",").map(e => e.trim());
+  const limitAtlandi = BYPASS_EMAILS.includes(user.email ?? "");
+  const GUNLUK_LIMIT = 3;
 
-  if (mevcutSayi >= GUNLUK_LIMIT) {
+  if (!limitAtlandi && mevcutSayi >= GUNLUK_LIMIT) {
     return NextResponse.json({
       error: "gunluk_limit",
       mesaj: "Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz için Pro'ya geçin.",
