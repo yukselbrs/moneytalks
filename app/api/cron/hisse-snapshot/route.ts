@@ -62,11 +62,14 @@ function kurumsalAksiyonlariAyarla(series: (number | null)[], opens: (number | n
 
 async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
   try {
-    const [res, res5d] = await Promise.all([
+    const [res, res5d, res1d] = await Promise.all([
       fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=${HISTORY_RANGE}`, {
         cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" },
       }),
       fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`, {
+        cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" },
+      }),
+      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`, {
         cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" },
       }),
     ]);
@@ -82,9 +85,10 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     const opens: (number | null)[] = result.indicators?.quote?.[0]?.open || [];
     const adjustedCloses: (number | null)[] = result.indicators?.adjclose?.[0]?.adjclose || [];
 
-    const adj5d: (number | null)[] = res5d.ok
-      ? ((await res5d.json())?.chart?.result?.[0]?.indicators?.adjclose?.[0]?.adjclose || [])
-      : [];
+    const [data5d, data1d] = await Promise.all([res5d.ok ? res5d.json() : Promise.resolve(null), res1d.ok ? res1d.json() : Promise.resolve(null)]);
+    const adj5d: (number | null)[] = data5d?.chart?.result?.[0]?.indicators?.adjclose?.[0]?.adjclose || [];
+    // range=1d'den doğru chartPreviousClose — 5d/2y range'de stale dönebilir
+    const prevClose1d: number | null = data1d?.chart?.result?.[0]?.meta?.chartPreviousClose || null;
     const baseReturnSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
     const returnSeries = kurumsalAksiyonlariAyarla(baseReturnSeries, opens);
 
@@ -100,6 +104,9 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     if (validAdj5d.length >= 2 && !adj5dStuck) {
       const prev5d = validAdj5d[validAdj5d.length - 2];
       degisim = prev5d > 0 ? ((fiyat - prev5d) / prev5d) * 100 : 0;
+    } else if (prevClose1d && prevClose1d > 0) {
+      // range=1d'den gelen doğru önceki kapanış (en güvenilir kaynak)
+      degisim = ((fiyat - prevClose1d) / prevClose1d) * 100;
     } else if (meta.chartPreviousClose && meta.chartPreviousClose > 0) {
       degisim = ((fiyat - meta.chartPreviousClose) / meta.chartPreviousClose) * 100;
     } else {
