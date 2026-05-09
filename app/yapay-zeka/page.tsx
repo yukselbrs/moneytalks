@@ -124,6 +124,9 @@ const YETENEKLER = [
   { ikon: "🧠", baslik: "Temel Analiz", aciklama: "F/K, PD/DD, piyasa değeri" },
 ];
 
+const LS_KEY = "pako_sohbetler";
+const LS_AKTIF = "pako_aktif_id";
+
 export default function YapayZekaPage() {
   const router = useRouter();
   const [sohbetler, setSohbetler] = useState<Sohbet[]>([]);
@@ -134,14 +137,36 @@ export default function YapayZekaPage() {
   const [focused, setFocused] = useState(false);
   const [hoveredSohbet, setHoveredSohbet] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // localStorage'dan yükle
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) setSohbetler(JSON.parse(saved));
+      const savedId = localStorage.getItem(LS_AKTIF);
+      if (savedId) setAktifId(savedId);
+    } catch {}
+  }, []);
+
+  // localStorage'a kaydet
+  useEffect(() => {
+    if (sohbetler.length > 0) localStorage.setItem(LS_KEY, JSON.stringify(sohbetler));
+  }, [sohbetler]);
+
+  useEffect(() => {
+    if (aktifId) localStorage.setItem(LS_AKTIF, aktifId);
+  }, [aktifId]);
 
   const aktifSohbet = sohbetler.find(s => s.id === aktifId) ?? null;
   const messages = aktifSohbet?.mesajlar ?? [];
   const isEmpty = messages.length === 0;
 
+  // Mesajlar gelince en alta scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messagesContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, loading]);
 
   function autoResizeTextarea() {
@@ -380,9 +405,8 @@ export default function YapayZekaPage() {
             </div>
           </div>
         ) : (
-          <div style={{ flex: 1, overflowY: "auto", position: "relative", zIndex: 1 }}>
-            <div style={{ minHeight: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-              <div style={{ maxWidth: 700, width: "100%", margin: "0 auto", padding: "28px 28px 8px", display: "flex", flexDirection: "column", gap: 20 }}>
+          <div ref={messagesContainerRef} style={{ flex: 1, overflowY: "auto", position: "relative", zIndex: 1 }}>
+            <div style={{ maxWidth: 700, width: "100%", margin: "0 auto", padding: "28px 28px 8px", display: "flex", flexDirection: "column", gap: 20 }}>
                 {messages.map((msg, i) => (
                   <div key={i} style={{ display: "flex", gap: 12, justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "slide-up 0.2s ease" }}>
                     {msg.role === "assistant" && (
@@ -417,7 +441,6 @@ export default function YapayZekaPage() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
-              </div>
             </div>
           </div>
         )}
