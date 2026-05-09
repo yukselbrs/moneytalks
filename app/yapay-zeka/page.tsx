@@ -1,8 +1,64 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+
+function renderMarkdown(text: string) {
+  const lines = text.split("\n");
+  const out: React.ReactNode[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    // Table
+    if (line.startsWith("|") && lines[i + 1]?.match(/^\|[-| :]+\|$/)) {
+      const headers = line.split("|").filter(c => c.trim()).map(c => c.trim());
+      const rows: string[][] = [];
+      let j = i + 2;
+      while (j < lines.length && lines[j].startsWith("|")) {
+        rows.push(lines[j].split("|").filter(c => c.trim()).map(c => c.trim()));
+        j++;
+      }
+      out.push(
+        <div key={i} style={{ overflowX: "auto", margin: "10px 0" }}>
+          <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13 }}>
+            <thead>
+              <tr>{headers.map((h, hi) => <th key={hi} style={{ padding: "7px 12px", borderBottom: "1px solid rgba(99,102,241,0.3)", color: "#A5B4FC", fontWeight: 600, textAlign: "left", whiteSpace: "nowrap" }}>{h}</th>)}</tr>
+            </thead>
+            <tbody>
+              {rows.map((row, ri) => <tr key={ri}>{row.map((cell, ci) => <td key={ci} style={{ padding: "6px 12px", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "#94A3B8" }}>{cell}</td>)}</tr>)}
+            </tbody>
+          </table>
+        </div>
+      );
+      i = j;
+      continue;
+    }
+    // HR
+    if (line.match(/^--+$/)) { out.push(<hr key={i} style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.06)", margin: "10px 0" }} />); i++; continue; }
+    // Empty line
+    if (!line.trim()) { out.push(<br key={i} />); i++; continue; }
+    // Normal line with inline formatting
+    out.push(<span key={i} style={{ display: "block" }}>{inlineFormat(line)}</span>);
+    i++;
+  }
+  return out;
+}
+
+function inlineFormat(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const re = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`)/g;
+  let last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m[2]) parts.push(<strong key={m.index} style={{ color: "#C4B5FD", fontWeight: 700 }}>{m[2]}</strong>);
+    else if (m[3]) parts.push(<em key={m.index} style={{ color: "#BAE6FD" }}>{m[3]}</em>);
+    else if (m[4]) parts.push(<code key={m.index} style={{ background: "rgba(99,102,241,0.15)", color: "#A5B4FC", borderRadius: 4, padding: "1px 6px", fontSize: 13, fontFamily: "monospace" }}>{m[4]}</code>);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -324,42 +380,44 @@ export default function YapayZekaPage() {
             </div>
           </div>
         ) : (
-          <div style={{ flex: 1, overflowY: "auto", padding: "28px 0 8px", position: "relative", zIndex: 1 }}>
-            <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 28px", display: "flex", flexDirection: "column", gap: 24 }}>
-              {messages.map((msg, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "slide-up 0.2s ease" }}>
-                  {msg.role === "assistant" && (
-                    <div style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, marginTop: 2, background: "linear-gradient(135deg,rgba(99,102,241,0.25),rgba(59,130,246,0.12))", border: "1px solid rgba(99,102,241,0.4)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 12px rgba(99,102,241,0.2)" }}>
+          <div style={{ flex: 1, overflowY: "auto", position: "relative", zIndex: 1 }}>
+            <div style={{ minHeight: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+              <div style={{ maxWidth: 700, width: "100%", margin: "0 auto", padding: "28px 28px 8px", display: "flex", flexDirection: "column", gap: 20 }}>
+                {messages.map((msg, i) => (
+                  <div key={i} style={{ display: "flex", gap: 12, justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "slide-up 0.2s ease" }}>
+                    {msg.role === "assistant" && (
+                      <div style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, marginTop: 2, background: "linear-gradient(135deg,rgba(99,102,241,0.25),rgba(59,130,246,0.12))", border: "1px solid rgba(99,102,241,0.4)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 12px rgba(99,102,241,0.2)" }}>
+                        {PK_LOGO}
+                      </div>
+                    )}
+                    <div style={{
+                      maxWidth: "78%", padding: msg.role === "user" ? "10px 16px" : "13px 16px",
+                      borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "4px 16px 16px 16px",
+                      background: msg.role === "user" ? "linear-gradient(135deg,rgba(99,102,241,0.22),rgba(59,130,246,0.16))" : "rgba(255,255,255,0.025)",
+                      border: `1px solid ${msg.role === "user" ? "rgba(99,102,241,0.38)" : "rgba(255,255,255,0.05)"}`,
+                      borderLeft: msg.role === "assistant" ? "2px solid rgba(99,102,241,0.45)" : undefined,
+                      color: msg.role === "user" ? "#DDD6FE" : "#94A3B8",
+                      fontSize: 14, lineHeight: 1.75,
+                    }}>
+                      {msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content}
+                    </div>
+                  </div>
+                ))}
+
+                {loading && (
+                  <div style={{ display: "flex", gap: 12, animation: "slide-up 0.2s ease" }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, background: "linear-gradient(135deg,rgba(99,102,241,0.25),rgba(59,130,246,0.12))", border: "1px solid rgba(99,102,241,0.4)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 12px rgba(99,102,241,0.2)" }}>
                       {PK_LOGO}
                     </div>
-                  )}
-                  <div style={{
-                    maxWidth: "78%", padding: msg.role === "user" ? "10px 16px" : "13px 16px",
-                    borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "4px 16px 16px 16px",
-                    background: msg.role === "user" ? "linear-gradient(135deg,rgba(99,102,241,0.22),rgba(59,130,246,0.16))" : "rgba(255,255,255,0.025)",
-                    border: `1px solid ${msg.role === "user" ? "rgba(99,102,241,0.38)" : "rgba(255,255,255,0.05)"}`,
-                    borderLeft: msg.role === "assistant" ? "2px solid rgba(99,102,241,0.45)" : undefined,
-                    color: msg.role === "user" ? "#DDD6FE" : "#94A3B8",
-                    fontSize: 14, lineHeight: 1.75, whiteSpace: "pre-wrap",
-                  }}>
-                    {msg.content}
+                    <div style={{ padding: "14px 18px", borderRadius: "4px 16px 16px 16px", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.05)", borderLeft: "2px solid rgba(99,102,241,0.45)", display: "flex", gap: 6, alignItems: "center" }}>
+                      {[0, 0.18, 0.36].map((delay, k) => (
+                        <span key={k} style={{ width: 7, height: 7, borderRadius: "50%", background: "#5B6EE8", display: "inline-block", animation: `dot-bounce 1.4s ease-in-out infinite ${delay}s` }} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-
-              {loading && (
-                <div style={{ display: "flex", gap: 12, animation: "slide-up 0.2s ease" }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, background: "linear-gradient(135deg,rgba(99,102,241,0.25),rgba(59,130,246,0.12))", border: "1px solid rgba(99,102,241,0.4)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 12px rgba(99,102,241,0.2)" }}>
-                    {PK_LOGO}
-                  </div>
-                  <div style={{ padding: "14px 18px", borderRadius: "4px 16px 16px 16px", background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.05)", borderLeft: "2px solid rgba(99,102,241,0.45)", display: "flex", gap: 6, alignItems: "center" }}>
-                    {[0, 0.18, 0.36].map((delay, i) => (
-                      <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#5B6EE8", display: "inline-block", animation: `dot-bounce 1.4s ease-in-out infinite ${delay}s` }} />
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
           </div>
         )}
