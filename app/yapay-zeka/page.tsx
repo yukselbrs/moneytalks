@@ -237,7 +237,7 @@ export default function YapayZekaPage() {
   }
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 53px)", overflow: "hidden", background: "#04080F" }}>
+    <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", background: "#04080F" }}>
       <style>{`
         @keyframes aurora-1 { 0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2) rotate(180deg);opacity:0.8} }
         @keyframes aurora-2 { 0%,100%{transform:translate(-50%,-50%) scale(1.1);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(0.9);opacity:0.55} }
