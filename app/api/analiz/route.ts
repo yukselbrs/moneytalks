@@ -44,8 +44,16 @@ async function getHisseVerisi(ticker: string) {
     if (!meta) return null;
     // Önceki kapanış: range=1d'den al (range=5d'de stale close dönebilir)
     const meta1d = data1d?.chart?.result?.[0]?.meta;
-    const oncekiKapanis: number | null = meta1d?.chartPreviousClose || meta.chartPreviousClose || meta.previousClose || null;
+    const rawOncekiKapanis: number | null = meta1d?.chartPreviousClose || meta.chartPreviousClose || meta.previousClose || null;
     const guncelFiyat: number = meta.regularMarketPrice;
+
+    // Bedelsiz/split tespiti — son 3 gün içinde split varsa önceki kapanışı düzelt
+    const splitEntries = Object.values(result?.events?.splits ?? {}) as Array<{ date: number; numerator: number; denominator: number }>;
+    const recentSplit = splitEntries.find(s => s.date >= Math.floor(Date.now() / 1000) - 3 * 86400 && s.numerator > 0 && s.denominator > 0);
+    const oncekiKapanis = recentSplit && rawOncekiKapanis
+      ? rawOncekiKapanis * (recentSplit.denominator / recentSplit.numerator)
+      : rawOncekiKapanis;
+
     const degisimYuzde = oncekiKapanis && oncekiKapanis > 0
       ? ((guncelFiyat - oncekiKapanis) / oncekiKapanis) * 100
       : (meta.regularMarketChangePercent ?? null);

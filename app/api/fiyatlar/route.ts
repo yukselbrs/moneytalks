@@ -58,23 +58,32 @@ async function fetchFiyat(ticker: string) {
 
     const price = meta.regularMarketPrice;
 
-    const adjclose: (number | null)[] = result0?.indicators?.adjclose?.[0]?.adjclose ?? [];
-    const validAdj = adjclose.filter((v): v is number => v != null && v > 0);
+    // Bedelsiz/split tespiti — son 3 gün içinde split varsa chartPreviousClose'u düzelt
+    const splitEntries = Object.values(result0?.events?.splits ?? {}) as Array<{ date: number; numerator: number; denominator: number }>;
+    const recentSplit = splitEntries.find(s => s.date >= Math.floor(Date.now() / 1000) - 3 * 86400 && s.numerator > 0 && s.denominator > 0);
 
     let change: number;
-    if (validAdj.length >= 2) {
-      const allSame = validAdj.every((v) => v === validAdj[0]);
-      if (!allSame) {
-        const prev = validAdj[validAdj.length - 2];
-        const last = validAdj[validAdj.length - 1];
-        change = ((last - prev) / prev) * 100;
+    if (recentSplit) {
+      const rawPrev = meta.chartPreviousClose || meta.previousClose;
+      const adjustedPrev = rawPrev ? rawPrev * (recentSplit.denominator / recentSplit.numerator) : 0;
+      change = adjustedPrev > 0 ? ((price - adjustedPrev) / adjustedPrev) * 100 : 0;
+    } else {
+      const adjclose: (number | null)[] = result0?.indicators?.adjclose?.[0]?.adjclose ?? [];
+      const validAdj = adjclose.filter((v): v is number => v != null && v > 0);
+      if (validAdj.length >= 2) {
+        const allSame = validAdj.every((v) => v === validAdj[0]);
+        if (!allSame) {
+          const prev = validAdj[validAdj.length - 2];
+          const last = validAdj[validAdj.length - 1];
+          change = ((last - prev) / prev) * 100;
+        } else {
+          const prev = meta.chartPreviousClose || meta.previousClose;
+          change = prev ? ((price - prev) / prev) * 100 : 0;
+        }
       } else {
         const prev = meta.chartPreviousClose || meta.previousClose;
-        change = prev ? ((price - prev) / prev) * 100 : 0;
+        change = meta.regularMarketChangePercent ?? (prev ? ((price - prev) / prev) * 100 : 0);
       }
-    } else {
-      const prev = meta.chartPreviousClose || meta.previousClose;
-      change = meta.regularMarketChangePercent ?? (prev ? ((price - prev) / prev) * 100 : 0);
     }
 
     const hacim = meta.regularMarketVolume || 0;
