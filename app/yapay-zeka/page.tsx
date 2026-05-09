@@ -186,6 +186,20 @@ export default function YapayZekaPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
 
+  // Body scroll'u kapat — sidebar ve input kaymasın
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
+    };
+  }, []);
+
   // Portföy verisi çek
   useEffect(() => {
     async function portfoyYukle() {
@@ -329,7 +343,7 @@ export default function YapayZekaPage() {
   }
 
   return (
-    <div style={{ display: "flex", flex: 1, minHeight: 0, height: "100%", overflow: "hidden", background: "#04080F" }}>
+    <div style={{ display: "flex", flex: 1, minHeight: 0, height: "100vh", maxHeight: "100vh", overflow: "hidden", background: "#04080F" }}>
       <style>{`
         @keyframes aurora-1 { 0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2) rotate(180deg);opacity:0.8} }
         @keyframes aurora-2 { 0%,100%{transform:translate(-50%,-50%) scale(1.1);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(0.9);opacity:0.55} }
