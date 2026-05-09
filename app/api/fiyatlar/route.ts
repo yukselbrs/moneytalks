@@ -49,14 +49,34 @@ async function fetchFiyat(ticker: string) {
   if (cached && now - cached.ts < TTL) return cached;
 
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`;
     const res = await fetch(url, { next: { revalidate: 15 }, headers: { "User-Agent": "Mozilla/5.0" } });
     const data = await res.json();
-    const meta = data?.chart?.result?.[0]?.meta;
+    const result0 = data?.chart?.result?.[0];
+    const meta = result0?.meta;
     if (!meta) return null;
+
     const price = meta.regularMarketPrice;
-    const prev = meta.chartPreviousClose || meta.previousClose;
-    const change = prev ? (((price - prev) / prev) * 100) : 0;
+
+    const adjclose: (number | null)[] = result0?.indicators?.adjclose?.[0]?.adjclose ?? [];
+    const validAdj = adjclose.filter((v): v is number => v != null && v > 0);
+
+    let change: number;
+    if (validAdj.length >= 2) {
+      const allSame = validAdj.every((v) => v === validAdj[0]);
+      if (!allSame) {
+        const prev = validAdj[validAdj.length - 2];
+        const last = validAdj[validAdj.length - 1];
+        change = ((last - prev) / prev) * 100;
+      } else {
+        const prev = meta.chartPreviousClose || meta.previousClose;
+        change = prev ? ((price - prev) / prev) * 100 : 0;
+      }
+    } else {
+      const prev = meta.chartPreviousClose || meta.previousClose;
+      change = meta.regularMarketChangePercent ?? (prev ? ((price - prev) / prev) * 100 : 0);
+    }
+
     const hacim = meta.regularMarketVolume || 0;
     const piyasaDegeri = meta.marketCap || 0;
     const result = {
