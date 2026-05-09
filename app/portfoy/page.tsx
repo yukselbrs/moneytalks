@@ -102,11 +102,50 @@ interface SilModal {
   ticker: string;
 }
 
+function sonVeriZamaniLabel(sonGuncelleme: Date | null): string {
+  const simdi = new Date();
+  // Istanbul UTC+3
+  const ist = (d: Date) => new Date(d.getTime() + 3 * 60 * 60 * 1000);
+  const istSimdi = ist(simdi);
+  const gun = istSimdi.getUTCDay(); // 0=Paz,1=Pzt,...,5=Cum,6=Cmt
+  const dk = istSimdi.getUTCHours() * 60 + istSimdi.getUTCMinutes();
+  const piyasaAcik = gun >= 1 && gun <= 5 && dk >= 600 && dk <= 1090;
+
+  if (piyasaAcik && sonGuncelleme) {
+    return `Son: ${new Date(sonGuncelleme.getTime() - 15 * 60 * 1000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}`;
+  }
+
+  // Piyasa kapalı — son kapanış gününü bul
+  const kapanisTarih = new Date(istSimdi);
+  if (gun === 0) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 2);       // Pazar → Cuma
+  else if (gun === 6) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 1);  // Cmt → Cuma
+  else if (dk < 600) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 1);   // Açılmadan → dün
+  // Dün Pzt ise ve Pazar, Cuma'ya çek
+  const kapanisGunu = kapanisTarih.getUTCDay();
+  if (kapanisGunu === 0) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 2);
+  else if (kapanisGunu === 6) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 1);
+
+  const gunAdi = kapanisTarih.toLocaleDateString("tr-TR", { weekday: "short", timeZone: "UTC" });
+  const tarih = kapanisTarih.toLocaleDateString("tr-TR", { day: "numeric", month: "numeric", timeZone: "UTC" });
+  // Eğer son kapanış bugün veya dün ise sadece gün adı, daha eskiyse tarih de ekle
+  const fark = Math.floor((istSimdi.getTime() - kapanisTarih.getTime()) / 86400000);
+  return fark < 3 ? `Kapanış: ${gunAdi} 18:10` : `Kapanış: ${tarih} 18:10`;
+}
+
 export default function PortfoyPage() {
   const router = useRouter();
   const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
   const [fiyatlar, setFiyatlar] = useState<FiyatMap>({});
-  const [riskler, setRiskler] = useState<RiskMap>({});
+  const [riskler, setRiskler] = useState<RiskMap>(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("portfoy_riskler") : null;
+      if (!raw) return {};
+      const parsed = JSON.parse(raw) as RiskMap;
+      // Yarım kalan hesaplamaları temizle
+      Object.keys(parsed).forEach(k => { parsed[k].yukleniyor = false; });
+      return parsed;
+    } catch { return {}; }
+  });
   const [yükleniyor, setYükleniyor] = useState(true);
   const [displayDeger, setDisplayDeger] = useState(0);
   const prevDegerRef = useRef(0);
@@ -124,6 +163,12 @@ export default function PortfoyPage() {
 
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
   const [portfoyRiskSkor, setPortfoyRiskSkor] = useState<{ skor: number; seviye: string; yukleniyor: boolean } | null>(null);
+  const [sonRiskHesaplama, setSonRiskHesaplama] = useState<Date | null>(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("portfoy_son_risk_hesaplama") : null;
+      return raw ? new Date(raw) : null;
+    } catch { return null; }
+  });
   const [sonFiyatGuncelleme, setSonFiyatGuncelleme] = useState<Date | null>(null);
   const [fiyatlarYenileniyor, setFiyatlarYenileniyor] = useState(false);
   const isMobil = useMediaQuery("(max-width: 767px)");
@@ -211,6 +256,16 @@ export default function PortfoyPage() {
   useEffect(() => { portfoyuYukle(); }, [portfoyuYukle]);
 
   useEffect(() => {
+    try { localStorage.setItem("portfoy_riskler", JSON.stringify(riskler)); } catch { /* ignore */ }
+  }, [riskler]);
+
+  useEffect(() => {
+    try {
+      if (sonRiskHesaplama) localStorage.setItem("portfoy_son_risk_hesaplama", sonRiskHesaplama.toISOString());
+    } catch { /* ignore */ }
+  }, [sonRiskHesaplama]);
+
+  useEffect(() => {
     if (portfoy.length === 0) return;
     const id = window.setInterval(() => {
       void fiyatlariYenile(portfoy, true);
@@ -219,9 +274,9 @@ export default function PortfoyPage() {
   }, [fiyatlariYenile, portfoy]);
 
 
-  const grafikCek = useCallback(async (aralik: "1d" | "1mo" | "3mo" | "1y", items: PortfoyItem[]) => {
+  const grafikCek = useCallback(async (aralik: "1d" | "1mo" | "3mo" | "1y", items: PortfoyItem[], sessiz = false) => {
     if (items.length === 0) return;
-    setGrafikYukleniyor(true);
+    if (!sessiz) setGrafikYukleniyor(true);
     try {
       const sonuclar = await Promise.all(
         items.map(async (p) => {
@@ -261,7 +316,16 @@ export default function PortfoyPage() {
 
   useEffect(() => {
     if (grafikAralik !== "1d" || portfoy.length === 0) return;
-    const id = window.setInterval(() => void grafikCek("1d", portfoy), 15000);
+    const piyasaAcikMi = () => {
+      const now = new Date();
+      const istanbul = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+      const gun = istanbul.getUTCDay();
+      const dk = istanbul.getUTCHours() * 60 + istanbul.getUTCMinutes();
+      return gun >= 1 && gun <= 5 && dk >= 600 && dk <= 1090; // 10:00–18:10
+    };
+    const id = window.setInterval(() => {
+      if (piyasaAcikMi()) void grafikCek("1d", portfoy, true);
+    }, 15000);
     return () => window.clearInterval(id);
   }, [grafikAralik, portfoy, grafikCek]);
 
@@ -566,6 +630,7 @@ export default function PortfoyPage() {
                             .then(json => {
                               if (json.error) throw new Error(json.error);
                               setRiskler(prev => ({ ...prev, [item.ticker]: { skor: json.seviyeTR || "Orta", ozet: "", yukleniyor: false, acik: false, skor100: json.skor, bilesenler: json.bilesenler } }));
+                              setSonRiskHesaplama(new Date());
                             })
                             .catch(() => setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "?", ozet: "", yukleniyor: false, acik: false } })));
                         }
@@ -575,6 +640,11 @@ export default function PortfoyPage() {
                   >
                     ⚡ Portföy Riskini Hesapla
                   </button>
+                  {sonRiskHesaplama && (
+                    <span className="text-[11px] text-slate-500">
+                      Son hesaplama: {sonRiskHesaplama.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  )}
                   <button
                     onClick={() => void fiyatlariYenile(portfoy)}
                     disabled={fiyatlarYenileniyor}
@@ -584,7 +654,7 @@ export default function PortfoyPage() {
                   </button>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/8 px-2.5 py-1 text-[10px] font-semibold text-orange-400 ml-auto">
                     <span className="h-1.5 w-1.5 rounded-full bg-orange-400 live-dot text-orange-400" />
-                    {fiyatlarYenileniyor ? "Güncelleniyor..." : sonFiyatGuncelleme ? `Son: ${new Date(sonFiyatGuncelleme.getTime() - 15 * 60 * 1000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}` : "—"}
+                    {fiyatlarYenileniyor ? "Güncelleniyor..." : sonVeriZamaniLabel(sonFiyatGuncelleme)}
                     <span className="text-orange-400/50 font-normal">· ~15dk gecikmeli</span>
                   </span>
                 </div>
@@ -648,7 +718,7 @@ export default function PortfoyPage() {
                   </div>
                 )}
               </div>
-              {grafikAcik && (grafikYukleniyor ? (
+              {grafikAcik && (grafikYukleniyor && grafik.length === 0 ? (
                 <div className="h-28 flex items-center justify-center text-slate-600 text-xs animate-pulse mt-3">Yükleniyor...</div>
               ) : grafik.length > 1 ? (() => {
                 const son = grafik[grafik.length - 1].degisim;
@@ -738,7 +808,7 @@ export default function PortfoyPage() {
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="portfolio-number text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—"}</p>
+                        <p className="portfolio-number text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p>
                         <p className={`portfolio-number mt-0.5 text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                           {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
                         </p>
@@ -767,7 +837,7 @@ export default function PortfoyPage() {
                           { label: "Güncel Fiyat", value: fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—", cls: "text-white" },
                           { label: "K/Z %", value: pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—", cls: isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400" },
                           { label: "Ana Para", value: `${(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, cls: "text-slate-300" },
-                          { label: "Güncel Değer", value: pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺` : "—", cls: "text-white" },
+                          { label: "Güncel Değer", value: pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—", cls: "text-white" },
                         ].map(s => (
                           <div key={s.label} className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
                             <p className="text-slate-600 text-[10px] mb-1">{s.label}</p>
@@ -909,10 +979,10 @@ export default function PortfoyPage() {
                             {fiyat ? <span className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-600">₺</span></span> : <span className="text-slate-700">—</span>}
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm hidden sm:table-cell">
-                            {(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-700">₺</span>
+                            {(item.adet * item.maliyet).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-700">₺</span>
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-white text-sm font-semibold hidden sm:table-cell">
-                            {pl ? <>{pl.guncel_toplam.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} <span className="text-slate-600">₺</span></> : <span className="text-slate-700">—</span>}
+                            {pl ? <>{pl.guncel_toplam.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-600">₺</span></> : <span className="text-slate-700">—</span>}
                           </td>
                           <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
                             {gunluk ? (
