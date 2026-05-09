@@ -164,6 +164,12 @@ const YETENEKLER = [
 const LS_KEY = "pako_sohbetler";
 const LS_AKTIF = "pako_aktif_id";
 
+interface PortfoyItem {
+  ticker: string; adet: number; maliyet: number;
+  guncelFiyat?: number; guncelDeger?: number;
+  karZarar?: number; karZararYuzde?: number; degisimYuzde?: number;
+}
+
 export default function YapayZekaPage() {
   const router = useRouter();
   const [sohbetler, setSohbetler] = useState<Sohbet[]>([]);
@@ -173,9 +179,41 @@ export default function YapayZekaPage() {
   const [kalanHak, setKalanHak] = useState<number | null>(null);
   const [focused, setFocused] = useState(false);
   const [hoveredSohbet, setHoveredSohbet] = useState<string | null>(null);
+  const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Portföy verisi çek
+  useEffect(() => {
+    async function portfoyYukle() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase
+        .from("portfoy")
+        .select("ticker, adet, maliyet")
+        .eq("user_id", session.user.id);
+      if (!data || data.length === 0) return;
+      const tickerList = data.map((p: { ticker: string }) => p.ticker).join(",");
+      try {
+        const res = await fetch(`/api/fiyatlar?extra=${tickerList}`);
+        const fiyatlar = await res.json();
+        const zengin: PortfoyItem[] = data.map((p: { ticker: string; adet: number; maliyet: number }) => {
+          const f = fiyatlar[p.ticker] ?? fiyatlar[`${p.ticker}.IS`];
+          const guncelFiyat = f?.price ?? undefined;
+          const guncelDeger = guncelFiyat ? guncelFiyat * p.adet : undefined;
+          const karZarar = guncelDeger !== undefined ? guncelDeger - p.maliyet * p.adet : undefined;
+          const karZararYuzde = karZarar !== undefined ? (karZarar / (p.maliyet * p.adet)) * 100 : undefined;
+          const degisimYuzde = f?.changePercent ?? undefined;
+          return { ...p, guncelFiyat, guncelDeger, karZarar, karZararYuzde, degisimYuzde };
+        });
+        setPortfoy(zengin);
+      } catch {
+        setPortfoy(data);
+      }
+    }
+    portfoyYukle();
+  }, []);
 
   // localStorage'dan yükle
   useEffect(() => {
@@ -254,7 +292,7 @@ export default function YapayZekaPage() {
       const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: newMessages, portfoy: portfoy.length > 0 ? portfoy : undefined }),
       });
       const data = await res.json();
       const reply = data.error === "gunluk_limit" ? data.mesaj : (data.reply ?? "Bir hata oluştu.");
