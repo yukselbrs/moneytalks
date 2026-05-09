@@ -18,6 +18,7 @@ interface HisseVeri {
   fiyat: number;
   oncekiKapanis: number;
   degisim: number | null;
+  degisimYuzde?: number | null;
   hacim: number;
   yillikYuksek: number;
   yillikDusuk: number;
@@ -208,8 +209,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   const sections = analiz ? renderMarkdown(analiz) : [];
 
-  const gunlukDegisim = veri ? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDusuk)) / (veri.oncekiKapanis || veri.gunlukDusuk) * 100) : 0;
-  const fiyatYukselis = veri ? veri.fiyat >= veri.oncekiKapanis : true;
+  const gunlukDegisim = veri ? (veri.degisimYuzde ?? ((veri.fiyat - (veri.oncekiKapanis || veri.gunlukDusuk)) / (veri.oncekiKapanis || veri.gunlukDusuk) * 100)) : 0;
+  const fiyatYukselis = gunlukDegisim >= 0;
   const grafikDegisim = (() => {
     if (grafikRange === "1d") return Number.isFinite(gunlukDegisim) ? gunlukDegisim : null;
     const apiGetiri = getiriler[grafikRange];
@@ -298,7 +299,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                   {veri.oncekiKapanis && (
                     <span style={{ fontSize: 13, fontWeight: 700, color: fiyatYukselis ? "#10B981" : "#EF4444", display: "inline-flex", alignItems: "center", gap: 4 }}>
                       <span>{fiyatYukselis ? "▲" : "▼"}</span>
-                      <span suppressHydrationWarning>%{Math.abs(((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
+                      <span suppressHydrationWarning>%{Math.abs(veri.degisimYuzde ?? ((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
                     </span>
                   )}
                 </div>

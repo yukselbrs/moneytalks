@@ -33,17 +33,26 @@ function displayCompanyName(raw: string) {
 async function getHisseVerisi(ticker: string) {
   try {
     const res = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`,
       { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
     );
     const data = await res.json();
-    const meta = data?.chart?.result?.[0]?.meta;
+    const result = data?.chart?.result?.[0];
+    const meta = result?.meta;
     if (!meta) return null;
+    const adjCloses: (number | null)[] = result?.indicators?.adjclose?.[0]?.adjclose || [];
+    const validAdj = adjCloses.filter((v): v is number => v !== null && v !== undefined);
+    const oncekiAdjClose = validAdj.length >= 2 ? validAdj[validAdj.length - 2] : null;
+    const guncelFiyat = meta.regularMarketPrice;
+    const degisimYuzde = oncekiAdjClose && oncekiAdjClose > 0
+      ? ((guncelFiyat - oncekiAdjClose) / oncekiAdjClose) * 100
+      : (meta.regularMarketChangePercent ?? null);
     const localCompany = BIST_HISSELER.find((h) => h.ticker === ticker);
     const companyName = localCompany?.fullName || localCompany?.ad || meta.longName || meta.shortName || "";
     return {
-      fiyat: meta.regularMarketPrice,
-      oncekiKapanis: meta.chartPreviousClose || meta.previousClose,
+      fiyat: guncelFiyat,
+      oncekiKapanis: oncekiAdjClose || meta.chartPreviousClose || meta.previousClose,
+      degisimYuzde,
       hacim: meta.regularMarketVolume,
       yillikYuksek: meta.fiftyTwoWeekHigh,
       yillikDusuk: meta.fiftyTwoWeekLow,
