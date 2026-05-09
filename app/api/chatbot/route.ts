@@ -20,11 +20,11 @@ const RATE_LIMIT = 20;       // max istek
 const RATE_WINDOW = 60000;   // 1 dakika (ms)
 
 const YASAKLI_IFADELER = [
-  /(?<![a-züğişçöA-ZÜĞİŞÇÖ])(al|sat)(?![a-züğişçöA-ZÜĞİŞÇÖ])/i,
-  /kesin(likle)?\s*(al|sat|yüksel|düş)/i,
+  /(hisseyi?|bu hisseyi?|şimdi|hemen)\s+(al|sat)\b/i,
+  /\b(sat[ıi]n al|kesinlikle al|kesinlikle sat|mutlaka al|mutlaka sat)\b/i,
+  /kesin(likle)?\s*(yüksel|düş)/i,
   /yatırım tavsiyesi (öner(irim|iyorum|ir)?|tavsiye eder(im)?)/i,
   /\bgaranti\b/i,
-  /mutlaka\s*(al|sat)/i,
 ];
 
 function yasakliMiKontrol(text: string): boolean {
