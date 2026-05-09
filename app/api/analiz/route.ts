@@ -32,26 +32,28 @@ function displayCompanyName(raw: string) {
 
 async function getHisseVerisi(ticker: string) {
   try {
-    const res = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`,
-      { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }
-    );
-    const data = await res.json();
-    const result = data?.chart?.result?.[0];
+    // 5d → genel meta + hacim + 52H verileri
+    // 1d → doğru chartPreviousClose (5d'de stale veri dönebilir, özellikle sermaye artırımı sonrası)
+    const [res5d, res1d] = await Promise.all([
+      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }),
+      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }),
+    ]);
+    const [data5d, data1d] = await Promise.all([res5d.json(), res1d.json()]);
+    const result = data5d?.chart?.result?.[0];
     const meta = result?.meta;
     if (!meta) return null;
-    const adjCloses: (number | null)[] = result?.indicators?.adjclose?.[0]?.adjclose || [];
-    const validAdj = adjCloses.filter((v): v is number => v !== null && v !== undefined);
-    const oncekiAdjClose = validAdj.length >= 2 ? validAdj[validAdj.length - 2] : null;
-    const guncelFiyat = meta.regularMarketPrice;
-    const degisimYuzde = oncekiAdjClose && oncekiAdjClose > 0
-      ? ((guncelFiyat - oncekiAdjClose) / oncekiAdjClose) * 100
+    // Önceki kapanış: range=1d'den al (range=5d'de stale close dönebilir)
+    const meta1d = data1d?.chart?.result?.[0]?.meta;
+    const oncekiKapanis: number | null = meta1d?.chartPreviousClose || meta.chartPreviousClose || meta.previousClose || null;
+    const guncelFiyat: number = meta.regularMarketPrice;
+    const degisimYuzde = oncekiKapanis && oncekiKapanis > 0
+      ? ((guncelFiyat - oncekiKapanis) / oncekiKapanis) * 100
       : (meta.regularMarketChangePercent ?? null);
     const localCompany = BIST_HISSELER.find((h) => h.ticker === ticker);
     const companyName = localCompany?.fullName || localCompany?.ad || meta.longName || meta.shortName || "";
     return {
       fiyat: guncelFiyat,
-      oncekiKapanis: oncekiAdjClose || meta.chartPreviousClose || meta.previousClose,
+      oncekiKapanis,
       degisimYuzde,
       hacim: meta.regularMarketVolume,
       yillikYuksek: meta.fiftyTwoWeekHigh,
