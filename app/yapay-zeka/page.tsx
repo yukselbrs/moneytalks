@@ -162,7 +162,6 @@ const YETENEKLER = [
 ];
 
 const LS_KEY = "pako_sohbetler";
-const LS_AKTIF = "pako_aktif_id";
 
 interface PortfoyItem {
   ticker: string; adet: number; maliyet: number;
@@ -179,10 +178,13 @@ export default function YapayZekaPage() {
   const [kalanHak, setKalanHak] = useState<number | null>(null);
   const [focused, setFocused] = useState(false);
   const [hoveredSohbet, setHoveredSohbet] = useState<string | null>(null);
+  const [renameId, setRenameId] = useState<string | null>(null);
+  const [renameVal, setRenameVal] = useState("");
   const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const renameInputRef = useRef<HTMLInputElement>(null);
 
   // Portföy verisi çek
   useEffect(() => {
@@ -215,13 +217,11 @@ export default function YapayZekaPage() {
     portfoyYukle();
   }, []);
 
-  // localStorage'dan yükle
+  // localStorage'dan yükle — aktifId yüklenmez, her açılışta temiz sohbet
   useEffect(() => {
     try {
       const saved = localStorage.getItem(LS_KEY);
       if (saved) setSohbetler(JSON.parse(saved));
-      const savedId = localStorage.getItem(LS_AKTIF);
-      if (savedId) setAktifId(savedId);
     } catch {}
   }, []);
 
@@ -229,10 +229,6 @@ export default function YapayZekaPage() {
   useEffect(() => {
     if (sohbetler.length > 0) localStorage.setItem(LS_KEY, JSON.stringify(sohbetler));
   }, [sohbetler]);
-
-  useEffect(() => {
-    if (aktifId) localStorage.setItem(LS_AKTIF, aktifId);
-  }, [aktifId]);
 
   const aktifSohbet = sohbetler.find(s => s.id === aktifId) ?? null;
   const messages = aktifSohbet?.mesajlar ?? [];
@@ -244,6 +240,11 @@ export default function YapayZekaPage() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, loading]);
 
+  // Rename input'a otomatik fokus
+  useEffect(() => {
+    if (renameId && renameInputRef.current) renameInputRef.current.focus();
+  }, [renameId]);
+
   function autoResizeTextarea() {
     const ta = textareaRef.current;
     if (!ta) return;
@@ -252,18 +253,34 @@ export default function YapayZekaPage() {
   }
 
   function yeniSohbet() {
-    const id = crypto.randomUUID();
-    setSohbetler(prev => [{ id, baslik: "Yeni Sohbet", mesajlar: [] }, ...prev]);
-    setAktifId(id);
+    setAktifId(null);
     setInput("");
     setKalanHak(null);
+    setRenameId(null);
     if (textareaRef.current) textareaRef.current.style.height = "auto";
   }
 
   function sohbetSil(id: string, e: React.MouseEvent) {
     e.stopPropagation();
-    setSohbetler(prev => prev.filter(s => s.id !== id));
+    setSohbetler(prev => {
+      const updated = prev.filter(s => s.id !== id);
+      if (updated.length === 0) localStorage.removeItem(LS_KEY);
+      return updated;
+    });
     if (aktifId === id) setAktifId(null);
+  }
+
+  function sohbetRenameBaslat(id: string, baslik: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    setRenameId(id);
+    setRenameVal(baslik);
+  }
+
+  function sohbetRenameBitir(id: string) {
+    if (renameVal.trim()) {
+      setSohbetler(prev => prev.map(s => s.id === id ? { ...s, baslik: renameVal.trim() } : s));
+    }
+    setRenameId(null);
   }
 
   async function sendMessage(text: string) {
@@ -312,7 +329,7 @@ export default function YapayZekaPage() {
   }
 
   return (
-    <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", background: "#04080F" }}>
+    <div style={{ display: "flex", flex: 1, minHeight: 0, height: "100%", overflow: "hidden", background: "#04080F" }}>
       <style>{`
         @keyframes aurora-1 { 0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2) rotate(180deg);opacity:0.8} }
         @keyframes aurora-2 { 0%,100%{transform:translate(-50%,-50%) scale(1.1);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(0.9);opacity:0.55} }
@@ -324,7 +341,7 @@ export default function YapayZekaPage() {
         @keyframes fade-in { from{opacity:0} to{opacity:1} }
         @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0)} 50%{box-shadow:0 0 0 4px rgba(99,102,241,0.12)} }
 
-        .pk-sidebar { width:244px; background:#050A12; border-right:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
+        .pk-sidebar { width:244px; height:100%; background:#050A12; border-right:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
         .pk-back { display:flex; align-items:center; gap:7px; background:none; border:none; color:#4A6B8A; cursor:pointer; font-size:12px; font-weight:500; font-family:inherit; padding:8px 10px; border-radius:8px; transition:all 0.15s; }
         .pk-back:hover { color:#60A5FA; background:rgba(59,130,246,0.07); }
         .pk-new { display:flex; align-items:center; gap:8px; border-radius:10px; padding:10px 14px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; transition:all 0.2s; border:1px solid rgba(99,102,241,0.3); background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(59,130,246,0.07)); color:#A5B4FC; width:100%; }
@@ -333,8 +350,11 @@ export default function YapayZekaPage() {
         .pk-chat-item:hover { background:rgba(255,255,255,0.04); }
         .pk-chat-item.active { background:rgba(99,102,241,0.1); }
         .pk-del-btn { opacity:0; transition:opacity 0.15s; background:none; border:none; cursor:pointer; color:#4A6B8A; padding:3px; border-radius:5px; display:flex; align-items:center; flex-shrink:0; }
-        .pk-chat-item:hover .pk-del-btn { opacity:1; }
+        .pk-rename-btn { opacity:0; transition:opacity 0.15s; background:none; border:none; cursor:pointer; color:#4A6B8A; padding:3px; border-radius:5px; display:flex; align-items:center; flex-shrink:0; }
+        .pk-chat-item:hover .pk-del-btn, .pk-chat-item:hover .pk-rename-btn { opacity:1; }
         .pk-del-btn:hover { color:#EF4444 !important; background:rgba(239,68,68,0.1); }
+        .pk-rename-btn:hover { color:#818CF8 !important; background:rgba(99,102,241,0.12); }
+        .pk-rename-input { flex:1; min-width:0; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.35); border-radius:5px; padding:2px 7px; color:#A5B4FC; font-size:12px; outline:none; font-family:inherit; }
         .pk-onerilen { display:flex; align-items:flex-start; gap:8px; background:none; border:none; cursor:pointer; color:#4E6A8A; font-size:11.5px; font-weight:500; text-align:left; padding:6px 10px; border-radius:7px; line-height:1.45; width:100%; transition:all 0.12s; font-family:inherit; }
         .pk-onerilen:hover { background:rgba(99,102,241,0.07); color:#8AABB8; }
         .pk-chip { display:flex; align-items:flex-start; gap:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#5E7E9E; font-size:13px; font-weight:500; padding:12px 15px; border-radius:13px; cursor:pointer; transition:all 0.2s; font-family:inherit; text-align:left; line-height:1.45; }
@@ -347,7 +367,7 @@ export default function YapayZekaPage() {
 
       {/* ── SIDEBAR ── */}
       <div className="pk-sidebar">
-        <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.035)" }}>
+        <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.035)", flexShrink: 0 }}>
           <button className="pk-back" onClick={() => router.back()}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6"/>
@@ -365,7 +385,7 @@ export default function YapayZekaPage() {
           </div>
         </div>
 
-        <div style={{ padding: "12px 14px 8px" }}>
+        <div style={{ padding: "12px 14px 8px", flexShrink: 0 }}>
           <button className="pk-new" onClick={yeniSohbet}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -374,29 +394,66 @@ export default function YapayZekaPage() {
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", paddingBottom: 12 }}>
+        <div style={{ flex: 1, overflowY: "auto", minHeight: 0, display: "flex", flexDirection: "column", paddingBottom: 12 }}>
           {sohbetler.length > 0 && (
             <div style={{ padding: "4px 0 6px" }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: "#3A5878", letterSpacing: "0.1em", textTransform: "uppercase", padding: "0 18px 6px" }}>Geçmiş</p>
               {sohbetler.map(s => (
-                <div key={s.id} className={`pk-chat-item ${s.id === aktifId ? "active" : ""}`}
-                  onClick={() => setAktifId(s.id)}
+                <div key={s.id}
+                  className={`pk-chat-item ${s.id === aktifId ? "active" : ""}`}
+                  onClick={renameId === s.id ? undefined : () => setAktifId(s.id)}
                   onMouseEnter={() => setHoveredSohbet(s.id)}
                   onMouseLeave={() => setHoveredSohbet(null)}
-                  style={{ margin: "0 4px" }}
+                  style={{ margin: "0 4px", cursor: renameId === s.id ? "default" : "pointer" }}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.id === aktifId ? "#6366F1" : "#3A5878"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                   </svg>
-                  <span style={{ fontSize: 12, fontWeight: 500, color: s.id === aktifId ? "#A5B4FC" : "#5E7E9E", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, lineHeight: 1.4 }}>
-                    {s.baslik}
-                  </span>
-                  <button className="pk-del-btn" onClick={e => sohbetSil(s.id, e)} title="Sil"
-                    style={{ opacity: hoveredSohbet === s.id ? 1 : 0 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                    </svg>
-                  </button>
+
+                  {renameId === s.id ? (
+                    <input
+                      ref={renameInputRef}
+                      className="pk-rename-input"
+                      value={renameVal}
+                      onChange={e => setRenameVal(e.target.value)}
+                      onBlur={() => sohbetRenameBitir(s.id)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") { e.preventDefault(); sohbetRenameBitir(s.id); }
+                        if (e.key === "Escape") { setRenameId(null); }
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span style={{ fontSize: 12, fontWeight: 500, color: s.id === aktifId ? "#A5B4FC" : "#5E7E9E", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, lineHeight: 1.4 }}>
+                      {s.baslik}
+                    </span>
+                  )}
+
+                  {renameId !== s.id && (
+                    <>
+                      <button
+                        className="pk-rename-btn"
+                        onClick={e => sohbetRenameBaslat(s.id, s.baslik, e)}
+                        title="Yeniden adlandır"
+                        style={{ opacity: hoveredSohbet === s.id ? 1 : 0 }}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                      <button
+                        className="pk-del-btn"
+                        onClick={e => sohbetSil(s.id, e)}
+                        title="Sil"
+                        style={{ opacity: hoveredSohbet === s.id ? 1 : 0 }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                        </svg>
+                      </button>
+                    </>
+                  )}
                 </div>
               ))}
               <div style={{ height: 1, background: "rgba(255,255,255,0.035)", margin: "10px 14px" }} />
@@ -414,7 +471,7 @@ export default function YapayZekaPage() {
       </div>
 
       {/* ── MAIN ── */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", background: "#04080F" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0, position: "relative", background: "#04080F" }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, backgroundImage: "linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px)", backgroundSize: "52px 52px" }} />
 
         {isEmpty ? (
@@ -480,7 +537,7 @@ export default function YapayZekaPage() {
             </div>
           </div>
         ) : (
-          <div ref={messagesContainerRef} style={{ flex: 1, overflowY: "auto", position: "relative", zIndex: 1 }}>
+          <div ref={messagesContainerRef} style={{ flex: 1, overflowY: "auto", minHeight: 0, position: "relative", zIndex: 1 }}>
             <div style={{ maxWidth: 700, width: "100%", margin: "0 auto", padding: "28px 28px 8px", display: "flex", flexDirection: "column", gap: 20 }}>
                 {messages.map((msg, i) => (
                   <div key={i} style={{ display: "flex", gap: 12, justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "slide-up 0.2s ease" }}>
@@ -521,7 +578,7 @@ export default function YapayZekaPage() {
         )}
 
         {/* ── INPUT ── */}
-        <div style={{ padding: "14px 28px 20px", position: "relative", zIndex: 1 }}>
+        <div style={{ padding: "14px 28px 20px", position: "relative", zIndex: 1, flexShrink: 0 }}>
           <div style={{ position: "absolute", top: 0, left: 28, right: 28, height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,0.18),rgba(59,130,246,0.12),transparent)" }} />
           <div style={{ maxWidth: 700, margin: "0 auto" }}>
             <div style={{ display: "flex", gap: 10, alignItems: "flex-end", background: "rgba(255,255,255,0.02)", border: `1px solid ${focused ? "rgba(99,102,241,0.48)" : "rgba(255,255,255,0.055)"}`, borderRadius: 16, padding: "13px 14px", boxShadow: focused ? "0 0 0 3px rgba(99,102,241,0.07),0 0 32px rgba(99,102,241,0.08)" : "none", transition: "border-color 0.2s,box-shadow 0.25s" }}>
