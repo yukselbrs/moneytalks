@@ -54,9 +54,13 @@ async function getHisseVerisi(ticker: string) {
       ? rawOncekiKapanis * (recentSplit.denominator / recentSplit.numerator)
       : rawOncekiKapanis;
 
-    const degisimYuzde = oncekiKapanis && oncekiKapanis > 0
+    const rawDegisim = oncekiKapanis && oncekiKapanis > 0
       ? ((guncelFiyat - oncekiKapanis) / oncekiKapanis) * 100
-      : (meta.regularMarketChangePercent ?? null);
+      : null;
+    // Split günü chartPreviousClose stale kalabilir — aşırı değişimde Yahoo'nun değerini kullan
+    const degisimYuzde = rawDegisim !== null && Math.abs(rawDegisim) > 50
+      ? (meta.regularMarketChangePercent ?? rawDegisim)
+      : (rawDegisim ?? meta.regularMarketChangePercent ?? null);
     const localCompany = BIST_HISSELER.find((h) => h.ticker === ticker);
     const companyName = localCompany?.fullName || localCompany?.ad || meta.longName || meta.shortName || "";
     return {
