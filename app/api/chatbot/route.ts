@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   const mevcutSayi = usageData?.mesaj_sayisi ?? 0;
-  const GUNLUK_LIMIT = 3;
+  const GUNLUK_LIMIT = 100;
 
   if (mevcutSayi >= GUNLUK_LIMIT) {
     return NextResponse.json({
