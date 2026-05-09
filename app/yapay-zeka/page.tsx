@@ -312,7 +312,7 @@ export default function YapayZekaPage() {
   }
 
   return (
-    <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden", background: "#04080F" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#04080F" }}>
       <style>{`
         @keyframes aurora-1 { 0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2) rotate(180deg);opacity:0.8} }
         @keyframes aurora-2 { 0%,100%{transform:translate(-50%,-50%) scale(1.1);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(0.9);opacity:0.55} }
@@ -324,7 +324,7 @@ export default function YapayZekaPage() {
         @keyframes fade-in { from{opacity:0} to{opacity:1} }
         @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0)} 50%{box-shadow:0 0 0 4px rgba(99,102,241,0.12)} }
 
-        .pk-sidebar { width:244px; background:#050A12; border-right:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
+        .pk-sidebar { width:244px; background:#050A12; border-right:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; height:100vh; }
         .pk-back { display:flex; align-items:center; gap:7px; background:none; border:none; color:#4A6B8A; cursor:pointer; font-size:12px; font-weight:500; font-family:inherit; padding:8px 10px; border-radius:8px; transition:all 0.15s; }
         .pk-back:hover { color:#60A5FA; background:rgba(59,130,246,0.07); }
         .pk-new { display:flex; align-items:center; gap:8px; border-radius:10px; padding:10px 14px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; transition:all 0.2s; border:1px solid rgba(99,102,241,0.3); background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(59,130,246,0.07)); color:#A5B4FC; width:100%; }
