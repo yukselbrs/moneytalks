@@ -108,20 +108,42 @@ interface Sohbet {
   mesajlar: Message[];
 }
 
-const ONERILEN_SORULAR = [
-  { ikon: "📈", metin: "Enflasyona karşı dayanıklı BIST sektörleri hangileri?" },
-  { ikon: "📊", metin: "F/K ve PD/DD oranları nasıl yorumlanır?" },
-  { ikon: "⚡", metin: "RSI 30'un altına düşen hisse ne anlama gelir?" },
-  { ikon: "🎯", metin: "Beta katsayısı yüksek hisseler daha riskli mi?" },
-  { ikon: "💎", metin: "Temettü verimi nasıl hesaplanır ve yorumlanır?" },
-  { ikon: "🔍", metin: "Hacim anomalisi neden önemlidir?" },
-  { ikon: "📉", metin: "52 hafta zirvesine yakın hisse fırsatı mı?" },
-  { ikon: "⚖️", metin: "Volatilite risk skoru nasıl hesaplanır?" },
-  { ikon: "🏦", metin: "XU100 ile bireysel hisse performansı nasıl karşılaştırılır?" },
-  { ikon: "💰", metin: "Piyasa değeri küçük hisseler nasıl değerlendirilir?" },
-  { ikon: "🔑", metin: "Risk skoru yüksek hissede nelere dikkat edilmeli?" },
-  { ikon: "🧭", metin: "Momentum düşüşü satış sinyali midir?" },
+const ONERILEN_GRUPLAR = [
+  {
+    kategori: "Temel",
+    sorular: [
+      { ikon: "📊", metin: "F/K ve PD/DD oranları nasıl yorumlanır?" },
+      { ikon: "💎", metin: "Temettü verimi nasıl hesaplanır ve yorumlanır?" },
+      { ikon: "💰", metin: "Piyasa değeri küçük hisseler nasıl değerlendirilir?" },
+    ],
+  },
+  {
+    kategori: "Teknik",
+    sorular: [
+      { ikon: "⚡", metin: "RSI 30'un altına düşen hisse ne anlama gelir?" },
+      { ikon: "🔍", metin: "Hacim anomalisi neden önemlidir?" },
+      { ikon: "🧭", metin: "Momentum düşüşü satış sinyali midir?" },
+    ],
+  },
+  {
+    kategori: "Risk",
+    sorular: [
+      { ikon: "🎯", metin: "Beta katsayısı yüksek hisseler daha riskli mi?" },
+      { ikon: "⚖️", metin: "Volatilite risk skoru nasıl hesaplanır?" },
+      { ikon: "🔑", metin: "Risk skoru yüksek hissede nelere dikkat edilmeli?" },
+    ],
+  },
+  {
+    kategori: "Portföy",
+    sorular: [
+      { ikon: "📈", metin: "Enflasyona karşı dayanıklı BIST sektörleri hangileri?" },
+      { ikon: "🏦", metin: "XU100 ile bireysel hisse performansı nasıl karşılaştırılır?" },
+      { ikon: "📉", metin: "52 hafta zirvesine yakın hisse fırsatı mı?" },
+    ],
+  },
 ];
+
+const ONERILEN_SORULAR = ONERILEN_GRUPLAR.flatMap((g) => g.sorular);
 
 const PK_LOGO = (
   <svg width="22" height="22" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
@@ -181,6 +203,7 @@ export default function YapayZekaPage() {
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameVal, setRenameVal] = useState("");
   const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
+  const [aktifKategori, setAktifKategori] = useState(ONERILEN_GRUPLAR[0].kategori);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -247,6 +270,7 @@ export default function YapayZekaPage() {
   const aktifSohbet = sohbetler.find(s => s.id === aktifId) ?? null;
   const messages = aktifSohbet?.mesajlar ?? [];
   const isEmpty = messages.length === 0;
+  const aktifOneriler = ONERILEN_GRUPLAR.find((g) => g.kategori === aktifKategori)?.sorular ?? ONERILEN_GRUPLAR[0].sorular;
 
   // Mesajlar gelince en alta scroll
   useEffect(() => {
@@ -371,12 +395,17 @@ export default function YapayZekaPage() {
         .pk-rename-input { flex:1; min-width:0; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.35); border-radius:5px; padding:2px 7px; color:#A5B4FC; font-size:12px; outline:none; font-family:inherit; }
         .pk-onerilen { display:flex; align-items:flex-start; gap:8px; background:none; border:none; cursor:pointer; color:#4E6A8A; font-size:11.5px; font-weight:500; text-align:left; padding:6px 10px; border-radius:7px; line-height:1.45; width:100%; transition:all 0.12s; font-family:inherit; }
         .pk-onerilen:hover { background:rgba(99,102,241,0.07); color:#8AABB8; }
+        .pk-cat { border:1px solid rgba(99,102,241,0.1); background:rgba(255,255,255,0.025); color:#4E6A8A; border-radius:7px; padding:5px 8px; font-size:10px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.14s; }
+        .pk-cat:hover { color:#A5B4FC; border-color:rgba(99,102,241,0.28); }
+        .pk-cat.active { color:#DDD6FE; background:rgba(99,102,241,0.16); border-color:rgba(99,102,241,0.45); }
         .pk-chip { display:flex; align-items:flex-start; gap:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#5E7E9E; font-size:13px; font-weight:500; padding:12px 15px; border-radius:13px; cursor:pointer; transition:all 0.2s; font-family:inherit; text-align:left; line-height:1.45; }
         .pk-chip:hover { background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.38); color:#A78BFA; transform:translateY(-2px); box-shadow:0 8px 28px rgba(99,102,241,0.12); }
         .pk-textarea { flex:1; background:none; border:none; outline:none; color:#D1D5DB; font-size:15px; resize:none; line-height:1.6; font-family:inherit; overflow-y:auto; }
         .pk-textarea::placeholder { color:#334F6A; }
         .pk-yetenek { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:10px; }
-        @media (max-width:767px) { .pk-sidebar { display:none!important; } }
+        .pk-chat-layout { max-width:760px; width:100%; margin:0 auto; padding:28px 28px 8px; display:flex; flex-direction:column; gap:20px; }
+        .pk-input-wrap { max-width:760px; margin:0 auto; }
+        @media (max-width:767px) { .pk-sidebar { display:none!important; } .pk-chat-layout { padding:18px 16px 8px; } }
       `}</style>
 
       {/* ── SIDEBAR ── */}
@@ -475,7 +504,18 @@ export default function YapayZekaPage() {
           )}
 
           <p style={{ fontSize: 10, fontWeight: 700, color: "#3A5878", letterSpacing: "0.1em", textTransform: "uppercase", padding: "0 18px 6px" }}>Önerilen</p>
-          {ONERILEN_SORULAR.map((s, i) => (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, padding: "0 14px 8px" }}>
+            {ONERILEN_GRUPLAR.map((g) => (
+              <button
+                key={g.kategori}
+                className={`pk-cat ${aktifKategori === g.kategori ? "active" : ""}`}
+                onClick={() => setAktifKategori(g.kategori)}
+              >
+                {g.kategori}
+              </button>
+            ))}
+          </div>
+          {aktifOneriler.map((s, i) => (
             <button key={i} className="pk-onerilen" onClick={() => sendMessage(s.metin)}>
               <span style={{ fontSize: 12, flexShrink: 0 }}>{s.ikon}</span>
               <span>{s.metin}</span>
@@ -552,7 +592,7 @@ export default function YapayZekaPage() {
           </div>
         ) : (
           <div ref={messagesContainerRef} style={{ flex: 1, overflowY: "auto", minHeight: 0, position: "relative", zIndex: 1 }}>
-            <div style={{ maxWidth: 700, width: "100%", margin: "0 auto", padding: "28px 28px 8px", display: "flex", flexDirection: "column", gap: 20 }}>
+            <div className="pk-chat-layout">
                 {messages.map((msg, i) => (
                   <div key={i} style={{ display: "flex", gap: 12, justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "slide-up 0.2s ease" }}>
                     {msg.role === "assistant" && (
@@ -594,7 +634,7 @@ export default function YapayZekaPage() {
         {/* ── INPUT ── */}
         <div style={{ padding: "14px 28px 20px", position: "relative", zIndex: 1, flexShrink: 0 }}>
           <div style={{ position: "absolute", top: 0, left: 28, right: 28, height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,0.18),rgba(59,130,246,0.12),transparent)" }} />
-          <div style={{ maxWidth: 700, margin: "0 auto" }}>
+          <div className="pk-input-wrap">
             <div style={{ display: "flex", gap: 10, alignItems: "flex-end", background: "rgba(255,255,255,0.02)", border: `1px solid ${focused ? "rgba(99,102,241,0.48)" : "rgba(255,255,255,0.055)"}`, borderRadius: 16, padding: "13px 14px", boxShadow: focused ? "0 0 0 3px rgba(99,102,241,0.07),0 0 32px rgba(99,102,241,0.08)" : "none", transition: "border-color 0.2s,box-shadow 0.25s" }}>
               <textarea ref={textareaRef} className="pk-textarea" value={input}
                 onChange={e => { setInput(e.target.value); autoResizeTextarea(); }}
