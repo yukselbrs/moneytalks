@@ -175,6 +175,7 @@ type ChatMessage = {
 type ChatIntent =
   | "kavram"
   | "hisse_analizi"
+  | "teknik_tarama"
   | "portfoy"
   | "karsilastirma"
   | "haber_neden"
@@ -227,6 +228,20 @@ type KarsilastirmaHisse = {
   yillikYuksek?: number;
   yillikDusuk?: number;
   hafta52Konum?: number;
+};
+
+type TeknikTaramaIstegi = {
+  gosterge: "RSI";
+  kosul: "asagi" | "yukari";
+  esik: number;
+};
+
+type TeknikTaramaHisse = {
+  ticker: string;
+  sirketAdi?: string;
+  fiyat?: number;
+  degisimYuzde?: number;
+  rsi: number;
 };
 
 type KapHaber = {
@@ -632,6 +647,101 @@ KARŞILAŞTIRMA KILAVUZU:
 - Kıyaslamayı kısa bir tablo mantığıyla yap: momentum, orta vadeli konum, likidite/veri kalitesi, risk.`;
 }
 
+function teknikTaramaIstegiCikar(text: string): TeknikTaramaIstegi | null {
+  const q = text.toLocaleLowerCase("tr-TR");
+  if (!/\brsi\b/.test(q)) return null;
+
+  const esikMatch = q.match(/rsi[^0-9]{0,20}(\d{1,2}(?:[,.]\d+)?)/) ?? q.match(/(\d{1,2}(?:[,.]\d+)?)[^0-9]{0,20}rsi/);
+  const esik = esikMatch ? sayiParse(esikMatch[1]) : 30;
+  if (esik === undefined || esik <= 0 || esik >= 100) return null;
+
+  const taramaDili = /\b(hisseler|hisse|olan|olanlar|neler|liste|tara|tarama|bul|göster|goster)\b/.test(q);
+  const asagi = /\b(alt[ıi]nda|alt[ıi]na|aşağ[ıi]|asagi|düşen|dusen|küçük|kucuk|az|<)\b/.test(q);
+  const yukari = /\b(üstünde|ustunde|üzerinde|uzerinde|yukar[ıi]|büyük|buyuk|fazla|>)\b/.test(q);
+
+  if (!taramaDili && !asagi && !yukari) return null;
+  return { gosterge: "RSI", kosul: yukari && !asagi ? "yukari" : "asagi", esik };
+}
+
+async function rsiTaramasiCek(istek: TeknikTaramaIstegi): Promise<{
+  sonuclar: TeknikTaramaHisse[];
+  kapsam: number;
+  veriSayisi: number;
+}> {
+  const tickers = BIST_HISSELER
+    .filter((h) => h.listed !== false && h.priceAvailable !== false)
+    .map((h) => `BIST:${h.ticker}`);
+  const chunks: string[][] = [];
+  for (let i = 0; i < tickers.length; i += 180) chunks.push(tickers.slice(i, i + 180));
+
+  const rows: Array<{ s?: string; d?: unknown[] }> = [];
+  for (const chunk of chunks) {
+    try {
+      const res = await fetch("https://scanner.tradingview.com/turkey/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          symbols: { tickers: chunk, query: { types: [] } },
+          columns: ["name", "description", "close", "change", "RSI"],
+        }),
+        cache: "no-store",
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      rows.push(...((data?.data ?? []) as Array<{ s?: string; d?: unknown[] }>));
+    } catch {
+      continue;
+    }
+  }
+
+  const sonuclar = rows
+    .map((row): TeknikTaramaHisse | null => {
+      const [name, description, close, change, rsi] = row.d ?? [];
+      const ticker = String(name || row.s?.split(":")[1] || "").replace("BIST:", "").toLocaleUpperCase("tr-TR");
+      if (!ticker || typeof rsi !== "number" || !Number.isFinite(rsi)) return null;
+
+      return {
+        ticker,
+        sirketAdi: typeof description === "string" ? description : undefined,
+        fiyat: typeof close === "number" && Number.isFinite(close) ? close : undefined,
+        degisimYuzde: typeof change === "number" && Number.isFinite(change) ? change : undefined,
+        rsi,
+      };
+    })
+    .filter((row): row is TeknikTaramaHisse => {
+      if (!row) return false;
+      return istek.kosul === "asagi" ? row.rsi < istek.esik : row.rsi > istek.esik;
+    })
+    .sort((a, b) => istek.kosul === "asagi" ? a.rsi - b.rsi : b.rsi - a.rsi);
+
+  return { sonuclar, kapsam: tickers.length, veriSayisi: rows.length };
+}
+
+async function teknikTaramaPromptu(text: string) {
+  const istek = teknikTaramaIstegiCikar(text);
+  if (!istek) return "";
+
+  const { sonuclar, kapsam, veriSayisi } = await rsiTaramasiCek(istek);
+  const operator = istek.kosul === "asagi" ? "<" : ">";
+  const liste = sonuclar.slice(0, 20).map((h) => {
+    const fiyat = tlFormatla(h.fiyat);
+    const degisim = yuzdeFormatla(h.degisimYuzde);
+    return `- ${h.ticker}: RSI ${h.rsi.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} | fiyat ${fiyat ? `${fiyat} ₺` : "veri yok"} | günlük ${degisim ?? "veri yok"}`;
+  }).join("\n");
+
+  return `TEKNİK TARAMA BAĞLAMI:
+- Tarama: RSI(14) ${operator} ${istek.esik}
+- Kapsam: ${kapsam} BIST hissesi denendi; ${veriSayisi} hisseden teknik veri döndü.
+- Eşik koşulunu sağlayan hisse sayısı: ${sonuclar.length}
+${liste || "- Bu koşulu sağlayan hisse bulunamadı."}
+
+TEKNİK TARAMA KILAVUZU:
+- Kullanıcı liste istiyorsa yukarıdaki tarama sonucunu ver; "BIST'i tarayamıyorum" veya "bu listeyi veremem" deme.
+- RSI < 30 genellikle aşırı satım bölgesini gösterir; tek başına alım sinyali değildir.
+- RSI > 70 genellikle aşırı alım bölgesini gösterir; tek başına satış sinyali değildir.
+- Fiyat ve teknik veriler gecikmeli olabilir; kesin al/sat önerisi verme.`;
+}
+
 function hissePromptu(ticker: string, veri?: HissePromptVeri | null, analiz?: string) {
   if (!veri) {
     return `HİSSE BAĞLAMI:
@@ -777,6 +887,7 @@ function niyetSiniflandir(text: string, aktifTicker?: string): ChatIntent {
   if (/\b(portföy|portfoy|pozisyon|dağılım|agirlik|ağırlık|kar etmişim|zarar|k\/z|getirim|getiri)\b/.test(q)) return "portfoy";
   if (/\b(karşılaştır|kıyasla|hangisi|m[ıiuü]\s+.*\s+m[ıiuü]|versus|vs\.?|farkı ne)\b/.test(q)) return "karsilastirma";
   if (tickerVar && /\b(kaç tl|fiyat|fiyatı|fiyati)\b/.test(q)) return "hisse_analizi";
+  if (teknikTaramaIstegiCikar(text)) return "teknik_tarama";
   if (/\b(nedir|ne demek|nasıl hesaplanır|yorumlanır|anlama gelir|f\/k|fk|pd\/dd|rsi|beta|volatilite|momentum|temettü|hacim anomalisi)\b/.test(q)) return "kavram";
   if (/\b(neden|niye|sebep|haber|kap|düştü|düşüyor|yükseldi|yükseliyor)\b/.test(q)) return "haber_neden";
   if (tickerVar && /\b(nasıl|yorumla|analiz|risk|teknik|temel|ucuz|pahalı|pahali|görünüm|durum|kaç tl|fiyat)\b/.test(q)) return "hisse_analizi";
@@ -796,6 +907,11 @@ function niyetPromptu(intent: ChatIntent) {
 - "Olumlu taraflar", "Riskler" ve "İzlenecekler" başlıklarını kullan.
 - Fiyat yönü için kesin konuşma; sinyal ve koşul dili kullan.
 - Veri eksikse analizin sınırlı olduğunu açıkça söyle.`,
+    teknik_tarama: `AKTİF CEVAP MODU: TEKNİK TARAMA
+- Kullanıcı teknik koşula uyan hisseleri soruyorsa verilen tarama listesini kısa ve net göster.
+- Tarama sonucu varsa "yapamam/veremem" deme; kapsam ve gecikme bilgisini belirt.
+- Göstergenin ne anlama geldiğini tek paragrafla açıkla.
+- Listeyi al/sat tavsiyesi gibi sunma; "izleme listesi adayı", "kontrol edilebilir" dili kullan.`,
     portfoy: `AKTİF CEVAP MODU: PORTFÖY KOÇU
 - Portföy verisi varsa toplam tabloyu, ağırlıkları ve günlük hareketi yorumla.
 - Konsantrasyon riski, ilk 3 pozisyon ağırlığı, zarar/kâr katkısı ve izlenecek metrikleri vurgula.
@@ -834,6 +950,7 @@ function veriKapsamiPromptu({
   portfoy,
   karsilastirmaBaglami,
   haberNedenBaglami,
+  teknikTaramaBaglami,
   alarmTaslak,
 }: {
   intent: ChatIntent;
@@ -842,6 +959,7 @@ function veriKapsamiPromptu({
   portfoy?: PortfoyPromptItem[];
   karsilastirmaBaglami: string;
   haberNedenBaglami: string;
+  teknikTaramaBaglami: string;
   alarmTaslak: AlarmTaslak | null;
 }) {
   const kapsananlar: string[] = [];
@@ -852,12 +970,14 @@ function veriKapsamiPromptu({
   if (portfoy && portfoy.length > 0) kapsananlar.push(`kullanıcının ${portfoy.length} pozisyonluk portföy verisi`);
   if (karsilastirmaBaglami) kapsananlar.push("karşılaştırma için sınırlı piyasa metrikleri");
   if (haberNedenBaglami) kapsananlar.push("son KAP başlıkları veya KAP veri durumu");
+  if (teknikTaramaBaglami) kapsananlar.push("teknik tarama sonucu");
   if (alarmTaslak) kapsananlar.push("alarm taslak bilgisi");
 
   if (!veri && (intent === "hisse_analizi" || ticker)) eksikler.push("aktif hisse için güncel fiyat bağlamı");
   if (intent === "portfoy" && (!portfoy || portfoy.length === 0)) eksikler.push("portföy pozisyonları");
   if (intent === "karsilastirma" && !karsilastirmaBaglami) eksikler.push("karşılaştırılacak ikinci hisse veya karşılaştırma verisi");
   if (intent === "haber_neden" && !haberNedenBaglami) eksikler.push("KAP/haber bağlamı");
+  if (intent === "teknik_tarama" && !teknikTaramaBaglami) eksikler.push("teknik tarama verisi");
 
   return `VERİ KAPSAMI VE GÜNCELLİK:
 - Kullanılabilen bağlam: ${kapsananlar.length > 0 ? kapsananlar.join("; ") : "yalnızca kullanıcının mesajı"}.
@@ -928,6 +1048,9 @@ export async function POST(req: NextRequest) {
   const haberNedenBaglami = intent === "haber_neden"
     ? await haberNedenPromptu(mesajTickerlari)
     : "";
+  const teknikTaramaBaglami = intent === "teknik_tarama"
+    ? await teknikTaramaPromptu(sonMesaj)
+    : "";
   const alarmTaslak = intent === "alarm_aksiyon" ? alarmTaslagiCikar(sonMesaj, aktifTicker, aktifVeri) : null;
   const alarmBaglami = alarmTaslak ? alarmPromptu(alarmTaslak) : "";
 
@@ -958,6 +1081,7 @@ ${niyetPromptu(intent)}`;
     portfoy,
     karsilastirmaBaglami,
     haberNedenBaglami,
+    teknikTaramaBaglami,
     alarmTaslak,
   });
 
@@ -975,6 +1099,8 @@ ${karsilastirmaBaglami}
 
 ${haberNedenBaglami}
 
+${teknikTaramaBaglami}
+
 ${alarmBaglami}
 
 ${portfoyPromptu(portfoy)}`
@@ -988,6 +1114,8 @@ Kullanıcı BIST hisseleri, sektörler, piyasa dinamikleri, teknik/temel analiz,
 ${karsilastirmaBaglami}
 
 ${haberNedenBaglami}
+
+${teknikTaramaBaglami}
 
 ${alarmBaglami}
 

@@ -82,6 +82,28 @@ function tickerAdaylari(text, aktifTicker) {
   return Array.from(new Set(tickers)).slice(0, 4);
 }
 
+function sayiParse(text) {
+  const normalized = String(text).replace(/\./g, "").replace(",", ".");
+  const value = Number(normalized);
+  return Number.isFinite(value) ? value : undefined;
+}
+
+function teknikTaramaIstegiCikar(text) {
+  const q = text.toLocaleLowerCase("tr-TR");
+  if (!/\brsi\b/.test(q)) return null;
+
+  const esikMatch = q.match(/rsi[^0-9]{0,20}(\d{1,2}(?:[,.]\d+)?)/) ?? q.match(/(\d{1,2}(?:[,.]\d+)?)[^0-9]{0,20}rsi/);
+  const esik = esikMatch ? sayiParse(esikMatch[1]) : 30;
+  if (esik === undefined || esik <= 0 || esik >= 100) return null;
+
+  const taramaDili = /\b(hisseler|hisse|olan|olanlar|neler|liste|tara|tarama|bul|göster|goster)\b/.test(q);
+  const asagi = /\b(alt[ıi]nda|alt[ıi]na|aşağ[ıi]|asagi|düşen|dusen|küçük|kucuk|az|<)\b/.test(q);
+  const yukari = /\b(üstünde|ustunde|üzerinde|uzerinde|yukar[ıi]|büyük|buyuk|fazla|>)\b/.test(q);
+
+  if (!taramaDili && !asagi && !yukari) return null;
+  return { gosterge: "RSI", kosul: yukari && !asagi ? "yukari" : "asagi", esik };
+}
+
 function niyetSiniflandir(text, aktifTicker) {
   const q = text.toLocaleLowerCase("tr-TR");
   const tickerVar = tickerAdaylari(text, aktifTicker).length > 0 || Boolean(aktifTicker);
@@ -92,6 +114,7 @@ function niyetSiniflandir(text, aktifTicker) {
   if (/\b(portföy|portfoy|pozisyon|dağılım|agirlik|ağırlık|kar etmişim|zarar|k\/z|getirim|getiri)\b/.test(q)) return "portfoy";
   if (/\b(karşılaştır|kıyasla|hangisi|m[ıiuü]\s+.*\s+m[ıiuü]|versus|vs\.?|farkı ne)\b/.test(q)) return "karsilastirma";
   if (tickerVar && /\b(kaç tl|fiyat|fiyatı|fiyati)\b/.test(q)) return "hisse_analizi";
+  if (teknikTaramaIstegiCikar(text)) return "teknik_tarama";
   if (/\b(nedir|ne demek|nasıl hesaplanır|yorumlanır|anlama gelir|f\/k|fk|pd\/dd|rsi|beta|volatilite|momentum|temettü|hacim anomalisi)\b/.test(q)) return "kavram";
   if (/\b(neden|niye|sebep|haber|kap|düştü|düşüyor|yükseldi|yükseliyor)\b/.test(q)) return "haber_neden";
   if (tickerVar && /\b(nasıl|yorumla|analiz|risk|teknik|temel|ucuz|pahalı|pahali|görünüm|durum|kaç tl|fiyat)\b/.test(q)) return "hisse_analizi";
@@ -198,7 +221,7 @@ const soruSeti = [
   { q: "ASELS ve KCHOL kıyasla", intent: "karsilastirma", group: "karsilastirma" },
   { q: "BIMAS versus MGROS", intent: "karsilastirma", group: "karsilastirma" },
   { q: "TUPRS ile PETKM farkı ne?", intent: "karsilastirma", group: "karsilastirma" },
-  { q: "Bankalardan hangisi daha defansif?", intent: "karsilastirma", group: "karsilastirma" },
+  { q: "rsi 30un altında olan hisseler neler", intent: "teknik_tarama", group: "tarama" },
   { q: "EREGL mi KRDMD mi?", intent: "karsilastirma", group: "karsilastirma" },
   { q: "GARAN neden düştü?", intent: "haber_neden", group: "haber" },
   { q: "THYAO neden yükseliyor?", intent: "haber_neden", group: "haber" },
@@ -222,7 +245,7 @@ const soruSeti = [
 
 console.log("\nSoru seti");
 assert(soruSeti.length === 50, "50 örnek soru tanımlı");
-for (const group of ["kavram", "hisse", "portfoy", "karsilastirma", "haber", "alarm", "yasakli"]) {
+for (const group of ["kavram", "hisse", "portfoy", "karsilastirma", "haber", "alarm", "yasakli", "tarama"]) {
   assert(soruSeti.some((s) => s.group === group), `${group} soru grubu var`);
 }
 
@@ -261,6 +284,7 @@ assert(yuzdeFormatla(-1.2) === "-%1,20", "negatif yüzde formatı Türkçe ve 2 
 console.log("\nPrompt/static regression");
 assert(route.includes("AKTİF CEVAP MODU: KAVRAM AÇIKLAMA"), "kavram prompt modu var");
 assert(route.includes("AKTİF CEVAP MODU: HİSSE ANALİZİ"), "hisse analiz prompt modu var");
+assert(route.includes("AKTİF CEVAP MODU: TEKNİK TARAMA"), "teknik tarama prompt modu var");
 assert(route.includes("AKTİF CEVAP MODU: PORTFÖY KOÇU"), "portföy prompt modu var");
 assert(route.includes("AKTİF CEVAP MODU: KARŞILAŞTIRMA"), "karşılaştırma prompt modu var");
 assert(route.includes("AKTİF CEVAP MODU: NEDEN/HABER YORUMU"), "haber nedeni prompt modu var");
@@ -268,6 +292,7 @@ assert(route.includes("AKTİF CEVAP MODU: AKSİYON/ALARM"), "alarm prompt modu v
 assert(route.includes("Cevabın sonunda mutlaka şu cümle yer alsın"), "yatırım tavsiyesi uyarısı sistem promptunda zorunlu");
 assert(route.includes("Rakip finans platformu"), "rakip yönlendirme yasağı sistem promptunda var");
 assert(route.includes("Hazır fiyat cevabı"), "fiyat regression promptu var");
+assert(route.includes("TEKNİK TARAMA BAĞLAMI"), "teknik tarama bağlamı var");
 assert(route.includes("chatbotTelemetryLogla"), "telemetry akışı korunuyor");
 
 if (failures > 0) {
