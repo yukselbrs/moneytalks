@@ -28,6 +28,7 @@ const HISSE_AD_ESLESMELERI = BIST_HISSELER.map((h) => ({
   fullName: hisseAdiNormalize(h.fullName ?? ""),
   kapTitle: hisseAdiNormalize(h.kapTitle ?? ""),
 })).filter((h) => h.ad.length > 0);
+const BIST_TICKER_SET = new Set(BIST_HISSELER.map((h) => h.ticker));
 
 const YASAKLI_IFADELER = [
   /(hisseyi?|bu hisseyi?|şimdi|hemen)\s+(al|sat)\b/i,
@@ -406,7 +407,7 @@ function tickerAdaylari(text: string, aktifTicker?: string): string[] {
   const sirketTickers = sirketAdindanTickerAdaylari(text);
   const tickers = [...matches, ...sirketTickers, aktifTicker ?? ""]
     .map((t) => t.toLocaleUpperCase("tr-TR").replace(/[^A-ZÇĞİÖŞÜ]/g, ""))
-    .filter((t) => t.length >= 3 && !TICKER_STOPWORDS.has(t));
+    .filter((t) => t.length >= 3 && !TICKER_STOPWORDS.has(t) && BIST_TICKER_SET.has(t));
 
   return Array.from(new Set(tickers)).slice(0, 4);
 }
@@ -768,14 +769,17 @@ function sonKullaniciMesaji(messages: ChatMessage[]): string {
 
 function niyetSiniflandir(text: string, aktifTicker?: string): ChatIntent {
   const q = text.toLocaleLowerCase("tr-TR");
-  const tickerVar = /\b[A-ZÇĞİÖŞÜ]{3,6}\b/i.test(text) || Boolean(aktifTicker);
+  const tickerVar = tickerAdaylari(text, aktifTicker).length > 0 || Boolean(aktifTicker);
 
   if (/\b(alarm|bildir|uyar|takip et|hat[ıi]rlat)\b/.test(q)) return "alarm_aksiyon";
-  if (/\b(neden|niye|sebep|haber|kap|düştü|düşüyor|yükseldi|yükseliyor)\b/.test(q)) return "haber_neden";
+  if (RAKIP_KAYNAK_IFADELERI.some((re) => re.test(text))) return "genel";
+  if (/(hisseyi?|bu hisseyi?|şimdi|hemen)\s+(al|sat)\b/i.test(text)) return "hisse_analizi";
   if (/\b(portföy|portfoy|pozisyon|dağılım|agirlik|ağırlık|kar etmişim|zarar|k\/z|getirim|getiri)\b/.test(q)) return "portfoy";
-  if (/\b(karşılaştır|kıyasla|hangisi|mi\s+.*\s+mi|versus|vs\.?)\b/.test(q)) return "karsilastirma";
-  if (tickerVar && /\b(nasıl|yorumla|analiz|risk|teknik|temel|ucuz|pahalı|pahali|görünüm|durum)\b/.test(q)) return "hisse_analizi";
+  if (/\b(karşılaştır|kıyasla|hangisi|m[ıiuü]\s+.*\s+m[ıiuü]|versus|vs\.?|farkı ne)\b/.test(q)) return "karsilastirma";
+  if (tickerVar && /\b(kaç tl|fiyat|fiyatı|fiyati)\b/.test(q)) return "hisse_analizi";
   if (/\b(nedir|ne demek|nasıl hesaplanır|yorumlanır|anlama gelir|f\/k|fk|pd\/dd|rsi|beta|volatilite|momentum|temettü|hacim anomalisi)\b/.test(q)) return "kavram";
+  if (/\b(neden|niye|sebep|haber|kap|düştü|düşüyor|yükseldi|yükseliyor)\b/.test(q)) return "haber_neden";
+  if (tickerVar && /\b(nasıl|yorumla|analiz|risk|teknik|temel|ucuz|pahalı|pahali|görünüm|durum|kaç tl|fiyat)\b/.test(q)) return "hisse_analizi";
 
   return tickerVar ? "hisse_analizi" : "genel";
 }
