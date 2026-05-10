@@ -371,13 +371,12 @@ export default function YapayZekaPage() {
       <style>{`
         @keyframes aurora-1 { 0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:0.5} 50%{transform:translate(-50%,-50%) scale(1.2) rotate(180deg);opacity:0.8} }
         @keyframes aurora-2 { 0%,100%{transform:translate(-50%,-50%) scale(1.1);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(0.9);opacity:0.55} }
-        @keyframes ring-pulse { 0%,100%{opacity:0.18;transform:scale(1)} 50%{opacity:0.45;transform:scale(1.08)} }
-        @keyframes ring-pulse-2 { 0%,100%{opacity:0.1;transform:scale(1)} 50%{opacity:0.28;transform:scale(1.14)} }
-        @keyframes icon-glow { 0%,100%{box-shadow:0 0 24px rgba(99,102,241,0.35),inset 0 1px 0 rgba(255,255,255,0.1)} 50%{box-shadow:0 0 50px rgba(99,102,241,0.55),0 0 100px rgba(139,92,246,0.15),inset 0 1px 0 rgba(255,255,255,0.15)} }
+        @keyframes halo-drift { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        @keyframes icon-float { 0%,100%{transform:translateY(0);box-shadow:0 18px 52px rgba(99,102,241,0.2),inset 0 1px 0 rgba(255,255,255,0.1)} 50%{transform:translateY(-4px);box-shadow:0 22px 62px rgba(99,102,241,0.28),inset 0 1px 0 rgba(255,255,255,0.14)} }
         @keyframes dot-bounce { 0%,80%,100%{transform:scale(0.55);opacity:0.35} 40%{transform:scale(1);opacity:1} }
         @keyframes slide-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         @keyframes fade-in { from{opacity:0} to{opacity:1} }
-        @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0)} 50%{box-shadow:0 0 0 4px rgba(99,102,241,0.12)} }
+        @keyframes status-dot { 0%,100%{box-shadow:0 0 8px rgba(129,140,248,0.75)} 50%{box-shadow:0 0 14px rgba(129,140,248,0.95)} }
 
         .pk-sidebar { width:244px; height:100%; background:#050A12; border-right:1px solid rgba(255,255,255,0.04); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
         .pk-back { display:flex; align-items:center; gap:7px; background:none; border:none; color:#4A6B8A; cursor:pointer; font-size:12px; font-weight:500; font-family:inherit; padding:8px 10px; border-radius:8px; transition:all 0.15s; }
@@ -401,10 +400,15 @@ export default function YapayZekaPage() {
         .pk-chip { display:flex; align-items:flex-start; gap:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#5E7E9E; font-size:13px; font-weight:500; padding:12px 15px; border-radius:13px; cursor:pointer; transition:all 0.2s; font-family:inherit; text-align:left; line-height:1.45; }
         .pk-chip:hover { background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.38); color:#A78BFA; transform:translateY(-2px); box-shadow:0 8px 28px rgba(99,102,241,0.12); }
         .pk-textarea { flex:1; background:none; border:none; outline:none; color:#D1D5DB; font-size:15px; resize:none; line-height:1.6; font-family:inherit; overflow-y:auto; }
-        .pk-textarea::placeholder { color:#334F6A; }
+        .pk-textarea::placeholder { color:#5B6EA6; }
         .pk-yetenek { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:10px; }
         .pk-chat-layout { max-width:760px; width:100%; margin:0 auto; padding:28px 28px 8px; display:flex; flex-direction:column; gap:20px; }
         .pk-input-wrap { max-width:760px; margin:0 auto; }
+        .pk-input-box { display:flex; gap:10px; align-items:flex-end; background:linear-gradient(135deg,rgba(99,102,241,0.11),rgba(59,130,246,0.035)); border:1px solid rgba(139,92,246,0.34); border-radius:18px; padding:14px 14px 14px 18px; box-shadow:0 0 0 1px rgba(99,102,241,0.08),0 20px 60px rgba(99,102,241,0.08),inset 0 1px 0 rgba(255,255,255,0.04); transition:border-color 0.2s,box-shadow 0.25s,background 0.25s; }
+        .pk-input-box.focused { border-color:rgba(167,139,250,0.7); background:linear-gradient(135deg,rgba(99,102,241,0.16),rgba(59,130,246,0.055)); box-shadow:0 0 0 3px rgba(139,92,246,0.11),0 18px 64px rgba(99,102,241,0.16),inset 0 1px 0 rgba(255,255,255,0.06); }
+        .pk-send-btn { width:42px; height:42px; border-radius:13px; border:1px solid rgba(139,92,246,0.24); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
+        .pk-send-btn.ready { cursor:pointer; background:linear-gradient(135deg,#8B5CF6,#3B82F6); box-shadow:0 0 24px rgba(139,92,246,0.34); }
+        .pk-send-btn.idle { cursor:default; background:rgba(99,102,241,0.13); }
         @media (max-width:767px) { .pk-sidebar { display:none!important; } .pk-chat-layout { padding:18px 16px 8px; } }
       `}</style>
 
@@ -540,18 +544,18 @@ export default function YapayZekaPage() {
 
             {/* Icon + rings */}
             <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", animation: "fade-in 0.8s ease" }}>
-              <div style={{ position: "absolute", width: 140, height: 140, borderRadius: "50%", border: "1px solid rgba(99,102,241,0.08)", animation: "ring-pulse-2 5s ease-in-out infinite" }} />
-              <div style={{ position: "absolute", width: 108, height: 108, borderRadius: "50%", border: "1px solid rgba(99,102,241,0.13)", animation: "ring-pulse 4s ease-in-out infinite 0.6s" }} />
-              <div style={{ position: "absolute", width: 80, height: 80, borderRadius: "50%", border: "1px solid rgba(99,102,241,0.2)", animation: "ring-pulse 3s ease-in-out infinite 1.2s" }} />
-              <div style={{ width: 60, height: 60, borderRadius: 20, zIndex: 1, position: "relative", background: "linear-gradient(135deg,rgba(99,102,241,0.28),rgba(59,130,246,0.14))", border: "1px solid rgba(99,102,241,0.5)", display: "flex", alignItems: "center", justifyContent: "center", animation: "icon-glow 3.5s ease-in-out infinite" }}>
+              <div style={{ position: "absolute", width: 132, height: 132, borderRadius: "50%", background: "conic-gradient(from 90deg, transparent 0 58%, rgba(129,140,248,0.32), transparent 78% 100%)", filter: "blur(0.2px)", opacity: 0.48, animation: "halo-drift 18s linear infinite" }} />
+              <div style={{ position: "absolute", width: 104, height: 104, borderRadius: "50%", border: "1px solid rgba(99,102,241,0.16)" }} />
+              <div style={{ position: "absolute", width: 78, height: 78, borderRadius: "50%", border: "1px solid rgba(129,140,248,0.22)", background: "radial-gradient(circle,rgba(99,102,241,0.08),transparent 68%)" }} />
+              <div style={{ width: 60, height: 60, borderRadius: 20, zIndex: 1, position: "relative", background: "linear-gradient(135deg,rgba(99,102,241,0.28),rgba(59,130,246,0.14))", border: "1px solid rgba(99,102,241,0.5)", display: "flex", alignItems: "center", justifyContent: "center", animation: "icon-float 5s ease-in-out infinite" }}>
                 {PK_LOGO_LG}
               </div>
             </div>
 
             {/* Title */}
             <div style={{ textAlign: "center", animation: "slide-up 0.6s ease 0.1s both" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 16, padding: "5px 14px", borderRadius: 20, background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.18)", animation: "badge-pulse 3s ease-in-out infinite" }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#818CF8", boxShadow: "0 0 8px rgba(99,102,241,0.9)", display: "inline-block" }} />
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 16, padding: "5px 14px", borderRadius: 20, background: "rgba(99,102,241,0.07)", border: "1px solid rgba(99,102,241,0.18)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#818CF8", display: "inline-block", animation: "status-dot 2.8s ease-in-out infinite" }} />
                 <span style={{ fontSize: 10, fontWeight: 700, color: "#6366F1", letterSpacing: "0.12em" }}>ÇEVRİMİÇİ</span>
               </div>
               <h1 style={{
@@ -635,15 +639,15 @@ export default function YapayZekaPage() {
         <div style={{ padding: "14px 28px 20px", position: "relative", zIndex: 1, flexShrink: 0 }}>
           <div style={{ position: "absolute", top: 0, left: 28, right: 28, height: 1, background: "linear-gradient(90deg,transparent,rgba(99,102,241,0.18),rgba(59,130,246,0.12),transparent)" }} />
           <div className="pk-input-wrap">
-            <div style={{ display: "flex", gap: 10, alignItems: "flex-end", background: "rgba(255,255,255,0.02)", border: `1px solid ${focused ? "rgba(99,102,241,0.48)" : "rgba(255,255,255,0.055)"}`, borderRadius: 16, padding: "13px 14px", boxShadow: focused ? "0 0 0 3px rgba(99,102,241,0.07),0 0 32px rgba(99,102,241,0.08)" : "none", transition: "border-color 0.2s,box-shadow 0.25s" }}>
+            <div className={`pk-input-box ${focused ? "focused" : ""}`}>
               <textarea ref={textareaRef} className="pk-textarea" value={input}
                 onChange={e => { setInput(e.target.value); autoResizeTextarea(); }}
                 onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-                placeholder="Borsayla ilgili neyi merak ediyorsun?" rows={1}
+                placeholder="Pako'ya bir hisse, oran ya da portföy sorusu yaz..." rows={1}
               />
               <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading}
-                style={{ width: 38, height: 38, borderRadius: 10, border: "none", cursor: input.trim() && !loading ? "pointer" : "default", background: input.trim() && !loading ? "linear-gradient(135deg,#6366F1,#3B82F6)" : "rgba(99,102,241,0.09)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s", boxShadow: input.trim() && !loading ? "0 0 20px rgba(99,102,241,0.4)" : "none" }}>
+                className={`pk-send-btn ${input.trim() && !loading ? "ready" : "idle"}`}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={input.trim() && !loading ? "#fff" : "#4A6888"} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                 </svg>
@@ -652,7 +656,7 @@ export default function YapayZekaPage() {
             <div style={{ display: "flex", justifyContent: "center", marginTop: 9 }}>
               {kalanHak !== null
                 ? <span style={{ fontSize: 11, color: "#4A6888" }}>{kalanHak} mesaj hakkı kaldı · <a href="/pro" style={{ color: "#818CF8", textDecoration: "none" }}>Pro&apos;ya geç →</a></span>
-                : <span style={{ fontSize: 11, color: "#2E4A64" }}>AI analizlerinde hata olabilir — kendi kontrollerinizi yapın</span>
+                : <span style={{ fontSize: 11, color: "#3D527B" }}>Pako cevapları analiz desteğidir; son kararı kendi verinle doğrula.</span>
               }
             </div>
           </div>
