@@ -101,42 +101,38 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     const sonTs = timestamps[timestamps.length - 1];
     let degisim = 0;
 
-    // Bedelsiz/split tespiti — son 3 gün içinde split varsa önceki kapanışı düzelt
-    const splitEntries5d = Object.values(data5d?.chart?.result?.[0]?.events?.splits ?? {}) as Array<{ date: number; numerator: number; denominator: number }>;
-    const recentSplit5d = splitEntries5d.find(s => s.date >= Math.floor(Date.now() / 1000) - 3 * 86400 && s.numerator > 0 && s.denominator > 0);
-
-    if (recentSplit5d) {
-      const rawPrev = prevClose1d || meta.chartPreviousClose;
-      const adjustedPrev = rawPrev ? rawPrev * (recentSplit5d.denominator / recentSplit5d.numerator) : 0;
-      degisim = adjustedPrev > 0 ? ((fiyat - adjustedPrev) / adjustedPrev) * 100 : 0;
+    const adj5dStuck = validAdj5d.length >= 2 && validAdj5d.every(v => Math.abs(v - validAdj5d[0]) < 0.01);
+    if (validAdj5d.length >= 2 && !adj5dStuck) {
+      const prev5d = validAdj5d[validAdj5d.length - 2];
+      degisim = prev5d > 0 ? ((fiyat - prev5d) / prev5d) * 100 : 0;
+    } else if (prevClose1d && prevClose1d > 0) {
+      // range=1d'den gelen doğru önceki kapanış (en güvenilir kaynak)
+      degisim = ((fiyat - prevClose1d) / prevClose1d) * 100;
+    } else if (meta.chartPreviousClose && meta.chartPreviousClose > 0) {
+      degisim = ((fiyat - meta.chartPreviousClose) / meta.chartPreviousClose) * 100;
     } else {
-      const adj5dStuck = validAdj5d.length >= 2 && validAdj5d.every(v => Math.abs(v - validAdj5d[0]) < 0.01);
-      if (validAdj5d.length >= 2 && !adj5dStuck) {
-        const prev5d = validAdj5d[validAdj5d.length - 2];
-        const candidate = prev5d > 0 ? ((fiyat - prev5d) / prev5d) * 100 : 0;
-        // adj5d split günü stale kalabilir — aşırı değişimde güvenilir kaynağa geç
-        if (Math.abs(candidate) > 50) {
-          degisim = prevClose1d && prevClose1d > 0
-            ? ((fiyat - prevClose1d) / prevClose1d) * 100
-            : (meta.regularMarketChangePercent ?? candidate);
-        } else {
-          degisim = candidate;
+      const degisimSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
+      let oncekiFiyat: number | null = null;
+      for (let i = degisimSeries.length - 1; i >= 0; i--) {
+        if (degisimSeries[i] !== null && degisimSeries[i] !== undefined) {
+          if (sonFiyat === null) { sonFiyat = degisimSeries[i] as number; }
+          else if (degisimSeries[i] !== sonFiyat) { oncekiFiyat = degisimSeries[i] as number; break; }
         }
-      } else if (prevClose1d && prevClose1d > 0) {
-        // range=1d'den gelen doğru önceki kapanış (en güvenilir kaynak)
-        degisim = ((fiyat - prevClose1d) / prevClose1d) * 100;
-      } else if (meta.chartPreviousClose && meta.chartPreviousClose > 0) {
-        degisim = ((fiyat - meta.chartPreviousClose) / meta.chartPreviousClose) * 100;
-      } else {
-        const degisimSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
-        let oncekiFiyat: number | null = null;
-        for (let i = degisimSeries.length - 1; i >= 0; i--) {
-          if (degisimSeries[i] !== null && degisimSeries[i] !== undefined) {
-            if (sonFiyat === null) { sonFiyat = degisimSeries[i] as number; }
-            else if (degisimSeries[i] !== sonFiyat) { oncekiFiyat = degisimSeries[i] as number; break; }
-          }
+      }
+      degisim = oncekiFiyat && oncekiFiyat > 0 ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : (meta.regularMarketChangePercent ?? 0);
+    }
+
+    // Bedelsiz/split fallback: değişim %50'yi aşıyorsa prevClose/açılış oranından split rasyosu çıkar
+    if (Math.abs(degisim) > 50) {
+      const rawPrev: number = prevClose1d || meta.chartPreviousClose || 0;
+      if (rawPrev > 0) {
+        const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : fiyat;
+        const ratio = rawPrev / openPrice;
+        const rounded = Math.round(ratio);
+        if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
+          const adjustedPrev = rawPrev / rounded;
+          degisim = ((fiyat - adjustedPrev) / adjustedPrev) * 100;
         }
-        degisim = oncekiFiyat && oncekiFiyat > 0 ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : (meta.regularMarketChangePercent ?? 0);
       }
     }
 
