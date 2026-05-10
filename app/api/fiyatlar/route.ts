@@ -62,32 +62,33 @@ async function fetchFiyat(ticker: string) {
     const validAdj = adjclose.filter((v): v is number => v != null && v > 0);
 
     let change: number;
+    let prevUsed = 0;
     if (validAdj.length >= 2) {
       const allSame = validAdj.every((v) => v === validAdj[0]);
       if (!allSame) {
         const prev = validAdj[validAdj.length - 2];
         const last = validAdj[validAdj.length - 1];
+        prevUsed = prev;
         change = ((last - prev) / prev) * 100;
       } else {
-        const prev = meta.chartPreviousClose || meta.previousClose;
+        const prev: number = meta.chartPreviousClose || meta.previousClose || 0;
+        prevUsed = prev;
         change = prev ? ((price - prev) / prev) * 100 : 0;
       }
     } else {
-      const prev = meta.chartPreviousClose || meta.previousClose;
+      const prev: number = meta.chartPreviousClose || meta.previousClose || 0;
+      prevUsed = prev;
       change = meta.regularMarketChangePercent ?? (prev ? ((price - prev) / prev) * 100 : 0);
     }
 
-    // Bedelsiz/split fallback: değişim %50'yi aşıyorsa prevClose/açılış oranından split rasyosu çıkar
-    if (Math.abs(change) > 50) {
-      const rawPrev: number = meta.chartPreviousClose || meta.previousClose || 0;
-      if (rawPrev > 0) {
-        const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : price;
-        const ratio = rawPrev / openPrice;
-        const rounded = Math.round(ratio);
-        if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
-          const adjustedPrev = rawPrev / rounded;
-          change = ((price - adjustedPrev) / adjustedPrev) * 100;
-        }
+    // Bedelsiz/split fallback: extreme değişime neden olan prevUsed/açılış oranı tam sayıya yakınsa düzelt
+    if (Math.abs(change) > 50 && prevUsed > 0) {
+      const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : price;
+      const ratio = prevUsed / openPrice;
+      const rounded = Math.round(ratio);
+      if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
+        const adjustedPrev = prevUsed / rounded;
+        change = ((price - adjustedPrev) / adjustedPrev) * 100;
       }
     }
 

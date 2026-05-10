@@ -101,14 +101,17 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     const sonTs = timestamps[timestamps.length - 1];
     let degisim = 0;
 
+    let prevUsed = 0; // extreme değişim tespitinde kullanılan önceki fiyat
     const adj5dStuck = validAdj5d.length >= 2 && validAdj5d.every(v => Math.abs(v - validAdj5d[0]) < 0.01);
     if (validAdj5d.length >= 2 && !adj5dStuck) {
       const prev5d = validAdj5d[validAdj5d.length - 2];
+      prevUsed = prev5d;
       degisim = prev5d > 0 ? ((fiyat - prev5d) / prev5d) * 100 : 0;
     } else if (prevClose1d && prevClose1d > 0) {
-      // range=1d'den gelen doğru önceki kapanış (en güvenilir kaynak)
+      prevUsed = prevClose1d;
       degisim = ((fiyat - prevClose1d) / prevClose1d) * 100;
     } else if (meta.chartPreviousClose && meta.chartPreviousClose > 0) {
+      prevUsed = meta.chartPreviousClose;
       degisim = ((fiyat - meta.chartPreviousClose) / meta.chartPreviousClose) * 100;
     } else {
       const degisimSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
@@ -119,20 +122,18 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
           else if (degisimSeries[i] !== sonFiyat) { oncekiFiyat = degisimSeries[i] as number; break; }
         }
       }
-      degisim = oncekiFiyat && oncekiFiyat > 0 ? ((fiyat - oncekiFiyat) / oncekiFiyat) * 100 : (meta.regularMarketChangePercent ?? 0);
+      if (oncekiFiyat && oncekiFiyat > 0) { prevUsed = oncekiFiyat; degisim = ((fiyat - oncekiFiyat) / oncekiFiyat) * 100; }
+      else degisim = meta.regularMarketChangePercent ?? 0;
     }
 
-    // Bedelsiz/split fallback: değişim %50'yi aşıyorsa prevClose/açılış oranından split rasyosu çıkar
-    if (Math.abs(degisim) > 50) {
-      const rawPrev: number = prevClose1d || meta.chartPreviousClose || 0;
-      if (rawPrev > 0) {
-        const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : fiyat;
-        const ratio = rawPrev / openPrice;
-        const rounded = Math.round(ratio);
-        if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
-          const adjustedPrev = rawPrev / rounded;
-          degisim = ((fiyat - adjustedPrev) / adjustedPrev) * 100;
-        }
+    // Bedelsiz/split fallback: extreme değişime neden olan prevUsed/açılış oranı tam sayıya yakınsa düzelt
+    if (Math.abs(degisim) > 50 && prevUsed > 0) {
+      const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : fiyat;
+      const ratio = prevUsed / openPrice;
+      const rounded = Math.round(ratio);
+      if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
+        const adjustedPrev = prevUsed / rounded;
+        degisim = ((fiyat - adjustedPrev) / adjustedPrev) * 100;
       }
     }
 
