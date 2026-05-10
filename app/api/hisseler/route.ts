@@ -160,9 +160,19 @@ async function fetchLiveFiyatlar(tickers: string[]) {
         const fiyat = Number(meta?.regularMarketPrice);
         if (!Number.isFinite(fiyat)) return [ticker, null];
         const changePercent = meta?.regularMarketChangePercent;
-        const onceki = Number(meta?.chartPreviousClose ?? meta?.previousClose);
+        let onceki = Number(meta?.chartPreviousClose ?? meta?.previousClose);
         const rawDegisim = Number.isFinite(onceki) && onceki > 0 ? ((fiyat - onceki) / onceki) * 100 : 0;
-        const degisim = typeof changePercent === "number" ? changePercent : rawDegisim;
+        let degisim = typeof changePercent === "number" ? changePercent : rawDegisim;
+        // Bedelsiz/split fallback: extreme değişimde prevClose/açılış oranı tam sayıya yakınsa düzelt
+        if (Math.abs(degisim) > 50 && onceki > 0) {
+          const openPrice: number = Number(meta?.regularMarketOpen) > 0 ? Number(meta.regularMarketOpen) : fiyat;
+          const ratio = onceki / openPrice;
+          const rounded = Math.round(ratio);
+          if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
+            const adjustedPrev = onceki / rounded;
+            degisim = ((fiyat - adjustedPrev) / adjustedPrev) * 100;
+          }
+        }
         return [ticker, {
           fiyat,
           degisim,
