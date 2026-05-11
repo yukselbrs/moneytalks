@@ -11,6 +11,7 @@ import DashboardWatchlistPanel from "@/components/DashboardWatchlistPanel";
 import DashboardSidePanel from "@/components/DashboardSidePanel";
 import DashboardSearchBox from "@/components/DashboardSearchBox";
 import DashboardFooter from "@/components/DashboardFooter";
+import DashboardMarketRegime from "@/components/DashboardMarketRegime";
 import dynamic from "next/dynamic";
 import { useDashboardMarket } from "@/hooks/useDashboardMarket";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
@@ -338,6 +339,8 @@ export default function DashboardPage() {
         {/* AI Panel */}
         <DashboardAiPanel aiPanel={aiPanel} onAnalyze={() => fetchAiPanel()} />
         </div>
+
+        <DashboardMarketRegime />
 
         {/* Piyasa Odakları */}
         <DashboardMarketFocus

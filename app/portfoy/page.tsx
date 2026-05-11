@@ -177,7 +177,8 @@ export default function PortfoyPage() {
   const [grafik, setGrafik] = useState<{ tarih: string; degisim: number }[]>([]);
   const [grafikAralik, setGrafikAralik] = useState<"1d" | "1mo" | "3mo" | "1y">("1d");
   const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
-  const [grafikAcik, setGrafikAcik] = useState(true);
+  const [grafikAcik, setGrafikAcik] = useState(false);
+  const [radarAcik, setRadarAcik] = useState(false);
   const [sortKolon, setSortKolon] = useState<"kz" | "kzYuzde" | "gunluk" | "guncel" | null>(null);
   const [sortYon, setSortYon] = useState<"asc" | "desc">("desc");
   const [flashTickers, setFlashTickers] = useState<Record<string, "up" | "down">>({});
@@ -728,6 +729,118 @@ export default function PortfoyPage() {
             </div>
           </div>
         )}
+
+        {portfoy.length > 0 && (() => {
+          const rows = portfoy.map((item) => {
+            const pl = plHesapla(item);
+            const gunluk = gunlukHesapla(item);
+            const fiyat = fiyatlar[item.ticker];
+            const deger = pl?.guncel_toplam ?? item.adet * item.maliyet;
+            return {
+              ticker: item.ticker,
+              deger,
+              agirlik: toplamGuncel > 0 ? (deger / toplamGuncel) * 100 : 0,
+              gunluk: gunluk?.gunluk ?? 0,
+              gunlukYuzde: gunluk?.gunlukYuzde ?? fiyat?.degisim ?? 0,
+              pl: pl?.pl ?? 0,
+              plYuzde: pl?.plYuzde ?? 0,
+              risk: riskler[item.ticker],
+            };
+          });
+          const insights: { title: string; text: string; tone: "positive" | "negative" | "warning" | "neutral"; value?: string }[] = [];
+          const strongest = [...rows].sort((a, b) => b.gunluk - a.gunluk)[0];
+          const weakest = [...rows].sort((a, b) => a.gunluk - b.gunluk)[0];
+          const topWeight = [...rows].sort((a, b) => b.agirlik - a.agirlik)[0];
+          const highRisk = rows
+            .filter((row) => row.risk?.skor === "Yüksek" || (row.risk?.skor100 ?? 0) >= 60)
+            .sort((a, b) => b.agirlik - a.agirlik)[0];
+
+          if (strongest && strongest.gunluk > 0) {
+            insights.push({
+              title: "Günün taşıyıcısı",
+              text: `${strongest.ticker} portföyün günlük katkısında öne çıkıyor.`,
+              tone: "positive",
+              value: `+${strongest.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`,
+            });
+          }
+          if (weakest && weakest.gunluk < 0) {
+            insights.push({
+              title: "Baskı noktası",
+              text: `${weakest.ticker} bugün portföy getirisini aşağı çeken ana pozisyon.`,
+              tone: "negative",
+              value: `${weakest.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`,
+            });
+          }
+          if (topWeight && topWeight.agirlik >= 30) {
+            insights.push({
+              title: "Yoğunlaşma",
+              text: `${topWeight.ticker} portföyün ${topWeight.agirlik.toFixed(1)}% ağırlığında; tek pozisyon etkisi yüksek.`,
+              tone: "warning",
+              value: `%${topWeight.agirlik.toFixed(1)}`,
+            });
+          }
+          if (highRisk) {
+            insights.push({
+              title: "Risk odağı",
+              text: `${highRisk.ticker} risk skorunda dikkat istiyor; ağırlık ve oynaklık birlikte izlenmeli.`,
+              tone: "warning",
+              value: highRisk.risk?.skor100 ? `${highRisk.risk.skor100}/100` : "Yüksek",
+            });
+          }
+          if (insights.length === 0) {
+            insights.push({
+              title: "Dengeli görünüm",
+              text: "Bugün portföyde tek başına baskın bir katkı veya risk sinyali öne çıkmıyor.",
+              tone: "neutral",
+              value: `${portfoy.length} hisse`,
+            });
+          }
+          const toneStyle = {
+            positive: { color: "#34D399", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.18)" },
+            negative: { color: "#F87171", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)" },
+            warning: { color: "#FBBF24", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.18)" },
+            neutral: { color: "#94A3B8", bg: "rgba(148,163,184,0.06)", border: "rgba(148,163,184,0.14)" },
+          } as const;
+
+          return (
+            <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ background: "rgba(8,14,26,0.9)", border: "1px solid rgba(59,130,246,0.1)", boxShadow: "0 0 48px rgba(59,130,246,0.04), inset 0 0 60px rgba(0,0,0,0.2)" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
+              <button
+                onClick={() => setRadarAcik((v) => !v)}
+                className="w-full px-5 py-4 text-left outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/25"
+                style={{ background: "transparent", border: 0, cursor: "pointer" }}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(96,165,250,0.6)" }}>
+                      Portföy Radarı <span style={{ opacity: 0.7, fontSize: 10, marginLeft: 2 }}>{radarAcik ? "▲" : "▼"}</span>
+                    </p>
+                    {radarAcik && <p className="mt-1 text-xs text-slate-500">Bugün portföyde dikkat çeken kısa sinyaller</p>}
+                  </div>
+                  {radarAcik && <span className="rounded-full border border-slate-700/70 bg-slate-900/60 px-2.5 py-1 text-[10px] font-bold text-slate-500">Gecikmeli veri</span>}
+                </div>
+              </button>
+              {radarAcik && (
+              <div className="px-5 pb-4">
+                <div className="grid grid-cols-1 gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+                  {insights.slice(0, 3).map((item) => {
+                    const tone = toneStyle[item.tone];
+                    return (
+                      <div key={item.title} className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.055)", borderLeft: `2px solid ${tone.color}` }}>
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: tone.color }}>{item.title}</span>
+                          {item.value && <span className="portfolio-number rounded-md px-2 py-0.5 text-[10px] font-bold" style={{ color: tone.color, background: tone.bg, border: `1px solid ${tone.border}` }}>{item.value}</span>}
+                        </div>
+                        <p className="text-xs leading-relaxed text-slate-400">{item.text}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              )}
+            </div>
+          );
+        })()}
 
         {portfoy.length > 0 && (
           <div className="mb-4 relative overflow-hidden rounded-2xl" style={{ background: "rgba(8,14,26,0.9)", border: "1px solid rgba(59,130,246,0.1)" }}>
