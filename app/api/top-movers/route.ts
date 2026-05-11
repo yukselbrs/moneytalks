@@ -13,9 +13,9 @@ const supabase = createClient(
 const HISSE_META = new Map(BIST_HISSELER.map((h) => [h.ticker, h]));
 
 export async function GET() {
-  // BIST günlük fiyat dalgalanma limiti ±10% — marj için ±12 kullanılıyor.
-  // Bunun dışındaki değerler bedelsiz/split veya veri hatası.
   // hacim > 10000 → illiquid hisseleri (örn. 1 adet işlem) eler.
+  // Bedelsiz/split düzeltmesi cron job'da yapılıyor (>50% threshold).
+  // ±50% filtresi yalnızca düzeltilemeyen veri hatalarını temizler.
   const [yukRes, dusRes] = await Promise.all([
     supabase
       .from("hisse_snapshots")
@@ -23,8 +23,8 @@ export async function GET() {
       .not("degisim_yuzde", "is", null)
       .not("fiyat", "is", null)
       .gt("hacim", 10000)
-      .gte("degisim_yuzde", -12)
-      .lte("degisim_yuzde", 12)
+      .gte("degisim_yuzde", -50)
+      .lte("degisim_yuzde", 50)
       .order("degisim_yuzde", { ascending: false })
       .limit(5),
     supabase
@@ -33,8 +33,8 @@ export async function GET() {
       .not("degisim_yuzde", "is", null)
       .not("fiyat", "is", null)
       .gt("hacim", 10000)
-      .gte("degisim_yuzde", -12)
-      .lte("degisim_yuzde", 12)
+      .gte("degisim_yuzde", -50)
+      .lte("degisim_yuzde", 50)
       .order("degisim_yuzde", { ascending: true })
       .limit(5),
   ]);
