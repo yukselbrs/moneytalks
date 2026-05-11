@@ -10,6 +10,7 @@ const supabase = createClient(
 );
 
 const SAYFA_BOYUTU = 25;
+const BIST_DAILY_LIMIT = 10.01;
 
 type HisseSnapshot = {
   ticker: string;
@@ -60,6 +61,19 @@ const GUN = 24 * 60 * 60;
 
 type HeatmapRow = { ticker: string; degisim_yuzde: number | string | null; piyasa_degeri: number | null };
 
+function safeNumber(value: number | string | null | undefined) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string") return null;
+  const parsed = Number(value.replace(/\./g, "").replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function safeDailyChange(value: number | string | null | undefined) {
+  const parsed = safeNumber(value);
+  if (parsed === null) return null;
+  return Math.abs(parsed) <= BIST_DAILY_LIMIT ? parsed : null;
+}
+
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
 
@@ -73,7 +87,7 @@ export async function GET(req: NextRequest) {
       .filter(h => h.listed !== false && h.priceAvailable !== false)
       .map(h => {
         const snap = snapMap.get(h.ticker);
-        const degisim = snap?.degisim_yuzde != null ? Number(snap.degisim_yuzde) : null;
+        const degisim = safeDailyChange(snap?.degisim_yuzde);
         return {
           ticker: h.ticker,
           ad: h.ad,
@@ -136,14 +150,14 @@ export async function GET(req: NextRequest) {
     const rawA = sortDef.col === "fiyat"
       ? (liveA?.fiyat ?? snapA?.fiyat)
       : sortDef.col === "degisim_yuzde"
-        ? (snapA?.degisim_yuzde ?? liveA?.degisim)
+        ? (safeDailyChange(snapA?.degisim_yuzde) ?? safeDailyChange(liveA?.degisim))
         : shouldReturnSort
           ? (returnA?.[sortDef.col as keyof LiveGetiriler] ?? snapA?.[sortDef.col])
           : snapA?.[sortDef.col];
     const rawB = sortDef.col === "fiyat"
       ? (liveB?.fiyat ?? snapB?.fiyat)
       : sortDef.col === "degisim_yuzde"
-        ? (snapB?.degisim_yuzde ?? liveB?.degisim)
+        ? (safeDailyChange(snapB?.degisim_yuzde) ?? safeDailyChange(liveB?.degisim))
         : shouldReturnSort
           ? (returnB?.[sortDef.col as keyof LiveGetiriler] ?? snapB?.[sortDef.col])
           : snapB?.[sortDef.col];
@@ -324,7 +338,7 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string; listed?:
     };
   }
   const fiyat = live?.fiyat ?? Number(snap?.fiyat);
-  const degisim = live?.degisim ?? Number(snap?.degisim_yuzde);
+  const degisim = safeDailyChange(snap?.degisim_yuzde) ?? safeDailyChange(live?.degisim);
   return {
     ticker: meta.ticker,
     ad: meta.ad,
@@ -333,8 +347,8 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string; listed?:
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }),
-    degisim: degisim.toFixed(2),
-    yukselis: degisim >= 0,
+    degisim: degisim !== null ? degisim.toFixed(2) : null,
+    yukselis: degisim !== null ? degisim >= 0 : null,
     hacim: live?.hacim ?? snap?.hacim ?? null,
     piyasaDegeri: live?.piyasaDegeri ?? snap?.piyasa_degeri ?? null,
     getiri_1h: formatGetiri(getiriler ? getiriler.getiri_1h : snap?.getiri_1h),

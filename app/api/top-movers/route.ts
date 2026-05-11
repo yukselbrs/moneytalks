@@ -11,11 +11,12 @@ const supabase = createClient(
 );
 
 const HISSE_META = new Map(BIST_HISSELER.map((h) => [h.ticker, h]));
+const BIST_DAILY_LIMIT = 10.01;
 
 export async function GET() {
-  // hacim > 10000 → illiquid hisseleri (örn. 1 adet işlem) eler.
-  // Bedelsiz/split düzeltmesi cron job'da yapılıyor (>50% threshold).
-  // ±50% filtresi yalnızca düzeltilemeyen veri hatalarını temizler.
+  // BIST pay piyasasında günlük fiyat marjı genel olarak ±10%.
+  // Bunun üstündeki snapshot değerleri çoğunlukla bedelsiz/split/stale veri etkisi.
+  // 10.01 küçük yuvarlama payı bırakır; ekranda %10 üstü mover gösterilmez.
   const [yukRes, dusRes] = await Promise.all([
     supabase
       .from("hisse_snapshots")
@@ -23,8 +24,8 @@ export async function GET() {
       .not("degisim_yuzde", "is", null)
       .not("fiyat", "is", null)
       .gt("hacim", 10000)
-      .gte("degisim_yuzde", -50)
-      .lte("degisim_yuzde", 50)
+      .gte("degisim_yuzde", -BIST_DAILY_LIMIT)
+      .lte("degisim_yuzde", BIST_DAILY_LIMIT)
       .order("degisim_yuzde", { ascending: false })
       .limit(5),
     supabase
@@ -33,8 +34,8 @@ export async function GET() {
       .not("degisim_yuzde", "is", null)
       .not("fiyat", "is", null)
       .gt("hacim", 10000)
-      .gte("degisim_yuzde", -50)
-      .lte("degisim_yuzde", 50)
+      .gte("degisim_yuzde", -BIST_DAILY_LIMIT)
+      .lte("degisim_yuzde", BIST_DAILY_LIMIT)
       .order("degisim_yuzde", { ascending: true })
       .limit(5),
   ]);

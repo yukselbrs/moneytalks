@@ -17,6 +17,8 @@ type TopMovers = {
   hacimliler: { ticker: string; fiyat: string; degisim: number }[];
 };
 
+const BIST_DAILY_LIMIT = 10.01;
+
 const EMPTY_PIYASA: Record<PiyasaKey, PiyasaItem> = {
   usd: { value: "-", change: "-" },
   eur: { value: "-", change: "-" },
@@ -110,11 +112,12 @@ export function useDashboardMarket(enabled = true) {
           fiyat: typeof h.fiyat === "number" ? h.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 }) : String(h.fiyat),
           degisim: parseFloat(String(h.degisim)),
         });
+        const validDailyMove = (h: { degisim: number }) => Number.isFinite(h.degisim) && Math.abs(h.degisim) <= BIST_DAILY_LIMIT;
 
         setTopMovers({
-          yukselenler: (topJson.yukselenler || []),
-          dusenler: (topJson.dusenler || []),
-          hacimliler: (hacimJson.items || []).slice(0, 5).map(mapH),
+          yukselenler: (topJson.yukselenler || []).filter(validDailyMove),
+          dusenler: (topJson.dusenler || []).filter(validDailyMove),
+          hacimliler: (hacimJson.items || []).map(mapH).filter(validDailyMove).slice(0, 5),
         });
       } catch (error) {
         console.error("fetchPiyasa err:", error);
