@@ -22,6 +22,12 @@ export function extractBearerToken(req: NextRequest): string | null {
   return authHeader.slice(7);
 }
 
+export function toTitleCase(str: string): string {
+  return str.split(" ").slice(0, 2).map(
+    (k) => k.charAt(0).toLocaleUpperCase("tr-TR") + k.slice(1).toLocaleLowerCase("tr-TR")
+  ).join(" ");
+}
+
 const TICKER_RENKLER = [
   "#3B82F6", "#8B5CF6", "#EC4899", "#F97316",
   "#10B981", "#06B6D4", "#EAB308", "#EF4444",

@@ -1,16 +1,11 @@
 "use client";
 
 import StockLogo from "@/components/StockLogo";
-import bistSirketler from "@/data/bist-companies.json";
-
-function toTitleCase(str: string): string {
-  return str.split(" ").slice(0, 2).map(
-    (k) => k.charAt(0).toLocaleUpperCase("tr-TR") + k.slice(1).toLocaleLowerCase("tr-TR")
-  ).join(" ");
-}
+import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { toTitleCase } from "@/lib/utils";
 
 const sirketAdlari: Record<string, string> = Object.fromEntries(
-  (bistSirketler as { ticker: string; ad: string }[]).map((s) => [s.ticker, toTitleCase(s.ad)])
+  BIST_HISSELER.map((s) => [s.ticker, toTitleCase(s.ad)])
 );
 
 type DashboardHisse = {

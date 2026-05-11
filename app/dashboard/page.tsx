@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
@@ -16,7 +16,8 @@ import dynamic from "next/dynamic";
 import { useDashboardMarket } from "@/hooks/useDashboardMarket";
 import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
 import { useWatchlist } from "@/hooks/useWatchlist";
-import { tickerRenk } from "@/lib/utils";
+import { useChartPanel } from "@/hooks/useChartPanel";
+import { tickerRenk, toTitleCase } from "@/lib/utils";
 import { BIST_HISSELER as TUM_BIST_HISSELER } from "@/lib/bist-hisseler";
 
 const DashboardChartPanel = dynamic(() => import("@/components/DashboardChartPanel"), {
@@ -24,75 +25,10 @@ const DashboardChartPanel = dynamic(() => import("@/components/DashboardChartPan
   loading: () => <div style={{ flex: 1, height: 360, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12 }} />,
 });
 
-type DashboardHisse = {
-  ticker: string;
-  name: string;
-  kisalt?: string;
-  domain?: string;
-};
+const POPULAR_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
 
-const BIST_HISSELER: DashboardHisse[] = [
-  { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY", domain: "turkishairlines.com" },
-  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
-  { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
-  { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
-  { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
-  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
-  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
-  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
-  { ticker: "TUPRS", name: "Tüpraş", domain: "tupras.com.tr" },
-  { ticker: "SAHOL", name: "Sabancı Holding", domain: "sabanci.com" },
-  { ticker: "YKBNK", name: "Yapı Kredi Bankası", domain: "yapikredi.com.tr" },
-  { ticker: "TCELL", name: "Turkcell", domain: "turkcell.com.tr" },
-  { ticker: "FROTO", name: "Ford Otosan", domain: "fordotosan.com.tr" },
-  { ticker: "TOASO", name: "Tofaş Otomobil", domain: "tofas.com.tr" },
-  { ticker: "PETKM", name: "Petkim", domain: "petkim.com.tr" },
-  { ticker: "ARCLK", name: "Arçelik", domain: "arcelik.com" },
-  { ticker: "KOZAL", name: "Koza Altın" },
-  { ticker: "TRMET", name: "TR Anadolu Metal" },
-  { ticker: "EKGYO", name: "Emlak Konut GYO" },
-  { ticker: "ISGYO", name: "İş GYO" },
-  { ticker: "HALKB", name: "Halkbank", domain: "halkbank.com.tr" },
-  { ticker: "VAKBN", name: "Vakıfbank", domain: "vakifbank.com.tr" },
-  { ticker: "ISCTR", name: "İş Bankası", domain: "isbank.com.tr" },
-  { ticker: "ENKAI", name: "Enka İnşaat", domain: "enka.com" },
-  { ticker: "DOHOL", name: "Doğan Holding" },
-  { ticker: "TAVHL", name: "TAV Havalimanları", domain: "tav.aero" },
-  { ticker: "PGSUS", name: "Pegasus Hava Yolları", domain: "flypgs.com" },
-  { ticker: "LOGO", name: "Logo Yazılım" },
-  { ticker: "NETAS", name: "Netaş Telekom" },
-  { ticker: "VESBE", name: "Vestel Beyaz Eşya" },
-  { ticker: "VESTL", name: "Vestel" },
-  { ticker: "MGROS", name: "Migros", domain: "migros.com.tr" },
-  { ticker: "SOKM", name: "Şok Marketler", domain: "sokmarket.com.tr" },
-  { ticker: "ULKER", name: "Ülker Bisküvi", domain: "ulker.com.tr" },
-  { ticker: "AEFES", name: "Anadolu Efes" },
-  { ticker: "TTKOM", name: "Türk Telekom", domain: "turktelekom.com.tr" },
-  { ticker: "TTRAK", name: "Türk Traktör" },
-  { ticker: "OTKAR", name: "Otokar" },
-  { ticker: "GUBRF", name: "Gübre Fabrikaları" },
-  { ticker: "CIMSA", name: "Çimsa" },
-  { ticker: "AKCNS", name: "Akçansa" },
-  { ticker: "ALARK", name: "Alarko Holding" },
-  { ticker: "GOLTS", name: "Göltaş Çimento" },
-  { ticker: "KRDMD", name: "Kardemir" },
-  { ticker: "ISDMR", name: "İskenderun Demir Çelik" },
-  { ticker: "SASA", name: "Sasa Polyester", domain: "sasa.com.tr" },
-  { ticker: "BRYAT", name: "Borusan Yatırım" },
-  { ticker: "BRISA", name: "Brisa", domain: "brisa.com.tr" },
-  { ticker: "DOAS", name: "Doğuş Otomotiv", domain: "dogusotomotiv.com.tr" },
-];
-
-const POPULAR = [
-  { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY" },
-  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
-  { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
-  { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
-  { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
-  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
-  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
-  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
-];
+const BIST_HISSELER = TUM_BIST_HISSELER.map(h => ({ ticker: h.ticker, name: toTitleCase(h.ad), domain: h.domain }));
+const POPULAR = BIST_HISSELER.filter(h => POPULAR_TICKERS.includes(h.ticker));
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
@@ -129,51 +65,28 @@ export default function DashboardPage() {
     if (saat >= 18 && saat < 24) return "İyi akşamlar";
     return "İyi geceler";
   };
-  const [buyukGrafik, setBuyukGrafik] = useState<{tarih: string; fiyat: number}[]>([]);
-  const [grafikRange, setGrafikRange] = useState("1d");
-  const [grafikRangeDegisim, setGrafikRangeDegisim] = useState<Record<string, number>>({});
-  const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
-  const [grafikTicker, setGrafikTicker] = useState("XU100.IS");
-  const [grafikTickerLabel, setGrafikTickerLabel] = useState("XU100");
-  const [grafikArama, setGrafikArama] = useState("");
-  const [grafikDropdown, setGrafikDropdown] = useState(false);
+  const {
+    buyukGrafik,
+    grafikRange,
+    grafikRangeDegisim,
+    grafikYukleniyor,
+    grafikTicker,
+    grafikTickerLabel,
+    grafikArama,
+    grafikDropdown,
+    grafikWidth,
+    initialGrafikLoadedRef,
+    setGrafikContainerRef,
+    fetchBuyukGrafik,
+    setGrafikRange,
+    setGrafikTicker,
+    setGrafikTickerLabel,
+    setGrafikArama,
+    setGrafikDropdown,
+  } = useChartPanel();
   const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
-  const grafikRef = useRef<HTMLDivElement>(null);
-  const grafikObserverRef = useRef<ResizeObserver | null>(null);
-  const initialGrafikLoadedRef = useRef(false);
-  const [grafikWidth, setGrafikWidth] = useState(0);
 
-  const setGrafikContainerRef = React.useCallback((node: HTMLDivElement | null) => {
-    grafikObserverRef.current?.disconnect();
-    grafikRef.current = node;
-    grafikObserverRef.current = null;
-    if (!node) {
-      setGrafikWidth(0);
-      return;
-    }
-    setGrafikWidth(Math.floor(node.getBoundingClientRect().width));
-    const observer = new ResizeObserver(([entry]) => {
-      setGrafikWidth(Math.floor(entry.contentRect.width));
-    });
-    observer.observe(node);
-    grafikObserverRef.current = observer;
-  }, []);
-
-  const fetchBuyukGrafik = React.useCallback(async (range: string, ticker?: string) => {
-    setGrafikYukleniyor(true);
-    try {
-      const t = ticker || grafikTicker;
-      const r = await fetch(`/api/grafik?ticker=${t}&range=${range}`);
-      const d = await r.json();
-      if (d.points) { setBuyukGrafik(d.points); const pts = d.points.map((p: {fiyat: number}) => p.fiyat); if (pts.length > 1) { const pct = ((pts[pts.length - 1] - pts[0]) / pts[0]) * 100; setGrafikRangeDegisim(prev => ({ ...prev, [range]: pct })); } }
-    } catch {
-      setBuyukGrafik([]);
-    } finally {
-      setGrafikYukleniyor(false);
-    }
-  }, [grafikTicker]);
-
-  const fetchAiPanel = React.useCallback(async (ticker?: string) => {
+  const fetchAiPanel = useCallback(async (ticker?: string) => {
     const t = (ticker || grafikTicker).replace(".IS","").replace("=X","");
     const temiz = ticker ? t : grafikTickerLabel;
     setAiPanel({ skor: 0, seviye: "", yorum: "", guven: "", yukleniyor: true });
@@ -302,7 +215,7 @@ export default function DashboardPage() {
         <DashboardSearchBox
           value={ticker}
           onValueChange={setTicker}
-          bistHisseler={TUM_BIST_HISSELER.map(h => ({ ticker: h.ticker, name: h.ad, domain: h.domain }))}
+          bistHisseler={BIST_HISSELER}
           watchlist={watchlist}
           fiyatlar={fiyatlar}
           onAddToWatchlist={addToWatchlist}

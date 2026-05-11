@@ -5,78 +5,14 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
-
-type IzlemeHisse = {
-  ticker: string;
-  name: string;
-  kisalt?: string;
-  domain?: string;
-};
+import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { tickerRenk } from "@/lib/utils";
 
 type GrafikPoint = {
   fiyat: number;
 };
 
-const BIST_HISSELER: IzlemeHisse[] = [
-  { ticker: "THYAO", name: "Türk Hava Yolları", kisalt: "THY", domain: "turkishairlines.com" },
-  { ticker: "GARAN", name: "Garanti Bankası", kisalt: "GARANTİ", domain: "garanti.com.tr" },
-  { ticker: "ASELS", name: "Aselsan", kisalt: "ASELS" },
-  { ticker: "EREGL", name: "Ereğli Demir Çelik", kisalt: "EREĞLİ" },
-  { ticker: "SISE", name: "Şişecam", kisalt: "ŞİŞECAM" },
-  { ticker: "AKBNK", name: "Akbank", kisalt: "AKBANK", domain: "akbank.com" },
-  { ticker: "KCHOL", name: "Koç Holding", kisalt: "KOÇ" },
-  { ticker: "BIMAS", name: "BİM Mağazalar", kisalt: "BİM", domain: "bim.com.tr" },
-  { ticker: "TUPRS", name: "Tüpraş", domain: "tupras.com.tr" },
-  { ticker: "SAHOL", name: "Sabancı Holding", domain: "sabanci.com" },
-  { ticker: "YKBNK", name: "Yapı Kredi Bankası", domain: "yapikredi.com.tr" },
-  { ticker: "TCELL", name: "Turkcell", domain: "turkcell.com.tr" },
-  { ticker: "FROTO", name: "Ford Otosan", domain: "fordotosan.com.tr" },
-  { ticker: "TOASO", name: "Tofaş Otomobil", domain: "tofas.com.tr" },
-  { ticker: "PETKM", name: "Petkim", domain: "petkim.com.tr" },
-  { ticker: "ARCLK", name: "Arçelik", domain: "arcelik.com" },
-  { ticker: "KOZAL", name: "Koza Altın" },
-  { ticker: "TRMET", name: "TR Anadolu Metal" },
-  { ticker: "EKGYO", name: "Emlak Konut GYO" },
-  { ticker: "ISGYO", name: "İş GYO" },
-  { ticker: "HALKB", name: "Halkbank", domain: "halkbank.com.tr" },
-  { ticker: "VAKBN", name: "Vakıfbank", domain: "vakifbank.com.tr" },
-  { ticker: "ISCTR", name: "İş Bankası", domain: "isbank.com.tr" },
-  { ticker: "ENKAI", name: "Enka İnşaat", domain: "enka.com" },
-  { ticker: "DOHOL", name: "Doğan Holding" },
-  { ticker: "TAVHL", name: "TAV Havalimanları", domain: "tav.aero" },
-  { ticker: "PGSUS", name: "Pegasus Hava Yolları", domain: "flypgs.com" },
-  { ticker: "LOGO", name: "Logo Yazılım" },
-  { ticker: "NETAS", name: "Netaş Telekom" },
-  { ticker: "VESBE", name: "Vestel Beyaz Eşya" },
-  { ticker: "VESTL", name: "Vestel" },
-  { ticker: "MGROS", name: "Migros", domain: "migros.com.tr" },
-  { ticker: "SOKM", name: "Şok Marketler", domain: "sokmarket.com.tr" },
-  { ticker: "ULKER", name: "Ülker Bisküvi", domain: "ulker.com.tr" },
-  { ticker: "AEFES", name: "Anadolu Efes" },
-  { ticker: "TTKOM", name: "Türk Telekom", domain: "turktelekom.com.tr" },
-  { ticker: "TTRAK", name: "Türk Traktör" },
-  { ticker: "OTKAR", name: "Otokar" },
-  { ticker: "GUBRF", name: "Gübre Fabrikaları" },
-  { ticker: "CIMSA", name: "Çimsa" },
-  { ticker: "AKCNS", name: "Akçansa" },
-  { ticker: "ALARK", name: "Alarko Holding" },
-  { ticker: "GOLTS", name: "Göltaş Çimento" },
-  { ticker: "KRDMD", name: "Kardemir" },
-  { ticker: "ISDMR", name: "İskenderun Demir Çelik" },
-  { ticker: "SASA", name: "Sasa Polyester", domain: "sasa.com.tr" },
-  { ticker: "BRYAT", name: "Borusan Yatırım" },
-  { ticker: "BRISA", name: "Brisa", domain: "brisa.com.tr" },
-  { ticker: "DOAS", name: "Doğuş Otomotiv", domain: "dogusotomotiv.com.tr" },
-];
-
-
 const PER_PAGE = 10;
-
-function tickerRenk(ticker: string) {
-  const renkler = ["#3B82F6","#10B981","#F59E0B","#EF4444","#8B5CF6","#06B6D4","#F97316","#EC4899"];
-  let h = 0; for (const c of ticker) h = (h * 31 + c.charCodeAt(0)) % renkler.length;
-  return renkler[h];
-}
 
 function SparklineSVG({ ticker, yukselis }: { ticker: string; yukselis: boolean }) {
   const [pts, setPts] = useState<number[]>([]);
@@ -163,7 +99,7 @@ export default function IzlemePage() {
   const paginated = watchlist.slice((sayfa-1)*PER_PAGE, sayfa*PER_PAGE);
 
   const filteredBIST = aramaInput.length > 0
-    ? BIST_HISSELER.filter(h => h.ticker.startsWith(aramaInput.toUpperCase()) || h.name.toUpperCase().includes(aramaInput.toUpperCase())).slice(0,6)
+    ? BIST_HISSELER.filter(h => h.ticker.startsWith(aramaInput.toUpperCase()) || h.ad.toUpperCase().includes(aramaInput.toUpperCase())).slice(0,6)
     : [];
 
   if (loading) return <AppShell><div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#0B1220"}}><p style={{color:"#475569",fontSize:13}}>Yükleniyor...</p></div></AppShell>;
@@ -232,7 +168,7 @@ export default function IzlemePage() {
                         onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
                         onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                         <span style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
-                        <span style={{ fontSize: 11, color: "#475569" }}>{h.name}</span>
+                        <span style={{ fontSize: 11, color: "#475569" }}>{h.ad}</span>
                       </div>
                     ))}
                   </div>
@@ -305,7 +241,7 @@ export default function IzlemePage() {
                         <StockLogo ticker={w.ticker} domain={hisseInfo?.domain} size={28} radius={6} color={tickerRenk(w.ticker)} />
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</div>
-                          <div style={{ fontSize: 12, color: "#475569" }}>{hisseInfo?.name || ""}</div>
+                          <div style={{ fontSize: 12, color: "#475569" }}>{hisseInfo?.ad || ""}</div>
                         </div>
                       </div>
 
