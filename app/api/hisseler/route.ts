@@ -91,9 +91,10 @@ export async function GET(req: NextRequest) {
 
   const typedSnaps = (snaps || []) as HisseSnapshot[];
   const snapMap = new Map(typedSnaps.map((snap) => [snap.ticker, snap]));
-  const shouldLiveSort = sort === "gun" || sort === "yukselis" || sort === "dusus" || sort === "fiyat";
+  // yukselis/dusus/fiyat/gun için live fetch kaldırıldı — snapshot ile sırala, sadece sayfa dilimi için live çek
+  const shouldLiveSort = false;
   const shouldReturnSort = sort === "1wk" || sort === "1mo" || sort === "3mo" || sort === "1y";
-  const sortLiveMap = shouldLiveSort ? await fetchLiveFiyatlar(allTickers) : new Map<string, LiveFiyat>();
+  const sortLiveMap = new Map<string, LiveFiyat>();
   const sortReturnMap = shouldReturnSort ? await fetchLiveGetiriler(allTickers) : new Map<string, LiveGetiriler>();
   const sortedTickers = [...allTickers].sort((a, b) => {
     if (sort === "alfabetik") return a.localeCompare(b, "tr");
