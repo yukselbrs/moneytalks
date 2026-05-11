@@ -84,12 +84,7 @@ export async function GET(req: NextRequest) {
         };
       })
       .filter(h => h.degisim !== null)
-      .sort((a, b) => {
-        // piyasa değeri varsa öncelikli, yoksa hacim proxy olarak kullanılır
-        const bVal = b.piyasaDegeri ?? (b.hacim ?? 0);
-        const aVal = a.piyasaDegeri ?? (a.hacim ?? 0);
-        return bVal - aVal;
-      });
+      .sort((a, b) => a.ticker.localeCompare(b.ticker, "tr"));
     return NextResponse.json({ items }, { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" } });
   }
 

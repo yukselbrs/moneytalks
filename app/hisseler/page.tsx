@@ -251,7 +251,7 @@ function HisselerContent() {
                 </button>
               ))}
               {gorunum === "isi" && (
-                <span style={{ fontSize: 12, color: "#475569" }}>Piyasa değerine göre sıralı · Renk: günlük değişim</span>
+                <span style={{ fontSize: 12, color: "#475569" }}>Alfabetik sıralı · Renk: günlük değişim</span>
               )}
             </div>
             <div className="hisse-arama card-glass" style={{ display: "flex", alignItems: "center", gap: 8, borderRadius: 10, padding: "7px 12px", minWidth: 260 }}>
