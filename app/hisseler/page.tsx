@@ -52,6 +52,7 @@ const TABLO_BASLIKLARI = [
   { label: "HİSSE", align: "left" },
   { label: "FİYAT", sort: "fiyat", align: "right" },
   { label: "GÜN %", sort: "gun", align: "right" },
+  { label: "HACİM", sort: "hacim", align: "right" },
   { label: "1H %", sort: "1wk", align: "right" },
   { label: "1A %", sort: "1mo", align: "right" },
   { label: "3A %", sort: "3mo", align: "right" },
@@ -154,20 +155,12 @@ function HisselerContent() {
     ? `${aktifSiralama.label}${sortDir ? ` ${sortDir === "desc" ? "azalan" : "artan"}` : ""}`
     : "A-Z";
 
-  const isiRenk = (d: number | null) => {
-    if (d === null) return { bg: "rgba(30,41,59,0.55)", border: "rgba(148,163,184,0.07)", text: "#475569" };
-    const a = Math.abs(d);
-    if (d >= 0) {
-      if (a >= 5) return { bg: "rgba(5,150,105,0.88)", border: "rgba(16,185,129,0.45)", text: "#ECFDF5" };
-      if (a >= 2) return { bg: "rgba(16,185,129,0.50)", border: "rgba(16,185,129,0.28)", text: "#D1FAE5" };
-      if (a >= 0.5) return { bg: "rgba(16,185,129,0.22)", border: "rgba(16,185,129,0.14)", text: "#A7F3D0" };
-      return { bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.08)", text: "#6EE7B7" };
-    } else {
-      if (a >= 5) return { bg: "rgba(185,28,28,0.88)", border: "rgba(239,68,68,0.45)", text: "#FEF2F2" };
-      if (a >= 2) return { bg: "rgba(239,68,68,0.50)", border: "rgba(239,68,68,0.28)", text: "#FEE2E2" };
-      if (a >= 0.5) return { bg: "rgba(239,68,68,0.22)", border: "rgba(239,68,68,0.14)", text: "#FECACA" };
-      return { bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.08)", text: "#FCA5A5" };
-    }
+  const formatHacim = (v: number | null) => {
+    if (v === null || !Number.isFinite(v)) return "—";
+    if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(2).replace(".", ",")} Mr`;
+    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2).replace(".", ",")} Mn`;
+    if (v >= 1_000) return `${(v / 1_000).toFixed(1).replace(".", ",")} B`;
+    return v.toLocaleString("tr-TR");
   };
 
   const renderPercent = (value: string | null, className = "") => {
@@ -203,6 +196,7 @@ function HisselerContent() {
             .hisse-tablo-header { display: none !important; }
             .hisse-row { display: grid !important; grid-template-columns: 1fr auto !important; gap: 10px !important; margin-bottom: 8px; padding: 13px 14px !important; border: 1px solid rgba(59,130,246,0.08) !important; border-radius: 12px; background: rgba(255,255,255,0.012) !important; }
             .hisse-row .col-no { display: none !important; }
+            .hisse-row .col-hacim { display: none !important; }
             .hisse-row .col-getiri { display: none !important; }
             .hisse-row .col-gun { text-align: right !important; align-self: end; }
             .hisse-row .col-fiyat { text-align: right !important; align-self: start; }
@@ -318,7 +312,7 @@ function HisselerContent() {
           {gorunum === "tablo" && (
             <>
             <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
-              <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "13px 18px", borderBottom: "1px solid rgba(59,130,246,0.12)", background: "linear-gradient(180deg, rgba(59,130,246,0.04), rgba(255,255,255,0.005))" }}>
+              <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 100px 80px 80px 80px 80px", gap: 8, padding: "13px 18px", borderBottom: "1px solid rgba(59,130,246,0.12)", background: "linear-gradient(180deg, rgba(59,130,246,0.04), rgba(255,255,255,0.005))" }}>
               {TABLO_BASLIKLARI.map((h) => {
                 const active = h.sort && sort === h.sort && sortDir;
                 const alignRight = h.align === "right";
@@ -356,7 +350,7 @@ function HisselerContent() {
               const globalNo = (page - 1) * pageSize + i + 1;
               return (
                 <div key={hisse.ticker} className="hisse-row" onClick={() => router.push(`/hisse/${hisse.ticker}`)}
-                  style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "14px 18px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer", alignItems: "center", background: "transparent" }}>
+                  style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 100px 80px 80px 80px 80px", gap: 8, padding: "14px 18px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer", alignItems: "center", background: "transparent" }}>
                   <span className="col-no" style={{ fontSize: 12, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
                     <StockLogo ticker={hisse.ticker} domain={hisse.domain} size={30} radius={7} color={renk} />
@@ -370,6 +364,9 @@ function HisselerContent() {
                   </p>
                   <p className="col-gun" style={{ fontSize: 13, fontWeight: 700, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums", color: hisse.degisim !== null ? (hisse.yukselis ? "#10B981" : "#EF4444") : "#475569" }}>
                     {hisse.degisim !== null ? `${hisse.yukselis ? "▲" : "▼"} %${Math.abs(Number(hisse.degisim)).toFixed(2).replace(".", ",")}` : "—"}
+                  </p>
+                  <p className="col-hacim" style={{ fontSize: 12.5, fontWeight: 600, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums", color: hisse.hacim !== null && hisse.hacim > 0 ? "#CBD5E1" : "#475569" }}>
+                    {formatHacim(hisse.hacim)}
                   </p>
                   <div className="hisse-mobile-returns">
                     {[
