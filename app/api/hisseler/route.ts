@@ -67,17 +67,29 @@ export async function GET(req: NextRequest) {
   if (sp.get("heatmap") === "true") {
     const { data: snaps } = await supabase
       .from("hisse_snapshots")
-      .select("ticker, degisim_yuzde, piyasa_degeri");
-    const snapMap = new Map((snaps ?? []).map(s => [s.ticker, s as HeatmapRow]));
+      .select("ticker, degisim_yuzde, piyasa_degeri, hacim");
+    const snapMap = new Map((snaps ?? []).map(s => [s.ticker, s as HeatmapRow & { hacim: number | null }]));
     const items = BIST_HISSELER
       .filter(h => h.listed !== false && h.priceAvailable !== false)
       .map(h => {
         const snap = snapMap.get(h.ticker);
         const degisim = snap?.degisim_yuzde != null ? Number(snap.degisim_yuzde) : null;
-        return { ticker: h.ticker, ad: h.ad, domain: h.domain, degisim, piyasaDegeri: snap?.piyasa_degeri ?? null };
+        return {
+          ticker: h.ticker,
+          ad: h.ad,
+          domain: h.domain,
+          degisim,
+          piyasaDegeri: snap?.piyasa_degeri ?? null,
+          hacim: snap?.hacim ?? null,
+        };
       })
       .filter(h => h.degisim !== null)
-      .sort((a, b) => (b.piyasaDegeri ?? 0) - (a.piyasaDegeri ?? 0));
+      .sort((a, b) => {
+        // piyasa değeri varsa öncelikli, yoksa hacim proxy olarak kullanılır
+        const bVal = b.piyasaDegeri ?? (b.hacim ?? 0);
+        const aVal = a.piyasaDegeri ?? (a.hacim ?? 0);
+        return bVal - aVal;
+      });
     return NextResponse.json({ items }, { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" } });
   }
 

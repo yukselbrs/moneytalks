@@ -191,9 +191,10 @@ function HisselerContent() {
           .isi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px; }
           .isi-hucre { border-radius: 8px; padding: 10px 8px 8px; cursor: pointer; transition: filter 0.12s, transform 0.12s; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; }
           .isi-hucre:hover { filter: brightness(1.18); transform: scale(1.03); z-index: 1; position: relative; }
-          .gorunum-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(59,130,246,0.12); background: rgba(255,255,255,0.012); color: #64748B; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.1s; }
-          .gorunum-btn.aktif { border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.15); color: #3B82F6; font-weight: 700; }
-          .gorunum-btn:hover:not(.aktif) { border-color: rgba(59,130,246,0.25); color: #94A3B8; }
+          .gorunum-wrap { display: inline-flex; align-items: center; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 999px; padding: 3px; gap: 2px; }
+          .gorunum-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 13px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: #64748B; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+          .gorunum-btn.aktif { background: linear-gradient(135deg, rgba(99,102,241,0.35) 0%, rgba(59,130,246,0.28) 100%); border-color: rgba(99,102,241,0.4); color: #C7D2FE; font-weight: 700; box-shadow: 0 0 12px rgba(99,102,241,0.2); }
+          .gorunum-btn:hover:not(.aktif) { color: #94A3B8; background: rgba(255,255,255,0.04); }
           @media (max-width: 640px) {
             .isi-grid { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 3px; }
             main { padding: 16px 12px !important; }
@@ -230,7 +231,7 @@ function HisselerContent() {
                   {q && <span style={{ color: "#3B82F6" }}>Arama: {q}</span>}
                 </div>
               )}
-              <div style={{ display: "flex", gap: 4 }}>
+              <div className="gorunum-wrap">
                 <button className={`gorunum-btn${gorunum === "tablo" ? " aktif" : ""}`} onClick={() => setGorunum("tablo")}>
                   <AlignJustify size={13} /> Tablo
                 </button>
