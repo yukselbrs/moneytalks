@@ -274,7 +274,10 @@ function ActiveAlarmsCard() {
           {alarmlar.slice(0, 5).map((a, i) => (
             <a key={a.id} href="/alarmlar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", textDecoration: "none", cursor: "pointer" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: a.kosul === "yukari" ? "#10B981" : "#EF4444", flexShrink: 0 }} />
+                <span style={{ position: "relative", width: 6, height: 6, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: a.kosul === "yukari" ? "#10B981" : "#EF4444", animation: "alarm-ping 1.8s ease-out infinite", opacity: 0 }} />
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: a.kosul === "yukari" ? "#10B981" : "#EF4444", flexShrink: 0 }} />
+                </span>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{a.ticker}</span>
                 <span style={{ fontSize: 11, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{TIP_LABEL[a.tip] ?? a.tip}</span>
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import StockLogo from "@/components/StockLogo";
 
 type DashboardHisse = {
@@ -57,6 +57,7 @@ export default function DashboardMarketFocus({
 
   const bistMap = useMemo(() => new Map(bistHisseler.map(h => [h.ticker, h])), [bistHisseler]);
   const watchlistSet = useMemo(() => new Set(watchlist.map(w => w.ticker)), [watchlist]);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
 
   const liste = piyasaOdagiTab === "yukselenler"
     ? (topMovers?.yukselenler || []).map(h => ({ ticker: h.ticker, fiyat: h.fiyat, degisim: h.degisim, yukselis: h.degisim >= 0 }))
@@ -116,10 +117,10 @@ export default function DashboardMarketFocus({
                 </div>
               </div>
               <button
-                onClick={ev => { ev.stopPropagation(); if (izlemede) removeFromWatchlist(s.ticker); else addToWatchlist(s.ticker); }}
+                onClick={ev => { ev.stopPropagation(); if (izlemede) removeFromWatchlist(s.ticker); else { addToWatchlist(s.ticker); setJustAdded(s.ticker); setTimeout(() => setJustAdded(t => t === s.ticker ? null : t), 400); } }}
                 aria-label={izlemede ? `${s.ticker} izleme listesinden çıkar` : `${s.ticker} izleme listesine ekle`}
                 style={{ width: 34, height: 34, borderRadius: 8, background: izlemede ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)", border: `1px solid ${izlemede ? "rgba(59,130,246,0.35)" : "rgba(255,255,255,0.07)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, color: izlemede ? "#3B82F6" : "#2D3F55", transition: "all 0.15s" }}>
-                <span aria-hidden="true">{izlemede ? "★" : "☆"}</span>
+                <span aria-hidden="true" style={{ display: "inline-block", transform: justAdded === s.ticker ? "scale(1.5)" : "scale(1)", transition: "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)" }}>{izlemede ? "★" : "☆"}</span>
               </button>
             </div>
           );

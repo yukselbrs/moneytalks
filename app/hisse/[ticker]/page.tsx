@@ -375,8 +375,17 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
               </div>
               {riskColor && riskVeri && (
                 <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 18px", border: `1px solid ${riskColor.border}`, borderRadius: 12, background: riskColor.bg, marginBottom: 14 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: "50%", border: `2.5px solid ${riskColor.color}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(0,0,0,0.18)" }}>
-                    <span style={{ fontSize: 17, fontWeight: 800, color: riskColor.color, lineHeight: 1 }}>{riskVeri.skor}</span>
+                  <style>{`@keyframes risk-draw-${riskVeri.skor} { from { stroke-dashoffset: 138.2; } to { stroke-dashoffset: ${(138.2 - (riskVeri.skor / 100) * 138.2).toFixed(1)}; } }`}</style>
+                  <div style={{ position: "relative", width: 52, height: 52, flexShrink: 0 }}>
+                    <svg viewBox="0 0 52 52" width="52" height="52" style={{ transform: "rotate(-90deg)" }}>
+                      <circle cx="26" cy="26" r="22" fill="rgba(0,0,0,0.18)" stroke="rgba(255,255,255,0.07)" strokeWidth="2.5" />
+                      <circle cx="26" cy="26" r="22" fill="none" stroke={riskColor.color} strokeWidth="2.5" strokeLinecap="round"
+                        strokeDasharray="138.2"
+                        style={{ strokeDashoffset: 138.2 - (riskVeri.skor / 100) * 138.2, animation: `risk-draw-${riskVeri.skor} 1.1s ease-out forwards`, filter: `drop-shadow(0 0 4px ${riskColor.color}66)` }} />
+                    </svg>
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 17, fontWeight: 800, color: riskColor.color, lineHeight: 1 }}>{riskVeri.skor}</span>
+                    </div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 11, color: "#475569", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 3 }}>Risk Skoru</div>
