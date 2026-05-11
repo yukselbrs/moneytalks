@@ -112,15 +112,8 @@ export default function BildirimlerPage() {
 
   return (
     <AppShell>
-      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)", position: "relative", overflow: "hidden" }}>
-        {/* Aurora background */}
-        <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-          <div className="aurora-blob aurora-1" />
-          <div className="aurora-blob aurora-2" />
-          <div className="aurora-blob aurora-3" />
-        </div>
-
-        <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 24px", position: "relative", zIndex: 1 }}>
+      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
+        <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 24px" }}>
           {/* Header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -253,46 +246,6 @@ export default function BildirimlerPage() {
         </main>
 
         <style jsx>{`
-          .aurora-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.45;
-            mix-blend-mode: screen;
-            will-change: transform;
-          }
-          .aurora-1 {
-            width: 540px; height: 540px;
-            background: radial-gradient(circle, #3B82F6 0%, transparent 70%);
-            top: -180px; left: -140px;
-            animation: blob1 18s ease-in-out infinite;
-          }
-          .aurora-2 {
-            width: 460px; height: 460px;
-            background: radial-gradient(circle, #8B5CF6 0%, transparent 70%);
-            top: 120px; right: -160px;
-            animation: blob2 22s ease-in-out infinite;
-          }
-          .aurora-3 {
-            width: 380px; height: 380px;
-            background: radial-gradient(circle, #06B6D4 0%, transparent 70%);
-            bottom: -120px; left: 30%;
-            animation: blob3 26s ease-in-out infinite;
-            opacity: 0.25;
-          }
-          @keyframes blob1 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(80px, 40px) scale(1.1); }
-          }
-          @keyframes blob2 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-60px, 50px) scale(0.95); }
-          }
-          @keyframes blob3 {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(40px, -30px) scale(1.05); }
-          }
-
           .hero-bell {
             position: relative;
             width: 36px; height: 36px;
