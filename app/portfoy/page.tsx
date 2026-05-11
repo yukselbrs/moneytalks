@@ -505,18 +505,23 @@ export default function PortfoyPage() {
     : <span style={{ fontSize: 8, marginLeft: 3, opacity: 0.25 }}>⇅</span>;
 
   useEffect(() => {
-    if (!senaryoAcik || portfoy.length === 0 || Object.keys(betaVerisi).length > 0) return;
+    if (!senaryoAcik || portfoy.length === 0) return;
+    const eksikTickers = portfoy
+      .map(p => p.ticker)
+      .filter(ticker => betaVerisi[ticker] === undefined);
+    if (eksikTickers.length === 0) return;
+
     async function betaYukle() {
       setBetaYukleniyor(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
-        const tickers = portfoy.map(p => p.ticker).join(",");
+        const tickers = eksikTickers.join(",");
         const res = await fetch(`/api/senaryo?tickers=${tickers}`, {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
         const data = await res.json() as Record<string, { beta: number | null; sirketAdi: string }>;
-        setBetaVerisi(data);
+        setBetaVerisi(prev => ({ ...prev, ...data }));
       } finally {
         setBetaYukleniyor(false);
       }
@@ -1066,6 +1071,131 @@ export default function PortfoyPage() {
             </div>
           </div>
         )}
+
+        {/* ── Senaryo Analizi ── */}
+        {portfoy.length > 0 && (
+          <div className="mt-4 mb-6 relative overflow-hidden rounded-2xl" style={{ background: "rgba(8,14,26,0.9)", border: "1px solid rgba(59,130,246,0.1)", boxShadow: "0 0 48px rgba(59,130,246,0.04), inset 0 0 60px rgba(0,0,0,0.2)" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
+            <button onClick={() => setSenaryoAcik(v => !v)} className="w-full flex items-center justify-between px-5 py-4 text-left outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/25">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(96,165,250,0.6)" }}>Senaryo Analizi</p>
+                {senaryoAcik && <span className="text-xs text-slate-500">XU100 değişirse portföy tahmini nasıl etkilenir?</span>}
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                className="text-slate-600 transition-transform duration-200" style={{ transform: senaryoAcik ? "rotate(180deg)" : "rotate(0)" }}>
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+
+            {senaryoAcik && (
+              <div style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}>
+                <style>{`
+                  .senaryo-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 999px; outline: none; cursor: pointer; }
+                  .senaryo-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #3B82F6; border: 3px solid #0F172A; box-shadow: 0 0 0 2px rgba(96,165,250,0.28); cursor: pointer; }
+                  .senaryo-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #3B82F6; border: 3px solid #0F172A; cursor: pointer; }
+                `}</style>
+                <div className="grid grid-cols-1 gap-4 px-5 py-4 lg:grid-cols-[minmax(260px,0.85fr)_1fr] lg:items-center">
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em]">XU100 Senaryosu</span>
+                      <span className={`portfolio-number text-lg font-extrabold ${senaryoYuzde > 0 ? "text-emerald-400" : senaryoYuzde < 0 ? "text-red-400" : "text-slate-500"}`}>
+                        {senaryoYuzde > 0 ? "+" : ""}{senaryoYuzde}%
+                      </span>
+                    </div>
+                    <div className="relative pt-1">
+                      <input
+                        type="range" min={-40} max={40} step={1}
+                        value={senaryoYuzde}
+                        onChange={e => setSenaryoYuzde(Number(e.target.value))}
+                        className="senaryo-slider"
+                        style={{
+                          background: senaryoYuzde === 0
+                            ? "rgba(255,255,255,0.08)"
+                            : senaryoYuzde > 0
+                              ? `linear-gradient(to right, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.06) 50%, rgba(16,185,129,0.85) 50%, rgba(16,185,129,0.85) ${50 + senaryoYuzde * 1.25}%, rgba(255,255,255,0.06) ${50 + senaryoYuzde * 1.25}%, rgba(255,255,255,0.06) 100%)`
+                              : `linear-gradient(to right, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.06) ${50 + senaryoYuzde * 1.25}%, rgba(239,68,68,0.85) ${50 + senaryoYuzde * 1.25}%, rgba(239,68,68,0.85) 50%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.06) 100%)`,
+                        }}
+                      />
+                      <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-slate-600/45" />
+                    </div>
+                    <div className="mt-2 flex justify-between text-[10px] text-slate-700 font-medium">
+                      <span>−40%</span><span>0</span><span>+40%</span>
+                    </div>
+                  </div>
+
+                  {betaYukleniyor ? (
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <div className="w-3 h-3 border border-slate-600 border-t-blue-500 rounded-full animate-spin" />
+                      Beta verileri alınıyor...
+                    </div>
+                  ) : (() => {
+                    let totalImpact = 0;
+                    const rows = portfoy.map(p => {
+                      const betaRaw = betaVerisi[p.ticker]?.beta;
+                      const betaVarsayim = betaRaw === null || betaRaw === undefined;
+                      const beta = betaRaw ?? 1;
+                      const guncel = fiyatlar[p.ticker]?.fiyat ?? p.maliyet;
+                      const portfolioValue = guncel * p.adet;
+                      const estimatedChangePct = senaryoYuzde * beta / 100;
+                      const impact = portfolioValue * estimatedChangePct;
+                      totalImpact += impact;
+                      return { ticker: p.ticker, beta, betaVarsayim, impact, changePct: estimatedChangePct * 100, portfolioValue };
+                    });
+                    const betaVarsayilanlar = rows.filter(r => r.betaVarsayim);
+                    const toplamPortfoyDegeri = rows.reduce((sum, r) => sum + r.portfolioValue, 0);
+                    const totalImpactPct = toplamPortfoyDegeri > 0 ? (totalImpact / toplamPortfoyDegeri) * 100 : 0;
+                    const maxImpact = Math.max(...rows.map(r => Math.abs(r.impact)), 0.01);
+
+                    return (
+                      <div>
+                        <div className="rounded-xl border border-slate-800/80 bg-slate-950/20 px-4 py-3">
+                          <div>
+                            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em]">Tahmini Etki</p>
+                            <p className={`portfolio-number mt-0.5 text-lg font-extrabold ${totalImpact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                              {totalImpact >= 0 ? "+" : ""}{totalImpact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                              <span className="ml-2 text-xs font-semibold opacity-70">
+                                {totalImpactPct >= 0 ? "+" : ""}{totalImpactPct.toFixed(2)}%
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 overflow-hidden rounded-xl border border-slate-800/80">
+                          {rows.map((r, idx) => (
+                            <div key={r.ticker} className="grid grid-cols-[64px_48px_1fr_58px_82px] items-center gap-2 px-3 py-2" style={{ borderTop: idx === 0 ? "none" : "1px solid rgba(255,255,255,0.035)" }}>
+                              <span className="portfolio-number text-xs font-bold text-slate-300">{r.ticker}</span>
+                              <span className={`portfolio-number text-[10px] ${r.betaVarsayim ? "text-amber-400" : "text-slate-600"}`}>β {r.beta.toFixed(2)}{r.betaVarsayim ? "*" : ""}</span>
+                              <div className="relative h-1 rounded-full bg-slate-800/70">
+                                <span className="absolute left-1/2 top-1/2 h-2.5 w-px -translate-y-1/2 bg-slate-600/40" />
+                                {senaryoYuzde !== 0 && (
+                                  <span className="absolute top-0 h-full rounded-full"
+                                    style={{
+                                      width: `${(Math.abs(r.impact) / maxImpact) * 50}%`,
+                                      left: r.impact >= 0 ? "50%" : undefined,
+                                      right: r.impact < 0 ? "50%" : undefined,
+                                      background: r.impact >= 0 ? "rgba(16,185,129,0.65)" : "rgba(239,68,68,0.65)",
+                                    }}
+                                  />
+                                )}
+                              </div>
+                              <span className={`portfolio-number text-right text-xs font-semibold ${r.changePct >= 0 ? "text-emerald-500" : "text-red-500"}`}>{r.changePct >= 0 ? "+" : ""}{r.changePct.toFixed(1)}%</span>
+                              <span className={`portfolio-number text-right text-xs font-bold ${r.impact >= 0 ? "text-emerald-400" : "text-red-400"}`}>{r.impact >= 0 ? "+" : ""}{r.impact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <p className="mt-2 text-[10px] text-slate-700">
+                          Beta katsayısı tahmindir; gerçek piyasa korelasyonu farklılaşabilir.
+                          {betaVarsayilanlar.length > 0 && ` * ${betaVarsayilanlar.map(r => r.ticker).join(", ")} için beta verisi yok, β 1,00 varsayıldı.`}
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {ekleModal.open && (
@@ -1208,133 +1338,6 @@ export default function PortfoyPage() {
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* ── Senaryo Analizi ── */}
-      {portfoy.length > 0 && (
-        <div className="mb-6 relative overflow-hidden rounded-2xl border border-slate-700/50" style={{ background: "linear-gradient(135deg, #0B1929 0%, #0F172A 60%, #0B1929 100%)", boxShadow: "0 0 60px rgba(59,130,246,0.06)" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
-
-          <button onClick={() => setSenaryoAcik(v => !v)} className="w-full flex items-center justify-between px-5 py-4 text-left">
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.15em]">Senaryo Analizi</p>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-              className="text-slate-600 transition-transform duration-200" style={{ transform: senaryoAcik ? "rotate(180deg)" : "rotate(0)" }}>
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </button>
-
-          {senaryoAcik && (
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-              {/* Slider */}
-              <div className="px-5 pt-4 pb-5">
-                <style>{`
-                  .senaryo-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 2px; outline: none; cursor: pointer; }
-                  .senaryo-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #3B82F6; border: 2px solid #1E40AF; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); cursor: pointer; }
-                  .senaryo-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #3B82F6; border: 2px solid #1E40AF; cursor: pointer; }
-                `}</style>
-                <div className="flex items-baseline justify-between mb-3">
-                  <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em]">XU100 Senaryosu</p>
-                  <span className={`portfolio-number text-2xl font-extrabold leading-none ${senaryoYuzde > 0 ? "text-emerald-400" : senaryoYuzde < 0 ? "text-red-400" : "text-slate-500"}`} style={{ letterSpacing: "-0.5px" }}>
-                    {senaryoYuzde > 0 ? "+" : ""}{senaryoYuzde}%
-                  </span>
-                </div>
-                <input
-                  type="range" min={-40} max={40} step={1}
-                  value={senaryoYuzde}
-                  onChange={e => setSenaryoYuzde(Number(e.target.value))}
-                  className="senaryo-slider"
-                  style={{
-                    background: senaryoYuzde === 0
-                      ? "rgba(255,255,255,0.08)"
-                      : senaryoYuzde > 0
-                        ? `linear-gradient(to right, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.06) 50%, #10B981 50%, #10B981 ${50 + senaryoYuzde * 1.25}%, rgba(255,255,255,0.06) ${50 + senaryoYuzde * 1.25}%, rgba(255,255,255,0.06) 100%)`
-                        : `linear-gradient(to right, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.06) ${50 + senaryoYuzde * 1.25}%, #EF4444 ${50 + senaryoYuzde * 1.25}%, #EF4444 50%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.06) 100%)`,
-                  }}
-                />
-                <div className="flex justify-between text-[10px] text-slate-700 mt-1.5 font-medium">
-                  <span>−40%</span><span>0</span><span>+40%</span>
-                </div>
-              </div>
-
-              {betaYukleniyor ? (
-                <div className="flex items-center gap-2 text-xs text-slate-600 px-5 pb-5">
-                  <div className="w-3 h-3 border border-slate-600 border-t-blue-500 rounded-full animate-spin" />
-                  Beta verileri alınıyor...
-                </div>
-              ) : (
-                <div>
-                  {/* Tablo başlığı */}
-                  <div className="flex items-center gap-2 px-5 pb-2" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-                    <span className="text-slate-700 text-[10px] font-bold uppercase tracking-[0.12em] w-16 shrink-0 pt-3">Hisse</span>
-                    <span className="text-slate-700 text-[10px] font-bold uppercase tracking-[0.12em] w-12 shrink-0 pt-3">Beta</span>
-                    <span className="flex-1 pt-3" />
-                    <span className="text-slate-700 text-[10px] font-bold uppercase tracking-[0.12em] w-16 text-right shrink-0 pt-3">Değişim</span>
-                    <span className="text-slate-700 text-[10px] font-bold uppercase tracking-[0.12em] w-24 text-right shrink-0 pt-3">Etki</span>
-                  </div>
-
-                  {/* Satırlar */}
-                  {(() => {
-                    let totalImpact = 0;
-                    const rows = portfoy.map(p => {
-                      const beta = betaVerisi[p.ticker]?.beta ?? 1;
-                      const guncel = fiyatlar[p.ticker]?.fiyat ?? p.maliyet;
-                      const portfolioValue = guncel * p.adet;
-                      const estimatedChangePct = senaryoYuzde * beta / 100;
-                      const impact = portfolioValue * estimatedChangePct;
-                      totalImpact += impact;
-                      return { ticker: p.ticker, beta, impact, changePct: estimatedChangePct * 100 };
-                    });
-                    const maxAbs = Math.max(...rows.map(r => Math.abs(r.changePct)), 0.01);
-
-                    return (
-                      <>
-                        {rows.map((r, idx) => (
-                          <div key={r.ticker}
-                            className="flex items-center gap-2 px-5 py-2.5"
-                            style={{ borderTop: idx === 0 ? "1px solid rgba(255,255,255,0.04)" : "1px solid rgba(255,255,255,0.02)" }}
-                          >
-                            <span className="portfolio-number text-xs font-bold text-slate-300 w-16 shrink-0">{r.ticker}</span>
-                            <span className="portfolio-number text-[10px] text-slate-600 w-12 shrink-0">β {r.beta.toFixed(2)}</span>
-                            <div className="flex-1 relative h-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
-                              {senaryoYuzde !== 0 && (
-                                <div className="absolute top-0 h-full rounded-full transition-all duration-300"
-                                  style={{
-                                    width: `${(Math.abs(r.changePct) / maxAbs) * 100}%`,
-                                    left: r.changePct >= 0 ? "0" : undefined,
-                                    right: r.changePct < 0 ? "0" : undefined,
-                                    background: r.changePct >= 0 ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.7)",
-                                  }}
-                                />
-                              )}
-                            </div>
-                            <span className={`portfolio-number text-xs font-semibold w-16 text-right shrink-0 ${r.changePct >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                              {r.changePct >= 0 ? "+" : ""}{r.changePct.toFixed(1)}%
-                            </span>
-                            <span className={`portfolio-number text-xs font-bold w-24 text-right shrink-0 ${r.impact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                              {r.impact >= 0 ? "+" : ""}{r.impact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
-                            </span>
-                          </div>
-                        ))}
-
-                        {/* Toplam */}
-                        <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                          <span className="text-slate-500 text-xs font-bold uppercase tracking-[0.1em]">Toplam portföy etkisi</span>
-                          <span className={`portfolio-number text-sm font-extrabold ${totalImpact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                            {totalImpact >= 0 ? "+" : ""}{totalImpact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
-                          </span>
-                        </div>
-                        <p className="text-center text-[10px] text-slate-700 pb-3">
-                          Beta katsayısı tahmindir; gerçek piyasa korelasyonu farklılaşabilir.
-                        </p>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
 
