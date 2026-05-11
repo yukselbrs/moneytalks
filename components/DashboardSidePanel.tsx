@@ -239,10 +239,11 @@ function ActiveAlarmsCard() {
   };
 
   return (
-    <div className="dash-surface" style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
-      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", position: "relative" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.35) 70%, transparent 100%)" }} />
+      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-          <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>Aktif Alarmlar</h3>
+          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Aktif Alarmlar</p>
           {!loading && alarmlar.length > 0 && (
             <span style={{ fontSize: 10, fontWeight: 700, color: "#F59E0B", background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.22)", borderRadius: 999, padding: "1px 6px" }}>
               {alarmlar.length}
@@ -253,9 +254,9 @@ function ActiveAlarmsCard() {
       </div>
 
       {loading ? (
-        <div style={{ padding: "12px 14px" }}>
-          {[1, 2, 3].map(i => (
-            <div key={i} style={{ height: 12, borderRadius: 4, background: "rgba(30,41,59,0.7)", marginBottom: 8, width: i === 2 ? "60%" : "80%" }} />
+        <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+          {[80, 65, 75].map((w, i) => (
+            <div key={i} style={{ height: 12, borderRadius: 4, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", width: `${w}%` }} />
           ))}
         </div>
       ) : alarmlar.length === 0 ? (
@@ -382,7 +383,7 @@ function UpcomingEventsCard() {
       {loading ? (
         <div style={{ padding: "10px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
           {[80, 65, 75].map((w, i) => (
-            <div key={i} style={{ height: 11, borderRadius: 4, background: "rgba(30,41,59,0.7)", width: `${w}%` }} />
+            <div key={i} style={{ height: 11, borderRadius: 4, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", width: `${w}%` }} />
           ))}
         </div>
       ) : events.length === 0 ? (

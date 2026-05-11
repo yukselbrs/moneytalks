@@ -29,9 +29,10 @@ function gorunumMetni(skor: number) {
 
 export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
   return (
-    <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280 }}>
+    <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280, position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.35) 70%, transparent 100%)" }} />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <h2 style={{ fontSize: 11, fontWeight: 700, color: "#64748B", letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>Yapay Zekâ Analizi</h2>
+        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Yapay Zekâ Analizi</p>
         <button onClick={onAnalyze}
           style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 20, padding: "3px 12px", cursor: "pointer" }}>
           ↻ Yeni

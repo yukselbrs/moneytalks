@@ -22,7 +22,7 @@ type RegimeData = {
 };
 
 const toneStyle: Record<RegimeTone, { color: string; bg: string; border: string; label: string }> = {
-  positive: { color: "#34D399", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.18)", label: "Güçlü" },
+  positive: { color: "#10B981", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.18)", label: "Güçlü" },
   negative: { color: "#F87171", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.18)", label: "Baskılı" },
   neutral: { color: "#94A3B8", bg: "rgba(148,163,184,0.06)", border: "rgba(148,163,184,0.14)", label: "Dengeli" },
   selective: { color: "#A78BFA", bg: "rgba(139,92,246,0.08)", border: "rgba(139,92,246,0.18)", label: "Seçici" },
@@ -36,8 +36,8 @@ export default function DashboardMarketRegime() {
   if (loading) {
     return (
       <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "12px 14px", minHeight: 96 }}>
-        <div style={{ width: 130, height: 12, borderRadius: 4, background: "rgba(30,41,59,0.8)", marginBottom: 12 }} />
-        <div style={{ width: "70%", height: 22, borderRadius: 6, background: "rgba(30,41,59,0.65)" }} />
+        <div style={{ width: 130, height: 12, borderRadius: 4, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite", marginBottom: 12 }} />
+        <div style={{ width: "70%", height: 22, borderRadius: 6, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite" }} />
       </div>
     );
   }
@@ -77,7 +77,7 @@ export default function DashboardMarketRegime() {
       </div>}
       {open && <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 8, marginTop: 12 }}>
         {[
-          { label: "Yükselen", value: data.metrikler.yukselen, color: "#34D399" },
+          { label: "Yükselen", value: data.metrikler.yukselen, color: "#10B981" },
           { label: "Düşen", value: data.metrikler.dusen, color: "#F87171" },
           { label: "Ort.", value: `${data.metrikler.ortalamaDegisim >= 0 ? "+" : ""}${data.metrikler.ortalamaDegisim.toLocaleString("tr-TR")}%`, color: style.color },
           { label: "Hacim", value: data.metrikler.hacimCanliligi, color: "#CBD5E1" },
