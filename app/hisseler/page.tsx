@@ -3,8 +3,16 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
-import { Search, X } from "lucide-react";
+import { Search, X, LayoutGrid, AlignJustify } from "lucide-react";
 import { tickerRenk } from "@/lib/utils";
+
+type IsiHisse = {
+  ticker: string;
+  ad: string;
+  domain?: string;
+  degisim: number | null;
+  piyasaDegeri: number | null;
+};
 
 type Hisse = {
   ticker: string;
@@ -61,9 +69,12 @@ function HisselerContent() {
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const q = searchParams.get("q") || "";
 
+  const [gorunum, setGorunum] = useState<"tablo" | "isi">("tablo");
   const [arama, setArama] = useState(q);
   const [data, setData] = useState<ApiResponse | null>(null);
   const [yukleniyor, setYukleniyor] = useState(true);
+  const [isiData, setIsiData] = useState<IsiHisse[]>([]);
+  const [isiYukleniyor, setIsiYukleniyor] = useState(false);
 
   // URL search param güncelleme yardımcısı
   const updateParams = useCallback((updates: Record<string, string | null>) => {
@@ -124,6 +135,16 @@ function HisselerContent() {
     };
   }, [sort, sortDir, page, q]);
 
+  // Isı haritası verisi — bir kez çek, cache'le
+  useEffect(() => {
+    if (gorunum !== "isi" || isiData.length > 0) return;
+    setIsiYukleniyor(true);
+    fetch("/api/hisseler?heatmap=true")
+      .then(r => r.json())
+      .then((d: { items: IsiHisse[] }) => { setIsiData(d.items || []); setIsiYukleniyor(false); })
+      .catch(() => setIsiYukleniyor(false));
+  }, [gorunum]);
+
   const items = data?.items || [];
   const toplam = data?.total || 0;
   const pageSize = data?.pageSize || 25;
@@ -132,6 +153,22 @@ function HisselerContent() {
   const aktifSiralamaMetni = aktifSiralama
     ? `${aktifSiralama.label}${sortDir ? ` ${sortDir === "desc" ? "azalan" : "artan"}` : ""}`
     : "A-Z";
+
+  const isiRenk = (d: number | null) => {
+    if (d === null) return { bg: "rgba(30,41,59,0.55)", border: "rgba(148,163,184,0.07)", text: "#475569" };
+    const a = Math.abs(d);
+    if (d >= 0) {
+      if (a >= 5) return { bg: "rgba(5,150,105,0.88)", border: "rgba(16,185,129,0.45)", text: "#ECFDF5" };
+      if (a >= 2) return { bg: "rgba(16,185,129,0.50)", border: "rgba(16,185,129,0.28)", text: "#D1FAE5" };
+      if (a >= 0.5) return { bg: "rgba(16,185,129,0.22)", border: "rgba(16,185,129,0.14)", text: "#A7F3D0" };
+      return { bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.08)", text: "#6EE7B7" };
+    } else {
+      if (a >= 5) return { bg: "rgba(185,28,28,0.88)", border: "rgba(239,68,68,0.45)", text: "#FEF2F2" };
+      if (a >= 2) return { bg: "rgba(239,68,68,0.50)", border: "rgba(239,68,68,0.28)", text: "#FEE2E2" };
+      if (a >= 0.5) return { bg: "rgba(239,68,68,0.22)", border: "rgba(239,68,68,0.14)", text: "#FECACA" };
+      return { bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.08)", text: "#FCA5A5" };
+    }
+  };
 
   const renderPercent = (value: string | null, className = "") => {
     const val = value !== null ? parseFloat(value) : null;
@@ -151,7 +188,14 @@ function HisselerContent() {
           .hisse-siralama button:hover { border-color: rgba(59,130,246,0.35) !important; color: #94A3B8 !important; }
           .hisse-arama:focus-within { border-color: rgba(59,130,246,0.42) !important; background: rgba(59,130,246,0.07) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
           .hisse-mobile-returns { display: none; }
+          .isi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px; }
+          .isi-hucre { border-radius: 8px; padding: 10px 8px 8px; cursor: pointer; transition: filter 0.12s, transform 0.12s; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; }
+          .isi-hucre:hover { filter: brightness(1.18); transform: scale(1.03); z-index: 1; position: relative; }
+          .gorunum-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(59,130,246,0.12); background: rgba(255,255,255,0.012); color: #64748B; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.1s; }
+          .gorunum-btn.aktif { border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.15); color: #3B82F6; font-weight: 700; }
+          .gorunum-btn:hover:not(.aktif) { border-color: rgba(59,130,246,0.25); color: #94A3B8; }
           @media (max-width: 640px) {
+            .isi-grid { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 3px; }
             main { padding: 16px 12px !important; }
             .hisse-toolbar { grid-template-columns: 1fr !important; }
             .hisse-tablo-header { display: none !important; }
@@ -174,25 +218,40 @@ function HisselerContent() {
               <h1 style={{ fontSize: 24, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 10 }}>
                 Hisseler
                 <span style={{ fontSize: 13, color: "#334155", fontWeight: 500, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "2px 10px" }}>
-                  {yukleniyor ? "..." : `${toplam} hisse`}
+                  {yukleniyor && gorunum === "tablo" ? "..." : `${gorunum === "isi" ? isiData.length || "..." : toplam} hisse`}
                 </span>
               </h1>
             </div>
-            <div style={{ fontSize: 11, color: "#475569", display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-              <span style={{ color: "#64748B" }}>Aktif:</span>
-              <span style={{ color: "#94A3B8" }}>{aktifSiralamaMetni}</span>
-              {q && <span style={{ color: "#3B82F6" }}>Arama: {q}</span>}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {gorunum === "tablo" && (
+                <div style={{ fontSize: 11, color: "#475569", display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <span style={{ color: "#64748B" }}>Aktif:</span>
+                  <span style={{ color: "#94A3B8" }}>{aktifSiralamaMetni}</span>
+                  {q && <span style={{ color: "#3B82F6" }}>Arama: {q}</span>}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 4 }}>
+                <button className={`gorunum-btn${gorunum === "tablo" ? " aktif" : ""}`} onClick={() => setGorunum("tablo")}>
+                  <AlignJustify size={13} /> Tablo
+                </button>
+                <button className={`gorunum-btn${gorunum === "isi" ? " aktif" : ""}`} onClick={() => setGorunum("isi")}>
+                  <LayoutGrid size={13} /> Isı Haritası
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="hisse-toolbar">
             <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              {SIRALAMA_OPTIONS.map(s => (
+              {gorunum === "tablo" && SIRALAMA_OPTIONS.map(s => (
                 <button key={s.key} onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
                   style={{ padding: "5px 11px", borderRadius: 8, border: `1px solid ${sort === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: sort === s.key ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.012)", color: sort === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: sort === s.key ? 700 : 500, cursor: "pointer", whiteSpace: "nowrap" }}>
                   {s.label}
                 </button>
               ))}
+              {gorunum === "isi" && (
+                <span style={{ fontSize: 12, color: "#475569" }}>Piyasa değerine göre sıralı · Renk: günlük değişim</span>
+              )}
             </div>
             <div className="hisse-arama card-glass" style={{ display: "flex", alignItems: "center", gap: 8, borderRadius: 10, padding: "7px 12px", minWidth: 260 }}>
               <Search size={14} color="#475569" />
@@ -202,7 +261,67 @@ function HisselerContent() {
             </div>
           </div>
 
+          {/* Isı Haritası */}
+          {gorunum === "isi" && (
+            <div>
+              {isiYukleniyor && (
+                <div style={{ padding: "80px 0", textAlign: "center", color: "#475569", fontSize: 13 }}>Yükleniyor...</div>
+              )}
+              {!isiYukleniyor && isiData.length > 0 && (() => {
+                const filtreli = arama
+                  ? isiData.filter(h => h.ticker.includes(arama.toUpperCase()) || h.ad.toUpperCase().includes(arama.toUpperCase()))
+                  : isiData;
+                return (
+                  <>
+                    {/* Renk skalası */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+                      {[
+                        { bg: "rgba(5,150,105,0.88)", label: "≥+5%" },
+                        { bg: "rgba(16,185,129,0.50)", label: "+2%" },
+                        { bg: "rgba(16,185,129,0.22)", label: "+0.5%" },
+                        { bg: "rgba(16,185,129,0.08)", label: "0" },
+                        { bg: "rgba(30,41,59,0.55)", label: "~0" },
+                        { bg: "rgba(239,68,68,0.08)", label: "-0.5%" },
+                        { bg: "rgba(239,68,68,0.22)", label: "-2%" },
+                        { bg: "rgba(239,68,68,0.50)", label: "-5%" },
+                        { bg: "rgba(185,28,28,0.88)", label: "≤-5%" },
+                      ].map(item => (
+                        <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ width: 12, height: 12, borderRadius: 3, background: item.bg, display: "inline-block", border: "1px solid rgba(255,255,255,0.06)" }} />
+                          <span style={{ fontSize: 11, color: "#475569" }}>{item.label}</span>
+                        </div>
+                      ))}
+                      <span style={{ marginLeft: "auto", fontSize: 11, color: "#334155" }}>{filtreli.length} hisse</span>
+                    </div>
+                    <div className="isi-grid">
+                      {filtreli.map(h => {
+                        const renk = isiRenk(h.degisim);
+                        const pozitif = (h.degisim ?? 0) >= 0;
+                        return (
+                          <div key={h.ticker} className="isi-hucre" onClick={() => router.push(`/hisse/${h.ticker}`)}
+                            style={{ background: renk.bg, border: `1px solid ${renk.border}` }}>
+                            <p style={{ fontSize: 12, fontWeight: 700, color: renk.text, margin: 0, letterSpacing: "-0.2px", textAlign: "center" }}>{h.ticker}</p>
+                            {h.degisim !== null && (
+                              <p style={{ fontSize: 11, fontWeight: 600, color: renk.text, margin: "3px 0 0", opacity: 0.9, textAlign: "center" }}>
+                                {pozitif ? "▲" : "▼"} %{Math.abs(h.degisim).toFixed(2).replace(".", ",")}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {filtreli.length === 0 && (
+                      <div style={{ padding: "60px 0", textAlign: "center", color: "#475569", fontSize: 13 }}>Sonuç bulunamadı</div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          )}
+
           {/* Tablo */}
+          {gorunum === "tablo" && (
+            <>
             <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
               <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
               {TABLO_BASLIKLARI.map((h) => {
@@ -306,6 +425,8 @@ function HisselerContent() {
                 style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === toplamSayfa ? "#1E293B" : "#64748B", cursor: page === toplamSayfa ? "not-allowed" : "pointer", fontSize: 12 }}>»</button>
             </div>
           </div>
+            </>
+          )}
 
         </main>
       </div>

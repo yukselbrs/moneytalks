@@ -58,8 +58,29 @@ const SORT_MAP: Record<string, { col: SnapshotSortColumn; ascDefault: boolean }>
 const HISSE_META = new Map(BIST_HISSELER.map((h) => [h.ticker, h]));
 const GUN = 24 * 60 * 60;
 
+type HeatmapRow = { ticker: string; degisim_yuzde: number | string | null; piyasa_degeri: number | null };
+
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
+
+  // Heatmap modu — pagination yok, tüm snapshot verisi
+  if (sp.get("heatmap") === "true") {
+    const { data: snaps } = await supabase
+      .from("hisse_snapshots")
+      .select("ticker, degisim_yuzde, piyasa_degeri");
+    const snapMap = new Map((snaps ?? []).map(s => [s.ticker, s as HeatmapRow]));
+    const items = BIST_HISSELER
+      .filter(h => h.listed !== false && h.priceAvailable !== false)
+      .map(h => {
+        const snap = snapMap.get(h.ticker);
+        const degisim = snap?.degisim_yuzde != null ? Number(snap.degisim_yuzde) : null;
+        return { ticker: h.ticker, ad: h.ad, domain: h.domain, degisim, piyasaDegeri: snap?.piyasa_degeri ?? null };
+      })
+      .filter(h => h.degisim !== null)
+      .sort((a, b) => (b.piyasaDegeri ?? 0) - (a.piyasaDegeri ?? 0));
+    return NextResponse.json({ items }, { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" } });
+  }
+
   const sort = sp.get("sort") || "alfabetik";
   const dirParam = sp.get("dir");
   const explicitDir = dirParam === "asc" || dirParam === "desc" ? dirParam : null;
