@@ -134,6 +134,9 @@ function niyetSiniflandir(text, aktifTicker) {
   if (/\b(alarm|bildir|uyar|takip et|hat[ıi]rlat)\b/.test(q)) return "alarm_aksiyon";
   if (RAKIP_KAYNAK_IFADELERI.some((re) => re.test(text))) return "genel";
   if (/(hisseyi?|bu hisseyi?|şimdi|hemen)\s+(al|sat)\b/i.test(text)) return "hisse_analizi";
+  if (/\b(piyasa|bist|bıst|endeks|endeksi|xu100|xu030|sektör|sektor)\b/.test(q)
+    && /\b(bugün|bugun|nasıl|nasil|durum|görünüm|gorunum|genel|özet|ozet|dışında|disinda|ne durumda)\b/.test(q)
+    && !/\b(portföyüm|portfoyum|portföyümde|portfoyumde|pozisyonlarım|pozisyonlarim)\b/.test(q)) return "piyasa_genel";
   if (/\b(portföy|portfoy|pozisyon|dağılım|agirlik|ağırlık|kar etmişim|zarar|k\/z|getirim|getiri)\b/.test(q)) return "portfoy";
   if (/\b(karşılaştır|kıyasla|hangisi|m[ıiuü]\s+.*\s+m[ıiuü]|versus|vs\.?|farkı ne)\b/.test(q)) return "karsilastirma";
   if (tickerVar && /\b(kaç tl|fiyat|fiyatı|fiyati)\b/.test(q)) return "hisse_analizi";
@@ -238,6 +241,9 @@ const soruSeti = [
   { q: "Pozisyon ağırlıklarımı yorumla", intent: "portfoy", group: "portfoy" },
   { q: "Portföyümde zarar edenleri açıkla", intent: "portfoy", group: "portfoy" },
   { q: "Getirim endekse göre iyi mi?", intent: "portfoy", group: "portfoy" },
+  { q: "Bugün piyasa nasıl?", intent: "piyasa_genel", group: "piyasa" },
+  { q: "Portföy dışında genel piyasa ne durumda?", intent: "piyasa_genel", group: "piyasa" },
+  { q: "BIST genel görünüm özetini ver", intent: "piyasa_genel", group: "piyasa" },
   { q: "GARAN mı AKBNK mi?", intent: "karsilastirma", group: "karsilastirma" },
   { q: "THYAO ile PGSUS karşılaştır", intent: "karsilastirma", group: "karsilastirma" },
   { q: "FROTO mu TOASO mu daha güçlü?", intent: "karsilastirma", group: "karsilastirma" },
@@ -256,7 +262,7 @@ const soruSeti = [
   { q: "KAP açıklaması fiyatı etkiledi mi?", intent: "haber_neden", group: "haber" },
   { q: "KCHOL niye hareketli?", intent: "haber_neden", group: "haber" },
   { q: "TUPRS düşüyor sebep ne?", intent: "haber_neden", group: "haber" },
-  { q: "BIST bugün neden sert?", intent: "haber_neden", group: "haber" },
+  { q: "BIST bugün neden sert?", intent: "piyasa_genel", group: "piyasa" },
   { q: "FROTO yükseldi haber mi geldi?", intent: "haber_neden", group: "haber" },
   { q: "GARAN 140 üstüne çıkarsa uyar", intent: "alarm_aksiyon", group: "alarm" },
   { q: "THYAO yüzde 5 düşerse bildir", intent: "alarm_aksiyon", group: "alarm" },
@@ -271,8 +277,8 @@ const soruSeti = [
 ];
 
 console.log("\nSoru seti");
-assert(soruSeti.length === 54, "54 örnek soru tanımlı");
-for (const group of ["kavram", "hisse", "portfoy", "karsilastirma", "haber", "alarm", "yasakli", "tarama"]) {
+assert(soruSeti.length === 57, "57 örnek soru tanımlı");
+for (const group of ["kavram", "hisse", "portfoy", "piyasa", "karsilastirma", "haber", "alarm", "yasakli", "tarama"]) {
   assert(soruSeti.some((s) => s.group === group), `${group} soru grubu var`);
 }
 
@@ -316,6 +322,7 @@ assert(route.includes("AKTİF CEVAP MODU: PORTFÖY KOÇU"), "portföy prompt mod
 assert(route.includes("AKTİF CEVAP MODU: KARŞILAŞTIRMA"), "karşılaştırma prompt modu var");
 assert(route.includes("AKTİF CEVAP MODU: NEDEN/HABER YORUMU"), "haber nedeni prompt modu var");
 assert(route.includes("AKTİF CEVAP MODU: AKSİYON/ALARM"), "alarm prompt modu var");
+assert(route.includes("AKTİF CEVAP MODU: GENEL PİYASA RADARI"), "genel piyasa prompt modu var");
 assert(route.includes("Cevabın sonunda mutlaka şu cümle yer alsın"), "yatırım tavsiyesi uyarısı sistem promptunda zorunlu");
 assert(route.includes("Rakip finans platformu"), "rakip yönlendirme yasağı sistem promptunda var");
 assert(route.includes("Hazır fiyat cevabı"), "fiyat regression promptu var");
@@ -382,6 +389,13 @@ assert(route.includes("TAKAS/YABANCI VERİ KAPSAMI"), "takas yabancı veri kapsa
 assert(route.includes("Gerçek MKK/takas saklama dağılımı: veri yok"), "gerçek takas verisi yoksa açıkça söyleniyor");
 assert(route.includes("yabancı alımı/satımı varmış gibi konuşma"), "yabancı işlem uydurma freni var");
 assert(route.includes("halka açıklık/pay yapısı verisini yabancı takas gibi sunma"), "halka açıklık yabancı takasla karıştırılmıyor");
+assert(route.includes("GENEL_PIYASA_ENDEKSLERI"), "genel piyasa endeks seti var");
+assert(route.includes("genelPiyasaBaglamiCek"), "genel piyasa bağlamı çekiliyor");
+assert(route.includes("GENEL PİYASA BAĞLAMI"), "genel piyasa prompt bağlamı var");
+assert(route.includes("Piyasa genişliği"), "piyasa genişliği hesaplanıp prompta giriyor");
+assert(route.includes("En çok yükselenler") && route.includes("En çok düşenler"), "genel piyasa yükselen/düşen listeleri var");
+assert(route.includes("Genel piyasa verisine erişimim yok"), "genel piyasa yok iddiasını engelleyen prompt var");
+assert(route.includes("portföy cevabına çevirmeme"), "genel piyasa sorusu portföye kaydırılmıyor");
 assert(route.includes("chatbotTelemetryLogla"), "telemetry akışı korunuyor");
 
 if (failures > 0) {

@@ -180,6 +180,7 @@ type ChatIntent =
   | "karsilastirma"
   | "haber_neden"
   | "alarm_aksiyon"
+  | "piyasa_genel"
   | "genel";
 
 type HissePromptVeri = {
@@ -303,6 +304,30 @@ type PiyasaKiyasBaglami = {
   sektorEndeksi?: EndeksKiyasItem;
   sektorEndeksKodu?: string;
   sektorEndeksAdi?: string;
+};
+
+type GenelPiyasaHisse = {
+  ticker: string;
+  sirketAdi?: string;
+  sektor?: string;
+  fiyat?: number;
+  degisimYuzde?: number;
+  relatifHacim?: number;
+  hacim?: number;
+};
+
+type GenelPiyasaBaglami = {
+  endeksler: EndeksKiyasItem[];
+  kapsam: number;
+  veriSayisi: number;
+  yukselenSayisi: number;
+  dusenSayisi: number;
+  yataySayisi: number;
+  ortalamaDegisim?: number;
+  enCokYukselenler: GenelPiyasaHisse[];
+  enCokDusenler: GenelPiyasaHisse[];
+  yuksekRelatifHacim: GenelPiyasaHisse[];
+  sektorEndeksleri: EndeksKiyasItem[];
 };
 
 type YahooChartMeta = {
@@ -1135,6 +1160,91 @@ async function piyasaKiyasBaglamiCek(sektor?: string, endustri?: string): Promis
   };
 }
 
+const GENEL_PIYASA_ENDEKSLERI = [
+  { kod: "XU100.IS", ad: "BIST 100" },
+  { kod: "XU030.IS", ad: "BIST 30" },
+  { kod: "XBANK.IS", ad: "BIST Banka" },
+  { kod: "XUSIN.IS", ad: "BIST Sınai" },
+  { kod: "XUTEK.IS", ad: "BIST Teknoloji" },
+  { kod: "XHOLD.IS", ad: "BIST Holding ve Yatırım" },
+  { kod: "XULAS.IS", ad: "BIST Ulaştırma" },
+  { kod: "XKMYA.IS", ad: "BIST Kimya Petrol Plastik" },
+  { kod: "XGIDA.IS", ad: "BIST Gıda İçecek" },
+  { kod: "XTCRT.IS", ad: "BIST Ticaret" },
+];
+
+async function genelPiyasaBaglamiCek(): Promise<GenelPiyasaBaglami> {
+  const tickers = BIST_HISSELER
+    .filter((h) => h.listed !== false && h.priceAvailable !== false)
+    .map((h) => `BIST:${h.ticker}`);
+  const chunks: string[][] = [];
+  for (let i = 0; i < tickers.length; i += 180) chunks.push(tickers.slice(i, i + 180));
+
+  const endeksPromise = Promise.all(GENEL_PIYASA_ENDEKSLERI.map((item) => endeksVerisiCek(item.kod, item.ad)));
+  const scannerPromises = Promise.all(chunks.map(async (chunk) => {
+    try {
+      const res = await fetch("https://scanner.tradingview.com/turkey/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          symbols: { tickers: chunk, query: { types: [] } },
+          columns: ["name", "description", "sector", "close", "change", "volume", "relative_volume_10d_calc"],
+        }),
+        cache: "no-store",
+      });
+      if (!res.ok) return [] as Array<{ s?: string; d?: unknown[] }>;
+      const data = await res.json();
+      return (data?.data ?? []) as Array<{ s?: string; d?: unknown[] }>;
+    } catch {
+      return [] as Array<{ s?: string; d?: unknown[] }>;
+    }
+  }));
+  const [endeksSonuclari, scannerSonuclari] = await Promise.all([endeksPromise, scannerPromises]);
+
+  const hisseler = scannerSonuclari.flat().map((row): GenelPiyasaHisse | null => {
+    const [name, description, sector, close, change, volume, relatifHacim] = row.d ?? [];
+    const ticker = String(name || row.s?.split(":")[1] || "").replace("BIST:", "").toLocaleUpperCase("tr-TR");
+    if (!ticker) return null;
+    return {
+      ticker,
+      sirketAdi: typeof description === "string" ? description : undefined,
+      sektor: typeof sector === "string" && sector.trim() ? sector : undefined,
+      fiyat: finiteNumber(close),
+      degisimYuzde: finiteNumber(change),
+      hacim: finiteNumber(volume),
+      relatifHacim: finiteNumber(relatifHacim),
+    };
+  }).filter((row): row is GenelPiyasaHisse => Boolean(row));
+
+  const degisimli = hisseler.filter((h) => h.degisimYuzde !== undefined);
+  const yukselenSayisi = degisimli.filter((h) => (h.degisimYuzde ?? 0) > 0.05).length;
+  const dusenSayisi = degisimli.filter((h) => (h.degisimYuzde ?? 0) < -0.05).length;
+  const yataySayisi = degisimli.length - yukselenSayisi - dusenSayisi;
+  const ortalamaDegisim = degisimli.length > 0
+    ? degisimli.reduce((sum, h) => sum + (h.degisimYuzde ?? 0), 0) / degisimli.length
+    : undefined;
+
+  const endeksler = endeksSonuclari.filter((item): item is EndeksKiyasItem => item !== null);
+  const anaEndeksKodlari = new Set(["XU100.IS", "XU030.IS"]);
+
+  return {
+    endeksler: endeksler.filter((item) => anaEndeksKodlari.has(item.kod)),
+    sektorEndeksleri: endeksler.filter((item) => !anaEndeksKodlari.has(item.kod)),
+    kapsam: tickers.length,
+    veriSayisi: hisseler.length,
+    yukselenSayisi,
+    dusenSayisi,
+    yataySayisi,
+    ortalamaDegisim,
+    enCokYukselenler: [...degisimli].sort((a, b) => (b.degisimYuzde ?? 0) - (a.degisimYuzde ?? 0)).slice(0, 8),
+    enCokDusenler: [...degisimli].sort((a, b) => (a.degisimYuzde ?? 0) - (b.degisimYuzde ?? 0)).slice(0, 8),
+    yuksekRelatifHacim: hisseler
+      .filter((h) => h.relatifHacim !== undefined)
+      .sort((a, b) => (b.relatifHacim ?? 0) - (a.relatifHacim ?? 0))
+      .slice(0, 8),
+  };
+}
+
 function alarmTaslagiCikar(text: string, aktifTicker?: string, veri?: HissePromptVeri | null): AlarmTaslak {
   const q = text.toLocaleLowerCase("tr-TR");
   const ticker = tickerAdaylari(text, aktifTicker)[0];
@@ -1669,6 +1779,54 @@ function piyasaKiyasOzeti(teknik?: TeknikMetrikler, piyasa?: PiyasaKiyasBaglami)
 - Yorum kuralı: hisse düşerken sektör/endeks de düşüyorsa piyasa baskısı olasılığını, hisse sektöründen ayrışıyorsa şirket/özel haber/teknik neden olasılığını ayrı belirt.`;
 }
 
+function genelPiyasaSatiri(item: GenelPiyasaHisse) {
+  const fiyat = tlFormatla(item.fiyat);
+  const degisim = yuzdeFormatla(item.degisimYuzde);
+  const relatif = item.relatifHacim !== undefined
+    ? `${item.relatifHacim.toLocaleString("tr-TR", { maximumFractionDigits: 2 })}x`
+    : "veri yok";
+  return `- ${item.ticker}: ${fiyat ? `${fiyat} ₺` : "fiyat veri yok"} | günlük ${degisim ?? "veri yok"} | relatif hacim ${relatif}${item.sektor ? ` | sektör ${item.sektor}` : ""}`;
+}
+
+function genelPiyasaPromptu(baglami?: GenelPiyasaBaglami | null) {
+  if (!baglami) {
+    return `GENEL PİYASA BAĞLAMI:
+- Genel endeks ve piyasa tarama verisi alınamadı.
+
+GENEL PİYASA KILAVUZU:
+- Kullanıcı "piyasa nasıl" diye sorarsa veri yoksa bunu açıkça söyle; portföy verisini genel piyasa yerine koyma.
+- Eksik veri için rakip/harici platforma yönlendirme; ParaKonuşur içindeki piyasa ve izleme ekranlarından bahsedebilirsin.`;
+  }
+
+  const endeksler = baglami.endeksler.map((item) => `- ${item.ad}: ${endeksSatiri(item)}`).join("\n") || "- Ana endeks verisi yok";
+  const sektorler = baglami.sektorEndeksleri
+    .slice()
+    .sort((a, b) => (b.gunlukDegisim ?? -999) - (a.gunlukDegisim ?? -999))
+    .map((item) => `- ${item.ad}: ${endeksSatiri(item)}`)
+    .join("\n") || "- Sektör endeksi verisi yok";
+
+  return `GENEL PİYASA BAĞLAMI:
+- Ana endeksler:
+${endeksler}
+- Sektör endeksleri:
+${sektorler}
+- BIST hisse taraması: ${baglami.kapsam} hisse denendi; ${baglami.veriSayisi} hisseden veri döndü.
+- Piyasa genişliği: ${baglami.yukselenSayisi} yükselen, ${baglami.dusenSayisi} düşen, ${baglami.yataySayisi} yatay; ortalama günlük değişim ${teknikYuzde(baglami.ortalamaDegisim)}.
+- En çok yükselenler:
+${baglami.enCokYukselenler.map(genelPiyasaSatiri).join("\n") || "- veri yok"}
+- En çok düşenler:
+${baglami.enCokDusenler.map(genelPiyasaSatiri).join("\n") || "- veri yok"}
+- Relatif hacmi yüksek hisseler:
+${baglami.yuksekRelatifHacim.map(genelPiyasaSatiri).join("\n") || "- veri yok"}
+
+GENEL PİYASA KILAVUZU:
+- Kullanıcı "bugün piyasa nasıl" diye sorarsa portföyü değil önce ana endeksler, sektör endeksleri, piyasa genişliği ve hacim canlılığını yorumla.
+- "Genel piyasa verisine erişimim yok" deme; yukarıdaki gecikmeli endeks ve tarama verisini kapsamıyla birlikte kullan.
+- Portföy verisi varsa yalnızca kullanıcı özellikle portföyünü sorarsa ek bağlam yap; genel piyasa sorusunu portföy cevabına çevirmeme.
+- En çok yükselen/düşen listesini yatırım önerisi gibi sunma; piyasanın nerede yoğunlaştığını göstermek için kullan.
+- Veriler gecikmeli olabilir; kesin yön ve garanti getiri dili kurma.`;
+}
+
 function hissePromptu(ticker: string, veri?: HissePromptVeri | null, analiz?: string, teknik?: TeknikMetrikler, temel?: TemelMetrikler, temettu?: TemettuGecmisi | null, piyasaKiyas?: PiyasaKiyasBaglami) {
   if (!veri) {
     return `HİSSE BAĞLAMI:
@@ -1886,6 +2044,9 @@ function niyetSiniflandir(text: string, aktifTicker?: string): ChatIntent {
   if (/\b(alarm|bildir|uyar|takip et|hat[ıi]rlat)\b/.test(q)) return "alarm_aksiyon";
   if (RAKIP_KAYNAK_IFADELERI.some((re) => re.test(text))) return "genel";
   if (/(hisseyi?|bu hisseyi?|şimdi|hemen)\s+(al|sat)\b/i.test(text)) return "hisse_analizi";
+  if (/\b(piyasa|bist|bıst|endeks|endeksi|xu100|xu030|sektör|sektor)\b/.test(q)
+    && /\b(bugün|bugun|nasıl|nasil|durum|görünüm|gorunum|genel|özet|ozet|dışında|disinda|ne durumda)\b/.test(q)
+    && !/\b(portföyüm|portfoyum|portföyümde|portfoyumde|pozisyonlarım|pozisyonlarim)\b/.test(q)) return "piyasa_genel";
   if (/\b(portföy|portfoy|pozisyon|dağılım|agirlik|ağırlık|kar etmişim|zarar|k\/z|getirim|getiri)\b/.test(q)) return "portfoy";
   if (/\b(karşılaştır|kıyasla|hangisi|m[ıiuü]\s+.*\s+m[ıiuü]|versus|vs\.?|farkı ne)\b/.test(q)) return "karsilastirma";
   if (tickerVar && /\b(kaç tl|fiyat|fiyatı|fiyati)\b/.test(q)) return "hisse_analizi";
@@ -1936,6 +2097,11 @@ function niyetPromptu(intent: ChatIntent) {
 - Eksik bilgi varsa kısa soru sor.
 - Henüz doğrudan işlem yapmadan önce onay gerektiğini belirt.
 - Aksiyon önerirken yatırım tavsiyesi verme.`,
+    piyasa_genel: `AKTİF CEVAP MODU: GENEL PİYASA RADARI
+- Ana endeksler, sektör endeksleri, piyasa genişliği ve hacim yoğunluğunu kullan.
+- Kullanıcı genel piyasa soruyorsa portföy tablosunu merkeze alma.
+- En çok yükselen/düşenleri piyasa fotoğrafı olarak ver; öneri veya al/sat sinyali gibi sunma.
+- Endeks veya tarama verisi eksikse eksikliği söyle, ama eldeki piyasa bağlamıyla sınırlı yorum yap.`,
     genel: `AKTİF CEVAP MODU: GENEL FİNANS ASİSTANI
 - Kullanıcının sorusunu kısa ve net cevapla.
 - Uygunsa 2-3 maddelik pratik kontrol listesi ekle.
@@ -1953,6 +2119,7 @@ function veriKapsamiPromptu({
   karsilastirmaBaglami,
   haberNedenBaglami,
   teknikTaramaBaglami,
+  genelPiyasaBaglami,
   alarmTaslak,
 }: {
   intent: ChatIntent;
@@ -1962,6 +2129,7 @@ function veriKapsamiPromptu({
   karsilastirmaBaglami: string;
   haberNedenBaglami: string;
   teknikTaramaBaglami: string;
+  genelPiyasaBaglami: string;
   alarmTaslak: AlarmTaslak | null;
 }) {
   const kapsananlar: string[] = [];
@@ -1973,6 +2141,7 @@ function veriKapsamiPromptu({
   if (karsilastirmaBaglami) kapsananlar.push("karşılaştırma için sınırlı piyasa metrikleri");
   if (haberNedenBaglami) kapsananlar.push("son KAP başlıkları, olay tipi, detay özeti veya KAP veri durumu");
   if (teknikTaramaBaglami) kapsananlar.push("teknik tarama sonucu");
+  if (genelPiyasaBaglami) kapsananlar.push("genel piyasa endeksleri, sektör endeksleri ve BIST tarama özeti");
   if (alarmTaslak) kapsananlar.push("alarm taslak bilgisi");
 
   if (!veri && (intent === "hisse_analizi" || ticker)) eksikler.push("aktif hisse için güncel fiyat bağlamı");
@@ -1980,6 +2149,7 @@ function veriKapsamiPromptu({
   if (intent === "karsilastirma" && !karsilastirmaBaglami) eksikler.push("karşılaştırılacak ikinci hisse veya karşılaştırma verisi");
   if (intent === "haber_neden" && !haberNedenBaglami) eksikler.push("KAP/haber bağlamı");
   if (intent === "teknik_tarama" && !teknikTaramaBaglami) eksikler.push("teknik tarama verisi");
+  if (intent === "piyasa_genel" && !genelPiyasaBaglami) eksikler.push("genel piyasa/endeks bağlamı");
 
   return `VERİ KAPSAMI VE GÜNCELLİK:
 - Kullanılabilen bağlam: ${kapsananlar.length > 0 ? kapsananlar.join("; ") : "yalnızca kullanıcının mesajı"}.
@@ -2003,6 +2173,7 @@ function pakoAkilPlaniPromptu({
   karsilastirmaBaglami,
   haberNedenBaglami,
   teknikTaramaBaglami,
+  genelPiyasaBaglami,
   alarmTaslak,
 }: {
   sonMesaj: string;
@@ -2014,6 +2185,7 @@ function pakoAkilPlaniPromptu({
   karsilastirmaBaglami: string;
   haberNedenBaglami: string;
   teknikTaramaBaglami: string;
+  genelPiyasaBaglami: string;
   alarmTaslak: AlarmTaslak | null;
 }) {
   const q = sonMesaj.toLocaleLowerCase("tr-TR");
@@ -2046,6 +2218,8 @@ function pakoAkilPlaniPromptu({
           ? "hisse hareketi için olası neden çerçevesi kur"
           : intent === "teknik_tarama"
             ? "teknik koşula uyan listeyi özetle ve sinyalin sınırını anlat"
+            : intent === "piyasa_genel"
+              ? "genel piyasa görünümünü endeks, sektör, piyasa genişliği ve hacim üzerinden özetle"
             : intent === "karsilastirma"
               ? "hisseleri metrik bazında kıyasla, kazanan ilan etme"
               : intent === "alarm_aksiyon"
@@ -2057,6 +2231,7 @@ function pakoAkilPlaniPromptu({
     intent === "portfoy" ? "portföy özeti ve pozisyon katkıları" : null,
     veri ? "gecikmeli fiyat/bant/hacim verisi" : null,
     teknikTaramaBaglami ? "teknik tarama listesi" : null,
+    genelPiyasaBaglami ? "genel piyasa radar verisi" : null,
     karsilastirmaBaglami ? "karşılaştırma metrikleri" : null,
     haberNedenBaglami ? "KAP/haber başlığı veri durumu" : null,
     alarmTaslak ? "alarm taslağı alanları" : null,
@@ -2071,6 +2246,8 @@ function pakoAkilPlaniPromptu({
         ? "1) veri özeti 2) olumlu taraflar 3) riskler 4) izlenecekler"
         : intent === "teknik_tarama"
           ? "1) kaç sonuç var 2) ilk adaylar 3) RSI uyarısı"
+          : intent === "piyasa_genel"
+            ? "1) ana endeks özeti 2) piyasa genişliği 3) sektör/hacim odağı 4) izlenecekler"
           : intent === "karsilastirma"
             ? "1) metrik tablosu mantığı 2) hangi metrikte kim önde 3) veri sınırı"
             : intent === "haber_neden"
@@ -2157,6 +2334,9 @@ export async function POST(req: NextRequest) {
   const teknikTaramaBaglami = intent === "teknik_tarama"
     ? await teknikTaramaPromptu(sonMesaj)
     : "";
+  const genelPiyasaBaglami = intent === "piyasa_genel"
+    ? genelPiyasaPromptu(await genelPiyasaBaglamiCek())
+    : "";
   const alarmTaslak = intent === "alarm_aksiyon" ? alarmTaslagiCikar(sonMesaj, aktifTicker, aktifVeri) : null;
   const alarmBaglami = alarmTaslak ? alarmPromptu(alarmTaslak) : "";
   const aktifTeknikBilgileri = aktifTicker ? await tradingViewTeknikMetrikleriCek([aktifTicker]) : {};
@@ -2194,6 +2374,7 @@ ${niyetPromptu(intent)}`;
     karsilastirmaBaglami,
     haberNedenBaglami,
     teknikTaramaBaglami,
+    genelPiyasaBaglami,
     alarmTaslak,
   });
   const pakoAkilPlani = pakoAkilPlaniPromptu({
@@ -2206,6 +2387,7 @@ ${niyetPromptu(intent)}`;
     karsilastirmaBaglami,
     haberNedenBaglami,
     teknikTaramaBaglami,
+    genelPiyasaBaglami,
     alarmTaslak,
   });
 
@@ -2227,6 +2409,8 @@ ${haberNedenBaglami}
 
 ${teknikTaramaBaglami}
 
+${genelPiyasaBaglami}
+
 ${alarmBaglami}
 
 ${portfoyBaglami}`
@@ -2244,6 +2428,8 @@ ${karsilastirmaBaglami}
 ${haberNedenBaglami}
 
 ${teknikTaramaBaglami}
+
+${genelPiyasaBaglami}
 
 ${alarmBaglami}
 
