@@ -183,6 +183,12 @@ export default function PortfoyPage() {
   const [flashTickers, setFlashTickers] = useState<Record<string, "up" | "down">>({});
   const prevFiyatlarRef = useRef<FiyatMap>({});
 
+  // Senaryo analizi
+  const [senaryoAcik, setSenaryoAcik] = useState(false);
+  const [senaryoYuzde, setSenaryoYuzde] = useState(0);
+  const [betaVerisi, setBetaVerisi] = useState<Record<string, { beta: number | null; sirketAdi: string }>>({});
+  const [betaYukleniyor, setBetaYukleniyor] = useState(false);
+
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
     const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
     if (!tickers) return {};
@@ -497,6 +503,26 @@ export default function PortfoyPage() {
   const sortIkon = (kolon: string) => sortKolon === kolon
     ? <span style={{ fontSize: 8, marginLeft: 3 }}>{sortYon === "desc" ? "▼" : "▲"}</span>
     : <span style={{ fontSize: 8, marginLeft: 3, opacity: 0.25 }}>⇅</span>;
+
+  useEffect(() => {
+    if (!senaryoAcik || portfoy.length === 0 || Object.keys(betaVerisi).length > 0) return;
+    async function betaYukle() {
+      setBetaYukleniyor(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const tickers = portfoy.map(p => p.ticker).join(",");
+        const res = await fetch(`/api/senaryo?tickers=${tickers}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const data = await res.json() as Record<string, { beta: number | null; sirketAdi: string }>;
+        setBetaVerisi(data);
+      } finally {
+        setBetaYukleniyor(false);
+      }
+    }
+    betaYukle();
+  }, [senaryoAcik, portfoy, betaVerisi]);
 
   const siraliPortfoy = [...portfoy].sort((a, b) => {
     if (!sortKolon) return 0;
@@ -1182,6 +1208,119 @@ export default function PortfoyPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Senaryo Analizi ── */}
+      {portfoy.length > 0 && (
+        <div className="mb-6 rounded-2xl border border-slate-700/50 overflow-hidden" style={{ background: "linear-gradient(135deg,#0B1929 0%,#0F172A 100%)" }}>
+          <button
+            onClick={() => setSenaryoAcik(v => !v)}
+            className="w-full flex items-center justify-between px-5 py-4 text-left"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🎯</span>
+              <div>
+                <p className="text-sm font-semibold text-slate-200">Senaryo Analizi</p>
+                <p className="text-xs text-slate-500 mt-0.5">XU100 hareket ederse portföyüm ne olur?</p>
+              </div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              className="text-slate-500 transition-transform" style={{ transform: senaryoAcik ? "rotate(180deg)" : "rotate(0deg)" }}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          {senaryoAcik && (
+            <div className="px-5 pb-5 border-t border-slate-700/50">
+              {/* Slider */}
+              <div className="pt-5 mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs text-slate-400 font-medium">XU100 Senaryosu</span>
+                  <span className={`text-sm font-bold tabular-nums ${senaryoYuzde > 0 ? "text-emerald-400" : senaryoYuzde < 0 ? "text-red-400" : "text-slate-400"}`}>
+                    {senaryoYuzde > 0 ? "+" : ""}{senaryoYuzde}%
+                  </span>
+                </div>
+                <input
+                  type="range" min={-40} max={40} step={1}
+                  value={senaryoYuzde}
+                  onChange={e => setSenaryoYuzde(Number(e.target.value))}
+                  className="w-full accent-blue-500"
+                  style={{ cursor: "pointer" }}
+                />
+                <div className="flex justify-between text-[10px] text-slate-600 mt-1">
+                  <span>-40%</span><span>0</span><span>+40%</span>
+                </div>
+              </div>
+
+              {betaYukleniyor ? (
+                <div className="flex items-center gap-2 text-xs text-slate-500 py-4">
+                  <div className="w-3 h-3 border border-blue-500/50 border-t-blue-500 rounded-full animate-spin" />
+                  Beta verileri yükleniyor...
+                </div>
+              ) : (
+                <>
+                  {/* Per-stock breakdown */}
+                  <div className="space-y-2 mb-4">
+                    {(() => {
+                      let totalImpact = 0;
+                      const rows = portfoy.map(p => {
+                        const beta = betaVerisi[p.ticker]?.beta ?? 1;
+                        const guncel = fiyatlar[p.ticker]?.fiyat ?? p.maliyet;
+                        const portfolioValue = guncel * p.adet;
+                        const estimatedChangePct = senaryoYuzde * beta / 100;
+                        const impact = portfolioValue * estimatedChangePct;
+                        totalImpact += impact;
+                        const changePct = estimatedChangePct * 100;
+                        return { ticker: p.ticker, beta, impact, changePct, portfolioValue };
+                      });
+
+                      return (
+                        <>
+                          {rows.map(r => (
+                            <div key={r.ticker} className="flex items-center gap-3 py-2 px-3 rounded-lg" style={{ background: "rgba(255,255,255,0.025)" }}>
+                              <span className="text-xs font-bold text-slate-300 w-16 shrink-0">{r.ticker}</span>
+                              <span className="text-[10px] text-slate-500 w-14 shrink-0">β {r.beta.toFixed(2)}</span>
+                              <div className="flex-1 relative h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                                {senaryoYuzde !== 0 && (
+                                  <div className="absolute top-0 h-full rounded-full transition-all"
+                                    style={{
+                                      width: `${Math.min(Math.abs(r.changePct) / (Math.abs(senaryoYuzde) * 2) * 100, 100)}%`,
+                                      left: r.changePct >= 0 ? "50%" : undefined,
+                                      right: r.changePct < 0 ? "50%" : undefined,
+                                      background: r.changePct >= 0 ? "#10B981" : "#EF4444",
+                                    }}
+                                  />
+                                )}
+                              </div>
+                              <span className={`text-xs font-semibold w-14 text-right shrink-0 tabular-nums ${r.changePct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                                {r.changePct >= 0 ? "+" : ""}{r.changePct.toFixed(1)}%
+                              </span>
+                              <span className={`text-xs font-bold w-24 text-right shrink-0 tabular-nums ${r.impact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                                {r.impact >= 0 ? "+" : ""}{r.impact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                              </span>
+                            </div>
+                          ))}
+
+                          {/* Total */}
+                          <div className="flex items-center justify-between px-3 py-3 rounded-xl mt-2"
+                            style={{ background: totalImpact >= 0 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${totalImpact >= 0 ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}` }}>
+                            <span className="text-xs font-semibold text-slate-300">Toplam portföy etkisi</span>
+                            <span className={`text-sm font-bold tabular-nums ${totalImpact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                              {totalImpact >= 0 ? "+" : ""}{totalImpact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-600 mt-2 text-center">
+                            Beta katsayısı tahmindir; gerçek piyasa korelasyonu farklılaşabilir.
+                          </p>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       )}
 

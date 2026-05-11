@@ -347,24 +347,70 @@ export default function YapayZekaPage() {
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setLoading(true);
 
+    // Asistan mesajı için helper
+    const appendAssistant = (id: string, content: string) =>
+      setSohbetler(prev => prev.map(s =>
+        s.id !== id ? s : { ...s, mesajlar: [...s.mesajlar, { role: "assistant" as const, content }] }
+      ));
+    const updateLastAssistant = (id: string, updater: (prev: string) => string) =>
+      setSohbetler(prev => prev.map(s => {
+        if (s.id !== id) return s;
+        const msgs = [...s.mesajlar];
+        const last = msgs[msgs.length - 1];
+        if (last?.role === "assistant") msgs[msgs.length - 1] = { ...last, content: updater(last.content) };
+        return { ...s, mesajlar: msgs };
+      }));
+
     try {
       const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${session.access_token}` },
         body: JSON.stringify({ messages: newMessages, portfoy: portfoy.length > 0 ? portfoy : undefined }),
       });
-      const data = await res.json();
-      const reply = data.error === "gunluk_limit" ? data.mesaj : (data.reply ?? "Bir hata oluştu.");
-      setSohbetler(prev => prev.map(s => s.id === currentId
-        ? { ...s, mesajlar: [...s.mesajlar, { role: "assistant", content: reply }] }
-        : s
-      ));
-      if (data.kalanHak !== undefined) setKalanHak(data.kalanHak);
+
+      if (!res.body) throw new Error("no stream");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let firstDelta = true;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const ev = JSON.parse(line.slice(6)) as {
+              type: string; text?: string; kalanHak?: number; alarmTaslak?: unknown;
+            };
+
+            if (ev.type === "delta" && ev.text) {
+              if (firstDelta) {
+                firstDelta = false;
+                setLoading(false);
+                appendAssistant(currentId!, ev.text);
+              } else {
+                updateLastAssistant(currentId!, prev => prev + ev.text!);
+              }
+            } else if (ev.type === "replace" && ev.text) {
+              if (firstDelta) { firstDelta = false; setLoading(false); appendAssistant(currentId!, ev.text); }
+              else updateLastAssistant(currentId!, () => ev.text!);
+            } else if (ev.type === "done") {
+              if (ev.kalanHak !== undefined) setKalanHak(ev.kalanHak);
+            } else if (ev.type === "error") {
+              if (firstDelta) { firstDelta = false; setLoading(false); }
+              updateLastAssistant(currentId!, () => "Bir hata oluştu. Lütfen tekrar deneyin.");
+            }
+          } catch { /* JSON parse skip */ }
+        }
+      }
     } catch {
-      setSohbetler(prev => prev.map(s => s.id === currentId
-        ? { ...s, mesajlar: [...s.mesajlar, { role: "assistant", content: "Bir hata oluştu. Lütfen tekrar deneyin." }] }
-        : s
-      ));
+      appendAssistant(currentId!, "Bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
     }

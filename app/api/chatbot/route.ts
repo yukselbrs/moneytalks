@@ -2499,7 +2499,7 @@ ARAÇLAR:
 KURAL: Veri gerektiren sorularda önce ilgili aracı çağır, aldığın gerçek veriyle yorum yap.
 ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
 
-  // Agentic tool-use loop
+  // Phase 1: Tool-calling (non-streaming, data gathering)
   type ApiMsgContent =
     | string
     | Anthropic.Messages.ContentBlock[]
@@ -2508,37 +2508,28 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
   let currentMessages: Array<{ role: "user" | "assistant"; content: ApiMsgContent }> =
     chatMessages.map(m => ({ role: m.role, content: m.content }));
 
-  let finalReply = "";
   let inputTokensTotal = 0;
   let outputTokensTotal = 0;
-  const MAX_ROUNDS = 5;
+  const MAX_TOOL_ROUNDS = 4;
 
-  for (let round = 0; round < MAX_ROUNDS; round++) {
-    const apiResponse = await anthropic.messages.create({
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    const toolResp = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 2048,
+      max_tokens: 512,
       system: systemPrompt,
       tools: PAKO_TOOLS,
       messages: currentMessages as Anthropic.Messages.MessageParam[],
     });
 
-    inputTokensTotal += apiResponse.usage?.input_tokens ?? 0;
-    outputTokensTotal += apiResponse.usage?.output_tokens ?? 0;
+    inputTokensTotal += toolResp.usage?.input_tokens ?? 0;
+    outputTokensTotal += toolResp.usage?.output_tokens ?? 0;
 
-    const toolBlocks = apiResponse.content.filter(
+    const toolBlocks = toolResp.content.filter(
       (b): b is Anthropic.Messages.ToolUseBlock => b.type === "tool_use"
     );
+    if (toolBlocks.length === 0) break;
 
-    if (toolBlocks.length === 0 || apiResponse.stop_reason === "end_turn") {
-      const txt = apiResponse.content.find(b => b.type === "text");
-      finalReply = txt && txt.type === "text" ? txt.text : "";
-      break;
-    }
-
-    currentMessages = [
-      ...currentMessages,
-      { role: "assistant", content: apiResponse.content },
-    ];
+    currentMessages = [...currentMessages, { role: "assistant", content: toolResp.content }];
 
     const toolResults: Anthropic.Messages.ToolResultBlockParam[] = await Promise.all(
       toolBlocks.map(async block => ({
@@ -2554,63 +2545,93 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
       }))
     );
 
-    currentMessages = [
-      ...currentMessages,
-      { role: "user", content: toolResults },
-    ];
+    currentMessages = [...currentMessages, { role: "user", content: toolResults }];
   }
 
-  const ilkReply = cevabiTemizle(finalReply);
-  const ilkQualityFlags = kaliteBayraklari(ilkReply, intent);
-  const reply = cevabiGuvenliDileCevir(ilkReply, ilkQualityFlags);
-  const qualityFlags = Array.from(new Set([...ilkQualityFlags, ...kaliteBayraklari(reply, intent)]));
-  const inputTokens = inputTokensTotal;
-  const outputTokens = outputTokensTotal;
+  // Phase 2: Stream final response
+  const encoder = new TextEncoder();
+  const readableStream = new ReadableStream({
+    async start(controller) {
+      const send = (data: object) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+      };
 
-  // 3. Cevap sonrası yasaklı ifade filtresi
-  if (qualityFlags.includes("yasakli_ifade")) {
-    chatbotTelemetryLogla({
-      userId: user.id,
-      intent,
-      ticker: aktifTicker,
-      portfoySayisi: Array.isArray(portfoy) ? portfoy.length : 0,
-      qualityFlags,
-      alarmTaslakVar: Boolean(alarmTaslak),
-      engellendi: true,
-      sureMs: Date.now() - requestStart,
-      inputTokens,
-      outputTokens,
-    });
+      let fullText = "";
+      try {
+        const finalStream = anthropic.messages.stream({
+          model: "claude-sonnet-4-6",
+          max_tokens: 2048,
+          system: systemPrompt,
+          messages: currentMessages as Anthropic.Messages.MessageParam[],
+        });
 
-    return NextResponse.json({
-      reply: `Bu soruyu yanıtlamak için yeterli bilgiye sahip değilim. Lütfen lisanslı bir yatırım danışmanına başvurun.\n\n${YATIRIM_TAVSIYESI_UYARISI}`,
-      intent,
-      qualityFlags,
-      alarmTaslak,
-      kalanHak: GUNLUK_LIMIT - mevcutSayi - 1,
-      toplamHak: GUNLUK_LIMIT,
-    });
-  }
+        for await (const event of finalStream) {
+          if (event.type === "content_block_delta") {
+            const d = event.delta as { type: string; text?: string };
+            if (d.type === "text_delta" && d.text) {
+              fullText += d.text;
+              send({ type: "delta", text: d.text });
+            }
+          }
+        }
 
-  // Kullanım sayacını artır
-  if (mevcutSayi === 0) {
-    await supabaseAdmin.from("chatbot_usage").insert({ user_id: user.id, gun: bugun, mesaj_sayisi: 1 });
-  } else {
-    await supabaseAdmin.from("chatbot_usage").update({ mesaj_sayisi: mevcutSayi + 1 }).eq("user_id", user.id).eq("gun", bugun);
-  }
+        const finalMsg = await finalStream.finalMessage();
+        inputTokensTotal += finalMsg.usage.input_tokens;
+        outputTokensTotal += finalMsg.usage.output_tokens;
 
-  chatbotTelemetryLogla({
-    userId: user.id,
-    intent,
-    ticker: aktifTicker,
-    portfoySayisi: Array.isArray(portfoy) ? portfoy.length : 0,
-    qualityFlags,
-    alarmTaslakVar: Boolean(alarmTaslak),
-    engellendi: false,
-    sureMs: Date.now() - requestStart,
-    inputTokens,
-    outputTokens,
+      } catch {
+        send({ type: "error" });
+        controller.close();
+        return;
+      }
+
+      // SPK post-processing
+      const ilkReply = cevabiTemizle(fullText);
+      const ilkQualityFlags = kaliteBayraklari(ilkReply, intent);
+      const reply = cevabiGuvenliDileCevir(ilkReply, ilkQualityFlags);
+      const qualityFlags = Array.from(new Set([...ilkQualityFlags, ...kaliteBayraklari(reply, intent)]));
+      const engellendi = qualityFlags.includes("yasakli_ifade");
+
+      if (engellendi) {
+        send({
+          type: "replace",
+          text: `Bu soruyu yanıtlamak için yeterli bilgiye sahip değilim. Lütfen lisanslı bir yatırım danışmanına başvurun.\n\n${YATIRIM_TAVSIYESI_UYARISI}`,
+        });
+      } else if (reply !== fullText) {
+        send({ type: "replace", text: reply });
+      }
+
+      if (!engellendi) {
+        if (mevcutSayi === 0) {
+          await supabaseAdmin.from("chatbot_usage").insert({ user_id: user.id, gun: bugun, mesaj_sayisi: 1 });
+        } else {
+          await supabaseAdmin.from("chatbot_usage").update({ mesaj_sayisi: mevcutSayi + 1 }).eq("user_id", user.id).eq("gun", bugun);
+        }
+      }
+
+      chatbotTelemetryLogla({
+        userId: user.id,
+        intent,
+        ticker: aktifTicker,
+        portfoySayisi: Array.isArray(portfoy) ? portfoy.length : 0,
+        qualityFlags,
+        alarmTaslakVar: Boolean(alarmTaslak),
+        engellendi,
+        sureMs: Date.now() - requestStart,
+        inputTokens: inputTokensTotal,
+        outputTokens: outputTokensTotal,
+      });
+
+      send({ type: "done", kalanHak: GUNLUK_LIMIT - mevcutSayi - 1, alarmTaslak });
+      controller.close();
+    },
   });
 
-  return NextResponse.json({ reply, intent, qualityFlags, alarmTaslak, kalanHak: GUNLUK_LIMIT - mevcutSayi - 1, toplamHak: GUNLUK_LIMIT });
+  return new Response(readableStream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+    },
+  });
 }
