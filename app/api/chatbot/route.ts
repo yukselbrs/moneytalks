@@ -2273,6 +2273,153 @@ function pakoAkilPlaniPromptu({
 - Sapma kontrolü: rakip kaynak önermeden, al/sat emri vermeden, kesin neden/hedef/getiri iddiası kurmadan cevapla.`;
 }
 
+// ─── TOOL USE ────────────────────────────────────────────────────────────────
+
+type ToolInput = Record<string, unknown>;
+
+const PAKO_TOOLS = [
+  {
+    name: "get_hisse_fiyat",
+    description: "BIST hissesinin güncel fiyatını, günlük değişimini, hacmini, 52 haftalık aralığını ve temel fiyat metriklerini getirir. Herhangi bir hisse hakkında soru sorulduğunda ilk çağrılacak araç.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        ticker: { type: "string", description: "BIST hisse kodu, büyük harf. Örn: THYAO, EREGL, GARAN" },
+      },
+      required: ["ticker"],
+    },
+  },
+  {
+    name: "get_teknik_analiz",
+    description: "RSI, MACD, EMA/SMA ortalamaları, Bollinger Band, ATR, pivot seviyeleri, beta, volatilite, relatif hacim, 1H/1A/3A/1Y performans. F/K, PD/DD, temettü verimi, sektör/endeks kıyaslaması da içerir.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        ticker: { type: "string", description: "BIST hisse kodu" },
+      },
+      required: ["ticker"],
+    },
+  },
+  {
+    name: "get_kap_haberler",
+    description: "Hisse için son KAP (Kamuyu Aydınlatma Platformu) bildirimlerini getirir. Fiyat hareketi nedenini araştırırken veya hisse haberleri sorulduğunda kullan.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        ticker: { type: "string", description: "BIST hisse kodu" },
+      },
+      required: ["ticker"],
+    },
+  },
+  {
+    name: "get_genel_piyasa",
+    description: "XU100, XU030 endeks verileri, günün en çok yükselen ve düşen hisseleri, hacim anomalileri ve genel piyasa özeti. Piyasa geneli veya endeks hakkında soru sorulduğunda kullan.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: "get_portfoy",
+    description: "Kullanıcının portföyündeki hisseleri, adet, maliyet, güncel fiyat, güncel değer, kar/zarar ve günlük değişim bilgilerini getirir. Portföy analizi istendiğinde kullan.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: "search_hisse",
+    description: "Şirket adı veya kısmi ticker ile BIST hissesi arar. Kullanıcı hisse kodunu tam bilmediğinde veya şirket ismi yazdığında kullan.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        query: { type: "string", description: "Arama terimi: şirket adı veya hisse kodu parçası" },
+      },
+      required: ["query"],
+    },
+  },
+];
+
+async function toolExecute(
+  name: string,
+  input: ToolInput,
+  portfoy: PortfoyPromptItem[] | undefined,
+): Promise<unknown> {
+  switch (name) {
+    case "get_hisse_fiyat": {
+      const ticker = String(input.ticker ?? "").toUpperCase().replace(/\.IS$/i, "");
+      if (!BIST_TICKER_SET.has(ticker)) return { hata: `${ticker} BIST'te tanımlı değil.` };
+      const veri = await hisseVerisiCek(ticker);
+      if (!veri) return { hata: `${ticker} için fiyat verisi alınamadı.` };
+      return {
+        ticker,
+        fiyat: veri.fiyat,
+        degisimYuzde: veri.degisimYuzde,
+        gunlukYuksek: veri.gunlukYuksek,
+        gunlukDusuk: veri.gunlukDusuk,
+        yillikYuksek: veri.yillikYuksek,
+        yillikDusuk: veri.yillikDusuk,
+        hacim: veri.hacim,
+        sirketAdi: veri.sirketAdi,
+      };
+    }
+
+    case "get_teknik_analiz": {
+      const ticker = String(input.ticker ?? "").toUpperCase().replace(/\.IS$/i, "");
+      if (!BIST_TICKER_SET.has(ticker)) return { hata: `${ticker} BIST'te tanımlı değil.` };
+      const [veri, metrikler] = await Promise.all([
+        hisseVerisiCek(ticker),
+        tradingViewTeknikMetrikleriCek([ticker]),
+      ]);
+      const satir = metrikler[ticker];
+      const [temettu, piyasaKiyas] = await Promise.all([
+        temettuGecmisiCek(ticker, veri?.fiyat ?? satir?.fiyat),
+        satir?.teknik?.sektor
+          ? piyasaKiyasBaglamiCek(satir.teknik.sektor, satir.teknik.endustri)
+          : Promise.resolve(undefined),
+      ]);
+      return { ticker, fiyat: veri?.fiyat, degisimYuzde: veri?.degisimYuzde, teknik: satir?.teknik, temel: satir?.temel, temettu, piyasaKiyas };
+    }
+
+    case "get_kap_haberler": {
+      const ticker = String(input.ticker ?? "").toUpperCase().replace(/\.IS$/i, "");
+      const haberler = await kapHaberleriCek(ticker);
+      return { ticker, haberler };
+    }
+
+    case "get_genel_piyasa": {
+      return genelPiyasaBaglamiCek();
+    }
+
+    case "get_portfoy": {
+      if (!portfoy || portfoy.length === 0) return { mesaj: "Kullanıcının portföyü boş." };
+      return { portfoy };
+    }
+
+    case "search_hisse": {
+      const query = String(input.query ?? "");
+      const adTickers = sirketAdindanTickerAdaylari(query);
+      const kodTickers = BIST_HISSELER
+        .filter(h => h.ticker.startsWith(query.toUpperCase()))
+        .map(h => h.ticker)
+        .slice(0, 5);
+      return Array.from(new Set([...adTickers, ...kodTickers]))
+        .slice(0, 8)
+        .map(t => {
+          const h = BIST_HISSELER.find(x => x.ticker === t);
+          return { ticker: t, ad: h?.ad ?? "", fullName: h?.fullName ?? "" };
+        });
+    }
+
+    default:
+      return { hata: `Bilinmeyen araç: ${name}` };
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
 
@@ -2318,138 +2465,107 @@ export async function POST(req: NextRequest) {
   }
   rateLimitMap.set(user.id, [...userRequests, now]);
 
-  const { messages, ticker, veri, analiz, portfoy } = await req.json();
+  const { messages, ticker, portfoy } = await req.json();
   const chatMessages = (messages ?? []) as ChatMessage[];
   const sonMesaj = sonKullaniciMesaji(chatMessages);
   const mesajTickerlari = tickerAdaylari(sonMesaj, ticker);
   const aktifTicker = ticker || mesajTickerlari[0];
   const intent = niyetSiniflandir(sonMesaj, aktifTicker);
-  const aktifVeri = veri ?? (aktifTicker && (intent === "hisse_analizi" || intent === "haber_neden" || intent === "alarm_aksiyon") ? await hisseVerisiCek(aktifTicker) : null);
-  const karsilastirmaBaglami = intent === "karsilastirma"
-    ? await karsilastirmaPromptu(mesajTickerlari)
-    : "";
-  const haberNedenBaglami = intent === "haber_neden"
-    ? await haberNedenPromptu(mesajTickerlari)
-    : "";
-  const teknikTaramaBaglami = intent === "teknik_tarama"
-    ? await teknikTaramaPromptu(sonMesaj)
-    : "";
-  const genelPiyasaBaglami = intent === "piyasa_genel"
-    ? genelPiyasaPromptu(await genelPiyasaBaglamiCek())
-    : "";
-  const alarmTaslak = intent === "alarm_aksiyon" ? alarmTaslagiCikar(sonMesaj, aktifTicker, aktifVeri) : null;
-  const alarmBaglami = alarmTaslak ? alarmPromptu(alarmTaslak) : "";
-  const aktifTeknikBilgileri = aktifTicker ? await tradingViewTeknikMetrikleriCek([aktifTicker]) : {};
-  const aktifTeknikMetrikler = aktifTicker ? aktifTeknikBilgileri[aktifTicker]?.teknik : undefined;
-  const aktifTemelMetrikler = aktifTicker ? aktifTeknikBilgileri[aktifTicker]?.temel : undefined;
-  const aktifTemettuGecmisi = aktifTicker ? await temettuGecmisiCek(aktifTicker, aktifVeri?.fiyat ?? aktifTeknikBilgileri[aktifTicker]?.fiyat) : null;
-  const aktifPiyasaKiyas = aktifTicker ? await piyasaKiyasBaglamiCek(aktifTeknikMetrikler?.sektor, aktifTeknikMetrikler?.endustri) : undefined;
-  const portfoyBaglami = await portfoyPromptu(portfoy);
+  const aktifVeriHizli = aktifTicker ? await hisseVerisiCek(aktifTicker) : null;
+  const alarmTaslak = intent === "alarm_aksiyon"
+    ? alarmTaslagiCikar(sonMesaj, aktifTicker, aktifVeriHizli)
+    : null;
 
-  const ortakKurallar = `KİMLİK VE TON:
+  const systemPrompt = `KİMLİK VE TON:
 - Sen Pako AI'sın: ParaKonuşur içindeki BIST odaklı finans asistanı.
-- Türkçe, sakin, profesyonel ve anlaşılır konuş. Kullanıcı yeni başlayan olabilir; jargon kullanırsan kısa açıklamasını ver.
-- Gereksiz uzun konuşma. Normal cevaplarda 120-220 kelime hedefle; kullanıcı detay isterse daha kapsamlı yaz.
+- Türkçe, sakin, profesyonel ve anlaşılır konuş. Jargon kullanırsan kısa açıklamasını ver.
+- Normal cevaplarda 120-220 kelime hedefle; kullanıcı detay isterse daha kapsamlı yaz.
 
 GÜVENLİK SINIRLARI:
-- Yatırım danışmanı gibi davranma. Emir cümlesiyle "al", "sat", "tut", "portföyünü boşalt", "kesin yükselir/düşer" deme.
-- Kesin getiri, hedef fiyat veya garanti vaat etme.
+- Yatırım danışmanı gibi davranma. "Al", "sat", "tut", "kesin yükselir/düşer", "garanti" deme.
 - Tavsiye yerine "izlenebilir", "dikkat edilebilir", "karar için şu veriler kontrol edilmeli" dili kullan.
-- Rakip finans platformu, broker/aracı kurum uygulaması veya harici analiz sitesi adı vererek kullanıcıyı dışarı yönlendirme.
-- Veri eksikse "ParaKonuşur içinde bu veri şu an yok / elimdeki gecikmeli veriyle yorumlayabilirim" de.
-- Cevabın sonunda mutlaka şu cümle yer alsın: "Bu analiz yatırım tavsiyesi değildir."
+- Rakip finans platformu veya harici analiz sitesi adı verme.
+- Veri eksikse bunu açıkça belirt; uydurma veri üretme.
+- Cevabın sonunda mutlaka: "Bu analiz yatırım tavsiyesi değildir."
 
-CEVAP FORMATI:
-- Kavram sorularında: önce kısa tanım, sonra nasıl yorumlanır, sonra dikkat edilmesi gereken 2-3 nokta.
-- Hisse sorularında: mevcut veri özeti, olumlu/olumsuz sinyaller, izlenecek seviyeler/metrikler ve belirsizlikler.
-- Portföy sorularında: toplam tablo, ağırlık/konsantrasyon, günlük hareket, riskler ve takip listesi.
-- Veri yoksa bunu açıkça söyle; uydurma veri üretme.
+ARAÇLAR:
+- get_hisse_fiyat: Güncel fiyat, değişim, hacim, 52H aralığı → hisse hakkında soru sorulduğunda çağır
+- get_teknik_analiz: RSI, MACD, EMA, pivot, F/K, PD/DD, temettü, sektör kıyaslaması → teknik/temel analiz istendiğinde çağır
+- get_kap_haberler: KAP bildirimleri → haber veya "neden hareket etti" sorularında çağır
+- get_genel_piyasa: XU100/XU030, en çok yükselen/düşenler → piyasa geneli sorulduğunda çağır
+- get_portfoy: Kullanıcının portföyü → portföy analizi istendiğinde çağır
+- search_hisse: Ticker arama → tam kod bilinmediğinde ya da şirket adı yazıldığında çağır
 
-${niyetPromptu(intent)}`;
-  const veriKapsami = veriKapsamiPromptu({
-    intent,
-    ticker: aktifTicker,
-    veri: aktifVeri,
-    portfoy,
-    karsilastirmaBaglami,
-    haberNedenBaglami,
-    teknikTaramaBaglami,
-    genelPiyasaBaglami,
-    alarmTaslak,
-  });
-  const pakoAkilPlani = pakoAkilPlaniPromptu({
-    sonMesaj,
-    intent,
-    tickers: mesajTickerlari,
-    aktifTicker,
-    veri: aktifVeri,
-    portfoy,
-    karsilastirmaBaglami,
-    haberNedenBaglami,
-    teknikTaramaBaglami,
-    genelPiyasaBaglami,
-    alarmTaslak,
-  });
+KURAL: Veri gerektiren sorularda önce ilgili aracı çağır, aldığın gerçek veriyle yorum yap.
+${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
 
-  const systemPrompt = aktifTicker
-    ? `${ortakKurallar}
+  // Agentic tool-use loop
+  type ApiMsgContent =
+    | string
+    | Anthropic.Messages.ContentBlock[]
+    | Anthropic.Messages.ToolResultBlockParam[];
 
-${veriKapsami}
+  let currentMessages: Array<{ role: "user" | "assistant"; content: ApiMsgContent }> =
+    chatMessages.map(m => ({ role: m.role, content: m.content }));
 
-${pakoAkilPlani}
+  let finalReply = "";
+  let inputTokensTotal = 0;
+  let outputTokensTotal = 0;
+  const MAX_ROUNDS = 5;
 
-AKTİF EKRAN:
-Kullanıcının aktif hisse bağlamı ${aktifTicker}. Yanıtta bu bağlamı kullan ama kullanıcının sorusu farklıysa ona öncelik ver.
+  for (let round = 0; round < MAX_ROUNDS; round++) {
+    const apiResponse = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 2048,
+      system: systemPrompt,
+      tools: PAKO_TOOLS,
+      messages: currentMessages as Anthropic.Messages.MessageParam[],
+    });
 
-${hissePromptu(aktifTicker, aktifVeri, analiz, aktifTeknikMetrikler, aktifTemelMetrikler, aktifTemettuGecmisi, aktifPiyasaKiyas)}
+    inputTokensTotal += apiResponse.usage?.input_tokens ?? 0;
+    outputTokensTotal += apiResponse.usage?.output_tokens ?? 0;
 
-${karsilastirmaBaglami}
+    const toolBlocks = apiResponse.content.filter(
+      (b): b is Anthropic.Messages.ToolUseBlock => b.type === "tool_use"
+    );
 
-${haberNedenBaglami}
+    if (toolBlocks.length === 0 || apiResponse.stop_reason === "end_turn") {
+      const txt = apiResponse.content.find(b => b.type === "text");
+      finalReply = txt && txt.type === "text" ? txt.text : "";
+      break;
+    }
 
-${teknikTaramaBaglami}
+    currentMessages = [
+      ...currentMessages,
+      { role: "assistant", content: apiResponse.content },
+    ];
 
-${genelPiyasaBaglami}
+    const toolResults: Anthropic.Messages.ToolResultBlockParam[] = await Promise.all(
+      toolBlocks.map(async block => ({
+        type: "tool_result" as const,
+        tool_use_id: block.id,
+        content: JSON.stringify(
+          await toolExecute(
+            block.name,
+            block.input as ToolInput,
+            portfoy as PortfoyPromptItem[] | undefined,
+          )
+        ),
+      }))
+    );
 
-${alarmBaglami}
+    currentMessages = [
+      ...currentMessages,
+      { role: "user", content: toolResults },
+    ];
+  }
 
-${portfoyBaglami}`
-    : `${ortakKurallar}
-
-${veriKapsami}
-
-${pakoAkilPlani}
-
-GENEL BAĞLAM:
-Kullanıcı BIST hisseleri, sektörler, piyasa dinamikleri, teknik/temel analiz, portföy ve finans okuryazarlığı konularında soru sorabilir.
-
-${karsilastirmaBaglami}
-
-${haberNedenBaglami}
-
-${teknikTaramaBaglami}
-
-${genelPiyasaBaglami}
-
-${alarmBaglami}
-
-${portfoyBaglami}`;
-
-  const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1024,
-    system: systemPrompt,
-    messages: chatMessages,
-  });
-
-  const content = response.content[0];
-  const rawReply = content.type === "text" ? content.text : "";
-  const ilkReply = cevabiTemizle(rawReply);
+  const ilkReply = cevabiTemizle(finalReply);
   const ilkQualityFlags = kaliteBayraklari(ilkReply, intent);
   const reply = cevabiGuvenliDileCevir(ilkReply, ilkQualityFlags);
   const qualityFlags = Array.from(new Set([...ilkQualityFlags, ...kaliteBayraklari(reply, intent)]));
-  const inputTokens = response.usage?.input_tokens;
-  const outputTokens = response.usage?.output_tokens;
+  const inputTokens = inputTokensTotal;
+  const outputTokens = outputTokensTotal;
 
   // 3. Cevap sonrası yasaklı ifade filtresi
   if (qualityFlags.includes("yasakli_ifade")) {
