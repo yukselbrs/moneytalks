@@ -67,7 +67,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#818CF8", animation: "ai-dot 2s ease-in-out infinite", animation: "ai-pulse 2.4s ease-in-out infinite" }} />
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#818CF8", animation: "ai-pulse 2.4s ease-in-out infinite" }} />
           <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(167,139,250,0.75)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Yapay Zekâ Analizi</p>
         </div>
         <button onClick={onAnalyze}
