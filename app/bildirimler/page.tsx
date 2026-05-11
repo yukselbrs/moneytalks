@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
@@ -39,6 +39,9 @@ export default function BildirimlerPage() {
   const [bildirimler, setBildirimler] = useState<Bildirim[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [token, setToken] = useState("");
+  const [silinen, setSilinen] = useState<Set<string>>(new Set());
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [indicator, setIndicator] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -52,6 +55,19 @@ export default function BildirimlerPage() {
       setYukleniyor(false);
     });
   }, []);
+
+  useEffect(() => {
+    const el = tabRefs.current[sekme];
+    if (el) {
+      const parent = el.parentElement;
+      const parentRect = parent?.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+      setIndicator({
+        left: rect.left - (parentRect?.left ?? 0),
+        width: rect.width,
+      });
+    }
+  }, [sekme, bildirimler]);
 
   async function tekOku(id: string) {
     setBildirimler(prev => prev.map(b => b.id === id ? { ...b, okundu: true } : b));
@@ -72,7 +88,11 @@ export default function BildirimlerPage() {
   }
 
   async function sil(id: string) {
-    setBildirimler(prev => prev.filter(b => b.id !== id));
+    setSilinen(prev => new Set(prev).add(id));
+    setTimeout(() => {
+      setBildirimler(prev => prev.filter(b => b.id !== id));
+      setSilinen(prev => { const next = new Set(prev); next.delete(id); return next; });
+    }, 280);
     await fetch("/api/bildirimler", {
       method: "DELETE",
       headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` },
@@ -92,67 +112,480 @@ export default function BildirimlerPage() {
 
   return (
     <AppShell>
-      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
-        <main style={{ maxWidth: 800, margin: "0 auto", padding: "24px 24px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC" }}>Bildirimler</h1>
+      <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)", position: "relative", overflow: "hidden" }}>
+        {/* Aurora background */}
+        <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <div className="aurora-blob aurora-1" />
+          <div className="aurora-blob aurora-2" />
+          <div className="aurora-blob aurora-3" />
+        </div>
+
+        <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 24px", position: "relative", zIndex: 1 }}>
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div className="hero-bell">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                  <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                </svg>
+                {okunmamisSayi > 0 && <span className="hero-bell-dot" />}
+              </div>
+              <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F8FAFC", letterSpacing: "-0.5px", margin: 0, background: "linear-gradient(135deg, #F8FAFC 0%, #94A3B8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                Bildirimler
+              </h1>
+            </div>
             {okunmamisSayi > 0 && (
-              <button onClick={tumunuOku}
-                style={{ fontSize: 12, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, padding: "6px 14px", cursor: "pointer" }}>
-                Tümünü okundu işaretle
+              <button onClick={tumunuOku} className="mark-all-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>Tümünü okundu işaretle</span>
               </button>
             )}
           </div>
-          <p style={{ fontSize: 13, color: "#475569", marginBottom: 20 }}>Hesabınızla ilgili bildirimleri görüntüleyin.</p>
+          <p style={{ fontSize: 13, color: "#64748B", marginBottom: 28, marginLeft: 50 }}>
+            Hesabınızla ilgili bildirimleri görüntüleyin.
+          </p>
 
-          <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid rgba(59,130,246,0.08)", overflowX: "auto" }}>
+          {/* Tabs */}
+          <div style={{ position: "relative", display: "flex", gap: 2, marginBottom: 24, borderBottom: "1px solid rgba(59,130,246,0.10)", overflowX: "auto" }}>
             {SEKMELER.map(s => (
-              <button key={s} onClick={() => setSekme(s)}
-                style={{ fontSize: 13, fontWeight: 500, padding: "8px 14px", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap", color: sekme === s ? "#3B82F6" : "#475569", borderBottom: sekme === s ? "2px solid #3B82F6" : "2px solid transparent", marginBottom: -1, display: "flex", alignItems: "center", gap: 6 }}>
+              <button
+                key={s}
+                ref={el => { tabRefs.current[s] = el; }}
+                onClick={() => setSekme(s)}
+                className="tab-btn"
+                style={{ color: sekme === s ? "#60A5FA" : "#64748B" }}
+              >
                 {s}
                 {s === "Okunmamış" && okunmamisSayi > 0 && (
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", background: "rgba(59,130,246,0.1)", borderRadius: 99, padding: "1px 6px" }}>{okunmamisSayi}</span>
+                  <span className="tab-badge">{okunmamisSayi}</span>
                 )}
               </button>
             ))}
+            <span
+              className="tab-indicator"
+              style={{ transform: `translateX(${indicator.left}px)`, width: indicator.width }}
+            />
           </div>
 
+          {/* Content */}
           {yukleniyor ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid rgba(59,130,246,0.2)", borderTopColor: "#3B82F6", animation: "spin 0.8s linear infinite" }} />
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "64px 0", gap: 12 }}>
+              <div className="loader-orb" />
+              <span style={{ fontSize: 13, color: "#64748B" }}>Bildirimler yükleniyor…</span>
             </div>
           ) : filtrelendi.length === 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "48px 0" }}>
-              <div style={{ fontSize: 36 }}>🔔</div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>Henüz bildirim yok</p>
-              <p style={{ fontSize: 13, color: "#475569" }}>Alarm kurduğunuzda bildirimler burada görünecek.</p>
-              <button onClick={() => router.push("/alarmlar")} style={{ marginTop: 4, background: "#3B82F6", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Alarm Kur</button>
+            <div className="empty-wrap">
+              <div className="empty-bell-stage">
+                <span className="empty-ring empty-ring-1" />
+                <span className="empty-ring empty-ring-2" />
+                <span className="empty-ring empty-ring-3" />
+                <div className="empty-bell">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                  </svg>
+                </div>
+                <span className="sparkle sparkle-1" />
+                <span className="sparkle sparkle-2" />
+                <span className="sparkle sparkle-3" />
+                <span className="sparkle sparkle-4" />
+              </div>
+              <p className="empty-title">Henüz bildirim yok</p>
+              <p className="empty-desc">Alarm kurduğunuzda bildirimler burada görünecek.</p>
+              <button onClick={() => router.push("/alarmlar")} className="empty-cta">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="13" r="8" />
+                  <path d="M12 9v4l2 2" />
+                  <path d="M5 3 2 6" />
+                  <path d="m22 6-3-3" />
+                </svg>
+                Alarm Kur
+              </button>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {filtrelendi.map(b => (
-                <div key={b.id} onClick={() => tekOku(b.id)}
-                  style={{ border: `1px solid ${b.okundu ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.18)"}`, borderRadius: 10, padding: "14px 16px", background: b.okundu ? "rgba(255,255,255,0.01)" : "rgba(59,130,246,0.04)", cursor: "pointer", display: "flex", gap: 12, alignItems: "flex-start", transition: "all 0.15s" }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 8, background: `${TIP_RENK[b.tip] || "#3B82F6"}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
-                    {b.ikon}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                      <p style={{ fontSize: 13, fontWeight: b.okundu ? 500 : 700, color: b.okundu ? "#94A3B8" : "#F1F5F9", marginBottom: 2 }}>{b.baslik}</p>
-                      <span style={{ fontSize: 11, color: "#334155", whiteSpace: "nowrap", flexShrink: 0 }}>{zamanFormat(b.created_at)}</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {filtrelendi.map((b, i) => {
+                const renk = TIP_RENK[b.tip] || "#3B82F6";
+                const isLeaving = silinen.has(b.id);
+                return (
+                  <div
+                    key={b.id}
+                    onClick={() => tekOku(b.id)}
+                    className={`bildirim-card ${b.okundu ? "okundu" : "okunmamis"} ${isLeaving ? "leaving" : ""}`}
+                    style={{
+                      // @ts-expect-error - CSS custom prop
+                      "--card-color": renk,
+                      "--card-color-bg": `${renk}1A`,
+                      animationDelay: `${i * 50}ms`,
+                    }}
+                  >
+                    <div className="bildirim-icon">
+                      <span style={{ fontSize: 18, position: "relative", zIndex: 1 }}>{b.ikon}</span>
+                      {!b.okundu && <span className="bildirim-icon-glow" />}
                     </div>
-                    {b.aciklama && <p style={{ fontSize: 12, color: "#475569", lineHeight: 1.5 }}>{b.aciklama}</p>}
-                    {b.detay && <p style={{ fontSize: 11, color: "#334155", marginTop: 4 }}>{b.detay}</p>}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                        <p className="bildirim-baslik">{b.baslik}</p>
+                        <span className="bildirim-zaman">{zamanFormat(b.created_at)}</span>
+                      </div>
+                      {b.aciklama && <p className="bildirim-aciklama">{b.aciklama}</p>}
+                      {b.detay && <p className="bildirim-detay">{b.detay}</p>}
+                    </div>
+                    {!b.okundu && <span className="unread-pulse" />}
+                    <button
+                      onClick={e => { e.stopPropagation(); sil(b.id); }}
+                      className="sil-btn"
+                      aria-label="Sil"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
                   </div>
-                  {!b.okundu && <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#3B82F6", flexShrink: 0, marginTop: 4 }} />}
-                  <button onClick={e => { e.stopPropagation(); sil(b.id); }}
-                    style={{ background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: 14, flexShrink: 0, padding: "0 4px" }}>✕</button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </main>
+
+        <style jsx>{`
+          .aurora-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.45;
+            mix-blend-mode: screen;
+            will-change: transform;
+          }
+          .aurora-1 {
+            width: 540px; height: 540px;
+            background: radial-gradient(circle, #3B82F6 0%, transparent 70%);
+            top: -180px; left: -140px;
+            animation: blob1 18s ease-in-out infinite;
+          }
+          .aurora-2 {
+            width: 460px; height: 460px;
+            background: radial-gradient(circle, #8B5CF6 0%, transparent 70%);
+            top: 120px; right: -160px;
+            animation: blob2 22s ease-in-out infinite;
+          }
+          .aurora-3 {
+            width: 380px; height: 380px;
+            background: radial-gradient(circle, #06B6D4 0%, transparent 70%);
+            bottom: -120px; left: 30%;
+            animation: blob3 26s ease-in-out infinite;
+            opacity: 0.25;
+          }
+          @keyframes blob1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(80px, 40px) scale(1.1); }
+          }
+          @keyframes blob2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-60px, 50px) scale(0.95); }
+          }
+          @keyframes blob3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, -30px) scale(1.05); }
+          }
+
+          .hero-bell {
+            position: relative;
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(139,92,246,0.18));
+            border: 1px solid rgba(59,130,246,0.28);
+            display: flex; align-items: center; justify-content: center;
+            color: #93C5FD;
+            box-shadow: 0 8px 24px -8px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+            animation: bellSway 4s ease-in-out infinite;
+            transform-origin: 50% 20%;
+          }
+          @keyframes bellSway {
+            0%, 92%, 100% { transform: rotate(0); }
+            94% { transform: rotate(-8deg); }
+            96% { transform: rotate(8deg); }
+            98% { transform: rotate(-4deg); }
+          }
+          .hero-bell-dot {
+            position: absolute; top: 4px; right: 4px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #EF4444;
+            box-shadow: 0 0 0 2px #0B1220, 0 0 10px #EF4444;
+            animation: pulseDot 1.8s ease-in-out infinite;
+          }
+          @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25); opacity: 0.7; }
+          }
+
+          .mark-all-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            font-size: 12px; font-weight: 600;
+            color: #93C5FD;
+            background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.08));
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+          }
+          .mark-all-btn:hover {
+            color: #DBEAFE;
+            background: linear-gradient(135deg, rgba(59,130,246,0.22), rgba(139,92,246,0.18));
+            border-color: rgba(96,165,250,0.45);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px -10px rgba(59,130,246,0.5);
+          }
+
+          .tab-btn {
+            position: relative;
+            font-size: 13px; font-weight: 600;
+            padding: 10px 16px;
+            background: none; border: none;
+            cursor: pointer; white-space: nowrap;
+            transition: color 0.2s ease;
+            display: flex; align-items: center; gap: 6px;
+            z-index: 1;
+          }
+          .tab-btn:hover { color: #93C5FD !important; }
+          .tab-indicator {
+            position: absolute;
+            bottom: -1px; left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+            border-radius: 2px;
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(59,130,246,0.6);
+            pointer-events: none;
+          }
+          .tab-badge {
+            font-size: 11px; font-weight: 700;
+            color: #DBEAFE;
+            background: linear-gradient(135deg, #3B82F6, #6366F1);
+            border-radius: 99px;
+            padding: 2px 7px;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.4);
+          }
+
+          .loader-orb {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, #3B82F6);
+            mask: radial-gradient(circle, transparent 9px, #000 10px);
+            -webkit-mask: radial-gradient(circle, transparent 9px, #000 10px);
+            animation: spin 0.9s linear infinite;
+          }
+          @keyframes spin { to { transform: rotate(360deg); } }
+
+          .empty-wrap {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 56px 0 32px;
+            animation: fadeUp 0.5s ease;
+          }
+          @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .empty-bell-stage {
+            position: relative;
+            width: 140px; height: 140px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 14px;
+          }
+          .empty-bell {
+            position: relative; z-index: 2;
+            width: 78px; height: 78px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.22), rgba(139,92,246,0.22));
+            border: 1px solid rgba(96,165,250,0.35);
+            display: flex; align-items: center; justify-content: center;
+            color: #93C5FD;
+            box-shadow:
+              0 20px 50px -15px rgba(59,130,246,0.6),
+              inset 0 1px 0 rgba(255,255,255,0.1);
+            animation: bellFloat 4.5s ease-in-out infinite;
+          }
+          @keyframes bellFloat {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            25% { transform: translateY(-6px) rotate(-3deg); }
+            75% { transform: translateY(-3px) rotate(3deg); }
+          }
+          .empty-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px solid rgba(96,165,250,0.4);
+            width: 90px; height: 90px;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: ringExpand 3s ease-out infinite;
+            opacity: 0;
+          }
+          .empty-ring-2 { animation-delay: 1s; }
+          .empty-ring-3 { animation-delay: 2s; }
+          @keyframes ringExpand {
+            0% { width: 80px; height: 80px; opacity: 0.8; border-color: rgba(96,165,250,0.5); }
+            100% { width: 200px; height: 200px; opacity: 0; border-color: rgba(96,165,250,0); }
+          }
+          .sparkle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: #93C5FD;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #93C5FD;
+            animation: sparkle 2.8s ease-in-out infinite;
+          }
+          .sparkle-1 { top: 12%; left: 18%; animation-delay: 0s; }
+          .sparkle-2 { top: 18%; right: 14%; animation-delay: 0.7s; }
+          .sparkle-3 { bottom: 18%; left: 16%; animation-delay: 1.4s; }
+          .sparkle-4 { bottom: 14%; right: 18%; animation-delay: 2.1s; }
+          @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.4); }
+          }
+          .empty-title {
+            font-size: 16px; font-weight: 700;
+            color: #F1F5F9;
+            margin: 0 0 6px;
+            letter-spacing: -0.3px;
+          }
+          .empty-desc {
+            font-size: 13px;
+            color: #64748B;
+            margin: 0 0 20px;
+          }
+          .empty-cta {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #3B82F6, #6366F1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 24px;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 30px -10px rgba(59,130,246,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+          }
+          .empty-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px -10px rgba(59,130,246,0.75), inset 0 1px 0 rgba(255,255,255,0.2);
+          }
+          .empty-cta:active { transform: translateY(0); }
+
+          .bildirim-card {
+            position: relative;
+            display: flex; gap: 12px; align-items: flex-start;
+            border-radius: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity 0.28s ease;
+            backdrop-filter: blur(8px);
+            animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+          }
+          @keyframes cardIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .bildirim-card.okundu {
+            background: rgba(255,255,255,0.015);
+            border: 1px solid rgba(59,130,246,0.06);
+          }
+          .bildirim-card.okunmamis {
+            background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(139,92,246,0.03));
+            border: 1px solid rgba(59,130,246,0.22);
+            box-shadow: 0 0 0 1px rgba(59,130,246,0.04) inset;
+          }
+          .bildirim-card:hover {
+            transform: translateX(2px);
+            border-color: rgba(96,165,250,0.4);
+            box-shadow: 0 10px 30px -14px rgba(59,130,246,0.4);
+          }
+          .bildirim-card.leaving {
+            opacity: 0;
+            transform: translateX(40px);
+            pointer-events: none;
+          }
+          .bildirim-icon {
+            position: relative;
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: var(--card-color-bg);
+            border: 1px solid color-mix(in srgb, var(--card-color) 25%, transparent);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+          }
+          .bildirim-icon-glow {
+            position: absolute; inset: -8px;
+            background: radial-gradient(circle, var(--card-color) 0%, transparent 60%);
+            opacity: 0.35;
+            animation: iconPulse 2.4s ease-in-out infinite;
+          }
+          @keyframes iconPulse {
+            0%, 100% { opacity: 0.25; }
+            50% { opacity: 0.55; }
+          }
+          .bildirim-baslik {
+            font-size: 13px;
+            font-weight: 700;
+            color: #F1F5F9;
+            margin: 0 0 3px;
+          }
+          .bildirim-card.okundu .bildirim-baslik {
+            font-weight: 500;
+            color: #94A3B8;
+          }
+          .bildirim-zaman {
+            font-size: 11px; color: #475569;
+            white-space: nowrap; flex-shrink: 0;
+          }
+          .bildirim-aciklama {
+            font-size: 12px; color: #64748B; line-height: 1.5;
+            margin: 0;
+          }
+          .bildirim-detay {
+            font-size: 11px; color: #475569; margin: 4px 0 0;
+          }
+          .unread-pulse {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--card-color);
+            flex-shrink: 0; margin-top: 6px;
+            box-shadow: 0 0 0 0 var(--card-color);
+            animation: unreadPulse 1.8s ease-in-out infinite;
+          }
+          @keyframes unreadPulse {
+            0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--card-color) 50%, transparent); }
+            70% { box-shadow: 0 0 0 8px transparent; }
+            100% { box-shadow: 0 0 0 0 transparent; }
+          }
+          .sil-btn {
+            background: none;
+            border: 1px solid transparent;
+            color: #475569;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 5px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0;
+            transition: all 0.18s ease;
+          }
+          .bildirim-card:hover .sil-btn {
+            opacity: 1;
+          }
+          .sil-btn:hover {
+            color: #F87171;
+            background: rgba(239,68,68,0.1);
+            border-color: rgba(239,68,68,0.2);
+          }
+        `}</style>
       </div>
     </AppShell>
   );
