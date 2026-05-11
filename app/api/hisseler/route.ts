@@ -189,7 +189,7 @@ async function fetchLiveFiyatlar(tickers: string[]) {
         const fiyat = Number(meta?.regularMarketPrice);
         if (!Number.isFinite(fiyat)) return [ticker, null];
         const changePercent = meta?.regularMarketChangePercent;
-        let onceki = Number(meta?.chartPreviousClose ?? meta?.previousClose);
+        const onceki = Number(meta?.chartPreviousClose ?? meta?.previousClose);
         const rawDegisim = Number.isFinite(onceki) && onceki > 0 ? ((fiyat - onceki) / onceki) * 100 : 0;
         let degisim = typeof changePercent === "number" ? changePercent : rawDegisim;
         // Bedelsiz/split fallback: extreme değişimde prevClose/açılış oranı tam sayıya yakınsa düzelt
