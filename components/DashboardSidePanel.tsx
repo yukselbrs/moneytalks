@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RiskProfilWidget from "@/components/RiskProfilWidget";
+import { supabase } from "@/components/lib/supabase";
 
 type PortfolioSummary = {
   toplamMaliyet: number;
@@ -14,28 +15,26 @@ type PortfolioSummary = {
   hisseDagilim?: { ticker: string; deger: number; yuzde: number; renk: string }[];
 };
 
-type TopMover = {
-  ticker: string;
-  fiyat: string;
-  degisim: number;
-};
-
-type TopMovers = {
-  yukselenler: TopMover[];
-  dusenler: TopMover[];
-};
-
 type MarketNews = {
   ticker: string;
   title: string;
   time: string;
 };
 
+type RawAlarm = {
+  id: string;
+  ticker: string;
+  tip: string;
+  kosul: string;
+  hedef_deger: number | null;
+  hedef_yuzde: number | null;
+  durum: string;
+  gosterge_tipi: string | null;
+};
+
 type DashboardSidePanelProps = {
   portfoyOzet: PortfolioSummary | null;
-  topMovers: TopMovers | null;
   kap: MarketNews[];
-  goToHisse: (ticker: string) => void;
 };
 
 function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary | null }) {
@@ -215,42 +214,90 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
   );
 }
 
-function TopMoversCard({ topMovers, goToHisse }: { topMovers: TopMovers | null; goToHisse: (ticker: string) => void }) {
+const TIP_LABEL: Record<string, string> = {
+  fiyat_seviye: "Fiyat",
+  fiyat_yuzde: "% Değişim",
+  yuzde_degisim: "% Değişim",
+  gosterge: "Gösterge",
+};
+
+function ActiveAlarmsCard() {
+  const [alarmlar, setAlarmlar] = useState<RawAlarm[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session || !alive) { setLoading(false); return; }
+      try {
+        const res = await fetch("/api/alarmlar", { headers: { authorization: `Bearer ${session.access_token}` } });
+        const data = await res.json();
+        if (alive && Array.isArray(data)) setAlarmlar(data.filter((a: RawAlarm) => a.durum === "aktif"));
+      } catch { /* ignore */ } finally {
+        if (alive) setLoading(false);
+      }
+    });
+    return () => { alive = false; };
+  }, []);
+
+  const hedefLabel = (a: RawAlarm) => {
+    if (a.tip === "gosterge" && a.gosterge_tipi) return a.gosterge_tipi.toUpperCase();
+    if (a.hedef_deger != null) return `${a.hedef_deger.toLocaleString("tr-TR")} ₺`;
+    if (a.hedef_yuzde != null) return `%${a.hedef_yuzde}`;
+    return "—";
+  };
+
   return (
     <div className="dash-surface" style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
-      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
-        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>En Çok Yükselenler</h3>
+      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>Aktif Alarmlar</h3>
+          {!loading && alarmlar.length > 0 && (
+            <span style={{ fontSize: 10, fontWeight: 700, color: "#F59E0B", background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.22)", borderRadius: 999, padding: "1px 6px" }}>
+              {alarmlar.length}
+            </span>
+          )}
+        </div>
+        <a href="/alarmlar" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none", whiteSpace: "nowrap" }}>Tümü →</a>
       </div>
-      {!topMovers ? (
-        <div style={{ padding: "12px 14px", fontSize: 12, color: "#475569" }}>Piyasa hareketleri yükleniyor.</div>
-      ) : (
-        topMovers.yukselenler.map((h, i) => (
-          <div key={h.ticker} onClick={() => goToHisse(h.ticker)}
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < topMovers.yukselenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "#10B981" }}>▲ %{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
-            </div>
+
+      {loading ? (
+        <div style={{ padding: "12px 14px" }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ height: 12, borderRadius: 4, background: "rgba(30,41,59,0.7)", marginBottom: 8, width: i === 2 ? "60%" : "80%" }} />
+          ))}
+        </div>
+      ) : alarmlar.length === 0 ? (
+        <div style={{ padding: "20px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center" }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(59,130,246,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
+            </svg>
           </div>
-        ))
-      )}
-      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)", borderTop: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
-        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>En Çok Düşenler</h3>
-      </div>
-      {!topMovers ? (
-        <div style={{ padding: "12px 14px", fontSize: 12, color: "#475569" }}>Piyasa hareketleri yükleniyor.</div>
+          <p style={{ fontSize: 12, color: "#475569", margin: 0, lineHeight: 1.5 }}>Aktif alarm yok.<br />Hisse fiyatlarını takip edin.</p>
+          <a href="/alarmlar" style={{ fontSize: 11, fontWeight: 600, color: "#3B82F6", textDecoration: "none", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", padding: "5px 12px", borderRadius: 6 }}>Alarm Ekle →</a>
+        </div>
       ) : (
-        topMovers.dusenler.map((h, i) => (
-          <div key={h.ticker} onClick={() => goToHisse(h.ticker)}
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: i < topMovers.dusenler.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none", cursor: "pointer" }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{h.ticker}</span>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 12, color: "#E2E8F0", fontWeight: 500 }}>{h.fiyat} ₺</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "#EF4444" }}>▼ %-{Math.abs(Number(h.degisim)).toFixed(2).replace(".", ",")}</div>
-            </div>
-          </div>
-        ))
+        <>
+          {alarmlar.slice(0, 5).map((a, i) => (
+            <a key={a.id} href="/alarmlar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", textDecoration: "none", cursor: "pointer" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: a.kosul === "yukari" ? "#10B981" : "#EF4444", flexShrink: 0 }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{a.ticker}</span>
+                <span style={{ fontSize: 11, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{TIP_LABEL[a.tip] ?? a.tip}</span>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: a.kosul === "yukari" ? "#10B981" : "#EF4444" }}>
+                  {a.kosul === "yukari" ? "▲" : "▼"} {hedefLabel(a)}
+                </span>
+              </div>
+            </a>
+          ))}
+          <a href="/alarmlar" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "9px 14px", textDecoration: "none", color: "#3B82F6", fontSize: 12, fontWeight: 600, background: "rgba(59,130,246,0.04)" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Yeni Alarm Ekle
+          </a>
+        </>
       )}
     </div>
   );
@@ -258,20 +305,114 @@ function TopMoversCard({ topMovers, goToHisse }: { topMovers: TopMovers | null; 
 
 function MarketNewsCard({ kap }: { kap: MarketNews[] }) {
   return (
-    <div className="dash-surface" style={{ border: "1px solid rgba(59,130,246,0.08)", borderRadius: 10, overflow: "hidden" }}>
-      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
-        <h3 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", margin: 0 }}>Piyasa Haberleri</h3>
+    <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", position: "relative" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.4) 70%, transparent 100%)" }} />
+      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Haberleri</p>
+        <a href="/haberler" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
       </div>
       {kap.length === 0 ? (
-        <div style={{ padding: "14px", color: "#475569", fontSize: 12, lineHeight: 1.5 }}>
-          Güncel haberler yükleniyor.
-        </div>
+        <div style={{ padding: "14px", color: "#334155", fontSize: 12 }}>Haberler yükleniyor.</div>
       ) : (
-        kap.map((k, i) => (
-          <div key={`${k.ticker}-${k.time}-${i}`} style={{ padding: "9px 14px", borderBottom: i < kap.length - 1 ? "1px solid rgba(59,130,246,0.05)" : "none" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", marginBottom: 2 }}>{k.ticker}</div>
-            <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.4 }}>{k.title}</div>
-            <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>{k.time}</div>
+        <>
+          {kap.map((k, i) => (
+            <div key={`${k.ticker}-${k.time}-${i}`} style={{ padding: "9px 14px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: "#60A5FA", background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 4, padding: "1px 6px", letterSpacing: "0.04em" }}>{k.ticker}</span>
+                <span style={{ fontSize: 10, color: "#334155", fontWeight: 500 }}>{k.time}</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.45 }}>{k.title}</div>
+            </div>
+          ))}
+          <a href="/haberler" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 14px", textDecoration: "none", color: "#334155", fontSize: 11, fontWeight: 600, background: "rgba(255,255,255,0.015)", letterSpacing: "0.02em" }}>
+            Tüm haberleri gör →
+          </a>
+        </>
+      )}
+    </div>
+  );
+}
+
+type TakvimEvent = {
+  tarih: string;
+  saat: string;
+  baslik: string;
+  onem: string;
+  ulke: string;
+};
+
+const ONEM_RENK: Record<string, string> = {
+  "Yüksek": "#EF4444",
+  "Orta": "#F59E0B",
+  "Düşük": "#475569",
+};
+
+function UpcomingEventsCard() {
+  const [events, setEvents] = useState<TakvimEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const from = new Date().toISOString().slice(0, 10);
+    const to = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+    fetch(`/api/takvim?from=${from}&to=${to}`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d.events)) setEvents(d.events.slice(0, 4)); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const gunLabel = (tarih: string) => {
+    const bugun = new Date().toISOString().slice(0, 10);
+    const yarin = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    if (tarih === bugun) return "Bugün";
+    if (tarih === yarin) return "Yarın";
+    return new Date(tarih).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+  };
+
+  const ONEM_BG: Record<string, string> = {
+    "Yüksek": "rgba(239,68,68,0.1)",
+    "Orta": "rgba(245,158,11,0.1)",
+    "Düşük": "rgba(71,85,105,0.15)",
+  };
+  const ONEM_BORDER: Record<string, string> = {
+    "Yüksek": "rgba(239,68,68,0.25)",
+    "Orta": "rgba(245,158,11,0.25)",
+    "Düşük": "rgba(71,85,105,0.2)",
+  };
+
+  return (
+    <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", position: "relative" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 40%, rgba(59,130,246,0.4) 70%, transparent 100%)" }} />
+      <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(167,139,250,0.7)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Ekonomik Takvim</p>
+        <a href="/takvim" style={{ fontSize: 11, color: "#A78BFA", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: "10px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+          {[80, 65, 75].map((w, i) => (
+            <div key={i} style={{ height: 11, borderRadius: 4, background: "rgba(30,41,59,0.7)", width: `${w}%` }} />
+          ))}
+        </div>
+      ) : events.length === 0 ? (
+        <div style={{ padding: "12px 14px", fontSize: 12, color: "#334155" }}>Yaklaşan önemli olay yok.</div>
+      ) : (
+        events.map((e, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderBottom: i < events.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+            <div style={{ flexShrink: 0, width: 44, textAlign: "center" }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: ONEM_RENK[e.onem] ?? "#475569", background: ONEM_BG[e.onem] ?? "transparent", border: `1px solid ${ONEM_BORDER[e.onem] ?? "transparent"}`, borderRadius: 4, padding: "2px 4px", lineHeight: 1.4 }}>
+                {gunLabel(e.tarih)}
+              </div>
+              <div style={{ fontSize: 10, color: "#334155", marginTop: 2, fontWeight: 500 }}>{e.saat}</div>
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: 12, color: "#CBD5E1", fontWeight: 600, lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {e.ulke} {e.baslik}
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: ONEM_RENK[e.onem] ?? "#475569", marginTop: 2, letterSpacing: "0.04em" }}>
+                {e.onem} önem
+              </div>
+            </div>
           </div>
         ))
       )}
@@ -279,13 +420,14 @@ function MarketNewsCard({ kap }: { kap: MarketNews[] }) {
   );
 }
 
-export default function DashboardSidePanel({ portfoyOzet, topMovers, kap, goToHisse }: DashboardSidePanelProps) {
+export default function DashboardSidePanel({ portfoyOzet, kap }: DashboardSidePanelProps) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <PortfolioSummaryCard portfoyOzet={portfoyOzet} />
-      <TopMoversCard topMovers={topMovers} goToHisse={goToHisse} />
+      <ActiveAlarmsCard />
       <RiskProfilWidget />
       <MarketNewsCard kap={kap} />
+      <UpcomingEventsCard />
     </div>
   );
 }

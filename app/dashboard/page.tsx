@@ -112,7 +112,7 @@ export default function DashboardPage() {
     fetch("/api/haberler")
       .then(r => r.json())
       .then(data => {
-        const haberler = (data.haberler || []).slice(0, 5).map((h: { ticker: string; baslik: string; tarih: string }) => ({
+        const haberler = (data.haberler || []).slice(0, 8).map((h: { ticker: string; baslik: string; tarih: string }) => ({
           ticker: h.ticker,
           title: h.baslik,
           time: new Date(h.tarih).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
@@ -376,9 +376,7 @@ export default function DashboardPage() {
 
         <DashboardSidePanel
           portfoyOzet={portfoyOzet}
-          topMovers={topMovers}
           kap={kapHaberler}
-          goToHisse={(t) => router.push(`/hisse/${t}`)}
         />
         </div>
 
