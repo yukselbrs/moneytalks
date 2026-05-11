@@ -389,7 +389,17 @@ type KarsilastirmaHisse = {
 };
 
 type TeknikTaramaIstegi = {
-  tip: "rsi" | "hacim_artis" | "hafta52_yakin" | "gunluk_hareket" | "momentum_guclenen";
+  tip:
+    | "rsi"
+    | "hacim_artis"
+    | "hafta52_yakin"
+    | "gunluk_hareket"
+    | "momentum_guclenen"
+    | "macd_pozitif"
+    | "ema_trend"
+    | "bollinger_yakin"
+    | "hacim_kirilim"
+    | "volatilite_yuksek";
   gosterge?: "RSI";
   kosul: "asagi" | "yukari";
   esik: number;
@@ -1532,6 +1542,28 @@ function teknikTaramaIstegiCikar(text: string): TeknikTaramaIstegi | null {
     return { tip: "hacim_artis", kosul: "yukari", esik: yuzdeEsik ?? 1.5 };
   }
 
+  if (/\bmacd\b/.test(q) && /\b(pozitif|signal|sinyal|kesen|üstünde|ustunde|yukar[ıi]|histogram)\b/.test(q)) {
+    return { tip: "macd_pozitif", kosul: "yukari", esik: 0 };
+  }
+
+  if (/\b(ema|ortalama|trend)\b/.test(q) && /\b(20|50|200|dizilim|sıralı|sirali|üstünde|ustunde|trend)\b/.test(q)) {
+    const dusus = /\b(ayı|ayi|negatif|düşüş|dusus|ters|zayıf|zayif)\b/.test(q);
+    return { tip: "ema_trend", kosul: dusus ? "asagi" : "yukari", esik: 0 };
+  }
+
+  if (/\b(bollinger|band)\b/.test(q) && /\b(alt|üst|ust|yakın|yakin|dib|tepe|sıkış|sikis)\b/.test(q)) {
+    const yukari = /\b(üst|ust|tepe|zirve)\b/.test(q);
+    return { tip: "bollinger_yakin", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 15 };
+  }
+
+  if (/\b(hacim|relatif|volume)\b/.test(q) && /\b(kırılım|kirilim|breakout|fiyat|yükseliş|yukselis|trend|ivme)\b/.test(q)) {
+    return { tip: "hacim_kirilim", kosul: "yukari", esik: yuzdeEsik ?? 1.5 };
+  }
+
+  if (/\b(atr|volatil\w*|oynak|volatilite)\b/.test(q) && /\b(yüksek|yuksek|fazla|hareketli|sert)\b/.test(q)) {
+    return { tip: "volatilite_yuksek", kosul: "yukari", esik: yuzdeEsik ?? 5 };
+  }
+
   if (/\b(52|elli iki)\b/.test(q) && /\b(dip|dibe|düşük|dusuk|alt|yakın|yakin|zirve|yüksek|yuksek|tepe)\b/.test(q)) {
     const yukari = /\b(zirve|yüksek|yuksek|tepe|üst|ust)\b/.test(q);
     return { tip: "hafta52_yakin", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 10 };
@@ -1620,12 +1652,51 @@ async function rsiTaramasiCek(istek: TeknikTaramaIstegi): Promise<{
         if (row.degisimYuzde === undefined) return false;
         return istek.kosul === "asagi" ? row.degisimYuzde <= -istek.esik : row.degisimYuzde >= istek.esik;
       }
+      if (istek.tip === "macd_pozitif") {
+        const t = row.teknik;
+        return (t?.macdHistogram ?? -Infinity) > 0 && (t?.macd ?? -Infinity) > (t?.macdSignal ?? Infinity);
+      }
+      if (istek.tip === "ema_trend") {
+        const t = row.teknik;
+        if (row.fiyat === undefined || t?.ema20 === undefined || t.ema50 === undefined || t.ema200 === undefined) return false;
+        return istek.kosul === "asagi"
+          ? row.fiyat < t.ema20 && t.ema20 < t.ema50 && t.ema50 < t.ema200
+          : row.fiyat > t.ema20 && t.ema20 > t.ema50 && t.ema50 > t.ema200;
+      }
+      if (istek.tip === "bollinger_yakin") {
+        const t = row.teknik;
+        if (row.fiyat === undefined || t?.bollingerAlt === undefined || t.bollingerUst === undefined || t.bollingerUst <= t.bollingerAlt) return false;
+        const konum = ((row.fiyat - t.bollingerAlt) / (t.bollingerUst - t.bollingerAlt)) * 100;
+        return istek.kosul === "asagi" ? konum <= istek.esik : konum >= 100 - istek.esik;
+      }
+      if (istek.tip === "hacim_kirilim") {
+        return (row.relatifHacim ?? 0) >= istek.esik
+          && (row.degisimYuzde ?? 0) > 0
+          && row.fiyat !== undefined
+          && row.teknik?.ema20 !== undefined
+          && row.fiyat > row.teknik.ema20;
+      }
+      if (istek.tip === "volatilite_yuksek") {
+        const atrYuzde = row.fiyat !== undefined && row.fiyat > 0 && row.teknik?.atr !== undefined
+          ? (row.teknik.atr / row.fiyat) * 100
+          : undefined;
+        return (row.teknik?.volatiliteGunluk ?? 0) >= istek.esik || (atrYuzde ?? 0) >= istek.esik;
+      }
       return (row.degisimYuzde ?? 0) >= istek.esik && (row.rsi ?? 0) >= 50 && (row.rsi ?? 100) <= 70 && (row.relatifHacim ?? 0) >= 1.2;
     })
     .sort((a, b) => {
       if (istek.tip === "rsi") return istek.kosul === "asagi" ? (a.rsi ?? 100) - (b.rsi ?? 100) : (b.rsi ?? 0) - (a.rsi ?? 0);
       if (istek.tip === "hacim_artis") return (b.relatifHacim ?? 0) - (a.relatifHacim ?? 0);
       if (istek.tip === "hafta52_yakin") return istek.kosul === "asagi" ? (a.hafta52Konum ?? 100) - (b.hafta52Konum ?? 100) : (b.hafta52Konum ?? 0) - (a.hafta52Konum ?? 0);
+      if (istek.tip === "macd_pozitif") return (b.teknik?.macdHistogram ?? 0) - (a.teknik?.macdHistogram ?? 0);
+      if (istek.tip === "ema_trend") return istek.kosul === "asagi"
+        ? (ortalamaUzaklik(a.fiyat, a.teknik?.ema20) ?? 0) - (ortalamaUzaklik(b.fiyat, b.teknik?.ema20) ?? 0)
+        : (ortalamaUzaklik(b.fiyat, b.teknik?.ema20) ?? 0) - (ortalamaUzaklik(a.fiyat, a.teknik?.ema20) ?? 0);
+      if (istek.tip === "bollinger_yakin") return istek.kosul === "asagi"
+        ? (a.rsi ?? 100) - (b.rsi ?? 100)
+        : (b.rsi ?? 0) - (a.rsi ?? 0);
+      if (istek.tip === "hacim_kirilim") return (b.relatifHacim ?? 0) - (a.relatifHacim ?? 0);
+      if (istek.tip === "volatilite_yuksek") return (b.teknik?.volatiliteGunluk ?? 0) - (a.teknik?.volatiliteGunluk ?? 0);
       return istek.kosul === "asagi" ? (a.degisimYuzde ?? 0) - (b.degisimYuzde ?? 0) : (b.degisimYuzde ?? 0) - (a.degisimYuzde ?? 0);
     });
 
@@ -1641,6 +1712,15 @@ function teknikTaramaBasligi(istek: TeknikTaramaIstegi) {
   if (istek.tip === "gunluk_hareket") return istek.kosul === "asagi"
     ? `günlük değişim <= -%${istek.esik}`
     : `günlük değişim >= +%${istek.esik}`;
+  if (istek.tip === "macd_pozitif") return "MACD çizgisi signal üstünde ve histogram pozitif";
+  if (istek.tip === "ema_trend") return istek.kosul === "asagi"
+    ? "negatif EMA trend dizilimi: fiyat < EMA20 < EMA50 < EMA200"
+    : "pozitif EMA trend dizilimi: fiyat > EMA20 > EMA50 > EMA200";
+  if (istek.tip === "bollinger_yakin") return istek.kosul === "asagi"
+    ? `Bollinger alt bandına en yakın %${istek.esik} bölge`
+    : `Bollinger üst bandına en yakın %${istek.esik} bölge`;
+  if (istek.tip === "hacim_kirilim") return `hacim destekli pozitif kırılım: relatif hacim >= ${istek.esik.toLocaleString("tr-TR")}x, fiyat EMA20 üstü`;
+  if (istek.tip === "volatilite_yuksek") return `yüksek volatilite: günlük volatilite veya ATR/fiyat >= %${istek.esik}`;
   return `momentumu güçlenen: günlük >= +%${istek.esik}, RSI 50-70, relatif hacim >= 1.2x`;
 }
 
@@ -1676,6 +1756,7 @@ TEKNİK TARAMA KILAVUZU:
 - RSI < 30 genellikle aşırı satım bölgesini gösterir; tek başına alım sinyali değildir.
 - RSI > 70 genellikle aşırı alım bölgesini gösterir; tek başına satış sinyali değildir.
 - Relatif hacim artışı ilgi artışını gösterebilir ama tek başına yön sinyali değildir.
+- MACD pozitif kesişim, EMA trend dizilimi, Bollinger bandı yakınlığı, hacim destekli kırılım ve yüksek volatilite taramaları yardımcı teknik bağlamdır; tek başına al/sat sinyali değildir.
 - MACD, EMA/SMA, Bollinger, ATR, beta, performans, piyasa değeri, ortalama hacim ve pivotlar yardımcı teknik bağlamdır; tek başına al/sat sinyali değildir.
 - 52 hafta dibine/zirvesine yakınlık destek, direnç veya trend bağlamı gerektirir.
 - Fiyat ve teknik veriler gecikmeli olabilir; kesin al/sat önerisi verme.`;
@@ -1921,7 +2002,11 @@ ${analiz ? `\nÖNCEKİ AI ANALİZ ÖZETİ:\n${analiz}` : ""}`;
 
 async function portfoyPromptu(portfoy?: PortfoyPromptItem[]) {
   if (!portfoy || portfoy.length === 0) return "";
-  const sektorBilgileri = await tradingViewSektorBilgisiCek(portfoy.map((p) => p.ticker));
+  const portfoyTickerlari = portfoy.map((p) => p.ticker);
+  const [sektorBilgileri, teknikBilgileri] = await Promise.all([
+    tradingViewSektorBilgisiCek(portfoyTickerlari),
+    tradingViewTeknikMetrikleriCek(portfoyTickerlari),
+  ]);
 
   const para = (value?: number) => typeof value === "number" && Number.isFinite(value)
     ? `${value > 0 ? "+" : ""}${value.toFixed(0)} ₺`
@@ -1954,20 +2039,57 @@ async function portfoyPromptu(portfoy?: PortfoyPromptItem[]) {
   const gunlukNegatif = [...zenginPortfoy].filter((p) => p.gunlukKatki !== undefined).sort((a, b) => (a.gunlukKatki ?? 0) - (b.gunlukKatki ?? 0))[0];
   const temaDagilimi = new Map<string, number>();
   for (const p of zenginPortfoy) {
-    const sektor = sektorBilgileri[p.ticker]?.sektor;
+    const sektor = teknikBilgileri[p.ticker]?.teknik?.sektor ?? sektorBilgileri[p.ticker]?.sektor;
     const tema = sektor ?? "Sektör verisi yok";
     temaDagilimi.set(tema, (temaDagilimi.get(tema) ?? 0) + p.guncelDeger);
   }
+  const enBuyukSektor = [...temaDagilimi.entries()].sort((a, b) => b[1] - a[1])[0];
+  const enBuyukSektorAgirlik = enBuyukSektor && toplamDeger > 0 ? (enBuyukSektor[1] / toplamDeger) * 100 : undefined;
   const temaSatirlari = [...temaDagilimi.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([tema, deger]) => `- ${tema}: %${toplamDeger > 0 ? ((deger / toplamDeger) * 100).toFixed(1) : "0.0"}`);
+  const agirlikliOrtalama = (selector: (ticker: string) => number | undefined) => {
+    if (toplamDeger <= 0) return undefined;
+    let toplam = 0;
+    let toplamAgirlik = 0;
+    for (const p of zenginPortfoy) {
+      const value = selector(p.ticker);
+      if (value === undefined) continue;
+      const agirlik = p.guncelDeger / toplamDeger;
+      toplam += value * agirlik;
+      toplamAgirlik += agirlik;
+    }
+    return toplamAgirlik > 0 ? toplam / toplamAgirlik : undefined;
+  };
+  const agirlikliBeta = agirlikliOrtalama((ticker) => teknikBilgileri[ticker]?.teknik?.beta1Yil);
+  const agirlikliVolatilite = agirlikliOrtalama((ticker) => teknikBilgileri[ticker]?.teknik?.volatiliteGunluk);
+  const agirlikliRelatifHacim = agirlikliOrtalama((ticker) => teknikBilgileri[ticker]?.teknik?.relatifHacim10G);
+  const negatifGunlukPozisyonSayisi = zenginPortfoy.filter((p) => (p.degisimYuzde ?? 0) < 0).length;
+  const yuksekBetaPozisyonlari = zenginPortfoy
+    .filter((p) => (teknikBilgileri[p.ticker]?.teknik?.beta1Yil ?? 0) >= 1.2)
+    .map((p) => p.ticker);
+  const yuksekVolatilPozisyonlari = zenginPortfoy
+    .filter((p) => (teknikBilgileri[p.ticker]?.teknik?.volatiliteGunluk ?? 0) >= 5)
+    .map((p) => p.ticker);
   const riskBayraklari = [
     enBuyuk && enBuyukAgirlik !== undefined && enBuyukAgirlik >= 35
       ? `Tek pozisyon yoğunlaşması yüksek: ${enBuyuk.ticker} portföyün %${enBuyukAgirlik.toFixed(1)}'i.`
       : null,
     ilkUcAgirlik !== undefined && ilkUcAgirlik >= 70
       ? `İlk 3 pozisyon yoğunlaşması yüksek: toplam %${ilkUcAgirlik.toFixed(1)}.`
+      : null,
+    enBuyukSektor && enBuyukSektorAgirlik !== undefined && enBuyukSektorAgirlik >= 50
+      ? `Tek sektör yoğunlaşması yüksek: ${enBuyukSektor[0]} portföyün %${enBuyukSektorAgirlik.toFixed(1)}'i.`
+      : null,
+    agirlikliBeta !== undefined && agirlikliBeta >= 1.15
+      ? `Ağırlıklı beta yüksek: ${agirlikliBeta.toFixed(2)}; portföy endekse göre daha oynak davranabilir.`
+      : null,
+    agirlikliVolatilite !== undefined && agirlikliVolatilite >= 5
+      ? `Ağırlıklı günlük volatilite yüksek: %${agirlikliVolatilite.toFixed(2)}.`
+      : null,
+    negatifGunlukPozisyonSayisi >= Math.ceil(zenginPortfoy.length * 0.6)
+      ? `Pozisyonların çoğu günü negatif geçiriyor: ${negatifGunlukPozisyonSayisi}/${zenginPortfoy.length}.`
       : null,
     enCokZarar && (enCokZarar.karZarar ?? 0) < 0
       ? `En büyük açık zarar ${enCokZarar.ticker} tarafında: ${para(enCokZarar.karZarar)}.`
@@ -1996,15 +2118,22 @@ async function portfoyPromptu(portfoy?: PortfoyPromptItem[]) {
     - (ilkUcAgirlik !== undefined && ilkUcAgirlik >= 70 ? 20 : 0)
     - (toplamKarZararYuzde <= -10 ? 20 : 0)
     - (riskBayraklari.length * 5)
+    - (enBuyukSektorAgirlik !== undefined && enBuyukSektorAgirlik >= 50 ? 10 : 0)
+    - (agirlikliBeta !== undefined && agirlikliBeta >= 1.15 ? 10 : 0)
+    - (agirlikliVolatilite !== undefined && agirlikliVolatilite >= 5 ? 10 : 0)
     + (toplamKarZararYuzde > 0 ? 5 : 0)
   ));
   const doktorSeviyesi = doktorSkoru >= 75 ? "Dengeli görünüyor" : doktorSkoru >= 50 ? "İzleme gerektiriyor" : "Risk yoğun";
 
   const satirlar = zenginPortfoy.map((p) => {
     const agirlik = toplamDeger > 0 ? ` | Ağırlık: %${((p.guncelDeger / toplamDeger) * 100).toFixed(1)}` : "";
-    const sektorBilgisi = sektorBilgileri[p.ticker];
+    const teknikSatir = teknikBilgileri[p.ticker];
+    const sektorBilgisi = teknikSatir?.teknik ?? sektorBilgileri[p.ticker];
     const sektor = sektorBilgisi?.sektor ? `${sektorBilgisi.sektor}${sektorBilgisi.endustri ? ` / ${sektorBilgisi.endustri}` : ""}` : "veri yok";
-    return `- ${p.ticker}: ${p.adet} lot | Sektör: ${sektor}${p.maliyet ? ` | Maliyet: ${p.maliyet} ₺` : ""}${p.guncelFiyat ? ` | Güncel: ${p.guncelFiyat} ₺` : ""} | Değer: ${p.guncelDeger.toFixed(0)} ₺${agirlik}${p.karZarar !== undefined ? ` | Toplam K/Z: ${p.karZarar > 0 ? "+" : ""}${p.karZarar.toFixed(0)} ₺ (%${p.karZararYuzde?.toFixed(1) ?? (p.maliyetDeger > 0 ? (p.karZarar / p.maliyetDeger * 100).toFixed(1) : "0")})` : ""}${p.degisimYuzde !== undefined ? ` | Günlük: ${p.degisimYuzde > 0 ? "+" : ""}%${p.degisimYuzde}${p.gunlukKatki !== undefined ? ` (${p.gunlukKatki > 0 ? "+" : ""}${p.gunlukKatki.toFixed(0)} ₺)` : ""}` : ""}`;
+    const teknikRisk = teknikSatir?.teknik
+      ? ` | Beta ${sayiFormatla(teknikSatir.teknik.beta1Yil) ?? "veri yok"} | Volatilite ${teknikYuzde(teknikSatir.teknik.volatiliteGunluk)} | RSI ${sayiFormatla(teknikSatir.teknik.rsi) ?? "veri yok"}`
+      : "";
+    return `- ${p.ticker}: ${p.adet} lot | Sektör: ${sektor}${p.maliyet ? ` | Maliyet: ${p.maliyet} ₺` : ""}${p.guncelFiyat ? ` | Güncel: ${p.guncelFiyat} ₺` : ""} | Değer: ${p.guncelDeger.toFixed(0)} ₺${agirlik}${p.karZarar !== undefined ? ` | Toplam K/Z: ${p.karZarar > 0 ? "+" : ""}${p.karZarar.toFixed(0)} ₺ (%${p.karZararYuzde?.toFixed(1) ?? (p.maliyetDeger > 0 ? (p.karZarar / p.maliyetDeger * 100).toFixed(1) : "0")})` : ""}${p.degisimYuzde !== undefined ? ` | Günlük: ${p.degisimYuzde > 0 ? "+" : ""}%${p.degisimYuzde}${p.gunlukKatki !== undefined ? ` (${p.gunlukKatki > 0 ? "+" : ""}${p.gunlukKatki.toFixed(0)} ₺)` : ""}` : ""}${teknikRisk}`;
   }).join("\n");
 
   return `KULLANICININ PORTFÖY VERİSİ:
@@ -2025,6 +2154,11 @@ PORTFÖY DOKTORU:
 - Doktor skoru: ${doktorSkoru}/100 (${doktorSeviyesi})
 - Güçlü noktalar: ${gucNoktalari.length > 0 ? gucNoktalari.join(" ") : "Belirgin güçlü nokta hesaplanamadı."}
 - Risk bayrakları: ${riskBayraklari.length > 0 ? riskBayraklari.join(" ") : "Belirgin yoğunlaşma veya zarar bayrağı hesaplanamadı."}
+- PORTFÖY RİSK MOTORU:
+  - Konsantrasyon: en büyük pozisyon ${enBuyuk && enBuyukAgirlik !== undefined ? `${enBuyuk.ticker} %${enBuyukAgirlik.toFixed(1)}` : "hesaplanamadı"} | ilk 3 ${ilkUcAgirlik !== undefined ? `%${ilkUcAgirlik.toFixed(1)}` : "veri yok"} | en büyük sektör ${enBuyukSektor && enBuyukSektorAgirlik !== undefined ? `${enBuyukSektor[0]} %${enBuyukSektorAgirlik.toFixed(1)}` : "veri yok"}
+  - Piyasa duyarlılığı: ağırlıklı beta ${sayiFormatla(agirlikliBeta) ?? "veri yok"} | ağırlıklı günlük volatilite ${teknikYuzde(agirlikliVolatilite)} | ağırlıklı relatif hacim ${sayiFormatla(agirlikliRelatifHacim) ?? "veri yok"}x
+  - Günlük baskı: negatif pozisyon sayısı ${negatifGunlukPozisyonSayisi}/${zenginPortfoy.length} | yüksek beta pozisyonları ${yuksekBetaPozisyonlari.length > 0 ? yuksekBetaPozisyonlari.join(", ") : "yok"} | yüksek volatil pozisyonlar ${yuksekVolatilPozisyonlari.length > 0 ? yuksekVolatilPozisyonlari.join(", ") : "yok"}
+  - Yorum kuralı: risk skorunu yatırım kararı gibi değil; yoğunlaşma, piyasa duyarlılığı, oynaklık ve günlük katkı kontrol listesi gibi anlat.
 - Sektör dağılımı:
 ${temaSatirlari.length > 0 ? temaSatirlari.join("\n") : "- Sektör dağılımı hesaplanamadı."}
 - Doktor yorumu yaparken al/sat önerme; ağırlık, katkı, zarar kaynağı, veri eksikleri ve takip edilecek metrikleri söyle.
@@ -2322,7 +2456,7 @@ const PAKO_TOOLS = [
   },
   {
     name: "get_portfoy",
-    description: "Kullanıcının portföyündeki hisseleri, adet, maliyet, güncel fiyat, güncel değer, kar/zarar ve günlük değişim bilgilerini getirir. Portföy analizi istendiğinde kullan.",
+    description: "Kullanıcının portföyündeki hisseleri, adet, maliyet, güncel fiyat, kar/zarar, günlük değişim ve Portföy Risk Motoru özetini getirir. Portföy analizi, risk, yoğunlaşma veya getiri sorulduğunda kullan.",
     input_schema: {
       type: "object" as const,
       properties: {},
@@ -2395,7 +2529,8 @@ async function toolExecute(
 
     case "get_portfoy": {
       if (!portfoy || portfoy.length === 0) return { mesaj: "Kullanıcının portföyü boş." };
-      return { portfoy };
+      const riskAnalizi = await portfoyPromptu(portfoy);
+      return { portfoy, riskAnalizi };
     }
 
     case "search_hisse": {
@@ -2493,7 +2628,7 @@ ARAÇLAR:
 - get_teknik_analiz: RSI, MACD, EMA, pivot, F/K, PD/DD, temettü, sektör kıyaslaması → teknik/temel analiz istendiğinde çağır
 - get_kap_haberler: KAP bildirimleri → haber veya "neden hareket etti" sorularında çağır
 - get_genel_piyasa: XU100/XU030, en çok yükselen/düşenler → piyasa geneli sorulduğunda çağır
-- get_portfoy: Kullanıcının portföyü → portföy analizi istendiğinde çağır
+- get_portfoy: Kullanıcının portföyü + Portföy Risk Motoru → portföy analizi/risk/getiri sorulduğunda çağır
 - search_hisse: Ticker arama → tam kod bilinmediğinde ya da şirket adı yazıldığında çağır
 
 KURAL: Veri gerektiren sorularda önce ilgili aracı çağır, aldığın gerçek veriyle yorum yap.

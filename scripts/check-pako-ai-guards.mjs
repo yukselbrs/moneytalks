@@ -112,6 +112,23 @@ function teknikTaramaIstegiCikar(text) {
   if (/\b(hacim|hacmi|hacimli|volume|anomal)\b/.test(q) && /\b(artan|artış|artis|yüksek|yuksek|fazla|patlayan|sıçrayan|sicrayan)\b/.test(q)) {
     return { tip: "hacim_artis", kosul: "yukari", esik: yuzdeEsik ?? 1.5 };
   }
+  if (/\bmacd\b/.test(q) && /\b(pozitif|signal|sinyal|kesen|üstünde|ustunde|yukar[ıi]|histogram)\b/.test(q)) {
+    return { tip: "macd_pozitif", kosul: "yukari", esik: 0 };
+  }
+  if (/\b(ema|ortalama|trend)\b/.test(q) && /\b(20|50|200|dizilim|sıralı|sirali|üstünde|ustunde|trend)\b/.test(q)) {
+    const dusus = /\b(ayı|ayi|negatif|düşüş|dusus|ters|zayıf|zayif)\b/.test(q);
+    return { tip: "ema_trend", kosul: dusus ? "asagi" : "yukari", esik: 0 };
+  }
+  if (/\b(bollinger|band)\b/.test(q) && /\b(alt|üst|ust|yakın|yakin|dib|tepe|sıkış|sikis)\b/.test(q)) {
+    const yukari = /\b(üst|ust|tepe|zirve)\b/.test(q);
+    return { tip: "bollinger_yakin", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 15 };
+  }
+  if (/\b(hacim|relatif|volume)\b/.test(q) && /\b(kırılım|kirilim|breakout|fiyat|yükseliş|yukselis|trend|ivme)\b/.test(q)) {
+    return { tip: "hacim_kirilim", kosul: "yukari", esik: yuzdeEsik ?? 1.5 };
+  }
+  if (/\b(atr|volatil\w*|oynak|volatilite)\b/.test(q) && /\b(yüksek|yuksek|fazla|hareketli|sert)\b/.test(q)) {
+    return { tip: "volatilite_yuksek", kosul: "yukari", esik: yuzdeEsik ?? 5 };
+  }
   if (/\b(52|elli iki)\b/.test(q) && /\b(dip|dibe|düşük|dusuk|alt|yakın|yakin|zirve|yüksek|yuksek|tepe)\b/.test(q)) {
     const yukari = /\b(zirve|yüksek|yuksek|tepe|üst|ust)\b/.test(q);
     return { tip: "hafta52_yakin", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 10 };
@@ -255,6 +272,11 @@ const soruSeti = [
   { q: "52 hafta dibine yakın hisseler neler", intent: "teknik_tarama", group: "tarama" },
   { q: "bugün yüzde 5 düşen hisseleri göster", intent: "teknik_tarama", group: "tarama" },
   { q: "momentumu güçlenen hisseleri bul", intent: "teknik_tarama", group: "tarama" },
+  { q: "MACD signal üstünde olan hisseleri tara", intent: "teknik_tarama", group: "tarama" },
+  { q: "EMA20 EMA50 EMA200 pozitif trend dizilimindeki hisseleri göster", intent: "teknik_tarama", group: "tarama" },
+  { q: "Bollinger alt banda yakın hisseleri bul", intent: "teknik_tarama", group: "tarama" },
+  { q: "hacim destekli kırılım yapan hisseler neler", intent: "teknik_tarama", group: "tarama" },
+  { q: "volatilitesi yüksek hisseleri tara", intent: "teknik_tarama", group: "tarama" },
   { q: "EREGL mi KRDMD mi?", intent: "karsilastirma", group: "karsilastirma" },
   { q: "GARAN neden düştü?", intent: "haber_neden", group: "haber" },
   { q: "THYAO neden yükseliyor?", intent: "haber_neden", group: "haber" },
@@ -277,7 +299,7 @@ const soruSeti = [
 ];
 
 console.log("\nSoru seti");
-assert(soruSeti.length === 57, "57 örnek soru tanımlı");
+assert(soruSeti.length === 62, "62 örnek soru tanımlı");
 for (const group of ["kavram", "hisse", "portfoy", "piyasa", "karsilastirma", "haber", "alarm", "yasakli", "tarama"]) {
   assert(soruSeti.some((s) => s.group === group), `${group} soru grubu var`);
 }
@@ -340,6 +362,11 @@ assert(route.includes("Sektör verisi yok"), "sektör verisi yoksa tahmin yerine
 assert(route.includes("relatif hacim"), "teknik tarama relatif hacim destekliyor");
 assert(route.includes("52 hafta dibine"), "teknik tarama 52 hafta yakınlığı destekliyor");
 assert(route.includes("momentumu güçlenen"), "teknik tarama momentum modu destekliyor");
+assert(route.includes("macd_pozitif") && route.includes("MACD çizgisi signal üstünde"), "derin teknik tarama MACD modu destekliyor");
+assert(route.includes("ema_trend") && route.includes("fiyat > EMA20 > EMA50 > EMA200"), "derin teknik tarama EMA trend dizilimi destekliyor");
+assert(route.includes("bollinger_yakin") && route.includes("Bollinger alt bandına"), "derin teknik tarama Bollinger bandı destekliyor");
+assert(route.includes("hacim_kirilim") && route.includes("hacim destekli pozitif kırılım"), "derin teknik tarama hacim kırılımı destekliyor");
+assert(route.includes("volatilite_yuksek") && route.includes("yüksek volatilite"), "derin teknik tarama volatilite modu destekliyor");
 assert(route.includes("metrik skoru"), "karşılaştırma skoru promptu var");
 assert(route.includes("Cevap derinliği"), "akıl planı cevap derinliği belirtiyor");
 assert(route.includes("TRADINGVIEW_TEKNIK_KOLONLARI"), "TradingView teknik kolon seti var");
@@ -389,6 +416,10 @@ assert(route.includes("TAKAS/YABANCI VERİ KAPSAMI"), "takas yabancı veri kapsa
 assert(route.includes("Gerçek MKK/takas saklama dağılımı: veri yok"), "gerçek takas verisi yoksa açıkça söyleniyor");
 assert(route.includes("yabancı alımı/satımı varmış gibi konuşma"), "yabancı işlem uydurma freni var");
 assert(route.includes("halka açıklık/pay yapısı verisini yabancı takas gibi sunma"), "halka açıklık yabancı takasla karıştırılmıyor");
+assert(route.includes("PORTFÖY RİSK MOTORU"), "portföy risk motoru prompta ekleniyor");
+assert(route.includes("ağırlıklı beta") && route.includes("ağırlıklı günlük volatilite"), "portföy risk motoru beta ve volatilite hesaplıyor");
+assert(route.includes("Tek sektör yoğunlaşması yüksek"), "portföy risk motoru sektör yoğunlaşmasını yakalıyor");
+assert(route.includes("get_portfoy: Kullanıcının portföyü + Portföy Risk Motoru"), "tool use portföy risk motorunu çağırıyor");
 assert(route.includes("GENEL_PIYASA_ENDEKSLERI"), "genel piyasa endeks seti var");
 assert(route.includes("genelPiyasaBaglamiCek"), "genel piyasa bağlamı çekiliyor");
 assert(route.includes("GENEL PİYASA BAĞLAMI"), "genel piyasa prompt bağlamı var");
