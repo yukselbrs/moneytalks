@@ -182,7 +182,7 @@ function kaliteBayraklari(reply, intent) {
   if (!reply.includes(YATIRIM_TAVSIYESI_UYARISI)) flags.push("uyari_eksik");
   if (YASAKLI_IFADELER.some((re) => re.test(reply))) flags.push("yasakli_ifade");
   if (RAKIP_KAYNAK_IFADELERI.some((re) => re.test(reply))) flags.push("rakip_kaynak_yonlendirme");
-  if (/\b(canlı|anlık|gerçek zamanlı)\s+(veri|fiyat|piyasa|takip)\b/i.test(reply)) flags.push("canli_veri_iddiasi");
+  if (/\b(canlı|anlık|gerçek zamanlı)\s+(veri|fiyat|piyasa|takip|görünüm|gorunum)\b/i.test(reply)) flags.push("canli_veri_iddiasi");
   if (intent === "haber_neden" && /\bkesin nedeni\b|\btek nedeni\b/i.test(reply)) flags.push("kesin_neden_dili");
   if (intent === "karsilastirma" && /\bnet kazanan\b|\bkesinlikle daha iyi\b/i.test(reply)) flags.push("kesin_karsilastirma_dili");
   return flags;
@@ -196,7 +196,8 @@ function cevabiGuvenliDileCevir(reply, flags) {
     duzeltilmis = duzeltilmis
       .replace(/\bcanlı\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1")
       .replace(/\banlık\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1")
-      .replace(/\bgerçek zamanlı\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1");
+      .replace(/\bgerçek zamanlı\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1")
+      .replace(/\b(canlı|anlık|gerçek zamanlı)\s+(görünüm|gorunum)\b/gi, "mevcut görünüm");
   }
 
   if (flags.includes("kesin_neden_dili")) {
@@ -321,12 +322,14 @@ assert(kaliteBayraklari("Hedef fiyat 250 TL.\n\nBu analiz yatırım tavsiyesi de
 assert(kaliteBayraklari("Bu kesin nedeni haber akışıdır.\n\nBu analiz yatırım tavsiyesi değildir.", "haber_neden").includes("kesin_neden_dili"), "kesin neden dili yakalanıyor");
 assert(kaliteBayraklari("Burada net kazanan GARAN.\n\nBu analiz yatırım tavsiyesi değildir.", "karsilastirma").includes("kesin_karsilastirma_dili"), "kesin karşılaştırma dili yakalanıyor");
 assert(kaliteBayraklari("Canlı fiyat verisi görüyorum.\n\nBu analiz yatırım tavsiyesi değildir.", "genel").includes("canli_veri_iddiasi"), "canlı veri iddiası yakalanıyor");
+assert(kaliteBayraklari("GARAN anlık görünüm.\n\nBu analiz yatırım tavsiyesi değildir.", "genel").includes("canli_veri_iddiasi"), "anlık görünüm iddiası yakalanıyor");
 assert(kaliteBayraklari("TradingView üzerinden bakabilirsin.\n\nBu analiz yatırım tavsiyesi değildir.", "genel").includes("rakip_kaynak_yonlendirme"), "rakip kaynak yönlendirmesi yakalanıyor");
 assert(kaliteBayraklari("x".repeat(1801) + `\n\n${YATIRIM_TAVSIYESI_UYARISI}`, "genel").includes("uzun_cevap"), "cevap uzunluğu bayrağı çalışıyor");
 
 const guvenli = cevabiGuvenliDileCevir("Canlı fiyat verisi TradingView'da var.\nKesin nedeni haber.\n\nBu analiz yatırım tavsiyesi değildir.", ["canli_veri_iddiasi", "rakip_kaynak_yonlendirme", "kesin_neden_dili"]);
 assert(!/TradingView/i.test(guvenli), "rakip kaynak satırı temizleniyor");
 assert(!/canlı fiyat verisi/i.test(guvenli), "canlı veri iddiası yumuşatılıyor");
+assert(cevabiGuvenliDileCevir("GARAN anlık görünüm.\n\nBu analiz yatırım tavsiyesi değildir.", ["canli_veri_iddiasi"]).includes("mevcut görünüm"), "anlık görünüm dili yumuşatılıyor");
 assert(!/kesin nedeni/i.test(guvenli), "kesin neden dili yumuşatılıyor");
 assert(guvenli.includes(YATIRIM_TAVSIYESI_UYARISI), "güvenli dönüşüm uyarıyı koruyor");
 

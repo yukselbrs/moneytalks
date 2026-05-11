@@ -84,7 +84,7 @@ function kaliteBayraklari(reply: string, intent: ChatIntent) {
   if (!reply.includes(YATIRIM_TAVSIYESI_UYARISI)) flags.push("uyari_eksik");
   if (yasakliMiKontrol(reply)) flags.push("yasakli_ifade");
   if (RAKIP_KAYNAK_IFADELERI.some((re) => re.test(reply))) flags.push("rakip_kaynak_yonlendirme");
-  if (/\b(canlı|anlık|gerçek zamanlı)\s+(veri|fiyat|piyasa|takip)\b/i.test(reply)) flags.push("canli_veri_iddiasi");
+  if (/\b(canlı|anlık|gerçek zamanlı)\s+(veri|fiyat|piyasa|takip|görünüm|gorunum)\b/i.test(reply)) flags.push("canli_veri_iddiasi");
   if (intent === "haber_neden" && /\bkesin nedeni\b|\btek nedeni\b/i.test(reply)) flags.push("kesin_neden_dili");
   if (intent === "karsilastirma" && /\bnet kazanan\b|\bkesinlikle daha iyi\b/i.test(reply)) flags.push("kesin_karsilastirma_dili");
   return flags;
@@ -98,7 +98,8 @@ function cevabiGuvenliDileCevir(reply: string, flags: string[]) {
     duzeltilmis = duzeltilmis
       .replace(/\bcanlı\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1")
       .replace(/\banlık\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1")
-      .replace(/\bgerçek zamanlı\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1");
+      .replace(/\bgerçek zamanlı\s+(veri|fiyat|piyasa|takip)\b/gi, "gecikmeli $1")
+      .replace(/\b(canlı|anlık|gerçek zamanlı)\s+(görünüm|gorunum)\b/gi, "mevcut görünüm");
   }
 
   if (flags.includes("kesin_neden_dili")) {
