@@ -199,7 +199,7 @@ export default function YapayZekaPage() {
   const [loading, setLoading] = useState(false);
   const [kalanHak, setKalanHak] = useState<number | null>(null);
   const [focused, setFocused] = useState(false);
-  const [hoveredSohbet, setHoveredSohbet] = useState<string | null>(null);
+  const [sidebarAcik, setSidebarAcik] = useState(false);
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameVal, setRenameVal] = useState("");
   const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
@@ -258,13 +258,13 @@ export default function YapayZekaPage() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(LS_KEY);
-      if (saved) setSohbetler(JSON.parse(saved));
+      if (saved) setSohbetler((JSON.parse(saved) as Sohbet[]).slice(0, 50));
     } catch {}
   }, []);
 
   // localStorage'a kaydet
   useEffect(() => {
-    if (sohbetler.length > 0) localStorage.setItem(LS_KEY, JSON.stringify(sohbetler));
+    if (sohbetler.length > 0) localStorage.setItem(LS_KEY, JSON.stringify(sohbetler.slice(0, 50)));
   }, [sohbetler]);
 
   const aktifSohbet = sohbetler.find(s => s.id === aktifId) ?? null;
@@ -327,18 +327,22 @@ export default function YapayZekaPage() {
     if (!session) return;
 
     let currentId = aktifId;
-    if (!currentId) {
-      const id = crypto.randomUUID();
-      setSohbetler(prev => [{ id, baslik: text.slice(0, 42), mesajlar: [] }, ...prev]);
-      setAktifId(id);
-      currentId = id;
+    const isNew = !currentId;
+    if (isNew) {
+      currentId = crypto.randomUUID();
+      setAktifId(currentId);
     }
 
     const newMessages: Message[] = [...messages, { role: "user", content: text }];
-    setSohbetler(prev => prev.map(s => s.id === currentId
-      ? { ...s, baslik: s.baslik === "Yeni Sohbet" ? text.slice(0, 42) : s.baslik, mesajlar: newMessages }
-      : s
-    ));
+    setSohbetler(prev => {
+      if (isNew) {
+        return [{ id: currentId!, baslik: text.slice(0, 42), mesajlar: newMessages }, ...prev].slice(0, 50);
+      }
+      return prev.map(s => s.id === currentId
+        ? { ...s, baslik: s.baslik === "Yeni Sohbet" ? text.slice(0, 42) : s.baslik, mesajlar: newMessages }
+        : s
+      );
+    });
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setLoading(true);
@@ -409,11 +413,16 @@ export default function YapayZekaPage() {
         .pk-send-btn { width:42px; height:42px; border-radius:13px; border:1px solid rgba(139,92,246,0.24); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
         .pk-send-btn.ready { cursor:pointer; background:linear-gradient(135deg,#8B5CF6,#3B82F6); box-shadow:0 0 24px rgba(139,92,246,0.34); }
         .pk-send-btn.idle { cursor:default; background:rgba(99,102,241,0.13); }
-        @media (max-width:767px) { .pk-sidebar { display:none!important; } .pk-chat-layout { padding:18px 16px 8px; } }
+        .pk-mobile-top { display:none; align-items:center; gap:12px; padding:12px 16px 8px; border-bottom:1px solid rgba(255,255,255,0.05); flex-shrink:0; }
+        .pk-hamburger { background:none; border:none; cursor:pointer; color:#4A6B8A; padding:6px; border-radius:8px; display:flex; align-items:center; transition:all 0.15s; }
+        .pk-hamburger:hover { color:#A5B4FC; background:rgba(99,102,241,0.1); }
+        .pk-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:199; backdrop-filter:blur(2px); }
+        @media (max-width:767px) { .pk-sidebar { position:fixed!important; left:-280px; top:0; bottom:0; z-index:200; transition:left 0.25s ease; width:280px!important; height:100%!important; display:flex!important; } .pk-sidebar.open { left:0; } .pk-overlay.open { display:block; } .pk-mobile-top { display:flex; } .pk-chat-layout { padding:18px 16px 8px; } }
       `}</style>
 
       {/* ── SIDEBAR ── */}
-      <div className="pk-sidebar">
+      <div className="pk-overlay open" style={{ display: sidebarAcik ? undefined : "none" }} onClick={() => setSidebarAcik(false)} />
+      <div className={`pk-sidebar${sidebarAcik ? " open" : ""}`}>
         <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid rgba(255,255,255,0.035)", flexShrink: 0 }}>
           <button className="pk-back" onClick={() => router.back()}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -448,9 +457,7 @@ export default function YapayZekaPage() {
               {sohbetler.map(s => (
                 <div key={s.id}
                   className={`pk-chat-item ${s.id === aktifId ? "active" : ""}`}
-                  onClick={renameId === s.id ? undefined : () => setAktifId(s.id)}
-                  onMouseEnter={() => setHoveredSohbet(s.id)}
-                  onMouseLeave={() => setHoveredSohbet(null)}
+                  onClick={renameId === s.id ? undefined : () => { setAktifId(s.id); setSidebarAcik(false); }}
                   style={{ margin: "0 4px", cursor: renameId === s.id ? "default" : "pointer" }}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={s.id === aktifId ? "#6366F1" : "#3A5878"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
@@ -482,7 +489,6 @@ export default function YapayZekaPage() {
                         className="pk-rename-btn"
                         onClick={e => sohbetRenameBaslat(s.id, s.baslik, e)}
                         title="Yeniden adlandır"
-                        style={{ opacity: hoveredSohbet === s.id ? 1 : 0 }}
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -493,7 +499,6 @@ export default function YapayZekaPage() {
                         className="pk-del-btn"
                         onClick={e => sohbetSil(s.id, e)}
                         title="Sil"
-                        style={{ opacity: hoveredSohbet === s.id ? 1 : 0 }}
                       >
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
@@ -531,6 +536,16 @@ export default function YapayZekaPage() {
       {/* ── MAIN ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0, position: "relative", background: "#04080F" }}>
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, backgroundImage: "linear-gradient(rgba(99,102,241,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.02) 1px,transparent 1px)", backgroundSize: "52px 52px" }} />
+
+        {/* Mobile top bar */}
+        <div className="pk-mobile-top" style={{ position: "relative", zIndex: 1 }}>
+          <button className="pk-hamburger" onClick={() => setSidebarAcik(true)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <span style={{ fontSize: 14, fontWeight: 700, background: "linear-gradient(90deg,#A78BFA,#60A5FA)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Pako AI</span>
+        </div>
 
         {isEmpty ? (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 32px 24px", gap: 32, position: "relative", zIndex: 1, overflow: "hidden" }}>
