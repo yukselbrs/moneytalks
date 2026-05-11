@@ -369,6 +369,9 @@ function HisselerContent() {
                     {formatHacim(hisse.hacim)}
                   </p>
                   <div className="hisse-mobile-returns">
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", fontSize: 12, color: "#DBEAFE", whiteSpace: "nowrap", fontWeight: 600 }}>
+                      Hacim <span style={{ color: "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{formatHacim(hisse.hacim)}</span>
+                    </span>
                     {[
                       ["1H", hisse.getiri_1h],
                       ["1A", hisse.getiri_1a],
