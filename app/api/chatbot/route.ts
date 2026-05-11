@@ -1130,13 +1130,14 @@ async function endeksVerisiCek(kod: string, ad: string): Promise<EndeksKiyasItem
     const closes = ((result?.indicators?.quote?.[0]?.close ?? []) as unknown[])
       .filter((v): v is number => typeof v === "number" && Number.isFinite(v));
     const fiyat = typeof meta?.regularMarketPrice === "number" ? meta.regularMarketPrice : closes.at(-1);
-    const onceki = typeof meta?.chartPreviousClose === "number"
-      ? meta.chartPreviousClose
+    const oncekiKapanisAdayi = closes.length >= 2
+      ? closes[closes.length - 2]
       : typeof meta?.previousClose === "number"
         ? meta.previousClose
-        : closes.length >= 2
-          ? closes[closes.length - 2]
+        : typeof meta?.chartPreviousClose === "number"
+          ? meta.chartPreviousClose
           : undefined;
+    const onceki = oncekiKapanisAdayi;
     const gunlukDegisim = fiyat !== undefined && onceki !== undefined && onceki > 0 ? ((fiyat - onceki) / onceki) * 100 : undefined;
 
     return {
@@ -1841,6 +1842,56 @@ function endeksSatiri(item?: EndeksKiyasItem) {
   return `${item.ad}: ${tlFormatla(item.fiyat) ?? "veri yok"} | günlük ${teknikYuzde(item.gunlukDegisim)} | 1H ${teknikYuzde(item.performans1H)} | 1A ${teknikYuzde(item.performans1A)} | 3A ${teknikYuzde(item.performans3A)} | 1Y ${teknikYuzde(item.performans1Y)}`;
 }
 
+function endeksToolSatiri(item: EndeksKiyasItem) {
+  return {
+    kod: item.kod,
+    ad: item.ad,
+    seviye: tlFormatla(item.fiyat) ?? null,
+    gunlukDegisimYuzde: yuzdeFormatla(item.gunlukDegisim) ?? null,
+    performans1H: yuzdeFormatla(item.performans1H) ?? null,
+    performans1A: yuzdeFormatla(item.performans1A) ?? null,
+    performans3A: yuzdeFormatla(item.performans3A) ?? null,
+    performans1Y: yuzdeFormatla(item.performans1Y) ?? null,
+  };
+}
+
+function genelPiyasaToolCevabi(baglami: GenelPiyasaBaglami) {
+  return {
+    formatKurali: "Yüzde alanları formatlı stringdir. Ham 0.61 değeri +%0,61 demektir; asla tekrar 100 ile çarpma.",
+    anaEndeksler: baglami.endeksler.map(endeksToolSatiri),
+    sektorEndeksleri: baglami.sektorEndeksleri.map(endeksToolSatiri),
+    piyasaGenisligi: {
+      kapsam: baglami.kapsam,
+      veriSayisi: baglami.veriSayisi,
+      yukselen: baglami.yukselenSayisi,
+      dusen: baglami.dusenSayisi,
+      yatay: baglami.yataySayisi,
+      ortalamaGunlukDegisim: yuzdeFormatla(baglami.ortalamaDegisim) ?? null,
+    },
+    enCokYukselenler: baglami.enCokYukselenler.slice(0, 8).map((h) => ({
+      ticker: h.ticker,
+      fiyat: tlFormatla(h.fiyat),
+      gunlukDegisimYuzde: yuzdeFormatla(h.degisimYuzde),
+      relatifHacim: h.relatifHacim !== undefined ? `${sayiFormatla(h.relatifHacim)}x` : null,
+      sektor: h.sektor ?? null,
+    })),
+    enCokDusenler: baglami.enCokDusenler.slice(0, 8).map((h) => ({
+      ticker: h.ticker,
+      fiyat: tlFormatla(h.fiyat),
+      gunlukDegisimYuzde: yuzdeFormatla(h.degisimYuzde),
+      relatifHacim: h.relatifHacim !== undefined ? `${sayiFormatla(h.relatifHacim)}x` : null,
+      sektor: h.sektor ?? null,
+    })),
+    yuksekRelatifHacim: baglami.yuksekRelatifHacim.slice(0, 8).map((h) => ({
+      ticker: h.ticker,
+      fiyat: tlFormatla(h.fiyat),
+      gunlukDegisimYuzde: yuzdeFormatla(h.degisimYuzde),
+      relatifHacim: h.relatifHacim !== undefined ? `${sayiFormatla(h.relatifHacim)}x` : null,
+      sektor: h.sektor ?? null,
+    })),
+  };
+}
+
 function goreliPerformansSatiri(hissePerf?: number, item?: EndeksKiyasItem, etiket = "endeks") {
   if (typeof hissePerf !== "number" || typeof item?.performans1A !== "number") return `${etiket}: hesaplanamadı`;
   const fark = hissePerf - item.performans1A;
@@ -2448,7 +2499,7 @@ const PAKO_TOOLS = [
   },
   {
     name: "get_genel_piyasa",
-    description: "XU100, XU030 endeks verileri, günün en çok yükselen ve düşen hisseleri, hacim anomalileri ve genel piyasa özeti. Piyasa geneli veya endeks hakkında soru sorulduğunda kullan.",
+    description: "XU100, XU030 endeks verileri, günün en çok yükselen ve düşen hisseleri, hacim anomalileri ve genel piyasa özeti. Piyasa geneli veya endeks hakkında soru sorulduğunda kullan. Yüzde değerlerini formatlı stringlerden oku; 0.61 +%0,61 demektir, 100 ile çarpma.",
     input_schema: {
       type: "object" as const,
       properties: {},
@@ -2525,7 +2576,7 @@ async function toolExecute(
     }
 
     case "get_genel_piyasa": {
-      return genelPiyasaBaglamiCek();
+      return genelPiyasaToolCevabi(await genelPiyasaBaglamiCek());
     }
 
     case "get_portfoy": {
@@ -2628,11 +2679,12 @@ ARAÇLAR:
 - get_hisse_fiyat: Güncel fiyat, değişim, hacim, 52H aralığı → hisse hakkında soru sorulduğunda çağır
 - get_teknik_analiz: RSI, MACD, EMA, pivot, F/K, PD/DD, temettü, sektör kıyaslaması → teknik/temel analiz istendiğinde çağır
 - get_kap_haberler: KAP bildirimleri → haber veya "neden hareket etti" sorularında çağır
-- get_genel_piyasa: XU100/XU030, en çok yükselen/düşenler → piyasa geneli sorulduğunda çağır
+- get_genel_piyasa: XU100/XU030, en çok yükselen/düşenler → piyasa geneli sorulduğunda çağır. Yüzdeleri formatlı stringlerden aynen kullan; 0.61 değeri +%0,61'dir, +%61 değildir.
 - get_portfoy: Kullanıcının portföyü + Portföy Risk Motoru → portföy analizi/risk/getiri sorulduğunda çağır
 - search_hisse: Ticker arama → tam kod bilinmediğinde ya da şirket adı yazıldığında çağır
 
 KURAL: Veri gerektiren sorularda önce ilgili aracı çağır, aldığın gerçek veriyle yorum yap.
+YÜZDE KURALI: Tool çıktısında yüzdeler percentage point mantığındadır; 0.61 değeri +%0,61 anlamına gelir. Yüzdeyi tekrar 100 ile çarpma. Formatlı yüzde stringi varsa onu aynen kullan.
 ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
 
   // Phase 1: Tool-calling (non-streaming, data gathering)

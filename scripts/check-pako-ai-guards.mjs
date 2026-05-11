@@ -430,6 +430,10 @@ assert(route.includes("Piyasa genişliği"), "piyasa genişliği hesaplanıp pro
 assert(route.includes("En çok yükselenler") && route.includes("En çok düşenler"), "genel piyasa yükselen/düşen listeleri var");
 assert(route.includes("Genel piyasa verisine erişimim yok"), "genel piyasa yok iddiasını engelleyen prompt var");
 assert(route.includes("portföy cevabına çevirmeme"), "genel piyasa sorusu portföye kaydırılmıyor");
+assert(route.includes("genelPiyasaToolCevabi"), "genel piyasa tool çıktısı formatlanıyor");
+assert(route.includes("gunlukDegisimYuzde") && route.includes("formatKurali"), "genel piyasa tool yüzdeleri formatlı dönüyor");
+assert(route.includes("0.61 değeri +%0,61") && route.includes("YÜZDE KURALI"), "tool yüzdeleri tekrar 100 ile çarpılmıyor");
+assert(route.includes("oncekiKapanisAdayi") && route.includes("closes.length >= 2"), "endeks günlük değişimi son iki kapanıştan hesaplanıyor");
 assert(route.includes("chatbotTelemetryLogla"), "telemetry akışı korunuyor");
 
 if (failures > 0) {
