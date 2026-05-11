@@ -173,7 +173,7 @@ function HisselerContent() {
   const renderPercent = (value: string | null, className = "") => {
     const val = value !== null ? parseFloat(value) : null;
     return (
-      <span className={className} style={{ color: val === null ? "#334155" : val >= 0 ? "#10B981" : "#EF4444" }}>
+      <span className={className} style={{ color: val === null ? "#475569" : val >= 0 ? "#10B981" : "#EF4444" }}>
         {val === null ? "—" : `${val >= 0 ? "%" : "%-"}${Math.abs(val).toFixed(2).replace(".", ",")}`}
       </span>
     );
@@ -183,19 +183,19 @@ function HisselerContent() {
     <AppShell>
       <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
         <style>{`
-          .hisse-row:hover { background: rgba(59,130,246,0.06) !important; box-shadow: 0 0 22px rgba(59,130,246,0.08); }
-          .hisse-toolbar { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 10px; align-items: center; margin-bottom: 14px; }
-          .hisse-siralama button:hover { border-color: rgba(59,130,246,0.35) !important; color: #94A3B8 !important; }
-          .hisse-arama:focus-within { border-color: rgba(59,130,246,0.42) !important; background: rgba(59,130,246,0.07) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+          .hisse-row { transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; }
+          .hisse-row:hover { background: rgba(59,130,246,0.07) !important; box-shadow: inset 3px 0 0 #3B82F6, 0 4px 20px rgba(59,130,246,0.08); }
+          .hisse-toolbar { display: grid; grid-template-columns: minmax(0,1fr) 360px; gap: 14px; align-items: center; margin-bottom: 18px; }
+          .sort-btn { position: relative; padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.18s ease; letter-spacing: -0.1px; }
+          .sort-btn-inactive { background: rgba(148,163,184,0.04); border: 1px solid rgba(148,163,184,0.1); color: #94A3B8; }
+          .sort-btn-inactive:hover { background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.3); color: #DBEAFE; transform: translateY(-1px); }
+          .sort-btn-active { background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(99,102,241,0.14)); border: 1px solid rgba(59,130,246,0.5); color: #DBEAFE; font-weight: 700; box-shadow: 0 4px 16px -4px rgba(59,130,246,0.45), inset 0 1px 0 rgba(255,255,255,0.06); }
+          .hisse-arama:focus-within { border-color: rgba(59,130,246,0.45) !important; background: rgba(59,130,246,0.06) !important; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
           .hisse-mobile-returns { display: none; }
-          .isi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px; }
-          .isi-hucre { border-radius: 8px; padding: 10px 8px 8px; cursor: pointer; transition: filter 0.12s, transform 0.12s; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; }
-          .isi-hucre:hover { filter: brightness(1.18); transform: scale(1.03); z-index: 1; position: relative; }
-          .gorunum-wrap { display: inline-flex; align-items: center; background: rgba(20,24,48,0.62); border: 1px solid rgba(124,58,237,0.28); border-radius: 999px; padding: 4px; gap: 3px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025); }
-          .gorunum-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 15px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: #66799D; font-size: 12px; font-weight: 650; cursor: pointer; transition: color 0.15s, background 0.15s, border-color 0.15s, transform 0.15s; white-space: nowrap; }
-          .gorunum-btn.aktif { background: linear-gradient(135deg, rgba(99,102,241,0.28), rgba(124,58,237,0.22)); border-color: rgba(167,139,250,0.34); color: #C7D2FE; font-weight: 800; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
-          .gorunum-btn:hover:not(.aktif) { color: #AEBBE0; background: rgba(124,58,237,0.07); border-color: rgba(124,58,237,0.14); }
-          .gorunum-btn:active { transform: translateY(1px); }
+          .pg-btn { padding: 8px 12px; border-radius: 8px; background: rgba(148,163,184,0.05); border: 1px solid rgba(148,163,184,0.12); color: #94A3B8; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s ease; }
+          .pg-btn:hover:not(:disabled) { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.35); color: #DBEAFE; }
+          .pg-btn:disabled { color: #334155; cursor: not-allowed; opacity: 0.5; }
+          .pg-btn-active { background: linear-gradient(135deg, #3B82F6, #6366F1) !important; border-color: #3B82F6 !important; color: #fff !important; font-weight: 700 !important; box-shadow: 0 4px 14px -4px rgba(59,130,246,0.6); }
           @media (max-width: 640px) {
             .isi-grid { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 3px; }
             main { padding: 16px 12px !important; }
@@ -211,43 +211,36 @@ function HisselerContent() {
             .hisse-siralama { overflow-x: auto; flex-wrap: nowrap !important; padding-bottom: 4px; }
           }
         `}</style>
-        <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px" }}>
+        <main style={{ maxWidth: 1440, margin: "0 auto", padding: "32px 40px" }}>
 
           {/* Başlık */}
-          <div className="animate-fade-up" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 12 }}>
+          <div className="animate-fade-up" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 22, flexWrap: "wrap", gap: 12 }}>
             <div>
-              <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Tüm Hisseler</p>
-              <h1 style={{ fontSize: 24, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 10 }}>
-                Hisseler
-                <span style={{ fontSize: 13, color: "#334155", fontWeight: 500, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "2px 10px" }}>
-                  {yukleniyor && gorunum === "tablo" ? "..." : `${gorunum === "isi" ? isiData.length || "..." : toplam} hisse`}
+              <p style={{ fontSize: 11, color: "#60A5FA", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 6 }}>BIST · Tüm Hisseler</p>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: "#F8FAFC", letterSpacing: "-0.8px", display: "flex", alignItems: "center", gap: 12, margin: 0 }}>
+                <span style={{ background: "linear-gradient(135deg, #F8FAFC 0%, #94A3B8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  Hisseler
+                </span>
+                <span style={{ fontSize: 13, color: "#94A3B8", fontWeight: 600, background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.06))", border: "1px solid rgba(59,130,246,0.22)", borderRadius: 999, padding: "4px 12px" }}>
+                  {yukleniyor ? "..." : `${toplam} hisse`}
                 </span>
               </h1>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {gorunum === "tablo" && (
-                <div style={{ fontSize: 11, color: "#475569", display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                  <span style={{ color: "#64748B" }}>Aktif:</span>
-                  <span style={{ color: "#94A3B8" }}>{aktifSiralamaMetni}</span>
-                  {q && <span style={{ color: "#3B82F6" }}>Arama: {q}</span>}
-                </div>
-              )}
-              <div className="gorunum-wrap">
-                <button className={`gorunum-btn${gorunum === "tablo" ? " aktif" : ""}`} onClick={() => setGorunum("tablo")}>
-                  <AlignJustify size={13} /> Tablo
-                </button>
-                <button className={`gorunum-btn${gorunum === "isi" ? " aktif" : ""}`} onClick={() => setGorunum("isi")}>
-                  <LayoutGrid size={13} /> Isı Haritası
-                </button>
-              </div>
+            <div style={{ fontSize: 12, color: "#64748B", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <span style={{ color: "#94A3B8" }}>Aktif:</span>
+              <span style={{ color: "#DBEAFE", fontWeight: 600, background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.22)", borderRadius: 999, padding: "3px 10px" }}>{aktifSiralamaMetni}</span>
+              {q && <span style={{ color: "#60A5FA", fontWeight: 500 }}>Arama: {q}</span>}
             </div>
           </div>
 
           <div className="hisse-toolbar">
-            <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              {gorunum === "tablo" && SIRALAMA_OPTIONS.map(s => (
-                <button key={s.key} onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
-                  style={{ padding: "5px 11px", borderRadius: 8, border: `1px solid ${sort === s.key ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.12)"}`, background: sort === s.key ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.012)", color: sort === s.key ? "#3B82F6" : "#64748B", fontSize: 12, fontWeight: sort === s.key ? 700 : 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+            <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              {SIRALAMA_OPTIONS.map(s => (
+                <button
+                  key={s.key}
+                  onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
+                  className={`sort-btn ${sort === s.key ? "sort-btn-active" : "sort-btn-inactive"}`}
+                >
                   {s.label}
                 </button>
               ))}
@@ -255,11 +248,11 @@ function HisselerContent() {
                 <span style={{ fontSize: 12, color: "#475569" }}>Alfabetik sıralı · Renk: günlük değişim</span>
               )}
             </div>
-            <div className="hisse-arama card-glass" style={{ display: "flex", alignItems: "center", gap: 8, borderRadius: 10, padding: "7px 12px", minWidth: 260 }}>
-              <Search size={14} color="#475569" />
+            <div className="hisse-arama card-glass" style={{ display: "flex", alignItems: "center", gap: 10, borderRadius: 12, padding: "10px 14px", minWidth: 280, transition: "all 0.18s ease" }}>
+              <Search size={16} color="#94A3B8" />
               <input value={arama} onChange={e => setArama(e.target.value)} placeholder="Hisse kodu veya şirket adı ara..."
-                style={{ background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#94A3B8", width: "100%" }} />
-              {arama && <button onClick={() => setArama("")} aria-label="Aramayı temizle" style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", width: 22, height: 22, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0 }}><X size={14} /></button>}
+                style={{ background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#F1F5F9", width: "100%" }} />
+              {arama && <button onClick={() => setArama("")} aria-label="Aramayı temizle" style={{ background: "rgba(148,163,184,0.08)", border: "1px solid rgba(148,163,184,0.15)", color: "#94A3B8", cursor: "pointer", width: 24, height: 24, borderRadius: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0 }}><X size={13} /></button>}
             </div>
           </div>
 
@@ -325,35 +318,35 @@ function HisselerContent() {
           {gorunum === "tablo" && (
             <>
             <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
-              <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "10px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", background: "rgba(255,255,255,0.01)" }}>
+              <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "13px 18px", borderBottom: "1px solid rgba(59,130,246,0.12)", background: "linear-gradient(180deg, rgba(59,130,246,0.04), rgba(255,255,255,0.005))" }}>
               {TABLO_BASLIKLARI.map((h) => {
                 const active = h.sort && sort === h.sort && sortDir;
                 const alignRight = h.align === "right";
                 if (!h.sort) {
-                  return <p key={h.label} style={{ fontSize: 12, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}>{h.label}</p>;
+                  return <p key={h.label} style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", letterSpacing: "0.1em", textAlign: alignRight ? "right" : "left", margin: 0, textTransform: "uppercase" }}>{h.label}</p>;
                 }
                 return (
                   <button
                     key={h.label}
                     onClick={() => handleHeaderSort(h.sort!)}
                     title={`${h.label} sıralaması`}
-                    style={{ display: "inline-flex", alignItems: "center", justifyContent: alignRight ? "flex-end" : "flex-start", gap: 4, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 12, fontWeight: 700, color: active ? "#3B82F6" : "#334155", letterSpacing: "0.07em", textAlign: alignRight ? "right" : "left" }}
+                    style={{ display: "inline-flex", alignItems: "center", justifyContent: alignRight ? "flex-end" : "flex-start", gap: 5, background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 11, fontWeight: 700, color: active ? "#60A5FA" : "#94A3B8", letterSpacing: "0.1em", textAlign: alignRight ? "right" : "left", textTransform: "uppercase", transition: "color 0.15s ease" }}
                   >
                     <span>{h.label}</span>
-                    <span style={{ fontSize: 12, color: active ? "#3B82F6" : "#1E293B" }}>{active ? (sortDir === "desc" ? "↓" : "↑") : "↕"}</span>
+                    <span style={{ fontSize: 11, color: active ? "#60A5FA" : "#475569" }}>{active ? (sortDir === "desc" ? "↓" : "↑") : "↕"}</span>
                   </button>
                 );
               })}
             </div>
 
             {yukleniyor && (
-              <div style={{ padding: "60px 16px", textAlign: "center", color: "#475569", fontSize: 13 }}>
+              <div style={{ padding: "70px 16px", textAlign: "center", color: "#94A3B8", fontSize: 14, fontWeight: 500 }}>
                 Yükleniyor...
               </div>
             )}
 
             {!yukleniyor && items.length === 0 && (
-              <div style={{ padding: "60px 16px", textAlign: "center", color: "#475569", fontSize: 13 }}>
+              <div style={{ padding: "70px 16px", textAlign: "center", color: "#94A3B8", fontSize: 14, fontWeight: 500 }}>
                 Sonuç bulunamadı
               </div>
             )}
@@ -363,19 +356,19 @@ function HisselerContent() {
               const globalNo = (page - 1) * pageSize + i + 1;
               return (
                 <div key={hisse.ticker} className="hisse-row" onClick={() => router.push(`/hisse/${hisse.ticker}`)}
-                  style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "11px 16px", borderBottom: "1px solid rgba(59,130,246,0.04)", cursor: "pointer", alignItems: "center", background: "transparent", transition: "background 0.1s" }}>
-                  <span className="col-no" style={{ fontSize: 11, color: "#334155", fontWeight: 500 }}>{globalNo}</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                    <StockLogo ticker={hisse.ticker} domain={hisse.domain} size={28} radius={6} color={renk} />
+                  style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 80px 80px 80px 80px", gap: 8, padding: "14px 18px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer", alignItems: "center", background: "transparent" }}>
+                  <span className="col-no" style={{ fontSize: 12, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
+                    <StockLogo ticker={hisse.ticker} domain={hisse.domain} size={30} radius={7} color={renk} />
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", margin: 0, letterSpacing: "-0.2px" }}>{hisse.ticker}</p>
-                      <p style={{ fontSize: 11, color: "#475569", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{hisse.ad}</p>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", margin: 0, letterSpacing: "-0.2px" }}>{hisse.ticker}</p>
+                      <p style={{ fontSize: 11.5, color: "#94A3B8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1 }}>{hisse.ad}</p>
                     </div>
                   </div>
-                  <p className="col-fiyat" style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0", textAlign: "right", margin: 0 }}>
-                    {hisse.fiyat ? `${hisse.fiyat} ₺` : <span style={{ color: "#334155", fontSize: 11 }}>{hisse.veriDurumu || "Veri yok"}</span>}
+                  <p className="col-fiyat" style={{ fontSize: 14, fontWeight: 600, color: "#F1F5F9", textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+                    {hisse.fiyat ? `${hisse.fiyat} ₺` : <span style={{ color: "#64748B", fontSize: 11, fontWeight: 500 }}>{hisse.veriDurumu || "Veri yok"}</span>}
                   </p>
-                  <p className="col-gun" style={{ fontSize: 12, fontWeight: 600, textAlign: "right", margin: 0, color: hisse.degisim !== null ? (hisse.yukselis ? "#10B981" : "#EF4444") : "#1E293B" }}>
+                  <p className="col-gun" style={{ fontSize: 13, fontWeight: 700, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums", color: hisse.degisim !== null ? (hisse.yukselis ? "#10B981" : "#EF4444") : "#475569" }}>
                     {hisse.degisim !== null ? `${hisse.yukselis ? "▲" : "▼"} %${Math.abs(Number(hisse.degisim)).toFixed(2).replace(".", ",")}` : "—"}
                   </p>
                   <div className="hisse-mobile-returns">
@@ -385,7 +378,7 @@ function HisselerContent() {
                       ["3A", hisse.getiri_3a],
                       ["1Y", hisse.getiri_1y],
                     ].map(([label, value]) => (
-                      <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#64748B", whiteSpace: "nowrap" }}>
+                      <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#94A3B8", whiteSpace: "nowrap" }}>
                         {label} {renderPercent(value)}
                       </span>
                     ))}
@@ -394,7 +387,7 @@ function HisselerContent() {
                     const g = hisse[key];
                     const val = g !== null ? parseFloat(g) : null;
                     return (
-                      <p key={key} className="col-getiri" style={{ fontSize: 11, fontWeight: 500, textAlign: "right", margin: 0, color: val === null ? "#1E293B" : val >= 0 ? "#10B981" : "#EF4444" }}>
+                      <p key={key} className="col-getiri" style={{ fontSize: 12, fontWeight: 600, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums", color: val === null ? "#475569" : val >= 0 ? "#10B981" : "#EF4444" }}>
                         {val === null ? "—" : `${val >= 0 ? "%" : "%-"}${Math.abs(val).toFixed(2).replace(".", ",")}`}
                       </p>
                     );
@@ -405,26 +398,24 @@ function HisselerContent() {
           </div>
 
           {/* Pagination */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, flexWrap: "wrap", gap: 8 }}>
-            <p style={{ fontSize: 12, color: "#334155" }}>
-              {toplam === 0 ? "0" : `${(page - 1) * pageSize + 1} – ${Math.min(page * pageSize, toplam)}`} / {toplam} hisse
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 22, flexWrap: "wrap", gap: 12 }}>
+            <p style={{ fontSize: 13, color: "#94A3B8", margin: 0, fontWeight: 500 }}>
+              <span style={{ color: "#F1F5F9", fontWeight: 700 }}>
+                {toplam === 0 ? "0" : `${(page - 1) * pageSize + 1} – ${Math.min(page * pageSize, toplam)}`}
+              </span>
+              <span style={{ color: "#64748B" }}> / {toplam} hisse</span>
             </p>
-            <div style={{ display: "flex", gap: 4 }}>
-              <button onClick={() => updateParams({ page: "1" })} disabled={page === 1}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === 1 ? "#1E293B" : "#64748B", cursor: page === 1 ? "not-allowed" : "pointer", fontSize: 12 }}>«</button>
-              <button onClick={() => updateParams({ page: String(Math.max(1, page - 1)) })} disabled={page === 1}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === 1 ? "#1E293B" : "#64748B", cursor: page === 1 ? "not-allowed" : "pointer", fontSize: 12 }}>‹</button>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button onClick={() => updateParams({ page: "1" })} disabled={page === 1} className="pg-btn">«</button>
+              <button onClick={() => updateParams({ page: String(Math.max(1, page - 1)) })} disabled={page === 1} className="pg-btn">‹</button>
               {Array.from({ length: Math.min(5, toplamSayfa) }, (_, i) => {
                 const p = Math.max(1, Math.min(page - 2, toplamSayfa - 4)) + i;
                 return (
-                  <button key={p} onClick={() => updateParams({ page: String(p) })}
-                    style={{ padding: "6px 10px", borderRadius: 6, background: page === p ? "#3B82F6" : "rgba(255,255,255,0.04)", border: `1px solid ${page === p ? "#3B82F6" : "rgba(59,130,246,0.1)"}`, color: page === p ? "#fff" : "#64748B", cursor: "pointer", fontSize: 12, fontWeight: page === p ? 700 : 400 }}>{p}</button>
+                  <button key={p} onClick={() => updateParams({ page: String(p) })} className={`pg-btn ${page === p ? "pg-btn-active" : ""}`}>{p}</button>
                 );
               })}
-              <button onClick={() => updateParams({ page: String(Math.min(toplamSayfa, page + 1)) })} disabled={page === toplamSayfa}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === toplamSayfa ? "#1E293B" : "#64748B", cursor: page === toplamSayfa ? "not-allowed" : "pointer", fontSize: 12 }}>›</button>
-              <button onClick={() => updateParams({ page: String(toplamSayfa) })} disabled={page === toplamSayfa}
-                style={{ padding: "6px 10px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.1)", color: page === toplamSayfa ? "#1E293B" : "#64748B", cursor: page === toplamSayfa ? "not-allowed" : "pointer", fontSize: 12 }}>»</button>
+              <button onClick={() => updateParams({ page: String(Math.min(toplamSayfa, page + 1)) })} disabled={page === toplamSayfa} className="pg-btn">›</button>
+              <button onClick={() => updateParams({ page: String(toplamSayfa) })} disabled={page === toplamSayfa} className="pg-btn">»</button>
             </div>
           </div>
             </>
