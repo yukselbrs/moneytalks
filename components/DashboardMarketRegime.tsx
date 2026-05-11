@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { usePollingFetch } from "@/hooks/usePollingFetch";
 
 type RegimeTone = "positive" | "negative" | "neutral" | "selective";
 
@@ -28,30 +29,9 @@ const toneStyle: Record<RegimeTone, { color: string; bg: string; border: string;
 };
 
 export default function DashboardMarketRegime() {
-  const [data, setData] = useState<RegimeData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: rawData, loading } = usePollingFetch<RegimeData>("/api/piyasa-rejim", 60000);
+  const data = rawData?.mod ? rawData : null;
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-    const load = async () => {
-      try {
-        const res = await fetch("/api/piyasa-rejim", { cache: "no-store" });
-        const json = await res.json();
-        if (alive && !json.error) setData(json);
-      } catch {
-        if (alive) setData(null);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    };
-    load();
-    const id = window.setInterval(load, 60000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
-  }, []);
 
   if (loading) {
     return (

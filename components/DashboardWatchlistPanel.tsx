@@ -1,12 +1,6 @@
 "use client";
 
 import StockLogo from "@/components/StockLogo";
-import { BIST_HISSELER } from "@/lib/bist-hisseler";
-import { toTitleCase } from "@/lib/utils";
-
-const sirketAdlari: Record<string, string> = Object.fromEntries(
-  BIST_HISSELER.map((s) => [s.ticker, toTitleCase(s.ad)])
-);
 
 type DashboardHisse = {
   ticker: string;
@@ -199,7 +193,7 @@ export default function DashboardWatchlistPanel({
           recent.map((r, i) => {
             const h = bistHisseler.find((b) => b.ticker === r.ticker);
             const f = fiyatlar[r.ticker];
-            const sirketAdi = h?.name || sirketAdlari[r.ticker] || "";
+            const sirketAdi = h?.name || "";
             return (
               <div key={`${r.ticker}-${r.time}-${i}`} onClick={() => goToHisse(r.ticker)}
                 style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < recent.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", borderRadius: 6, transition: "background 0.12s" }}

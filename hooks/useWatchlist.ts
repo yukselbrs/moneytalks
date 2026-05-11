@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/components/lib/supabase";
+import { LS } from "@/lib/storage-keys";
 
 type WatchlistItem = {
   ticker: string;
@@ -29,7 +30,7 @@ export function useWatchlist() {
     const wl = extraList ?? watchlistRef.current.map((w) => w.ticker);
     let recentTickers: string[] = [];
     try {
-      const stored = localStorage.getItem("pk_recent");
+      const stored = localStorage.getItem(LS.RECENT);
       if (stored) recentTickers = (JSON.parse(stored) as { ticker: string }[]).map((r) => r.ticker);
     } catch { /* ignore */ }
     const allTickers = [...new Set([...wl, ...recentTickers])];
@@ -63,7 +64,7 @@ export function useWatchlist() {
 
   useEffect(() => {
     const loadRecent = () => {
-      const stored = localStorage.getItem("pk_recent");
+      const stored = localStorage.getItem(LS.RECENT);
       if (stored) setRecent(JSON.parse(stored));
     };
 

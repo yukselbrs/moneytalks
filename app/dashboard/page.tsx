@@ -18,6 +18,7 @@ import { usePortfolioSummary } from "@/hooks/usePortfolioSummary";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useChartPanel } from "@/hooks/useChartPanel";
 import { tickerRenk, toTitleCase } from "@/lib/utils";
+import { LS } from "@/lib/storage-keys";
 import { BIST_HISSELER as TUM_BIST_HISSELER } from "@/lib/bist-hisseler";
 
 const DashboardChartPanel = dynamic(() => import("@/components/DashboardChartPanel"), {
@@ -152,7 +153,7 @@ export default function DashboardPage() {
     const entry = { ticker: t, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
     const updated = [entry, ...recent.filter((r) => r.ticker !== t)].slice(0, 5);
     setRecent(updated);
-    localStorage.setItem("pk_recent", JSON.stringify(updated));
+    localStorage.setItem(LS.RECENT, JSON.stringify(updated));
     router.push(`/hisse/${t}`);
   }
 

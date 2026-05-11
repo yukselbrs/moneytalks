@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { LS } from "@/lib/storage-keys";
 
 type PiyasaKey = "xu100" | "xu030" | "usd" | "eur";
 type PiyasaYon = "up" | "down";
@@ -31,7 +32,7 @@ function parsePiyasaDeger(value: string) {
 
 function getCachedPiyasa() {
   try {
-    const cached = localStorage.getItem("pk_piyasa");
+    const cached = localStorage.getItem(LS.PIYASA);
     return cached ? JSON.parse(cached) : EMPTY_PIYASA;
   } catch {
     return EMPTY_PIYASA;
@@ -74,7 +75,7 @@ export function useDashboardMarket(enabled = true) {
 
         piyasaRef.current = data;
         setPiyasa(data);
-        try { localStorage.setItem("pk_piyasa", JSON.stringify(data)); } catch {}
+        try { localStorage.setItem(LS.PIYASA, JSON.stringify(data)); } catch {}
       } catch {}
     };
 

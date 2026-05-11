@@ -6,6 +6,7 @@ import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 import StockLogo from "@/components/StockLogo";
 import { Sparkles, Star, Building2, TrendingUp, Target, AlertTriangle, Activity } from "lucide-react";
+import { LS } from "@/lib/storage-keys";
 
 const HisseGrafik = dynamic(() => import("@/components/HisseGrafik"), {
   ssr: false,
@@ -162,7 +163,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   }, [fetchGetiriler, ticker]);
 
   async function handleAnaliz() {
-    const cacheKey = `pk_analiz_${ticker}`;
+    const cacheKey = LS.analiz(ticker);
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       const { analiz: cachedAnaliz, timestamp } = JSON.parse(cached);
@@ -192,12 +193,12 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     }
     setAnaliz(data.analiz);
     if (data.veri) setVeri(data.veri);
-    localStorage.setItem(`pk_analiz_${ticker}`, JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: Date.now() }));
+    localStorage.setItem(LS.analiz(ticker), JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: Date.now() }));
     const entry = { ticker, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
-    const stored = localStorage.getItem("pk_recent");
+    const stored = localStorage.getItem(LS.RECENT);
     const recent = stored ? JSON.parse(stored) : [];
     const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
-    localStorage.setItem("pk_recent", JSON.stringify(updated));
+    localStorage.setItem(LS.RECENT, JSON.stringify(updated));
     // Supabase'e kaydet
     if (session && data.analiz) {
       await supabase.from("analizler").upsert({ user_id: session.user.id, ticker, analiz: data.analiz }, { onConflict: "user_id,ticker" });

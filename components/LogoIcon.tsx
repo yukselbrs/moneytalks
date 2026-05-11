@@ -1,6 +1,8 @@
-export default function LogoIcon({ size = 32 }: { size?: number }) {
+import type { CSSProperties } from "react";
+
+export default function LogoIcon({ size = 32, style }: { size?: number; style?: CSSProperties }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={size} viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style={style}>
       <defs>
         <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#60A5FA"/>
