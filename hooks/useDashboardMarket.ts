@@ -98,13 +98,11 @@ export function useDashboardMarket(enabled = true) {
 
     const fetchPiyasa = async () => {
       try {
-        const [yukRes, dusRes, hacimRes] = await Promise.all([
-          fetch("/api/hisseler?sort=yukselis&page=1"),
-          fetch("/api/hisseler?sort=dusus&page=1"),
+        const [topRes, hacimRes] = await Promise.all([
+          fetch("/api/top-movers", { cache: "no-store" }),
           fetch("/api/hisseler?sort=hacim&page=1"),
         ]);
-        const yukJson = await yukRes.json();
-        const dusJson = await dusRes.json();
+        const topJson = await topRes.json();
         const hacimJson = await hacimRes.json();
         const mapH = (h: { ticker: string; fiyat: string | number; degisim: string | number }) => ({
           ticker: h.ticker,
@@ -113,8 +111,8 @@ export function useDashboardMarket(enabled = true) {
         });
 
         setTopMovers({
-          yukselenler: (yukJson.items || []).slice(0, 5).map(mapH),
-          dusenler: (dusJson.items || []).slice(0, 5).map(mapH),
+          yukselenler: (topJson.yukselenler || []),
+          dusenler: (topJson.dusenler || []),
           hacimliler: (hacimJson.items || []).slice(0, 5).map(mapH),
         });
       } catch (error) {
