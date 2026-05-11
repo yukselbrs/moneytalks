@@ -98,10 +98,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [tip, setTip] = useState<{ text: string; y: number } | null>(null);
   const [xu100, setXu100] = useState<{ value: string; change: string } | null>(null);
 
-  const showTip = (e: React.MouseEvent, text: string) => {
-    const r = e.currentTarget.getBoundingClientRect();
+  const tipFromEl = (el: Element, text: string) => {
+    const r = el.getBoundingClientRect();
     setTip({ text, y: r.top + r.height / 2 });
   };
+  const showTip = (e: React.MouseEvent, text: string) => tipFromEl(e.currentTarget, text);
+  const focusTip = (e: React.FocusEvent, text: string) => tipFromEl(e.currentTarget, text);
 
   useEffect(() => {
     const saved = localStorage.getItem(LS.SB_COLLAPSED);
@@ -207,7 +209,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <a href="/dashboard" style={{ display: "flex", textDecoration: "none" }}>
               <LogoIcon size={32} />
             </a>
-            <button onClick={toggleCollapsed} onMouseEnter={e => showTip(e, "Genişlet")} onMouseLeave={() => setTip(null)} style={{
+            <button onClick={toggleCollapsed} aria-label="Menüyü genişlet" onMouseEnter={e => showTip(e, "Genişlet")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Genişlet")} onBlur={() => setTip(null)} style={{
               background: "none", border: "none", cursor: "pointer",
               color: "#475569", padding: "6px 0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", width: "100%",
             }}>
@@ -225,7 +227,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 para<span style={{ color: "#3B82F6" }}>konusur</span>
               </span>
             </a>
-            <button onClick={toggleCollapsed} onMouseEnter={e => showTip(e, "Küçült")} onMouseLeave={() => setTip(null)} style={{
+            <button onClick={toggleCollapsed} aria-label="Menüyü küçült" onMouseEnter={e => showTip(e, "Küçült")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Küçült")} onBlur={() => setTip(null)} style={{
               background: "none", border: "none", cursor: "pointer",
               color: "#475569", padding: 4, borderRadius: 6, display: "flex", alignItems: "center", flexShrink: 0,
             }}>
@@ -255,8 +257,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     key={item.label}
                     href={item.href}
                     className="sb-nav-item"
+                    aria-label={item.label}
                     onMouseEnter={collapsed ? e => showTip(e, item.label) : undefined}
                     onMouseLeave={collapsed ? () => setTip(null) : undefined}
+                    onFocus={collapsed ? e => focusTip(e, item.label) : undefined}
+                    onBlur={collapsed ? () => setTip(null) : undefined}
                     style={{
                       gap: collapsed ? 0 : 10,
                       justifyContent: collapsed ? "center" : undefined,
@@ -279,8 +284,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   <a
                     href="/yapay-zeka"
                     className="sb-ai-btn"
-                    onMouseEnter={collapsed ? e => showTip(e, "AI Asistan") : undefined}
+                    aria-label="Pako AI"
+                    onMouseEnter={collapsed ? e => showTip(e, "Pako AI") : undefined}
                     onMouseLeave={collapsed ? () => setTip(null) : undefined}
+                    onFocus={collapsed ? e => focusTip(e, "Pako AI") : undefined}
+                    onBlur={collapsed ? () => setTip(null) : undefined}
                     style={{
                       marginTop: 6,
                       gap: collapsed ? 0 : 10,
@@ -324,7 +332,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Pro Banner */}
         <div style={{ paddingBottom: 4 }}>
           {collapsed ? (
-            <a href="/pro" onMouseEnter={e => showTip(e, "Pro'ya Yükselt")} onMouseLeave={() => setTip(null)}
+            <a href="/pro" aria-label="Pro'ya Yükselt" onMouseEnter={e => showTip(e, "Pro'ya Yükselt")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Pro'ya Yükselt")} onBlur={() => setTip(null)}
               style={{ display: "flex", justifyContent: "center", padding: "10px 0", textDecoration: "none" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
@@ -413,7 +421,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar tooltip */}
       {tip && (
-        <div style={{
+        <div role="tooltip" style={{
           position: "fixed", left: SB_W + 10, top: tip.y, transform: "translateY(-50%)",
           background: "#1E293B", color: "#F1F5F9", fontSize: 12, fontWeight: 500,
           padding: "5px 10px", borderRadius: 6, whiteSpace: "nowrap",

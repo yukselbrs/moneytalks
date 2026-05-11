@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import StockLogo from "@/components/StockLogo";
 
 type DashboardHisse = {
@@ -62,6 +63,8 @@ export default function DashboardWatchlistPanel({
     addToWatchlist(watchlistInput.trim());
     closeInput();
   };
+
+  const bistMap = useMemo(() => new Map(bistHisseler.map(h => [h.ticker, h])), [bistHisseler]);
 
   return (
     <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", position: "relative" }}>
@@ -151,8 +154,9 @@ export default function DashboardWatchlistPanel({
         </div>
       ) : (
         watchlist.map((w, i) => {
-          const h = bistHisseler.find((b) => b.ticker === w.ticker);
+          const h = bistMap.get(w.ticker);
           const f = fiyatlar[w.ticker];
+          const degisimLabel = f ? `${f.yukselis ? "artı" : "eksi"} %${Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}` : undefined;
           return (
             <div key={w.ticker} onClick={() => goToHisse(w.ticker)}
               style={{ display: "grid", gridTemplateColumns: "40px 1fr auto auto 32px", alignItems: "center", gap: 12, padding: "11px 16px", borderBottom: i < watchlist.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", transition: "background 0.12s" }}
@@ -166,12 +170,14 @@ export default function DashboardWatchlistPanel({
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{f?.fiyat || "—"} ₺</div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: f?.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 2 }}>
+              <div style={{ textAlign: "right" }} aria-label={degisimLabel}>
+                <div aria-hidden="true" style={{ fontSize: 12, fontWeight: 700, color: f?.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 2 }}>
                   {f ? <><span>{f.yukselis ? "▲" : "▼"}</span><span>{f.yukselis ? "%" : "%-"}{Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}</span></> : "—"}
                 </div>
               </div>
-              <button onClick={(e) => { e.stopPropagation(); removeFromWatchlist(w.ticker); }}
+              <button
+                onClick={(e) => { e.stopPropagation(); removeFromWatchlist(w.ticker); }}
+                aria-label={`${w.ticker} izleme listesinden çıkar`}
                 style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#334155", transition: "all 0.12s" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.1)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,68,68,0.25)"; (e.currentTarget as HTMLButtonElement).style.color = "#EF4444"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLButtonElement).style.color = "#334155"; }}>
@@ -191,7 +197,7 @@ export default function DashboardWatchlistPanel({
           <p style={{ fontSize: 12, color: "#2D3F55", padding: "6px 0 8px", margin: 0 }}>Henüz analiz yapmadınız</p>
         ) : (
           recent.map((r, i) => {
-            const h = bistHisseler.find((b) => b.ticker === r.ticker);
+            const h = bistMap.get(r.ticker);
             const f = fiyatlar[r.ticker];
             const sirketAdi = h?.name || "";
             return (

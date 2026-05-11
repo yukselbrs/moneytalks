@@ -345,7 +345,7 @@ function UpcomingEventsCard() {
 
   useEffect(() => {
     const from = new Date().toISOString().slice(0, 10);
-    const to = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+    const to = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
     fetch(`/api/takvim?from=${from}&to=${to}`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d.events)) setEvents(d.events.slice(0, 4)); })

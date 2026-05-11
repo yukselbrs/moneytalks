@@ -29,7 +29,7 @@ const toneStyle: Record<RegimeTone, { color: string; bg: string; border: string;
 };
 
 export default function DashboardMarketRegime() {
-  const { data: rawData, loading } = usePollingFetch<RegimeData>("/api/piyasa-rejim", 60000);
+  const { data: rawData, loading } = usePollingFetch<RegimeData>("/api/piyasa-rejim", 300000);
   const data = rawData?.mod ? rawData : null;
   const [open, setOpen] = useState(false);
 

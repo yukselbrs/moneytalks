@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import StockLogo from "@/components/StockLogo";
 
 type DashboardHisse = {
@@ -54,6 +55,9 @@ export default function DashboardMarketFocus({
     { key: "hacim", label: "En Yüksek Hacim" },
   ];
 
+  const bistMap = useMemo(() => new Map(bistHisseler.map(h => [h.ticker, h])), [bistHisseler]);
+  const watchlistSet = useMemo(() => new Set(watchlist.map(w => w.ticker)), [watchlist]);
+
   const liste = piyasaOdagiTab === "yukselenler"
     ? (topMovers?.yukselenler || []).map(h => ({ ticker: h.ticker, fiyat: h.fiyat, degisim: h.degisim, yukselis: h.degisim >= 0 }))
     : piyasaOdagiTab === "dusenler"
@@ -89,8 +93,9 @@ export default function DashboardMarketFocus({
           <span style={{ marginLeft: "auto", fontSize: 11, color: "#2D3F55", fontWeight: 500 }}>15 dk gecikmeli</span>
         </div>
         {liste.map((s, i) => {
-          const h = bistHisseler.find(b => b.ticker === s.ticker);
-          const izlemede = watchlist.find(w => w.ticker === s.ticker);
+          const h = bistMap.get(s.ticker);
+          const izlemede = watchlistSet.has(s.ticker);
+          const degisimLabel = `${s.yukselis ? "artı" : "eksi"} %${Math.abs(Number(s.degisim)).toFixed(2).replace(".", ",")}`;
           return (
             <div key={s.ticker} onClick={() => goToHisse(s.ticker)}
               style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 40px", alignItems: "center", gap: 12, padding: "11px 16px", borderBottom: i < liste.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", transition: "background 0.12s" }}
@@ -104,19 +109,17 @@ export default function DashboardMarketFocus({
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.2px" }}>{s.fiyat} ₺</div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: s.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 3 }}>
+              <div style={{ textAlign: "right" }} aria-label={degisimLabel}>
+                <div aria-hidden="true" style={{ fontSize: 13, fontWeight: 700, color: s.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 3 }}>
                   <span>{s.yukselis ? "▲" : "▼"}</span>
                   <span>{s.yukselis ? "%" : "%-"}{Math.abs(Number(s.degisim)).toFixed(2).replace(".", ",")}</span>
                 </div>
               </div>
-              <button onClick={ev => {
-                ev.stopPropagation();
-                if (izlemede) removeFromWatchlist(s.ticker);
-                else addToWatchlist(s.ticker);
-              }}
+              <button
+                onClick={ev => { ev.stopPropagation(); if (izlemede) removeFromWatchlist(s.ticker); else addToWatchlist(s.ticker); }}
+                aria-label={izlemede ? `${s.ticker} izleme listesinden çıkar` : `${s.ticker} izleme listesine ekle`}
                 style={{ width: 34, height: 34, borderRadius: 8, background: izlemede ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)", border: `1px solid ${izlemede ? "rgba(59,130,246,0.35)" : "rgba(255,255,255,0.07)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, color: izlemede ? "#3B82F6" : "#2D3F55", transition: "all 0.15s" }}>
-                {izlemede ? "★" : "☆"}
+                <span aria-hidden="true">{izlemede ? "★" : "☆"}</span>
               </button>
             </div>
           );
