@@ -191,10 +191,11 @@ function HisselerContent() {
           .isi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px; }
           .isi-hucre { border-radius: 8px; padding: 10px 8px 8px; cursor: pointer; transition: filter 0.12s, transform 0.12s; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; }
           .isi-hucre:hover { filter: brightness(1.18); transform: scale(1.03); z-index: 1; position: relative; }
-          .gorunum-wrap { display: inline-flex; align-items: center; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 999px; padding: 3px; gap: 2px; }
-          .gorunum-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 13px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: #64748B; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-          .gorunum-btn.aktif { background: linear-gradient(135deg, rgba(99,102,241,0.35) 0%, rgba(59,130,246,0.28) 100%); border-color: rgba(99,102,241,0.4); color: #C7D2FE; font-weight: 700; box-shadow: 0 0 12px rgba(99,102,241,0.2); }
-          .gorunum-btn:hover:not(.aktif) { color: #94A3B8; background: rgba(255,255,255,0.04); }
+          .gorunum-wrap { display: inline-flex; align-items: center; background: rgba(20,24,48,0.62); border: 1px solid rgba(124,58,237,0.28); border-radius: 999px; padding: 4px; gap: 3px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025); }
+          .gorunum-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 15px; border-radius: 999px; border: 1px solid transparent; background: transparent; color: #66799D; font-size: 12px; font-weight: 650; cursor: pointer; transition: color 0.15s, background 0.15s, border-color 0.15s, transform 0.15s; white-space: nowrap; }
+          .gorunum-btn.aktif { background: linear-gradient(135deg, rgba(99,102,241,0.28), rgba(124,58,237,0.22)); border-color: rgba(167,139,250,0.34); color: #C7D2FE; font-weight: 800; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+          .gorunum-btn:hover:not(.aktif) { color: #AEBBE0; background: rgba(124,58,237,0.07); border-color: rgba(124,58,237,0.14); }
+          .gorunum-btn:active { transform: translateY(1px); }
           @media (max-width: 640px) {
             .isi-grid { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 3px; }
             main { padding: 16px 12px !important; }
