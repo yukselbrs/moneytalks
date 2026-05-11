@@ -90,18 +90,41 @@ function sayiParse(text) {
 
 function teknikTaramaIstegiCikar(text) {
   const q = text.toLocaleLowerCase("tr-TR");
-  if (!/\brsi\b/.test(q)) return null;
+  const taramaDili = /\b(hisseler|hisse|olan|olanlar|neler|liste|tara|tarama|bul|göster|goster|aday)\b/.test(q);
 
-  const esikMatch = q.match(/rsi[^0-9]{0,20}(\d{1,2}(?:[,.]\d+)?)/) ?? q.match(/(\d{1,2}(?:[,.]\d+)?)[^0-9]{0,20}rsi/);
-  const esik = esikMatch ? sayiParse(esikMatch[1]) : 30;
-  if (esik === undefined || esik <= 0 || esik >= 100) return null;
+  if (/\brsi\b/.test(q)) {
+    const esikMatch = q.match(/rsi[^0-9]{0,20}(\d{1,2}(?:[,.]\d+)?)/) ?? q.match(/(\d{1,2}(?:[,.]\d+)?)[^0-9]{0,20}rsi/);
+    const esik = esikMatch ? sayiParse(esikMatch[1]) : 30;
+    if (esik === undefined || esik <= 0 || esik >= 100) return null;
 
-  const taramaDili = /\b(hisseler|hisse|olan|olanlar|neler|liste|tara|tarama|bul|göster|goster)\b/.test(q);
-  const asagi = /\b(alt[ıi]nda|alt[ıi]na|aşağ[ıi]|asagi|düşen|dusen|küçük|kucuk|az|<)\b/.test(q);
-  const yukari = /\b(üstünde|ustunde|üzerinde|uzerinde|yukar[ıi]|büyük|buyuk|fazla|>)\b/.test(q);
+    const asagi = /\b(alt[ıi]nda|alt[ıi]na|aşağ[ıi]|asagi|düşen|dusen|küçük|kucuk|az|<)\b/.test(q);
+    const yukari = /\b(üstünde|ustunde|üzerinde|uzerinde|yukar[ıi]|büyük|buyuk|fazla|>)\b/.test(q);
 
-  if (!taramaDili && !asagi && !yukari) return null;
-  return { gosterge: "RSI", kosul: yukari && !asagi ? "yukari" : "asagi", esik };
+    if (!taramaDili && !asagi && !yukari) return null;
+    return { tip: "rsi", gosterge: "RSI", kosul: yukari && !asagi ? "yukari" : "asagi", esik };
+  }
+
+  if (!taramaDili) return null;
+
+  const yuzdeMatch = q.match(/%?\s*(\d{1,2}(?:[,.]\d+)?)\s*%|yüzde\s+(\d{1,2}(?:[,.]\d+)?)/i);
+  const yuzdeEsik = sayiParse(yuzdeMatch?.[1] ?? yuzdeMatch?.[2]);
+
+  if (/\b(hacim|hacmi|hacimli|volume|anomal)\b/.test(q) && /\b(artan|artış|artis|yüksek|yuksek|fazla|patlayan|sıçrayan|sicrayan)\b/.test(q)) {
+    return { tip: "hacim_artis", kosul: "yukari", esik: yuzdeEsik ?? 1.5 };
+  }
+  if (/\b(52|elli iki)\b/.test(q) && /\b(dip|dibe|düşük|dusuk|alt|yakın|yakin|zirve|yüksek|yuksek|tepe)\b/.test(q)) {
+    const yukari = /\b(zirve|yüksek|yuksek|tepe|üst|ust)\b/.test(q);
+    return { tip: "hafta52_yakin", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 10 };
+  }
+  if (/\b(momentum|güçlenen|guclenen|toparlanan|ivme)\b/.test(q)) {
+    return { tip: "momentum_guclenen", kosul: "yukari", esik: yuzdeEsik ?? 2 };
+  }
+  if (/\b(günlük|gunluk|bugün|bugun)\b/.test(q) && /\b(düşen|dusen|düştü|dustu|yükselen|yukselen|artan|çıkan|cikan)\b/.test(q)) {
+    const yukari = /\b(yükselen|yukselen|artan|çıkan|cikan)\b/.test(q);
+    return { tip: "gunluk_hareket", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 3 };
+  }
+
+  return null;
 }
 
 function niyetSiniflandir(text, aktifTicker) {
@@ -222,6 +245,10 @@ const soruSeti = [
   { q: "BIMAS versus MGROS", intent: "karsilastirma", group: "karsilastirma" },
   { q: "TUPRS ile PETKM farkı ne?", intent: "karsilastirma", group: "karsilastirma" },
   { q: "rsi 30un altında olan hisseler neler", intent: "teknik_tarama", group: "tarama" },
+  { q: "hacmi artan hisseleri tara", intent: "teknik_tarama", group: "tarama" },
+  { q: "52 hafta dibine yakın hisseler neler", intent: "teknik_tarama", group: "tarama" },
+  { q: "bugün yüzde 5 düşen hisseleri göster", intent: "teknik_tarama", group: "tarama" },
+  { q: "momentumu güçlenen hisseleri bul", intent: "teknik_tarama", group: "tarama" },
   { q: "EREGL mi KRDMD mi?", intent: "karsilastirma", group: "karsilastirma" },
   { q: "GARAN neden düştü?", intent: "haber_neden", group: "haber" },
   { q: "THYAO neden yükseliyor?", intent: "haber_neden", group: "haber" },
@@ -244,7 +271,7 @@ const soruSeti = [
 ];
 
 console.log("\nSoru seti");
-assert(soruSeti.length === 50, "50 örnek soru tanımlı");
+assert(soruSeti.length === 54, "54 örnek soru tanımlı");
 for (const group of ["kavram", "hisse", "portfoy", "karsilastirma", "haber", "alarm", "yasakli", "tarama"]) {
   assert(soruSeti.some((s) => s.group === group), `${group} soru grubu var`);
 }
@@ -293,6 +320,18 @@ assert(route.includes("Cevabın sonunda mutlaka şu cümle yer alsın"), "yatır
 assert(route.includes("Rakip finans platformu"), "rakip yönlendirme yasağı sistem promptunda var");
 assert(route.includes("Hazır fiyat cevabı"), "fiyat regression promptu var");
 assert(route.includes("TEKNİK TARAMA BAĞLAMI"), "teknik tarama bağlamı var");
+assert(route.includes("PAKO AKIL PLANI"), "Pako akıl planı promptu var");
+assert(route.includes("Veri kullanım sırası"), "akıl planı veri önceliğini belirtiyor");
+assert(route.includes("gereksiz netleştirme sorusu sorma"), "akıl planı gereksiz soru sormayı sınırlıyor");
+assert(route.includes("rakam yoksa uydurma"), "akıl planı sayısal uydurmayı engelliyor");
+assert(route.includes("PORTFÖY DOKTORU"), "portföy doktoru bağlamı var");
+assert(route.includes("Doktor skoru"), "portföy doktoru skor üretiyor");
+assert(route.includes("Tema dağılımı"), "portföy doktoru tema dağılımı üretiyor");
+assert(route.includes("relatif hacim"), "teknik tarama relatif hacim destekliyor");
+assert(route.includes("52 hafta dibine"), "teknik tarama 52 hafta yakınlığı destekliyor");
+assert(route.includes("momentumu güçlenen"), "teknik tarama momentum modu destekliyor");
+assert(route.includes("metrik skoru"), "karşılaştırma skoru promptu var");
+assert(route.includes("Cevap derinliği"), "akıl planı cevap derinliği belirtiyor");
 assert(route.includes("chatbotTelemetryLogla"), "telemetry akışı korunuyor");
 
 if (failures > 0) {

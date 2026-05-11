@@ -231,7 +231,8 @@ type KarsilastirmaHisse = {
 };
 
 type TeknikTaramaIstegi = {
-  gosterge: "RSI";
+  tip: "rsi" | "hacim_artis" | "hafta52_yakin" | "gunluk_hareket" | "momentum_guclenen";
+  gosterge?: "RSI";
   kosul: "asagi" | "yukari";
   esik: number;
 };
@@ -241,7 +242,10 @@ type TeknikTaramaHisse = {
   sirketAdi?: string;
   fiyat?: number;
   degisimYuzde?: number;
-  rsi: number;
+  rsi?: number;
+  hacim?: number;
+  relatifHacim?: number;
+  hafta52Konum?: number;
 };
 
 type KapHaber = {
@@ -432,6 +436,28 @@ function sayiParse(value?: string | null) {
   const normalized = value.replace(/\./g, "").replace(",", ".");
   const parsed = Number.parseFloat(normalized);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function bistHisseBilgisi(ticker: string) {
+  return BIST_HISSELER.find((h) => h.ticker === ticker);
+}
+
+function sirketTemaEtiketi(ticker: string, sirketAdi?: string) {
+  const bilgi = bistHisseBilgisi(ticker);
+  const metin = `${bilgi?.ad ?? ""} ${bilgi?.fullName ?? ""} ${bilgi?.kapTitle ?? ""} ${sirketAdi ?? ""}`.toLocaleLowerCase("tr-TR");
+  const temaKurallari: Array<[string, RegExp]> = [
+    ["Banka/finans", /\b(banka|bankası|finans|faktoring|leasing|yatırım menkul|sigorta|emeklilik|varlık)\b/],
+    ["Holding", /\bholding\b/],
+    ["GYO/gayrimenkul", /\b(gyo|gayrimenkul|yatırım ortaklığı|yatirim ortakligi)\b/],
+    ["Enerji", /\b(enerji|elektrik|yenilenebilir|güneş|gunes|petrol|gaz|rafineri)\b/],
+    ["Sanayi/üretim", /\b(sanayi|üretim|uretim|döküm|dokum|çimento|cimento|demir|çelik|celik|makina|metal|kimya|plastik)\b/],
+    ["Perakende/tüketim", /\b(perakende|market|mağaza|magaza|gıda|gida|içecek|icecek|tekstil|ticaret)\b/],
+    ["Ulaştırma/turizm", /\b(hava yolları|havayolları|ulaştırma|tasimacilik|taşımacılık|turizm|otel)\b/],
+    ["Teknoloji/savunma", /\b(teknoloji|yazılım|yazilim|bilişim|bilisim|savunma|elektronik)\b/],
+    ["Sağlık", /\b(sağlık|saglik|ilaç|ilac|hastane|tıbbi|tibbi)\b/],
+  ];
+
+  return temaKurallari.find(([, re]) => re.test(metin))?.[0] ?? "Tema belirsiz";
 }
 
 function alarmTaslagiCikar(text: string, aktifTicker?: string, veri?: HissePromptVeri | null): AlarmTaslak {
@@ -635,7 +661,11 @@ async function karsilastirmaPromptu(tickers: string[]) {
     const degisim = yuzdeFormatla(h.degisimYuzde);
     const konum52 = h.hafta52Konum !== undefined ? `%${h.hafta52Konum.toFixed(0)}` : "veri yok";
     const hacim = h.hacim !== undefined && h.hacim > 0 ? h.hacim.toLocaleString("tr-TR") : "veri yok";
-    return `- ${h.ticker}: fiyat ${fiyat ? `${fiyat} ₺` : "veri yok"} | günlük ${degisim ?? "veri yok"} | 52H konum ${konum52} | hacim ${hacim}`;
+    const momentumPuan = h.degisimYuzde === undefined ? 50 : Math.max(0, Math.min(100, 50 + h.degisimYuzde * 8));
+    const konumPuan = h.hafta52Konum === undefined ? 50 : h.hafta52Konum >= 80 ? 65 : h.hafta52Konum <= 20 ? 45 : 55;
+    const likiditePuan = h.hacim === undefined ? 50 : Math.max(35, Math.min(85, Math.log10(Math.max(h.hacim, 1)) * 10));
+    const karsilastirmaPuani = Math.round(momentumPuan * 0.45 + konumPuan * 0.25 + likiditePuan * 0.30);
+    return `- ${h.ticker}: fiyat ${fiyat ? `${fiyat} ₺` : "veri yok"} | günlük ${degisim ?? "veri yok"} | 52H konum ${konum52} | hacim ${hacim} | metrik skoru ${karsilastirmaPuani}/100`;
   }).join("\n");
 
   return `KARŞILAŞTIRMA BAĞLAMI:
@@ -644,23 +674,50 @@ ${satirlar}
 KARŞILAŞTIRMA KILAVUZU:
 - Bu veriler yalnızca fiyat, günlük momentum, hacim ve 52 hafta konumu içerir; bilanço ve haber/KAP analizi değildir.
 - Yanıtta "net kazanan" ilan etme. Hangi metrikte hangi hissenin öne çıktığını belirt.
+- Metrik skoru yalnızca bu sınırlı verilerden türetilmiş yardımcı sıralamadır; yatırım kararı veya kalite puanı değildir.
 - Kıyaslamayı kısa bir tablo mantığıyla yap: momentum, orta vadeli konum, likidite/veri kalitesi, risk.`;
 }
 
 function teknikTaramaIstegiCikar(text: string): TeknikTaramaIstegi | null {
   const q = text.toLocaleLowerCase("tr-TR");
-  if (!/\brsi\b/.test(q)) return null;
+  const taramaDili = /\b(hisseler|hisse|olan|olanlar|neler|liste|tara|tarama|bul|göster|goster|aday)\b/.test(q);
 
-  const esikMatch = q.match(/rsi[^0-9]{0,20}(\d{1,2}(?:[,.]\d+)?)/) ?? q.match(/(\d{1,2}(?:[,.]\d+)?)[^0-9]{0,20}rsi/);
-  const esik = esikMatch ? sayiParse(esikMatch[1]) : 30;
-  if (esik === undefined || esik <= 0 || esik >= 100) return null;
+  if (/\brsi\b/.test(q)) {
+    const esikMatch = q.match(/rsi[^0-9]{0,20}(\d{1,2}(?:[,.]\d+)?)/) ?? q.match(/(\d{1,2}(?:[,.]\d+)?)[^0-9]{0,20}rsi/);
+    const esik = esikMatch ? sayiParse(esikMatch[1]) : 30;
+    if (esik === undefined || esik <= 0 || esik >= 100) return null;
 
-  const taramaDili = /\b(hisseler|hisse|olan|olanlar|neler|liste|tara|tarama|bul|göster|goster)\b/.test(q);
-  const asagi = /\b(alt[ıi]nda|alt[ıi]na|aşağ[ıi]|asagi|düşen|dusen|küçük|kucuk|az|<)\b/.test(q);
-  const yukari = /\b(üstünde|ustunde|üzerinde|uzerinde|yukar[ıi]|büyük|buyuk|fazla|>)\b/.test(q);
+    const asagi = /\b(alt[ıi]nda|alt[ıi]na|aşağ[ıi]|asagi|düşen|dusen|küçük|kucuk|az|<)\b/.test(q);
+    const yukari = /\b(üstünde|ustunde|üzerinde|uzerinde|yukar[ıi]|büyük|buyuk|fazla|>)\b/.test(q);
 
-  if (!taramaDili && !asagi && !yukari) return null;
-  return { gosterge: "RSI", kosul: yukari && !asagi ? "yukari" : "asagi", esik };
+    if (!taramaDili && !asagi && !yukari) return null;
+    return { tip: "rsi", gosterge: "RSI", kosul: yukari && !asagi ? "yukari" : "asagi", esik };
+  }
+
+  if (!taramaDili) return null;
+
+  const yuzdeMatch = q.match(/%?\s*(\d{1,2}(?:[,.]\d+)?)\s*%|yüzde\s+(\d{1,2}(?:[,.]\d+)?)/i);
+  const yuzdeEsik = sayiParse(yuzdeMatch?.[1] ?? yuzdeMatch?.[2]);
+
+  if (/\b(hacim|hacmi|hacimli|volume|anomal)\b/.test(q) && /\b(artan|artış|artis|yüksek|yuksek|fazla|patlayan|sıçrayan|sicrayan)\b/.test(q)) {
+    return { tip: "hacim_artis", kosul: "yukari", esik: yuzdeEsik ?? 1.5 };
+  }
+
+  if (/\b(52|elli iki)\b/.test(q) && /\b(dip|dibe|düşük|dusuk|alt|yakın|yakin|zirve|yüksek|yuksek|tepe)\b/.test(q)) {
+    const yukari = /\b(zirve|yüksek|yuksek|tepe|üst|ust)\b/.test(q);
+    return { tip: "hafta52_yakin", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 10 };
+  }
+
+  if (/\b(momentum|güçlenen|guclenen|toparlanan|ivme)\b/.test(q)) {
+    return { tip: "momentum_guclenen", kosul: "yukari", esik: yuzdeEsik ?? 2 };
+  }
+
+  if (/\b(günlük|gunluk|bugün|bugun)\b/.test(q) && /\b(düşen|dusen|düştü|dustu|yükselen|yukselen|artan|çıkan|cikan)\b/.test(q)) {
+    const yukari = /\b(yükselen|yukselen|artan|çıkan|cikan)\b/.test(q);
+    return { tip: "gunluk_hareket", kosul: yukari ? "yukari" : "asagi", esik: yuzdeEsik ?? 3 };
+  }
+
+  return null;
 }
 
 async function rsiTaramasiCek(istek: TeknikTaramaIstegi): Promise<{
@@ -682,7 +739,7 @@ async function rsiTaramasiCek(istek: TeknikTaramaIstegi): Promise<{
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           symbols: { tickers: chunk, query: { types: [] } },
-          columns: ["name", "description", "close", "change", "RSI"],
+          columns: ["name", "description", "close", "change", "RSI", "volume", "relative_volume_10d_calc", "High.52W", "Low.52W"],
         }),
         cache: "no-store",
       });
@@ -696,25 +753,65 @@ async function rsiTaramasiCek(istek: TeknikTaramaIstegi): Promise<{
 
   const sonuclar = rows
     .map((row): TeknikTaramaHisse | null => {
-      const [name, description, close, change, rsi] = row.d ?? [];
+      const [name, description, close, change, rsi, volume, relativeVolume, high52, low52] = row.d ?? [];
       const ticker = String(name || row.s?.split(":")[1] || "").replace("BIST:", "").toLocaleUpperCase("tr-TR");
-      if (!ticker || typeof rsi !== "number" || !Number.isFinite(rsi)) return null;
+      if (!ticker) return null;
+
+      const fiyat = typeof close === "number" && Number.isFinite(close) ? close : undefined;
+      const yillikYuksek = typeof high52 === "number" && Number.isFinite(high52) ? high52 : undefined;
+      const yillikDusuk = typeof low52 === "number" && Number.isFinite(low52) ? low52 : undefined;
+      const hafta52Konum = fiyat !== undefined && yillikYuksek !== undefined && yillikDusuk !== undefined && yillikYuksek > yillikDusuk
+        ? ((fiyat - yillikDusuk) / (yillikYuksek - yillikDusuk)) * 100
+        : undefined;
 
       return {
         ticker,
         sirketAdi: typeof description === "string" ? description : undefined,
-        fiyat: typeof close === "number" && Number.isFinite(close) ? close : undefined,
+        fiyat,
         degisimYuzde: typeof change === "number" && Number.isFinite(change) ? change : undefined,
-        rsi,
+        rsi: typeof rsi === "number" && Number.isFinite(rsi) ? rsi : undefined,
+        hacim: typeof volume === "number" && Number.isFinite(volume) ? volume : undefined,
+        relatifHacim: typeof relativeVolume === "number" && Number.isFinite(relativeVolume) ? relativeVolume : undefined,
+        hafta52Konum,
       };
     })
     .filter((row): row is TeknikTaramaHisse => {
       if (!row) return false;
-      return istek.kosul === "asagi" ? row.rsi < istek.esik : row.rsi > istek.esik;
+      if (istek.tip === "rsi") {
+        if (row.rsi === undefined) return false;
+        return istek.kosul === "asagi" ? row.rsi < istek.esik : row.rsi > istek.esik;
+      }
+      if (istek.tip === "hacim_artis") return (row.relatifHacim ?? 0) >= istek.esik;
+      if (istek.tip === "hafta52_yakin") {
+        if (row.hafta52Konum === undefined) return false;
+        return istek.kosul === "asagi" ? row.hafta52Konum <= istek.esik : row.hafta52Konum >= 100 - istek.esik;
+      }
+      if (istek.tip === "gunluk_hareket") {
+        if (row.degisimYuzde === undefined) return false;
+        return istek.kosul === "asagi" ? row.degisimYuzde <= -istek.esik : row.degisimYuzde >= istek.esik;
+      }
+      return (row.degisimYuzde ?? 0) >= istek.esik && (row.rsi ?? 0) >= 50 && (row.rsi ?? 100) <= 70 && (row.relatifHacim ?? 0) >= 1.2;
     })
-    .sort((a, b) => istek.kosul === "asagi" ? a.rsi - b.rsi : b.rsi - a.rsi);
+    .sort((a, b) => {
+      if (istek.tip === "rsi") return istek.kosul === "asagi" ? (a.rsi ?? 100) - (b.rsi ?? 100) : (b.rsi ?? 0) - (a.rsi ?? 0);
+      if (istek.tip === "hacim_artis") return (b.relatifHacim ?? 0) - (a.relatifHacim ?? 0);
+      if (istek.tip === "hafta52_yakin") return istek.kosul === "asagi" ? (a.hafta52Konum ?? 100) - (b.hafta52Konum ?? 100) : (b.hafta52Konum ?? 0) - (a.hafta52Konum ?? 0);
+      return istek.kosul === "asagi" ? (a.degisimYuzde ?? 0) - (b.degisimYuzde ?? 0) : (b.degisimYuzde ?? 0) - (a.degisimYuzde ?? 0);
+    });
 
   return { sonuclar, kapsam: tickers.length, veriSayisi: rows.length };
+}
+
+function teknikTaramaBasligi(istek: TeknikTaramaIstegi) {
+  if (istek.tip === "rsi") return `RSI(14) ${istek.kosul === "asagi" ? "<" : ">"} ${istek.esik}`;
+  if (istek.tip === "hacim_artis") return `relatif hacim >= ${istek.esik.toLocaleString("tr-TR")}x`;
+  if (istek.tip === "hafta52_yakin") return istek.kosul === "asagi"
+    ? `52 hafta dibine en fazla %${istek.esik} uzak`
+    : `52 hafta zirvesine en fazla %${istek.esik} uzak`;
+  if (istek.tip === "gunluk_hareket") return istek.kosul === "asagi"
+    ? `günlük değişim <= -%${istek.esik}`
+    : `günlük değişim >= +%${istek.esik}`;
+  return `momentumu güçlenen: günlük >= +%${istek.esik}, RSI 50-70, relatif hacim >= 1.2x`;
 }
 
 async function teknikTaramaPromptu(text: string) {
@@ -722,15 +819,17 @@ async function teknikTaramaPromptu(text: string) {
   if (!istek) return "";
 
   const { sonuclar, kapsam, veriSayisi } = await rsiTaramasiCek(istek);
-  const operator = istek.kosul === "asagi" ? "<" : ">";
   const liste = sonuclar.slice(0, 20).map((h) => {
     const fiyat = tlFormatla(h.fiyat);
     const degisim = yuzdeFormatla(h.degisimYuzde);
-    return `- ${h.ticker}: RSI ${h.rsi.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} | fiyat ${fiyat ? `${fiyat} ₺` : "veri yok"} | günlük ${degisim ?? "veri yok"}`;
+    const rsi = h.rsi !== undefined ? h.rsi.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "veri yok";
+    const relatifHacim = h.relatifHacim !== undefined ? `${h.relatifHacim.toLocaleString("tr-TR", { maximumFractionDigits: 2 })}x` : "veri yok";
+    const konum52 = h.hafta52Konum !== undefined ? `%${h.hafta52Konum.toFixed(0)}` : "veri yok";
+    return `- ${h.ticker}: fiyat ${fiyat ? `${fiyat} ₺` : "veri yok"} | günlük ${degisim ?? "veri yok"} | RSI ${rsi} | relatif hacim ${relatifHacim} | 52H konum ${konum52}`;
   }).join("\n");
 
   return `TEKNİK TARAMA BAĞLAMI:
-- Tarama: RSI(14) ${operator} ${istek.esik}
+- Tarama: ${teknikTaramaBasligi(istek)}
 - Kapsam: ${kapsam} BIST hissesi denendi; ${veriSayisi} hisseden teknik veri döndü.
 - Eşik koşulunu sağlayan hisse sayısı: ${sonuclar.length}
 ${liste || "- Bu koşulu sağlayan hisse bulunamadı."}
@@ -739,6 +838,8 @@ TEKNİK TARAMA KILAVUZU:
 - Kullanıcı liste istiyorsa yukarıdaki tarama sonucunu ver; "BIST'i tarayamıyorum" veya "bu listeyi veremem" deme.
 - RSI < 30 genellikle aşırı satım bölgesini gösterir; tek başına alım sinyali değildir.
 - RSI > 70 genellikle aşırı alım bölgesini gösterir; tek başına satış sinyali değildir.
+- Relatif hacim artışı ilgi artışını gösterebilir ama tek başına yön sinyali değildir.
+- 52 hafta dibine/zirvesine yakınlık destek, direnç veya trend bağlamı gerektirir.
 - Fiyat ve teknik veriler gecikmeli olabilir; kesin al/sat önerisi verme.`;
 }
 
@@ -849,10 +950,56 @@ function portfoyPromptu(portfoy?: PortfoyPromptItem[]) {
   const enCokZarar = [...zenginPortfoy].filter((p) => p.karZarar !== undefined).sort((a, b) => (a.karZarar ?? 0) - (b.karZarar ?? 0))[0];
   const gunlukLider = [...zenginPortfoy].filter((p) => p.gunlukKatki !== undefined).sort((a, b) => (b.gunlukKatki ?? 0) - (a.gunlukKatki ?? 0))[0];
   const gunlukNegatif = [...zenginPortfoy].filter((p) => p.gunlukKatki !== undefined).sort((a, b) => (a.gunlukKatki ?? 0) - (b.gunlukKatki ?? 0))[0];
+  const temaDagilimi = new Map<string, number>();
+  for (const p of zenginPortfoy) {
+    const tema = sirketTemaEtiketi(p.ticker);
+    temaDagilimi.set(tema, (temaDagilimi.get(tema) ?? 0) + p.guncelDeger);
+  }
+  const temaSatirlari = [...temaDagilimi.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([tema, deger]) => `- ${tema}: %${toplamDeger > 0 ? ((deger / toplamDeger) * 100).toFixed(1) : "0.0"}`);
+  const riskBayraklari = [
+    enBuyuk && enBuyukAgirlik !== undefined && enBuyukAgirlik >= 35
+      ? `Tek pozisyon yoğunlaşması yüksek: ${enBuyuk.ticker} portföyün %${enBuyukAgirlik.toFixed(1)}'i.`
+      : null,
+    ilkUcAgirlik !== undefined && ilkUcAgirlik >= 70
+      ? `İlk 3 pozisyon yoğunlaşması yüksek: toplam %${ilkUcAgirlik.toFixed(1)}.`
+      : null,
+    enCokZarar && (enCokZarar.karZarar ?? 0) < 0
+      ? `En büyük açık zarar ${enCokZarar.ticker} tarafında: ${para(enCokZarar.karZarar)}.`
+      : null,
+    gunlukNegatif && (gunlukNegatif.gunlukKatki ?? 0) < 0
+      ? `Günlük negatif katkıda öne çıkan pozisyon ${gunlukNegatif.ticker}: ${para(gunlukNegatif.gunlukKatki)}.`
+      : null,
+    toplamMaliyet > 0 && toplamKarZararYuzde <= -10
+      ? `Toplam portföy zararı %${Math.abs(toplamKarZararYuzde).toFixed(1)} seviyesinde; zarar kaynağı ve ağırlık birlikte incelenmeli.`
+      : null,
+  ].filter(Boolean);
+  const gucNoktalari = [
+    toplamMaliyet > 0 && toplamKarZararYuzde > 0
+      ? `Portföy toplamda artıda: ${para(toplamKarZarar)} (${yuzde(toplamKarZararYuzde)}).`
+      : null,
+    gunlukLider && (gunlukLider.gunlukKatki ?? 0) > 0
+      ? `Günlük pozitif katkıyı en çok ${gunlukLider.ticker} taşıyor: ${para(gunlukLider.gunlukKatki)}.`
+      : null,
+    enCokKazandiran && (enCokKazandiran.karZarar ?? 0) > 0
+      ? `Toplam kâr lideri ${enCokKazandiran.ticker}: ${para(enCokKazandiran.karZarar)}.`
+      : null,
+  ].filter(Boolean);
+  const doktorSkoru = Math.max(0, Math.min(100,
+    100
+    - (enBuyukAgirlik !== undefined && enBuyukAgirlik >= 35 ? 20 : 0)
+    - (ilkUcAgirlik !== undefined && ilkUcAgirlik >= 70 ? 20 : 0)
+    - (toplamKarZararYuzde <= -10 ? 20 : 0)
+    - (riskBayraklari.length * 5)
+    + (toplamKarZararYuzde > 0 ? 5 : 0)
+  ));
+  const doktorSeviyesi = doktorSkoru >= 75 ? "Dengeli görünüyor" : doktorSkoru >= 50 ? "İzleme gerektiriyor" : "Risk yoğun";
 
   const satirlar = zenginPortfoy.map((p) => {
     const agirlik = toplamDeger > 0 ? ` | Ağırlık: %${((p.guncelDeger / toplamDeger) * 100).toFixed(1)}` : "";
-    return `- ${p.ticker}: ${p.adet} lot${p.maliyet ? ` | Maliyet: ${p.maliyet} ₺` : ""}${p.guncelFiyat ? ` | Güncel: ${p.guncelFiyat} ₺` : ""} | Değer: ${p.guncelDeger.toFixed(0)} ₺${agirlik}${p.karZarar !== undefined ? ` | Toplam K/Z: ${p.karZarar > 0 ? "+" : ""}${p.karZarar.toFixed(0)} ₺ (%${p.karZararYuzde?.toFixed(1) ?? (p.maliyetDeger > 0 ? (p.karZarar / p.maliyetDeger * 100).toFixed(1) : "0")})` : ""}${p.degisimYuzde !== undefined ? ` | Günlük: ${p.degisimYuzde > 0 ? "+" : ""}%${p.degisimYuzde}${p.gunlukKatki !== undefined ? ` (${p.gunlukKatki > 0 ? "+" : ""}${p.gunlukKatki.toFixed(0)} ₺)` : ""}` : ""}`;
+    return `- ${p.ticker}: ${p.adet} lot | Tema: ${sirketTemaEtiketi(p.ticker)}${p.maliyet ? ` | Maliyet: ${p.maliyet} ₺` : ""}${p.guncelFiyat ? ` | Güncel: ${p.guncelFiyat} ₺` : ""} | Değer: ${p.guncelDeger.toFixed(0)} ₺${agirlik}${p.karZarar !== undefined ? ` | Toplam K/Z: ${p.karZarar > 0 ? "+" : ""}${p.karZarar.toFixed(0)} ₺ (%${p.karZararYuzde?.toFixed(1) ?? (p.maliyetDeger > 0 ? (p.karZarar / p.maliyetDeger * 100).toFixed(1) : "0")})` : ""}${p.degisimYuzde !== undefined ? ` | Günlük: ${p.degisimYuzde > 0 ? "+" : ""}%${p.degisimYuzde}${p.gunlukKatki !== undefined ? ` (${p.gunlukKatki > 0 ? "+" : ""}${p.gunlukKatki.toFixed(0)} ₺)` : ""}` : ""}`;
   }).join("\n");
 
   return `KULLANICININ PORTFÖY VERİSİ:
@@ -868,6 +1015,14 @@ function portfoyPromptu(portfoy?: PortfoyPromptItem[]) {
 - En çok zarar yazan: ${enCokZarar ? `${enCokZarar.ticker} (${para(enCokZarar.karZarar)})` : "veri yok"}
 - Günlük en büyük pozitif katkı: ${gunlukLider ? `${gunlukLider.ticker} (${para(gunlukLider.gunlukKatki)})` : "veri yok"}
 - Günlük en büyük negatif katkı: ${gunlukNegatif ? `${gunlukNegatif.ticker} (${para(gunlukNegatif.gunlukKatki)})` : "veri yok"}
+
+PORTFÖY DOKTORU:
+- Doktor skoru: ${doktorSkoru}/100 (${doktorSeviyesi})
+- Güçlü noktalar: ${gucNoktalari.length > 0 ? gucNoktalari.join(" ") : "Belirgin güçlü nokta hesaplanamadı."}
+- Risk bayrakları: ${riskBayraklari.length > 0 ? riskBayraklari.join(" ") : "Belirgin yoğunlaşma veya zarar bayrağı hesaplanamadı."}
+- Tema dağılımı:
+${temaSatirlari.length > 0 ? temaSatirlari.join("\n") : "- Tema dağılımı hesaplanamadı."}
+- Doktor yorumu yaparken al/sat önerme; ağırlık, katkı, zarar kaynağı, veri eksikleri ve takip edilecek metrikleri söyle.
 
 POZİSYON DETAYLARI:
 ${satirlar}`;
@@ -990,6 +1145,109 @@ function veriKapsamiPromptu({
 - Eksik veri için rakip finans siteleri, aracı kurum uygulamaları veya harici analiz platformları önermeyi bırak. Kullanıcıyı ParaKonuşur içindeki ekranlara, portföyüne, izleme listesine, haber/KAP alanına veya mevcut gecikmeli veriye yönlendir.`;
 }
 
+function pakoAkilPlaniPromptu({
+  sonMesaj,
+  intent,
+  tickers,
+  aktifTicker,
+  veri,
+  portfoy,
+  karsilastirmaBaglami,
+  haberNedenBaglami,
+  teknikTaramaBaglami,
+  alarmTaslak,
+}: {
+  sonMesaj: string;
+  intent: ChatIntent;
+  tickers: string[];
+  aktifTicker?: string;
+  veri?: HissePromptVeri | null;
+  portfoy?: PortfoyPromptItem[];
+  karsilastirmaBaglami: string;
+  haberNedenBaglami: string;
+  teknikTaramaBaglami: string;
+  alarmTaslak: AlarmTaslak | null;
+}) {
+  const q = sonMesaj.toLocaleLowerCase("tr-TR");
+  const yalnizFiyatSorusu = intent === "hisse_analizi"
+    && /\b(kaç tl|fiyat|fiyatı|fiyati)\b/.test(q)
+    && !/\b(analiz|yorum|neden|risk|teknik|temel|ucuz|pahalı|pahali|görünüm|durum)\b/.test(q);
+  const nedenSorusu = /\b(neden|niye|sebep|düştü|düşüyor|yükseldi|yükseliyor|hareketli)\b/.test(q);
+  const riskSorusu = /\b(risk|riskli|dengeli|dağılım|dagilim|ağırlık|agirlik|konsantrasyon)\b/.test(q);
+  const sayisalSorusu = /\b(ne kadar|kaç|kac|yüzde|tl|k[\/ ]?z|kar|kâr|zarar|getiri)\b/.test(q);
+  const detaySeviyesi = /\b(detay|ayrıntı|ayrinti|derin|kapsamlı|kapsamli|uzun)\b/.test(q)
+    ? "detaylı"
+    : /\b(kısa|kisa|özet|tek cümle|tek cumle|hızlı|hizli)\b/.test(q) || yalnizFiyatSorusu
+      ? "kısa"
+      : "normal";
+  const kullaniciTarzi = /\b(teknik|rsi|hacim|destek|direnç|direnc|trend|momentum)\b/.test(q)
+    ? "teknik odaklı"
+    : /\b(risk|zarar|dengeli|portföy|portfoy|dağılım|dagilim)\b/.test(q)
+      ? "risk odaklı"
+      : /\b(yeni başladım|yeni basladim|basit|anlamadım|anlamadim)\b/.test(q)
+        ? "başlangıç seviyesi"
+        : "genel yatırımcı";
+
+  const gorev = yalnizFiyatSorusu
+    ? "fiyatı hızlı ve iki basamaklı formatla cevapla"
+    : intent === "portfoy" && nedenSorusu
+      ? "portföy hareketinin ana katkılarını açıkla"
+      : intent === "portfoy" && riskSorusu
+        ? "portföy yoğunlaşması ve zarar/kazanç kaynaklarını risk diliyle yorumla"
+        : intent === "hisse_analizi" && nedenSorusu
+          ? "hisse hareketi için olası neden çerçevesi kur"
+          : intent === "teknik_tarama"
+            ? "teknik koşula uyan listeyi özetle ve sinyalin sınırını anlat"
+            : intent === "karsilastirma"
+              ? "hisseleri metrik bazında kıyasla, kazanan ilan etme"
+              : intent === "alarm_aksiyon"
+                ? "alarm taslağını tamamlat veya onaya hazır özetle"
+                : "soruyu doğrudan cevapla ve gereksiz veri uydurma";
+
+  const veriOnceligi = [
+    yalnizFiyatSorusu ? "Hazır fiyat cevabı" : null,
+    intent === "portfoy" ? "portföy özeti ve pozisyon katkıları" : null,
+    veri ? "gecikmeli fiyat/bant/hacim verisi" : null,
+    teknikTaramaBaglami ? "teknik tarama listesi" : null,
+    karsilastirmaBaglami ? "karşılaştırma metrikleri" : null,
+    haberNedenBaglami ? "KAP/haber başlığı veri durumu" : null,
+    alarmTaslak ? "alarm taslağı alanları" : null,
+    "kullanıcının son sorusu",
+  ].filter(Boolean).join(" > ");
+
+  const cevapIskeleti = yalnizFiyatSorusu
+    ? "tek cümlede fiyat + günlük değişim; ardından gecikmeli veri notu"
+    : intent === "portfoy"
+      ? "1) kısa özet 2) ana katkı/yoğunlaşma 3) izlenecekler"
+      : intent === "hisse_analizi"
+        ? "1) veri özeti 2) olumlu taraflar 3) riskler 4) izlenecekler"
+        : intent === "teknik_tarama"
+          ? "1) kaç sonuç var 2) ilk adaylar 3) RSI uyarısı"
+          : intent === "karsilastirma"
+            ? "1) metrik tablosu mantığı 2) hangi metrikte kim önde 3) veri sınırı"
+            : intent === "haber_neden"
+              ? "1) kesin neden yok 2) olası çerçeve 3) kontrol edilecek metrikler"
+              : "kısa yanıt + pratik kontrol listesi";
+
+  const netlestirme = intent === "karsilastirma" && tickers.length < 2
+    ? "Karşılaştırma için ikinci hisse eksikse tek kısa soru sor."
+    : intent === "portfoy" && (!portfoy || portfoy.length === 0)
+      ? "Portföy verisi yoksa kullanıcının pozisyonlarını istemeden kesin portföy yorumu yapma."
+      : intent === "alarm_aksiyon" && alarmTaslak && alarmTaslak.eksikler.length > 0
+        ? `Alarm için eksikleri tek soruda tamamlat: ${alarmTaslak.eksikler.join(", ")}.`
+        : "Yeterli bağlam varsa cevapla; gereksiz netleştirme sorusu sorma.";
+
+  return `PAKO AKIL PLANI:
+- Kullanıcı amacı: ${gorev}.
+- Tespit edilen hisseler: ${tickers.length > 0 ? tickers.join(", ") : aktifTicker ?? "yok"}.
+- Veri kullanım sırası: ${veriOnceligi}.
+- Cevap iskeleti: ${cevapIskeleti}.
+- Cevap derinliği: ${detaySeviyesi}; kullanıcı tarzı: ${kullaniciTarzi}.
+- Sayısal hassasiyet: ${sayisalSorusu ? "rakam varsa iki basamak ve eldeki/gecikmeli veri dili kullan; rakam yoksa uydurma." : "sayı gerekiyorsa yalnızca verilen bağlamdan üret."}
+- Netleştirme eşiği: ${netlestirme}
+- Sapma kontrolü: rakip kaynak önermeden, al/sat emri vermeden, kesin neden/hedef/getiri iddiası kurmadan cevapla.`;
+}
+
 export async function POST(req: NextRequest) {
   const requestStart = Date.now();
 
@@ -1041,7 +1299,7 @@ export async function POST(req: NextRequest) {
   const mesajTickerlari = tickerAdaylari(sonMesaj, ticker);
   const aktifTicker = ticker || mesajTickerlari[0];
   const intent = niyetSiniflandir(sonMesaj, aktifTicker);
-  const aktifVeri = veri ?? (aktifTicker && intent === "hisse_analizi" ? await hisseVerisiCek(aktifTicker) : null);
+  const aktifVeri = veri ?? (aktifTicker && (intent === "hisse_analizi" || intent === "haber_neden" || intent === "alarm_aksiyon") ? await hisseVerisiCek(aktifTicker) : null);
   const karsilastirmaBaglami = intent === "karsilastirma"
     ? await karsilastirmaPromptu(mesajTickerlari)
     : "";
@@ -1084,11 +1342,25 @@ ${niyetPromptu(intent)}`;
     teknikTaramaBaglami,
     alarmTaslak,
   });
+  const pakoAkilPlani = pakoAkilPlaniPromptu({
+    sonMesaj,
+    intent,
+    tickers: mesajTickerlari,
+    aktifTicker,
+    veri: aktifVeri,
+    portfoy,
+    karsilastirmaBaglami,
+    haberNedenBaglami,
+    teknikTaramaBaglami,
+    alarmTaslak,
+  });
 
   const systemPrompt = aktifTicker
     ? `${ortakKurallar}
 
 ${veriKapsami}
+
+${pakoAkilPlani}
 
 AKTİF EKRAN:
 Kullanıcının aktif hisse bağlamı ${aktifTicker}. Yanıtta bu bağlamı kullan ama kullanıcının sorusu farklıysa ona öncelik ver.
@@ -1107,6 +1379,8 @@ ${portfoyPromptu(portfoy)}`
     : `${ortakKurallar}
 
 ${veriKapsami}
+
+${pakoAkilPlani}
 
 GENEL BAĞLAM:
 Kullanıcı BIST hisseleri, sektörler, piyasa dinamikleri, teknik/temel analiz, portföy ve finans okuryazarlığı konularında soru sorabilir.
