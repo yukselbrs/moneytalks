@@ -2226,13 +2226,19 @@ function sonKullaniciMesaji(messages: ChatMessage[]): string {
 function niyetSiniflandir(text: string, aktifTicker?: string): ChatIntent {
   const q = text.toLocaleLowerCase("tr-TR");
   const tickerVar = tickerAdaylari(text, aktifTicker).length > 0 || Boolean(aktifTicker);
+  const portfoyDisiReferans = /\b(portföy|portfoy)\s+(dışında|disinda)\b/.test(q);
+  const portfoyReferansi = !portfoyDisiReferans && /\b(portföy|portfoy|portföyüm|portfoyum|portföyümde|portfoyumde|pozisyon|pozisyonlarım|pozisyonlarim|k\/z|getirim|getiri|kar|kâr|zarar)\b/.test(q);
+  const genelPiyasaReferansi = /\b(piyasa|bist|bıst|endeks|endeksi|xu100|xu030|sektör|sektor)\b/.test(q);
+  const bugunReferansi = /\b(bugün|bugun|gün|gun|günlük|gunluk)\b/.test(q);
+  const piyasaNedenReferansi = /\b(neden|niye|sebep|haber|kap|düştü|dustu|düştük|dustuk|düşüyor|dusuyor|düşüş|dusus|sert|satış|satis|baskı|baski|negatif)\b/.test(q);
 
   if (/\b(alarm|bildir|uyar|takip et|hat[ıi]rlat)\b/.test(q)) return "alarm_aksiyon";
   if (RAKIP_KAYNAK_IFADELERI.some((re) => re.test(text))) return "genel";
   if (/(hisseyi?|bu hisseyi?|şimdi|hemen)\s+(al|sat)\b/i.test(text)) return "hisse_analizi";
-  if (/\b(piyasa|bist|bıst|endeks|endeksi|xu100|xu030|sektör|sektor)\b/.test(q)
-    && /\b(bugün|bugun|nasıl|nasil|durum|görünüm|gorunum|genel|özet|ozet|dışında|disinda|ne durumda)\b/.test(q)
-    && !/\b(portföyüm|portfoyum|portföyümde|portfoyumde|pozisyonlarım|pozisyonlarim)\b/.test(q)) return "piyasa_genel";
+  if (!tickerVar && !portfoyReferansi && bugunReferansi && piyasaNedenReferansi) return "piyasa_genel";
+  if (genelPiyasaReferansi
+    && /\b(bugün|bugun|nasıl|nasil|durum|görünüm|gorunum|genel|özet|ozet|dışında|disinda|ne durumda|neden|niye|sebep|haber|düştü|dustu|düşüş|dusus|sert)\b/.test(q)
+    && !portfoyReferansi) return "piyasa_genel";
   if (/\b(portföy|portfoy|pozisyon|dağılım|agirlik|ağırlık|kar etmişim|zarar|k\/z|getirim|getiri)\b/.test(q)) return "portfoy";
   if (/\b(karşılaştır|kıyasla|hangisi|m[ıiuü]\s+.*\s+m[ıiuü]|versus|vs\.?|farkı ne)\b/.test(q)) return "karsilastirma";
   if (tickerVar && /\b(kaç tl|fiyat|fiyatı|fiyati)\b/.test(q)) return "hisse_analizi";
