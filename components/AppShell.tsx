@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
 import { LS } from "@/lib/storage-keys";
@@ -206,9 +207,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Logo + Toggle */}
         {collapsed ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginBottom: 12 }}>
-            <a href="/dashboard" style={{ display: "flex", textDecoration: "none" }}>
+            <Link href="/dashboard" style={{ display: "flex", textDecoration: "none" }}>
               <LogoIcon size={32} />
-            </a>
+            </Link>
             <button onClick={toggleCollapsed} aria-label="Menüyü genişlet" onMouseEnter={e => showTip(e, "Genişlet")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Genişlet")} onBlur={() => setTip(null)} style={{
               background: "none", border: "none", cursor: "pointer",
               color: "#475569", padding: "6px 0", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", width: "100%",
@@ -221,12 +222,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, padding: "0 4px" }}>
-            <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+            <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
               <LogoIcon size={32} style={{ flexShrink: 0 }} />
               <span style={{ color: "#F8FAFC", fontSize: 16, fontWeight: 700, letterSpacing: "-0.4px", whiteSpace: "nowrap" }}>
                 para<span style={{ color: "#3B82F6" }}>konusur</span>
               </span>
-            </a>
+            </Link>
             <button onClick={toggleCollapsed} aria-label="Menüyü küçült" onMouseEnter={e => showTip(e, "Küçült")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Küçült")} onBlur={() => setTip(null)} style={{
               background: "none", border: "none", cursor: "pointer",
               color: "#475569", padding: 4, borderRadius: 6, display: "flex", alignItems: "center", flexShrink: 0,
@@ -253,7 +254,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 const item = navItems[idx];
                 const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
                 return (
-                  <a
+                  <Link
                     key={item.label}
                     href={item.href}
                     className="sb-nav-item"
@@ -274,14 +275,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   >
                     <span style={{ color: isActive ? "#60A5FA" : "#3D5066", flexShrink: 0, display: "flex" }}>{item.icon}</span>
                     {!collapsed && <span style={{ whiteSpace: "nowrap" }}>{item.label}</span>}
-                  </a>
+                  </Link>
                 );
               })}
               {/* AI Asistan — Dashboard'dan hemen sonra */}
               {gi === 0 && (() => {
                 const isActive = pathname === "/yapay-zeka";
                 return (
-                  <a
+                  <Link
                     href="/yapay-zeka"
                     className="sb-ai-btn"
                     aria-label="Pako AI"
@@ -322,7 +323,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         Pako AI
                       </span>
                     )}
-                  </a>
+                  </Link>
                 );
               })()}
             </div>
@@ -332,12 +333,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Pro Banner */}
         <div style={{ paddingBottom: 4 }}>
           {collapsed ? (
-            <a href="/pro" aria-label="Pro'ya Yükselt" onMouseEnter={e => showTip(e, "Pro'ya Yükselt")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Pro'ya Yükselt")} onBlur={() => setTip(null)}
+            <Link href="/pro" aria-label="Pro'ya Yükselt" onMouseEnter={e => showTip(e, "Pro'ya Yükselt")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Pro'ya Yükselt")} onBlur={() => setTip(null)}
               style={{ display: "flex", justifyContent: "center", padding: "10px 0", textDecoration: "none" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
-            </a>
+            </Link>
           ) : (
             <div style={{ position: "relative", overflow: "hidden", borderRadius: 10, background: "linear-gradient(135deg, rgba(146,64,14,0.22) 0%, rgba(180,83,9,0.14) 50%, rgba(120,53,15,0.20) 100%)", border: "1px solid rgba(245,158,11,0.28)", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, marginBottom: 4, boxShadow: "0 0 18px rgba(245,158,11,0.08)" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(245,158,11,0.6), rgba(251,191,36,0.6), transparent)" }} />
@@ -349,16 +350,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <p style={{ color: "#FEF3C7", fontSize: 12, fontWeight: 700, margin: 0, lineHeight: 1.3 }}>Pro'ya Yükselt</p>
                 <p style={{ color: "#92400E", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Gerçek zamanlı & sınırsız analiz</p>
               </div>
-              <a href="/pro" style={{ flexShrink: 0, background: "linear-gradient(135deg, #D97706, #F59E0B)", color: "#1C0A00", fontSize: 10, fontWeight: 800, padding: "5px 8px", borderRadius: 6, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 2px 8px rgba(245,158,11,0.35)" }}>
+              <Link href="/pro" style={{ flexShrink: 0, background: "linear-gradient(135deg, #D97706, #F59E0B)", color: "#1C0A00", fontSize: 10, fontWeight: 800, padding: "5px 8px", borderRadius: 6, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 2px 8px rgba(245,158,11,0.35)" }}>
                 Yükselt →
-              </a>
+              </Link>
             </div>
           )}
         </div>
 
         {/* Bottom */}
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <a href="/profile" className="sb-item"
+          <Link href="/profile" className="sb-item"
             onMouseEnter={collapsed ? e => showTip(e, "Profil") : undefined}
             onMouseLeave={collapsed ? () => setTip(null) : undefined}
             style={{
@@ -374,11 +375,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <>
                 <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
                   <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 600 }}>Profil</span>
-                  <span style={{ color: "#F97316", fontSize: 10, fontWeight: 600, letterSpacing: "0.05em" }}>DEMO</span>
+                  <span style={{ color: "#64748B", fontSize: 10, fontWeight: 600, letterSpacing: "0.05em" }}>Beta</span>
                 </div>
               </>
             )}
-          </a>
+          </Link>
           <button onClick={handleLogout} className="sb-item"
             onMouseEnter={collapsed ? e => showTip(e, "Çıkış Yap") : undefined}
             onMouseLeave={collapsed ? () => setTip(null) : undefined}

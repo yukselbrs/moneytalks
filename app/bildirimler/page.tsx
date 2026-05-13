@@ -45,7 +45,7 @@ export default function BildirimlerPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return;
+      if (!session) { router.push("/login"); return; }
       setToken(session.access_token);
       const res = await fetch("/api/bildirimler", {
         headers: { authorization: `Bearer ${session.access_token}` },

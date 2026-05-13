@@ -93,7 +93,14 @@ export default function DashboardMarketFocus({
           ))}
           <span style={{ marginLeft: "auto", fontSize: 11, color: "#2D3F55", fontWeight: 500 }}>15 dk gecikmeli</span>
         </div>
-        {liste.map((s, i) => {
+        {liste.length === 0 && piyasaOdagiTab !== "one" ? (
+          <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+            <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} style={{ height: 44, borderRadius: 8, background: "linear-gradient(90deg,#1E293B 25%,#2D3F55 50%,#1E293B 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.4s infinite" }} />
+            ))}
+          </div>
+        ) : liste.map((s, i) => {
           const h = bistMap.get(s.ticker);
           const izlemede = watchlistSet.has(s.ticker);
           const degisimLabel = `${s.yukselis ? "artı" : "eksi"} %${Math.abs(Number(s.degisim)).toFixed(2).replace(".", ",")}`;
@@ -129,3 +136,4 @@ export default function DashboardMarketFocus({
     </div>
   );
 }
+

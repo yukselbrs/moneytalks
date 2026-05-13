@@ -65,7 +65,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [grafikRange, setGrafikRange] = useState("1d");
   const [getiriler, setGetiriler] = useState<Record<string, string | null>>({});
   const [izlemede, setIzlemede] = useState(false);
-  const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, alis_fiyati: number}[]>([]);
+  const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, maliyet: number}[]>([]);
   const [fundamentals, setFundamentals] = useState<{pe: string, pb: string} | null>(null);
   const [riskVeri, setRiskVeri] = useState<{ skor: number; seviyeTR: string } | null>(null);
 
@@ -137,7 +137,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     });
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
-      const { data } = await supabase.from("portfoy").select("ticker,adet,alis_fiyati").eq("user_id", session.user.id);
+      const { data } = await supabase.from("portfoy").select("ticker,adet,maliyet").eq("user_id", session.user.id);
       if (data) setPortfoy(data);
     });
     const interval = setInterval(fetchVeri, 15000);
@@ -358,6 +358,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             grafikDegisim={grafikDegisim}
             gunlukDusuk={veri?.gunlukDusuk}
             gunlukYuksek={veri?.gunlukYuksek}
+            oncekiKapanis={veri?.oncekiKapanis}
             sonFiyat={veri?.fiyat}
             setGrafikRange={setGrafikRange}
             fetchGrafik={fetchGrafik}

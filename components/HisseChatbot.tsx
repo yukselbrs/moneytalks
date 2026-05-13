@@ -21,7 +21,7 @@ interface HisseVeri {
 interface PortfoyItem {
   ticker: string;
   adet: number;
-  alis_fiyati: number;
+  maliyet: number;
 }
 
 interface Props {

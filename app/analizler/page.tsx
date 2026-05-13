@@ -47,8 +47,12 @@ export default function AnalizlerPage() {
     });
   }, [router]);
 
-  function kisaOzet(_analiz?: string, ticker?: string): string {
+  function kisaOzet(analiz?: string, ticker?: string): string {
     if (!ticker) return "";
+    if (analiz && analiz.length > 20) {
+      const clean = analiz.replace(/#+\s*/g, "").replace(/\*+/g, "").trim();
+      return clean.slice(0, 120) + (clean.length > 120 ? "…" : "");
+    }
     return ticker + " Hissesi Analizi";
   }
 
@@ -91,7 +95,7 @@ export default function AnalizlerPage() {
                 const ozet = kisaOzet(a.analiz, a.ticker);
                 const renk = f ? (f.yukselis ? "#10B981" : "#EF4444") : "#64748B";
                 return (
-                  <div key={i} onClick={() => router.push(`/hisse/${a.ticker}`)}
+                  <div key={`${a.ticker}-${a.created_at}`} onClick={() => router.push(`/hisse/${a.ticker}`)}
                     className="card-glass hover-glow animate-fade-up"
                     style={{ borderRadius: 12, padding: "16px 20px", cursor: "pointer", animationDelay: `${i * 0.05}s` }}>
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>

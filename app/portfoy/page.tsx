@@ -287,7 +287,7 @@ export default function PortfoyPage() {
     try {
       const sonuclar = await Promise.all(
         items.map(async (p) => {
-          const res = await fetch(`/api/grafik?ticker=${p.ticker}&range=${aralik}`);
+          const res = await fetch(`/api/grafik?ticker=${p.ticker}.IS&range=${aralik}`);
           const json = await res.json();
           const fiyatMap: Record<string, number> = {};
           (json.points || []).forEach((pt: { tarih: string; fiyat: number }) => {
@@ -355,7 +355,7 @@ export default function PortfoyPage() {
 
 
   const riskSkoru = useCallback(async (ticker: string) => {
-    if (riskler[ticker]?.skor) return;
+    if (riskler[ticker]?.skor100 !== undefined) return;
     setRiskler((prev) => ({ ...prev, [ticker]: { skor: "", ozet: "", yukleniyor: true, acik: true } }));
     try {
       const res = await fetch(`/api/risk?ticker=${ticker}`);

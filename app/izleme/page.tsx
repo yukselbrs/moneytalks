@@ -17,12 +17,15 @@ const PER_PAGE = 10;
 function SparklineSVG({ ticker, yukselis }: { ticker: string; yukselis: boolean }) {
   const [pts, setPts] = useState<number[]>([]);
   useEffect(() => {
+    let alive = true;
     fetch(`/api/grafik?ticker=${ticker}.IS&range=1d`)
       .then(r => r.json())
       .then(d => {
+        if (!alive) return;
         const arr = Array.isArray(d) ? d : (d?.points || []);
         if (arr.length > 0) setPts((arr as GrafikPoint[]).map((x) => x.fiyat));
       }).catch(() => {});
+    return () => { alive = false; };
   }, [ticker]);
   if (pts.length < 2) return <div style={{width:100,height:50,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:10,color:"#334155"}}>...</span></div>;
   const max = Math.max(...pts), min = Math.min(...pts);
@@ -188,7 +191,7 @@ export default function IzlemePage() {
           {/* Ozet Kartlar */}
           <div className="izleme-ozet-grid">
             {[
-              { label: "Toplam Hisse", icon: "✉", value: watchlist.length, sub: "İzleme listenizde", color: "#3B82F6" },
+              { label: "Toplam Hisse", icon: "📋", value: watchlist.length, sub: "İzleme listenizde", color: "#3B82F6" },
               { label: "Yükselenler", icon: "↗", value: yukselenler.length, sub: `%${watchlist.length ? ((yukselenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#10B981" },
               { label: "Düşenler", icon: "↘", value: dusenler.length, sub: `%${watchlist.length ? ((dusenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#EF4444" },
               { label: "Ort. Günlük Değişim", icon: "≒", value: `%${Math.abs(ortDegisim).toFixed(2).replace(".",",")}`, sub: "İzleme listeniz ortalaması", color: ortDegisim >= 0 ? "#10B981" : "#EF4444" },
@@ -395,19 +398,15 @@ export default function IzlemePage() {
 
               {/* Son Haberler */}
               <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
-                <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between" }}>
+                <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>Son Haberler</span>
-                  <span style={{ fontSize: 11, color: "#3B82F6", cursor: "pointer" }}>Tumunu Gor</span>
+                  <a href="/haberler" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none" }}>Tümünü Gör →</a>
                 </div>
-                {watchlist.slice(0,3).map((w, i) => (
-                  <div key={i} style={{ padding: "10px 16px", borderBottom: i < 2 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <StockLogo ticker={w.ticker} size={28} radius={6} color={tickerRenk(w.ticker)} />
-                    <div>
-                      <div style={{ fontSize: 11, color: "#E2E8F0", lineHeight: 1.4 }}>{w.ticker} guncel gelisme takipte</div>
-                      <div style={{ fontSize: 12, color: "#334155", marginTop: 3 }}>{new Date(w.added_at).toLocaleDateString("tr-TR", {day:"2-digit",month:"short",year:"numeric"})}</div>
-                    </div>
-                  </div>
-                ))}
+                <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center" }}>
+                  <div style={{ fontSize: 22 }}>📰</div>
+                  <p style={{ fontSize: 12, color: "#475569", margin: 0, lineHeight: 1.5 }}>Takip ettiğiniz hisselere ait<br/>haberleri Haberler sayfasından takip edin</p>
+                  <a href="/haberler" style={{ marginTop: 4, fontSize: 12, fontWeight: 600, color: "#3B82F6", textDecoration: "none", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", padding: "6px 14px", borderRadius: 6 }}>Haberlere Git →</a>
+                </div>
               </div>
 
             </div>

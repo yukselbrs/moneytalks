@@ -78,12 +78,20 @@ export function useWatchlist() {
     if (!session) return;
     if (watchlistRef.current.some((w) => w.ticker === ticker)) return;
 
-    await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
     setWatchlist((prev) => {
       const next = [{ ticker }, ...prev];
       watchlistRef.current = next;
       return next;
     });
+
+    const { error } = await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
+    if (error) {
+      setWatchlist((prev) => {
+        const next = prev.filter((w) => w.ticker !== ticker);
+        watchlistRef.current = next;
+        return next;
+      });
+    }
   }, []);
 
   const removeFromWatchlist = useCallback(async (ticker: string) => {
