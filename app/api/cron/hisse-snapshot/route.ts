@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { fetchMarketQuote } from "@/lib/market-pricing";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -62,18 +63,13 @@ function kurumsalAksiyonlariAyarla(series: (number | null)[], opens: (number | n
 
 async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
   try {
-    const [res, res5d, res1d] = await Promise.all([
+    const [res, quote] = await Promise.all([
       fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=${HISTORY_RANGE}`, {
         cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" },
       }),
-      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`, {
-        cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" },
-      }),
-      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`, {
-        cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" },
-      }),
+      fetchMarketQuote(ticker, { cache: "no-store" }),
     ]);
-    if (!res.ok) return null;
+    if (!res.ok || !quote) return null;
 
     const data = await res.json();
     const result = data?.chart?.result?.[0];
@@ -85,57 +81,13 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     const opens: (number | null)[] = result.indicators?.quote?.[0]?.open || [];
     const adjustedCloses: (number | null)[] = result.indicators?.adjclose?.[0]?.adjclose || [];
 
-    const [data5d, data1d] = await Promise.all([res5d.ok ? res5d.json() : Promise.resolve(null), res1d.ok ? res1d.json() : Promise.resolve(null)]);
-    const adj5d: (number | null)[] = data5d?.chart?.result?.[0]?.indicators?.adjclose?.[0]?.adjclose || [];
-    // range=1d'den doğru chartPreviousClose — 5d/2y range'de stale dönebilir
-    const prevClose1d: number | null = data1d?.chart?.result?.[0]?.meta?.chartPreviousClose || null;
     const baseReturnSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
     const returnSeries = kurumsalAksiyonlariAyarla(baseReturnSeries, opens);
 
     if (timestamps.length === 0 || !meta?.regularMarketPrice) return null;
 
-    // Son iki geçerli candle'ı bul
-    let sonFiyat: number | null = null;
-    const validAdj5d = adj5d.filter((v): v is number => v !== null && v !== undefined);
-    const fiyat = meta.regularMarketPrice || 0;
+    const fiyat = quote.fiyat;
     const sonTs = timestamps[timestamps.length - 1];
-    let degisim = 0;
-
-    let prevUsed = 0; // extreme değişim tespitinde kullanılan önceki fiyat
-    const adj5dStuck = validAdj5d.length >= 2 && validAdj5d.every(v => Math.abs(v - validAdj5d[0]) < 0.01);
-    if (validAdj5d.length >= 2 && !adj5dStuck) {
-      const prev5d = validAdj5d[validAdj5d.length - 2];
-      prevUsed = prev5d;
-      degisim = prev5d > 0 ? ((fiyat - prev5d) / prev5d) * 100 : 0;
-    } else if (prevClose1d && prevClose1d > 0) {
-      prevUsed = prevClose1d;
-      degisim = ((fiyat - prevClose1d) / prevClose1d) * 100;
-    } else if (meta.chartPreviousClose && meta.chartPreviousClose > 0) {
-      prevUsed = meta.chartPreviousClose;
-      degisim = ((fiyat - meta.chartPreviousClose) / meta.chartPreviousClose) * 100;
-    } else {
-      const degisimSeries = adjustedCloses.length === closes.length ? adjustedCloses : closes;
-      let oncekiFiyat: number | null = null;
-      for (let i = degisimSeries.length - 1; i >= 0; i--) {
-        if (degisimSeries[i] !== null && degisimSeries[i] !== undefined) {
-          if (sonFiyat === null) { sonFiyat = degisimSeries[i] as number; }
-          else if (degisimSeries[i] !== sonFiyat) { oncekiFiyat = degisimSeries[i] as number; break; }
-        }
-      }
-      if (oncekiFiyat && oncekiFiyat > 0) { prevUsed = oncekiFiyat; degisim = ((fiyat - oncekiFiyat) / oncekiFiyat) * 100; }
-      else degisim = meta.regularMarketChangePercent ?? 0;
-    }
-
-    // Bedelsiz/split fallback: extreme değişime neden olan prevUsed/açılış oranı tam sayıya yakınsa düzelt
-    if (Math.abs(degisim) > 50 && prevUsed > 0) {
-      const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : fiyat;
-      const ratio = prevUsed / openPrice;
-      const rounded = Math.round(ratio);
-      if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
-        const adjustedPrev = prevUsed / rounded;
-        degisim = ((fiyat - adjustedPrev) / adjustedPrev) * 100;
-      }
-    }
 
     // Getiriler: takvim gününe göre geriye git, o tarihte/öncesinde son geçerli candle
     const getiri = (gunOnce: number): number | null => {
@@ -149,9 +101,9 @@ async function fetchHisseData(ticker: string): Promise<SnapshotRow | null> {
     return {
       ticker,
       fiyat,
-      degisim_yuzde: degisim,
-      hacim: meta.regularMarketVolume || null,
-      piyasa_degeri: meta.marketCap || null,
+      degisim_yuzde: quote.degisimYuzde,
+      hacim: quote.hacim,
+      piyasa_degeri: quote.piyasaDegeri,
       getiri_1h: getiri(7),     // 1 hafta
       getiri_1a: getiri(30),    // 1 ay
       getiri_3a: getiri(90),    // 3 ay

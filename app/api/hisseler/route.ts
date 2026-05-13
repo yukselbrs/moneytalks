@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { fetchMarketQuote } from "@/lib/market-pricing";
 
 export const runtime = "nodejs";
 
@@ -194,33 +195,13 @@ async function fetchLiveFiyatlar(tickers: string[]) {
   const results = await Promise.all(
     tickers.map(async (ticker): Promise<[string, LiveFiyat | null]> => {
       try {
-        const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`, {
-          headers: { "User-Agent": "Mozilla/5.0" },
-          next: { revalidate: 15 },
-        });
-        const data = await res.json();
-        const meta = data?.chart?.result?.[0]?.meta;
-        const fiyat = Number(meta?.regularMarketPrice);
-        if (!Number.isFinite(fiyat)) return [ticker, null];
-        const changePercent = meta?.regularMarketChangePercent;
-        const onceki = Number(meta?.chartPreviousClose ?? meta?.previousClose);
-        const rawDegisim = Number.isFinite(onceki) && onceki > 0 ? ((fiyat - onceki) / onceki) * 100 : 0;
-        let degisim = typeof changePercent === "number" ? changePercent : rawDegisim;
-        // Bedelsiz/split fallback: extreme değişimde prevClose/açılış oranı tam sayıya yakınsa düzelt
-        if (Math.abs(degisim) > 50 && onceki > 0) {
-          const openPrice: number = Number(meta?.regularMarketOpen) > 0 ? Number(meta.regularMarketOpen) : fiyat;
-          const ratio = onceki / openPrice;
-          const rounded = Math.round(ratio);
-          if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
-            const adjustedPrev = onceki / rounded;
-            degisim = ((fiyat - adjustedPrev) / adjustedPrev) * 100;
-          }
-        }
+        const quote = await fetchMarketQuote(ticker, { revalidate: 15 });
+        if (!quote) return [ticker, null];
         return [ticker, {
-          fiyat,
-          degisim,
-          hacim: Number.isFinite(Number(meta?.regularMarketVolume)) ? Number(meta.regularMarketVolume) : null,
-          piyasaDegeri: Number.isFinite(Number(meta?.marketCap)) ? Number(meta.marketCap) : null,
+          fiyat: quote.fiyat,
+          degisim: quote.degisimYuzde ?? 0,
+          hacim: quote.hacim,
+          piyasaDegeri: quote.piyasaDegeri,
         }];
       } catch {
         return [ticker, null];
@@ -338,7 +319,7 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string; listed?:
     };
   }
   const fiyat = live?.fiyat ?? Number(snap?.fiyat);
-  const degisim = safeDailyChange(snap?.degisim_yuzde) ?? safeDailyChange(live?.degisim);
+  const degisim = safeDailyChange(live?.degisim) ?? safeDailyChange(snap?.degisim_yuzde);
   return {
     ticker: meta.ticker,
     ad: meta.ad,

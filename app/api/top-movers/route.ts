@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { fetchMarketQuote } from "@/lib/market-pricing";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,16 +41,24 @@ export async function GET() {
       .limit(5),
   ]);
 
-  const mapRow = (row: { ticker: string; fiyat: number; degisim_yuzde: number }) => ({
-    ticker: row.ticker,
-    ad: HISSE_META.get(row.ticker)?.ad || row.ticker,
-    fiyat: Number(row.fiyat).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    degisim: Number(row.degisim_yuzde),
-  });
+  const mapRow = async (row: { ticker: string; fiyat: number; degisim_yuzde: number }) => {
+    const quote = await fetchMarketQuote(row.ticker, { revalidate: 15 });
+    return {
+      ticker: row.ticker,
+      ad: HISSE_META.get(row.ticker)?.ad || row.ticker,
+      fiyat: (quote?.fiyat ?? Number(row.fiyat)).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      degisim: quote?.degisimYuzde ?? Number(row.degisim_yuzde),
+    };
+  };
+
+  const [yukselenler, dusenler] = await Promise.all([
+    Promise.all((yukRes.data || []).map(mapRow)),
+    Promise.all((dusRes.data || []).map(mapRow)),
+  ]);
 
   const response = NextResponse.json({
-    yukselenler: (yukRes.data || []).map(mapRow),
-    dusenler: (dusRes.data || []).map(mapRow),
+    yukselenler,
+    dusenler,
   });
   response.headers.set("Cache-Control", "public, s-maxage=30, stale-while-revalidate=60");
   return response;

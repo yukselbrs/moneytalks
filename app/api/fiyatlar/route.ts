@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+import { fetchMarketQuote } from "@/lib/market-pricing";
 import { normalizeTicker } from "@/lib/utils";
 
 const DEFAULT_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
@@ -49,57 +50,14 @@ async function fetchFiyat(ticker: string) {
   if (cached && now - cached.ts < TTL) return cached;
 
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`;
-    const res = await fetch(url, { next: { revalidate: 15 }, headers: { "User-Agent": "Mozilla/5.0" } });
-    const data = await res.json();
-    const result0 = data?.chart?.result?.[0];
-    const meta = result0?.meta;
-    if (!meta) return null;
-
-    const price = meta.regularMarketPrice;
-
-    const adjclose: (number | null)[] = result0?.indicators?.adjclose?.[0]?.adjclose ?? [];
-    const validAdj = adjclose.filter((v): v is number => v != null && v > 0);
-
-    let change: number;
-    let prevUsed = 0;
-    if (validAdj.length >= 2) {
-      const allSame = validAdj.every((v) => v === validAdj[0]);
-      if (!allSame) {
-        const prev = validAdj[validAdj.length - 2];
-        const last = validAdj[validAdj.length - 1];
-        prevUsed = prev;
-        change = ((last - prev) / prev) * 100;
-      } else {
-        const prev: number = meta.chartPreviousClose || meta.previousClose || 0;
-        prevUsed = prev;
-        change = prev ? ((price - prev) / prev) * 100 : 0;
-      }
-    } else {
-      const prev: number = meta.chartPreviousClose || meta.previousClose || 0;
-      prevUsed = prev;
-      change = meta.regularMarketChangePercent ?? (prev ? ((price - prev) / prev) * 100 : 0);
-    }
-
-    // Bedelsiz/split fallback: extreme değişime neden olan prevUsed/açılış oranı tam sayıya yakınsa düzelt
-    if (Math.abs(change) > 50 && prevUsed > 0) {
-      const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : price;
-      const ratio = prevUsed / openPrice;
-      const rounded = Math.round(ratio);
-      if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
-        const adjustedPrev = prevUsed / rounded;
-        change = ((price - adjustedPrev) / adjustedPrev) * 100;
-      }
-    }
-
-    const hacim = meta.regularMarketVolume || 0;
-    const piyasaDegeri = meta.marketCap || 0;
+    const quote = await fetchMarketQuote(ticker, { revalidate: 15 });
+    if (!quote) return null;
     const result = {
-      fiyat: price.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-      degisim: change.toFixed(2),
-      yukselis: change >= 0,
-      hacim,
-      piyasaDegeri,
+      fiyat: quote.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      degisim: (quote.degisimYuzde ?? 0).toFixed(2),
+      yukselis: (quote.degisimYuzde ?? 0) >= 0,
+      hacim: quote.hacim ?? 0,
+      piyasaDegeri: quote.piyasaDegeri ?? 0,
       ts: now,
     };
     g.fiyatCache![ticker] = result;

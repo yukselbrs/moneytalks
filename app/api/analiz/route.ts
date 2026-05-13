@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { fetchMarketQuote } from "@/lib/market-pricing";
 import { normalizeTicker, extractBearerToken } from "@/lib/utils";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -32,66 +33,19 @@ function displayCompanyName(raw: string) {
 
 async function getHisseVerisi(ticker: string) {
   try {
-    // 5d → genel meta + hacim + 52H verileri
-    // 1d → doğru chartPreviousClose (5d'de stale veri dönebilir, özellikle sermaye artırımı sonrası)
-    const [res5d, res1d] = await Promise.all([
-      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=5d`, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }),
-      fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.IS?interval=1d&range=1d`, { headers: { "User-Agent": "Mozilla/5.0" }, cache: "no-store" }),
-    ]);
-    const [data5d, data1d] = await Promise.all([res5d.json(), res1d.json()]);
-    const result = data5d?.chart?.result?.[0];
-    const meta = result?.meta;
-    if (!meta) return null;
-    // Önceki kapanış: range=1d'den al (range=5d'de stale close dönebilir)
-    const meta1d = data1d?.chart?.result?.[0]?.meta;
-    const rawOncekiKapanis: number | null = meta1d?.chartPreviousClose || meta.chartPreviousClose || meta.previousClose || null;
-    const guncelFiyat: number = meta.regularMarketPrice;
-    const closes: (number | null)[] = result?.indicators?.quote?.[0]?.close || [];
-    const adjustedCloses: (number | null)[] = result?.indicators?.adjclose?.[0]?.adjclose || [];
-
-    const sonGecerliIndex = closes.findLastIndex((close) => close !== null && close !== undefined && close > 0);
-    const oncekiGecerliIndex = sonGecerliIndex > 0
-      ? closes.slice(0, sonGecerliIndex).findLastIndex((close) => close !== null && close !== undefined && close > 0)
-      : -1;
-    const oncekiAdjustedKapanis = oncekiGecerliIndex >= 0 ? adjustedCloses[oncekiGecerliIndex] : null;
-    const oncekiHamKapanis = oncekiGecerliIndex >= 0 ? closes[oncekiGecerliIndex] : null;
-    const temettuDuzeltmeliOnceki = oncekiAdjustedKapanis
-      && oncekiHamKapanis
-      && rawOncekiKapanis
-      && oncekiAdjustedKapanis > 0
-      && Math.abs(oncekiAdjustedKapanis - oncekiHamKapanis) / oncekiHamKapanis > 0.001
-      ? oncekiAdjustedKapanis
-      : null;
-
-    // Bedelsiz/split tespiti: prevClose/açılış oranı tam sayıya yakınsa (≥2, %10 tolerans) bedelsiz var
-    let oncekiKapanis = temettuDuzeltmeliOnceki ?? rawOncekiKapanis;
-    if (rawOncekiKapanis && rawOncekiKapanis > 0) {
-      const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : guncelFiyat;
-      const ratio = rawOncekiKapanis / openPrice;
-      const rounded = Math.round(ratio);
-      if (rounded >= 2 && Math.abs(ratio - rounded) / ratio < 0.10) {
-        oncekiKapanis = rawOncekiKapanis / rounded;
-      }
-    }
-
-    const rawDegisim = oncekiKapanis && oncekiKapanis > 0
-      ? ((guncelFiyat - oncekiKapanis) / oncekiKapanis) * 100
-      : null;
-    // Split günü chartPreviousClose stale kalabilir — aşırı değişimde Yahoo'nun değerini kullan
-    const degisimYuzde = rawDegisim !== null && Math.abs(rawDegisim) > 50
-      ? (meta.regularMarketChangePercent ?? rawDegisim)
-      : (rawDegisim ?? meta.regularMarketChangePercent ?? null);
+    const quote = await fetchMarketQuote(ticker, { cache: "no-store" });
+    if (!quote) return null;
     const localCompany = BIST_HISSELER.find((h) => h.ticker === ticker);
-    const companyName = localCompany?.fullName || localCompany?.ad || meta.longName || meta.shortName || "";
+    const companyName = localCompany?.fullName || localCompany?.ad || ticker;
     return {
-      fiyat: guncelFiyat,
-      oncekiKapanis,
-      degisimYuzde,
-      hacim: meta.regularMarketVolume,
-      yillikYuksek: meta.fiftyTwoWeekHigh,
-      yillikDusuk: meta.fiftyTwoWeekLow,
-      gunlukYuksek: meta.regularMarketDayHigh,
-      gunlukDusuk: meta.regularMarketDayLow,
+      fiyat: quote.fiyat,
+      oncekiKapanis: quote.oncekiKapanis,
+      degisimYuzde: quote.degisimYuzde,
+      hacim: quote.hacim ?? 0,
+      yillikYuksek: quote.yillikYuksek,
+      yillikDusuk: quote.yillikDusuk,
+      gunlukYuksek: quote.gunlukYuksek,
+      gunlukDusuk: quote.gunlukDusuk,
       sirketAdi: displayCompanyName(companyName),
       domain: localCompany?.domain,
     };

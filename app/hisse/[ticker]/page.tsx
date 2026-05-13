@@ -356,6 +356,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             grafik={grafik}
             grafikRange={grafikRange}
             grafikDegisim={grafikDegisim}
+            gunlukDusuk={veri?.gunlukDusuk}
+            gunlukYuksek={veri?.gunlukYuksek}
+            sonFiyat={veri?.fiyat}
             setGrafikRange={setGrafikRange}
             fetchGrafik={fetchGrafik}
           />
