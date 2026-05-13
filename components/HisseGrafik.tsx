@@ -124,6 +124,54 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
 
   return (
     <div style={{ marginBottom: 24 }}>
+      <style>{`
+        .hisse-chart-stat-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 8px;
+          margin-bottom: 10px;
+        }
+        .hisse-chart-stat-card {
+          border: 1px solid rgba(59,130,246,0.12);
+          border-radius: 8px;
+          background: rgba(15,23,42,0.35);
+          padding: 8px 10px;
+          min-width: 0;
+          overflow: hidden;
+        }
+        .hisse-chart-stat-label {
+          font-size: 10px;
+          color: #64748B;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          font-weight: 700;
+          margin-bottom: 4px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .hisse-chart-stat-value {
+          font-size: 13px;
+          color: #CBD5E1;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+          .hisse-chart-stat-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+          }
+          .hisse-chart-stat-card {
+            padding: 8px 9px;
+          }
+          .hisse-chart-stat-value {
+            font-size: clamp(12px, 3.4vw, 13px);
+          }
+        }
+      `}</style>
       <div className="hisse-range-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <h2 style={{ fontSize: 12, fontWeight: 500, color: "#334155", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
@@ -144,16 +192,16 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
           ))}
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8, marginBottom: 10 }}>
+      <div className="hisse-chart-stat-grid">
         {[
           [grafikRange === "1d" ? "Açılış" : "Başlangıç", acilisFiyati],
           ["Son", sonFiyat],
           ["Düşük", enDusuk],
           ["Yüksek", enYuksek],
         ].map(([label, value]) => (
-          <div key={label as string} style={{ border: "1px solid rgba(59,130,246,0.12)", borderRadius: 8, background: "rgba(15,23,42,0.35)", padding: "8px 10px" }}>
-            <div style={{ fontSize: 10, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, marginBottom: 4 }}>{label}</div>
-            <div style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 700 }}>{formatPrice(value as number | null)}</div>
+          <div key={label as string} className="hisse-chart-stat-card">
+            <div className="hisse-chart-stat-label">{label}</div>
+            <div className="hisse-chart-stat-value">{formatPrice(value as number | null)}</div>
           </div>
         ))}
       </div>

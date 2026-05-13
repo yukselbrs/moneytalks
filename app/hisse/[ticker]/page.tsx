@@ -246,35 +246,47 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       <style>{`
         .hisse-main { padding: 34px 24px 42px; }
         .hisse-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; margin-bottom: 18px; border: 1px solid rgba(59,130,246,0.14); border-radius: 14px; padding: 18px 20px; background: linear-gradient(135deg, rgba(15,23,42,0.72), rgba(11,18,32,0.96)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.035); position: relative; overflow: hidden; }
-        .hisse-title-row { display: flex; align-items: center; gap: 12px; min-height: 42px; }
-        .hisse-title-block { min-width: 0; }
-        .hisse-ticker-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .hisse-price-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-        .hisse-price-box { display: inline-flex; align-items: baseline; gap: 9px; }
-        .hisse-subline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-        .hisse-delay-pill { display: inline-flex; align-items: center; font-size: 10px; font-weight: 650; color: #F97316; background: rgba(249,115,22,0.07); border: 1px solid rgba(249,115,22,0.16); border-radius: 999px; padding: 2px 7px; white-space: nowrap; }
-        .hisse-kartlar { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 26px; }
-        .hisse-metric-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 10px; padding: 12px 14px; min-height: 68px; }
-        .hisse-analiz-btn { height: 42px; padding: 0 18px; background: linear-gradient(135deg, #1D4ED8, #3B82F6); color: #F8FAFC; border: 1px solid rgba(147,197,253,0.22); border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-top: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 12px 28px rgba(37,99,235,0.20); transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease; }
-        .hisse-analiz-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 16px 34px rgba(37,99,235,0.26); }
-        .hisse-analiz-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .hisse-range-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .hisse-range-btns { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(148,163,184,0.10); border-radius: 8px; background: rgba(255,255,255,0.035); }
-        .hisse-chart-shell { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 12px; padding: 18px 10px 10px 0; }
-        .hisse-analiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+          .hisse-title-row { display: flex; align-items: center; gap: 12px; min-height: 42px; }
+          .hisse-title-block { min-width: 0; }
+          .hisse-ticker-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+          .hisse-company-name { max-width: min(520px, 70vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+          .hisse-price-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+          .hisse-price-box { display: inline-flex; align-items: baseline; gap: 9px; }
+          .hisse-subline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+          .hisse-delay-pill { display: inline-flex; align-items: center; font-size: 10px; font-weight: 650; color: #F97316; background: rgba(249,115,22,0.07); border: 1px solid rgba(249,115,22,0.16); border-radius: 999px; padding: 2px 7px; white-space: nowrap; }
+          .hisse-kartlar { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 26px; }
+          .hisse-metric-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 10px; padding: 12px 14px; min-height: 68px; min-width: 0; overflow: hidden; }
+          .hisse-metric-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+          .hisse-metric-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+          .hisse-analiz-btn { height: 42px; padding: 0 18px; background: linear-gradient(135deg, #1D4ED8, #3B82F6); color: #F8FAFC; border: 1px solid rgba(147,197,253,0.22); border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-top: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 12px 28px rgba(37,99,235,0.20); transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease; }
+          .hisse-analiz-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 16px 34px rgba(37,99,235,0.26); }
+          .hisse-analiz-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+          .hisse-analiz-btn-short { display: none; }
+          .hisse-analysis-note { font-size: 12px; color: #334155; margin: 0; }
+          .hisse-range-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+          .hisse-range-btns { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(148,163,184,0.10); border-radius: 8px; background: rgba(255,255,255,0.035); }
+          .hisse-chart-shell { background: rgba(255,255,255,0.02); border: 1px solid rgba(59,130,246,0.1); border-radius: 12px; padding: 18px 10px 10px 0; }
+          .hisse-analiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         @media (max-width: 640px) {
-          .hisse-main { padding: 14px 12px !important; }
-          .hisse-header { flex-direction: column; gap: 12px; padding: 14px !important; }
-          .hisse-header-right { width: 100%; display: flex; flex-direction: row !important; align-items: center; justify-content: space-between; }
-          .hisse-kartlar { grid-template-columns: 1fr 1fr; gap: 6px; }
-          .hisse-analiz-grid { grid-template-columns: 1fr !important; }
-          .hisse-title-row { align-items: flex-start !important; }
-          .hisse-ticker { font-size: 22px !important; }
-          .hisse-fiyat { font-size: 17px !important; }
-          .hisse-analiz-btn { margin-top: 0; height: 36px; font-size: 12px; padding: 0 14px; }
-          .hisse-range-row { flex-direction: column; align-items: flex-start; gap: 8px; }
-          .hisse-range-btns button { font-size: 10px !important; padding: 2px 6px !important; }
-        }
+            .hisse-main { padding: 14px 12px !important; }
+            .hisse-header { flex-direction: column; gap: 12px; padding: 14px !important; }
+            .hisse-header-right { position: fixed; left: 12px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 70; width: auto; display: flex; flex-direction: row !important; align-items: center; justify-content: flex-start; margin-top: 0 !important; }
+            .hisse-header-right .hisse-analysis-note { display: none !important; }
+            .hisse-kartlar { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .hisse-analiz-grid { grid-template-columns: 1fr !important; }
+            .hisse-title-row { align-items: flex-start !important; }
+            .hisse-company-name { max-width: 210px; }
+            .hisse-ticker { font-size: 22px !important; }
+            .hisse-fiyat { font-size: 17px !important; }
+            .hisse-analiz-btn { margin-top: 0; height: 40px; font-size: 12px; padding: 0 13px; border-radius: 999px; box-shadow: 0 10px 28px rgba(37,99,235,0.38), 0 0 0 1px rgba(147,197,253,0.20); }
+            .hisse-analiz-btn-full { display: none; }
+            .hisse-analiz-btn-short { display: inline; }
+            .hisse-metric-card { padding: 11px 12px; min-height: 74px; }
+            .hisse-metric-label { font-size: 10px !important; line-height: 1.25; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+            .hisse-metric-value { font-size: clamp(12px, 3.4vw, 15px) !important; }
+            .hisse-range-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .hisse-range-btns button { font-size: 10px !important; padding: 2px 6px !important; }
+          }
       `}</style>
       <main className="hisse-main" style={{ maxWidth: 940, margin: "0 auto" }}>
         <div className="hisse-header">
@@ -293,7 +305,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     <h1 className="hisse-ticker" style={{ fontSize: 30, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px", margin: 0, lineHeight: 1.05 }}>{ticker}</h1>
                     {veri && <span className="hisse-delay-pill">15 dk gecikmeli</span>}
                   </div>
-                  {veri?.sirketAdi && <p style={{ fontSize: 15, color: "#94A3B8", fontWeight: 400, marginTop: 5, marginBottom: 0, lineHeight: 1.1 }}>{veri.sirketAdi}</p>}
+                  {veri?.sirketAdi && <p className="hisse-company-name" style={{ fontSize: 15, color: "#94A3B8", fontWeight: 400, marginTop: 5, marginBottom: 0, lineHeight: 1.1 }}>{veri.sirketAdi}</p>}
                 </div>
               </div>
             </div>
@@ -325,12 +337,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             disabled={loading}
             className="hisse-analiz-btn"
             style={{ opacity: loading ? 0.6 : 1 }}
-          >
-            <Sparkles size={15} />
-            {loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
-          </button>
-          {analiz && <p style={{ fontSize: 12, color: "#334155" }}>Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
-          {analiz && <p style={{ fontSize: 12, color: "#334155", marginTop: 4, lineHeight: 1.6, textAlign: "right", maxWidth: 280 }}>Bu analiz teknik göstergeler, fiyat ve hacim verilerini kapsar. Temel analiz, bilanço ve KAP haberleri dahil değildir. Yatırım tavsiyesi değildir.</p>}
+	          >
+	            <Sparkles size={15} />
+	            <span className="hisse-analiz-btn-full">{loading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}</span>
+	            <span className="hisse-analiz-btn-short">{loading ? "Analiz..." : "AI Analiz"}</span>
+	          </button>
+	          {analiz && <p className="hisse-analysis-note">Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
+	          {analiz && <p className="hisse-analysis-note" style={{ marginTop: 4, lineHeight: 1.6, textAlign: "right", maxWidth: 280 }}>Bu analiz teknik göstergeler, fiyat ve hacim verilerini kapsar. Temel analiz, bilanço ve KAP haberleri dahil değildir. Yatırım tavsiyesi değildir.</p>}
           </div>
 
         </div>
@@ -350,8 +363,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           <div className="hisse-kartlar">
             {kartlar.map((k) => (
               <div key={k.label} className="hisse-metric-card">
-                <div style={{ fontSize: 12, color: "#64748B", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 7 }}>{k.label}</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{k.value}</div>
+                <div className="hisse-metric-label" style={{ fontSize: 12, color: "#64748B", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 7 }}>{k.label}</div>
+                <div className="hisse-metric-value" style={{ fontSize: 16, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{k.value}</div>
               </div>
             ))}
           </div>

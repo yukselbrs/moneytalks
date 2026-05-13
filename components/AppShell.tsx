@@ -90,7 +90,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [fullName, setFullName] = useState("");
-  const [moreOpen, setMoreOpen] = useState(false);
   const [tarihSaat, setTarihSaat] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -183,11 +182,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         .sb-ai-btn { display:flex; align-items:center; border-radius:10px; text-decoration:none; cursor:pointer; width:100%; border:none; text-align:left; transition:all 0.18s; position:relative; overflow:hidden; }
         .sb-ai-btn::before { content:''; position:absolute; inset:0; border-radius:10px; padding:1px; background:linear-gradient(135deg,rgba(99,102,241,0.6),rgba(59,130,246,0.4),rgba(139,92,246,0.5)); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; }
         .sb-ai-btn:hover { background:rgba(99,102,241,0.12) !important; animation:ai-pulse 1.5s ease-in-out infinite; }
+        .sb-topbar { min-height: 44px; }
+        .sb-topbar-logo { font-size: 14px; font-weight: 600; color: #F8FAFC; text-decoration: none; white-space: nowrap; }
+        .sb-market-pill { display: flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 6px; min-width: 0; }
+        .sb-market-value { font-size: 12px; font-weight: 700; color: #F1F5F9; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .sb-market-change { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .sb-profile-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); display: none; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #3B82F6; overflow: hidden; text-decoration: none; flex-shrink: 0; }
         @media (max-width: 767px) {
           .sb-desktop { display: none !important; }
-          .sb-main { margin-left: 0 !important; padding-bottom: 64px; overflow-x: hidden; max-width: 100vw; }
+          .sb-main { margin-left: 0 !important; padding-bottom: calc(72px + env(safe-area-inset-bottom)); overflow-x: hidden; max-width: 100vw; }
           .sb-bottomnav { display: flex !important; }
+          .sb-topbar { padding: 8px 14px !important; gap: 10px; }
           .sb-topbar-date { display: none !important; }
+          .sb-topbar-logo { font-size: 13px !important; overflow: hidden; text-overflow: ellipsis; }
+          .sb-topbar-actions { gap: 8px !important; min-width: 0; }
+          .sb-market-pill { padding: 3px 7px !important; gap: 5px !important; max-width: 168px; }
+          .sb-market-pill-label { font-size: 9px !important; }
+          .sb-market-value { font-size: 11px !important; }
+          .sb-market-change { font-size: 10px !important; }
+          .sb-topbar-username { display: none !important; }
+          .sb-profile-avatar { display: flex !important; }
+          .sb-bottomnav { height: calc(64px + env(safe-area-inset-bottom)) !important; padding: 0 6px env(safe-area-inset-bottom) !important; }
+          .sb-bottomnav a,
+          .sb-bottomnav button { min-width: 0; padding-left: 6px !important; padding-right: 6px !important; }
         }
         @media (min-width: 768px) {
           .sb-bottomnav { display: none !important; }
@@ -398,23 +415,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="sb-main dot-grid" style={{ marginLeft: SB_W, flex: 1, display: "flex", flexDirection: "column", transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1)" }}>
         {/* Topbar */}
-        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(8,15,30,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 40 }}>
-          <a href="/" style={{ fontSize: 14, fontWeight: 600, color: "#F8FAFC", textDecoration: "none" }}>
+        <div className="sb-topbar" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(8,15,30,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 40 }}>
+          <a href="/" className="sb-topbar-logo">
             para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
           </a>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div className="sb-topbar-actions" style={{ display: "flex", alignItems: "center", gap: 16 }}>
             {xu100 && (() => {
               const isUp = !xu100.change.startsWith("%-") && xu100.change !== "-";
               return (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 6, background: isUp ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${isUp ? "rgba(16,185,129,0.18)" : "rgba(239,68,68,0.18)"}` }}>
-                  <span style={{ fontSize: 10, color: "#64748B", fontWeight: 600, letterSpacing: "0.04em" }}>XU100</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{xu100.value}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: isUp ? "#10B981" : "#EF4444", fontVariantNumeric: "tabular-nums" }}>{xu100.change}</span>
+                <div className="sb-market-pill" style={{ background: isUp ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${isUp ? "rgba(16,185,129,0.18)" : "rgba(239,68,68,0.18)"}` }}>
+                  <span className="sb-market-pill-label" style={{ fontSize: 10, color: "#64748B", fontWeight: 600, letterSpacing: "0.04em" }}>XU100</span>
+                  <span className="sb-market-value">{xu100.value}</span>
+                  <span className="sb-market-change" style={{ color: isUp ? "#10B981" : "#EF4444" }}>{xu100.change}</span>
                 </div>
               );
             })()}
             <span className="sb-topbar-date" style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>{tarihSaat}</span>
-            <span style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
+            <span className="sb-topbar-username" style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
+            <a href="/profile" className="sb-profile-avatar" aria-label="Profil">
+              {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
+            </a>
           </div>
         </div>
         {children}

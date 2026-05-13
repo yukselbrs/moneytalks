@@ -106,12 +106,59 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
           from { opacity: 0; transform: translateX(6px); }
           to { opacity: 1; transform: translateX(0); }
         }
+        .hisse-chatbot-float {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .hisse-chatbot-panel {
+          position: fixed;
+          bottom: 88px;
+          right: 24px;
+          z-index: 999;
+          width: 340px;
+          height: 460px;
+          border-radius: 16px;
+          background: #0F1C2E;
+          border: 1px solid rgba(59,130,246,0.2);
+          box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        @media (max-width: 767px) {
+          .hisse-chatbot-float {
+            bottom: calc(76px + env(safe-area-inset-bottom));
+            right: 14px;
+            gap: 8px;
+          }
+          .hisse-chatbot-label {
+            display: none !important;
+          }
+          .hisse-chatbot-button {
+            width: 48px !important;
+            height: 48px !important;
+            font-size: 20px !important;
+          }
+          .hisse-chatbot-panel {
+            left: 12px;
+            right: 12px;
+            bottom: calc(132px + env(safe-area-inset-bottom));
+            width: auto;
+            height: min(460px, calc(100vh - 170px));
+            border-radius: 14px;
+          }
+        }
       `}</style>
 
       {/* Floating button */}
-      <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000, display: "flex", alignItems: "center", gap: 10 }}>
+      <div className="hisse-chatbot-float">
         {!acik && (
-          <div style={{
+          <div className="hisse-chatbot-label" style={{
             animation: "fadein-label 0.3s ease",
             background: "#0F1C2E",
             border: "1px solid rgba(59,130,246,0.25)",
@@ -127,7 +174,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
         )}
         <button
           onClick={() => setAcik(!acik)}
-          className={!acik ? "pk-pulse" : ""}
+          className={`${!acik ? "pk-pulse" : ""} hisse-chatbot-button`}
           style={{
             position: "relative",
             width: 52, height: 52, borderRadius: "50%",
@@ -144,13 +191,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
 
       {/* Chat panel */}
       {acik && (
-        <div style={{
-          position: "fixed", bottom: 88, right: 24, zIndex: 999,
-          width: 340, height: 460, borderRadius: 16,
-          background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
-          display: "flex", flexDirection: "column", overflow: "hidden",
-        }}>
+        <div className="hisse-chatbot-panel">
           <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.1)", display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#1D9E75" }} />
             <span style={{ fontSize: 13, fontWeight: 600, color: "#F8FAFC" }}>{ticker} Asistanı</span>

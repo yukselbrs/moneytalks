@@ -56,6 +56,9 @@ export default function DashboardChartPanel({
   setGrafikDropdown,
   fetchBuyukGrafik,
 }: Props) {
+  const chartHeight = grafikWidth > 0 && grafikWidth < 520 ? 196 : 256;
+  const chartShellHeight = grafikWidth > 0 && grafikWidth < 520 ? 220 : 280;
+
   const handleCustomTicker = () => {
     const t = normalizeGrafikTicker(grafikArama);
     setGrafikTicker(t);
@@ -175,7 +178,7 @@ export default function DashboardChartPanel({
           </div>
         );
       })()}
-      <div ref={setGrafikContainerRef} className="dash-surface" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "16px 8px 8px 0", position: "relative", height: 280, minWidth: 0, boxSizing: "border-box" }}>
+      <div ref={setGrafikContainerRef} className="dash-surface" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "14px 8px 8px 0", position: "relative", height: chartShellHeight, minWidth: 0, boxSizing: "border-box" }}>
         {grafikYukleniyor && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(11,18,32,0.7)", borderRadius: 12, zIndex: 10 }}>
             <span style={{ fontSize: 12, color: "#64748B" }}>Yükleniyor...</span>
@@ -189,7 +192,7 @@ export default function DashboardChartPanel({
           const mx = Math.max(...pts);
           const pad = (mx - mn) * 0.05;
           return grafikWidth > 0 ? (
-              <AreaChart width={grafikWidth} height={256} data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+              <AreaChart width={grafikWidth} height={chartHeight} data={buyukGrafik} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="grafikGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={color} stopOpacity={0.2}/>
