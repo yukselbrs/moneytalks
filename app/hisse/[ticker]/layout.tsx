@@ -18,14 +18,14 @@ export async function generateMetadata(
     openGraph: {
       title: `${title} | ParaKonuşur`,
       description: desc,
-      url: `https://parakonusur.com/hisse/${t}`,
+      url: `/hisse/${t}`,
     },
     twitter: {
       card: "summary",
       title: `${t} — ${sirketAdi} | ParaKonuşur`,
       description: desc,
     },
-    alternates: { canonical: `https://parakonusur.com/hisse/${t}` },
+    alternates: { canonical: `/hisse/${t}` },
   };
 }
 

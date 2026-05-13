@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Fiyat Alarmları | ParaKonuşur",
   description: "BIST hisseleri için fiyat ve gösterge alarmı oluşturun. Hedef fiyata ulaştığında e-posta bildirimi alın.",
-  alternates: { canonical: "https://parakonusur.com/alarmlar" },
+  alternates: { canonical: "/alarmlar" },
 };
 
 export default function AlarmlarLayout({ children }: { children: React.ReactNode }) {
