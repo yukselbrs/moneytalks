@@ -62,6 +62,7 @@ function LastPriceDot({ cx, cy, index, totalPoints, chartColor }: LastPriceDotPr
 function ChartTooltip({ active, payload, label, acilisFiyati, degisimEtiketi, chartColor }: ChartTooltipProps) {
   if (!active || !payload?.length) return null;
   const rawFiyat = payload[0]?.payload?.fiyat ?? payload[0]?.value;
+  const pointLabel = payload[0]?.payload?.tarih ?? label;
   const fiyat = typeof rawFiyat === "number" ? rawFiyat : Number(rawFiyat);
   const tlFark = acilisFiyati && Number.isFinite(fiyat) ? fiyat - acilisFiyati : null;
   const degisim = acilisFiyati && Number.isFinite(fiyat)
@@ -72,7 +73,7 @@ function ChartTooltip({ active, payload, label, acilisFiyati, degisimEtiketi, ch
 
   return (
     <div style={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.22)", borderRadius: 8, padding: "10px 12px", boxShadow: "0 12px 30px rgba(2,6,23,0.28)" }}>
-      <p style={{ color: "#94A3B8", fontSize: 12, margin: "0 0 7px", fontWeight: 600 }}>{label}</p>
+      <p style={{ color: "#94A3B8", fontSize: 12, margin: "0 0 7px", fontWeight: 600 }}>{pointLabel}</p>
       <p style={{ color: chartColor, fontSize: 12, margin: "0 0 5px", fontWeight: 700 }}>
         Fiyat · {Number.isFinite(fiyat) ? formatPrice(fiyat) : "-"}
       </p>
@@ -96,12 +97,13 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
   const sonFiyat = sonFiyatProp ?? fiyatNoktalari.at(-1)?.fiyat ?? null;
   const enYuksek = grafikRange === "1d" && gunlukYuksek ? gunlukYuksek : fiyatNoktalari.length ? Math.max(...fiyatNoktalari.map((p) => p.fiyat)) : null;
   const enDusuk = grafikRange === "1d" && gunlukDusuk ? gunlukDusuk : fiyatNoktalari.length ? Math.min(...fiyatNoktalari.map((p) => p.fiyat)) : null;
-  const referansFiyati = grafikRange === "1d"
+  const degisimReferansFiyati = grafikRange === "1d"
     ? oncekiKapanis ?? acilisFiyati
     : acilisFiyati;
-  const degisimEtiketi = grafikRange === "1d" ? "Değişim" : "Başlangıca göre";
-  const referansDegisim = referansFiyati && sonFiyat !== null
-    ? ((sonFiyat - referansFiyati) / referansFiyati) * 100
+  const cizgiReferansFiyati = acilisFiyati;
+  const tooltipDegisimEtiketi = grafikRange === "1d" ? "Açılışa göre" : "Başlangıca göre";
+  const referansDegisim = degisimReferansFiyati && sonFiyat !== null
+    ? ((sonFiyat - degisimReferansFiyati) / degisimReferansFiyati) * 100
     : null;
   const gosterilenDegisim = grafikDegisim ?? referansDegisim;
   const chartDirection = gosterilenDegisim === null || Math.abs(gosterilenDegisim) < 0.005
@@ -111,6 +113,14 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
       : "up";
   const chartColor = chartDirection === "flat" ? "#94A3B8" : chartDirection === "down" ? "#EF4444" : "#10B981";
   const chartGradientId = `fiyatGrad-${chartDirection}`;
+  const maxIndex = Math.max(chartData.length - 1, 0);
+  const xTicks = Array.from(
+    new Set(
+      Array.from({ length: Math.min(10, chartData.length) }, (_, index) =>
+        Math.round((index / Math.max(Math.min(10, chartData.length) - 1, 1)) * maxIndex)
+      )
+    )
+  );
 
   return (
     <div style={{ marginBottom: 24 }}>
@@ -121,7 +131,7 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
           </h2>
           {gosterilenDegisim !== null && (
             <span style={{ fontSize: 11, fontWeight: 600, color: chartColor }}>
-              {degisimEtiketi} · {chartDirection === "flat" ? "" : chartDirection === "up" ? "▲ " : "▼ "}
+              {chartDirection === "flat" ? "" : chartDirection === "up" ? "▲ " : "▼ "}
               %{Math.abs(gosterilenDegisim).toFixed(2).replace(".", ",")}
             </span>
           )}
@@ -159,11 +169,9 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
             <XAxis
               dataKey="index"
               type="number"
-              domain={[0, Math.max(chartData.length - 1, 0)]}
-              ticks={chartData
-                .filter((_, index) => index === 0 || index === chartData.length - 1 || index % Math.max(1, Math.floor(chartData.length / 8)) === 0)
-                .map((point) => point.index)}
-              tickFormatter={(value: number) => chartData[value]?.tarih ?? ""}
+              domain={[0, maxIndex]}
+              ticks={xTicks}
+              tickFormatter={(value: number) => chartData[Math.round(value)]?.tarih ?? ""}
               tick={{ fontSize: 12, fill: "#334155" }}
               tickLine={false}
               axisLine={false}
@@ -171,23 +179,23 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
               padding={{ left: 0, right: 0 }}
             />
             <YAxis domain={[(dataMin: number) => Math.floor(dataMin * 0.995), (dataMax: number) => Math.ceil(dataMax * 1.005)]} tick={{ fontSize: 12, fill: "#334155" }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v} ₺`} width={55} />
-            {referansFiyati !== null && (
+            {cizgiReferansFiyati !== null && (
               <ReferenceLine
-                y={referansFiyati}
+                y={cizgiReferansFiyati}
                 stroke="rgba(148,163,184,0.34)"
                 strokeDasharray="2 5"
                 strokeWidth={1}
                 ifOverflow="extendDomain"
               />
             )}
-            <Tooltip content={<ChartTooltip acilisFiyati={referansFiyati} degisimEtiketi={degisimEtiketi} chartColor={chartColor} />} />
+            <Tooltip content={<ChartTooltip acilisFiyati={cizgiReferansFiyati} degisimEtiketi={tooltipDegisimEtiketi} chartColor={chartColor} />} />
             <Area
               type="monotone"
               dataKey="fiyat"
               stroke={chartColor}
               strokeWidth={2}
               fill={`url(#${chartGradientId})`}
-              dot={(props) => <LastPriceDot {...props} totalPoints={fiyatNoktalari.length} chartColor={chartColor} />}
+              dot={(props) => <LastPriceDot {...props} totalPoints={chartData.length} chartColor={chartColor} />}
               activeDot={{ r: 4, fill: chartColor, stroke: "#E2E8F0", strokeWidth: 2 }}
             />
           </AreaChart>
