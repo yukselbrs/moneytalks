@@ -383,9 +383,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, marginTop: 4 }}>
                 <h2 style={{ fontSize: 12, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>AI Analiz</h2>
                 {analizTarih && (
-                  <span style={{ fontSize: 11, color: "#334155" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#64748B", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 6, padding: "3px 8px" }}>
+                    <span style={{ color: "#475569", fontWeight: 600 }}>Son analiz</span>
+                    <span style={{ width: 1, height: 10, background: "rgba(255,255,255,0.1)" }} />
                     {analizTarih.toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
-                    {" · "}
+                    {" "}
                     {analizTarih.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 )}
