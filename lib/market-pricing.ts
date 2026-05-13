@@ -63,21 +63,27 @@ export async function fetchMarketQuote(ticker: string, options: YahooFetchOption
     const closes: (number | null)[] = result?.indicators?.quote?.[0]?.close || [];
     const adjustedCloses: (number | null)[] = result?.indicators?.adjclose?.[0]?.adjclose || [];
     const meta1d = data1d?.chart?.result?.[0]?.meta;
-    const rawOncekiKapanis = positiveNumber(meta1d?.chartPreviousClose)
+    const currentSessionPreviousClose = positiveNumber(meta1d?.chartPreviousClose)
+      ?? positiveNumber(meta1d?.previousClose);
+    const rawOncekiKapanis = currentSessionPreviousClose
       ?? positiveNumber(meta?.chartPreviousClose)
       ?? positiveNumber(meta?.previousClose);
 
-    const lastIndex = lastValidIndex(closes);
-    const prevIndex = lastIndex > 0 ? lastValidIndex(closes, lastIndex - 1) : -1;
-    const oncekiHamKapanis = prevIndex >= 0 ? positiveNumber(closes[prevIndex]) : null;
-    const oncekiAdjustedKapanis = prevIndex >= 0 ? positiveNumber(adjustedCloses[prevIndex]) : null;
+    const latestClose = closes[closes.length - 1];
+    const previousCompletedIndex = latestClose === null || latestClose === undefined
+      ? lastValidIndex(closes)
+      : lastValidIndex(closes, closes.length - 2);
+    const oncekiHamKapanis = previousCompletedIndex >= 0 ? positiveNumber(closes[previousCompletedIndex]) : null;
+    const oncekiAdjustedKapanis = previousCompletedIndex >= 0 ? positiveNumber(adjustedCloses[previousCompletedIndex]) : null;
     const temettuDuzeltilmis = Boolean(
       oncekiAdjustedKapanis
       && oncekiHamKapanis
       && Math.abs(oncekiAdjustedKapanis - oncekiHamKapanis) / oncekiHamKapanis > 0.001
     );
 
-    let oncekiKapanis = oncekiAdjustedKapanis ?? rawOncekiKapanis ?? oncekiHamKapanis;
+    let oncekiKapanis = temettuDuzeltilmis
+      ? oncekiAdjustedKapanis
+      : currentSessionPreviousClose ?? rawOncekiKapanis ?? oncekiHamKapanis ?? oncekiAdjustedKapanis;
 
     if (rawOncekiKapanis && rawOncekiKapanis > 0) {
       const openPrice = positiveNumber(meta.regularMarketOpen) ?? fiyat;
