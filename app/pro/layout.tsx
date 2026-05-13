@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pro Plan | ParaKonuşur",
+  description: "Sınırsız AI analiz, gelişmiş risk skorlama ve öncelikli destek. ParaKonuşur Pro'ya geçin.",
+  alternates: { canonical: "https://parakonusur.com/pro" },
+};
+
+export default function ProLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
