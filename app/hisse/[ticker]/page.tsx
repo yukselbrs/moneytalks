@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, use, useCallback, useEffect } from "react";
+import { useState, use, useCallback, useEffect, type ComponentProps } from "react";
 import dynamic from "next/dynamic";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 import StockLogo from "@/components/StockLogo";
 import { Sparkles, Star, Building2, TrendingUp, Target, AlertTriangle, Activity } from "lucide-react";
 import { LS } from "@/lib/storage-keys";
+import type HisseGrafikType from "@/components/HisseGrafik";
 
-const HisseGrafik = dynamic(() => import("@/components/HisseGrafik"), {
+const HisseGrafik = dynamic<ComponentProps<typeof HisseGrafikType>>(() => import("@/components/HisseGrafik"), {
   ssr: false,
   loading: () => <div style={{ height: 310, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, marginBottom: 24 }} />,
 });
@@ -59,6 +60,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const { ticker: tickerParam } = use(params);
   const ticker = tickerParam.toUpperCase();
   const [analiz, setAnaliz] = useState("");
+  const [analizTarih, setAnalizTarih] = useState<Date | null>(null);
   const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
   const [grafik, setGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);
@@ -130,9 +132,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     // Supabase'den analiz yükle
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;
-      const { data } = await supabase.from("analizler").select("analiz").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
+      const { data } = await supabase.from("analizler").select("analiz,created_at").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
       if (data?.analiz) {
         setAnaliz(data.analiz);
+        if (data.created_at) setAnalizTarih(new Date(data.created_at));
       }
     });
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -169,6 +172,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       const { analiz: cachedAnaliz, timestamp } = JSON.parse(cached);
       if (Date.now() - timestamp < 2 * 60 * 60 * 1000) {
         setAnaliz(cachedAnaliz);
+        setAnalizTarih(new Date(timestamp));
         return;
       }
     }
@@ -193,7 +197,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     }
     setAnaliz(data.analiz);
     if (data.veri) setVeri(data.veri);
-    localStorage.setItem(LS.analiz(ticker), JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: Date.now() }));
+    const now = Date.now();
+    setAnalizTarih(new Date(now));
+    localStorage.setItem(LS.analiz(ticker), JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: now }));
     const entry = { ticker, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
     const stored = localStorage.getItem(LS.RECENT);
     const recent = stored ? JSON.parse(stored) : [];
@@ -376,6 +382,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             <>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, marginTop: 4 }}>
                 <h2 style={{ fontSize: 12, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>AI Analiz</h2>
+                {analizTarih && (
+                  <span style={{ fontSize: 11, color: "#334155" }}>
+                    {analizTarih.toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
+                    {" · "}
+                    {analizTarih.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                )}
               </div>
               {riskColor && riskVeri && (
                 <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 18px", border: `1px solid ${riskColor.border}`, borderRadius: 12, background: riskColor.bg, marginBottom: 14 }}>
