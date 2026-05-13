@@ -46,9 +46,25 @@ async function getHisseVerisi(ticker: string) {
     const meta1d = data1d?.chart?.result?.[0]?.meta;
     const rawOncekiKapanis: number | null = meta1d?.chartPreviousClose || meta.chartPreviousClose || meta.previousClose || null;
     const guncelFiyat: number = meta.regularMarketPrice;
+    const closes: (number | null)[] = result?.indicators?.quote?.[0]?.close || [];
+    const adjustedCloses: (number | null)[] = result?.indicators?.adjclose?.[0]?.adjclose || [];
+
+    const sonGecerliIndex = closes.findLastIndex((close) => close !== null && close !== undefined && close > 0);
+    const oncekiGecerliIndex = sonGecerliIndex > 0
+      ? closes.slice(0, sonGecerliIndex).findLastIndex((close) => close !== null && close !== undefined && close > 0)
+      : -1;
+    const oncekiAdjustedKapanis = oncekiGecerliIndex >= 0 ? adjustedCloses[oncekiGecerliIndex] : null;
+    const oncekiHamKapanis = oncekiGecerliIndex >= 0 ? closes[oncekiGecerliIndex] : null;
+    const temettuDuzeltmeliOnceki = oncekiAdjustedKapanis
+      && oncekiHamKapanis
+      && rawOncekiKapanis
+      && oncekiAdjustedKapanis > 0
+      && Math.abs(oncekiAdjustedKapanis - oncekiHamKapanis) / oncekiHamKapanis > 0.001
+      ? oncekiAdjustedKapanis
+      : null;
 
     // Bedelsiz/split tespiti: prevClose/açılış oranı tam sayıya yakınsa (≥2, %10 tolerans) bedelsiz var
-    let oncekiKapanis = rawOncekiKapanis;
+    let oncekiKapanis = temettuDuzeltmeliOnceki ?? rawOncekiKapanis;
     if (rawOncekiKapanis && rawOncekiKapanis > 0) {
       const openPrice: number = meta.regularMarketOpen > 0 ? meta.regularMarketOpen : guncelFiyat;
       const ratio = rawOncekiKapanis / openPrice;
