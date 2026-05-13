@@ -1,6 +1,7 @@
 "use client";
 
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { formatCurrency, formatPercent } from "@/lib/formatters";
 
 type GrafikPoint = { tarih: string; fiyat: number };
 type ChartPoint = GrafikPoint & { index: number };
@@ -39,11 +40,6 @@ const RANGE_LABELS: Record<string, string> = {
 
 const RANGE_BTNS = [["1d","1G"],["1wk","1H"],["1mo","1A"],["3mo","3A"],["1y","1Y"]] as [string,string][];
 
-function formatPrice(value: number | null) {
-  if (value === null || !Number.isFinite(value)) return "-";
-  return `${value.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`;
-}
-
 function LastPriceDot({ cx, cy, index, totalPoints, chartColor }: LastPriceDotProps) {
   if (cx === undefined || cy === undefined || index !== totalPoints - 1) return null;
 
@@ -75,13 +71,13 @@ function ChartTooltip({ active, payload, label, acilisFiyati, degisimEtiketi, ch
     <div style={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.22)", borderRadius: 8, padding: "10px 12px", boxShadow: "0 12px 30px rgba(2,6,23,0.28)" }}>
       <p style={{ color: "#94A3B8", fontSize: 12, margin: "0 0 7px", fontWeight: 600 }}>{pointLabel}</p>
       <p style={{ color: chartColor, fontSize: 12, margin: "0 0 5px", fontWeight: 700 }}>
-        Fiyat · {Number.isFinite(fiyat) ? formatPrice(fiyat) : "-"}
+        Fiyat · {Number.isFinite(fiyat) ? formatCurrency(fiyat) : "-"}
       </p>
       {degisim !== null && (
         <p style={{ color: farkColor, fontSize: 12, margin: 0, fontWeight: 700 }}>
           {degisimEtiketi} · {farkDirection === "flat" ? "" : farkDirection === "up" ? "▲ " : "▼ "}
-          {tlFark !== null ? `${tlFark >= 0 ? "+" : "-"}${formatPrice(Math.abs(tlFark))} · ` : ""}
-          %{Math.abs(degisim).toFixed(2).replace(".", ",")}
+          {tlFark !== null ? `${tlFark >= 0 ? "+" : "-"}${formatCurrency(Math.abs(tlFark))} · ` : ""}
+          {formatPercent(degisim, { symbolPosition: "prefix", signDisplay: "never" })}
         </p>
       )}
     </div>
@@ -180,7 +176,7 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
           {gosterilenDegisim !== null && (
             <span style={{ fontSize: 11, fontWeight: 600, color: chartColor }}>
               {chartDirection === "flat" ? "" : chartDirection === "up" ? "▲ " : "▼ "}
-              %{Math.abs(gosterilenDegisim).toFixed(2).replace(".", ",")}
+              {formatPercent(gosterilenDegisim, { symbolPosition: "prefix", signDisplay: "never" })}
             </span>
           )}
         </div>
@@ -201,7 +197,7 @@ export default function HisseGrafik({ grafik, grafikRange, grafikDegisim, gunluk
         ].map(([label, value]) => (
           <div key={label as string} className="hisse-chart-stat-card">
             <div className="hisse-chart-stat-label">{label}</div>
-            <div className="hisse-chart-stat-value">{formatPrice(value as number | null)}</div>
+            <div className="hisse-chart-stat-value">{formatCurrency(value as number | null)}</div>
           </div>
         ))}
       </div>

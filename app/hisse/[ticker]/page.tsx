@@ -6,6 +6,7 @@ import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
 import StockLogo from "@/components/StockLogo";
 import { Sparkles, Star, Building2, TrendingUp, Target, AlertTriangle, Activity } from "lucide-react";
+import { formatCurrency, formatPercent, formatQuantity } from "@/lib/formatters";
 import { LS } from "@/lib/storage-keys";
 import type HisseGrafikType from "@/components/HisseGrafik";
 
@@ -230,10 +231,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     return ilk ? ((son - ilk) / ilk) * 100 : null;
   })();
   const kartlar = veri ? [
-    { label: "52 Hafta En Yüksek", value: `${veri.yillikYuksek} ₺` },
-    { label: "52 Hafta En Düşük", value: `${veri.yillikDusuk} ₺` },
-    { label: "Günlük Hacim", value: typeof window !== "undefined" ? veri.hacim.toLocaleString("tr-TR", { useGrouping: true }) + " adet" : veri.hacim + " adet" },
-    { label: "İşlem Hacmi", value: typeof window !== "undefined" ? (veri.hacim * veri.fiyat).toLocaleString("tr-TR", { maximumFractionDigits: 0, useGrouping: true }) + " ₺" : (veri.hacim * veri.fiyat).toFixed(0) + " ₺" },
+    { label: "52 Hafta En Yüksek", value: formatCurrency(veri.yillikYuksek) },
+    { label: "52 Hafta En Düşük", value: formatCurrency(veri.yillikDusuk) },
+    { label: "Günlük Hacim", value: formatQuantity(veri.hacim, "adet") },
+    { label: "İşlem Hacmi", value: formatCurrency(veri.hacim * veri.fiyat, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) },
     { label: "F/K Oranı", value: fundamentals?.pe ?? "—" },
     { label: "PD/DD Oranı", value: fundamentals?.pb ?? "—" },
   ] : [];
@@ -295,7 +296,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
           <div>
             <p style={{ fontSize: 11, color: "#3B82F6", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>BIST · Hisse Analizi</p>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button onClick={toggleIzleme} aria-label={izlemede ? "İzleme listesinden çıkar" : "İzleme listesine ekle"} style={{ width: 32, height: 32, borderRadius: 9, color: izlemede ? "#F97316" : "#475569", background: izlemede ? "rgba(249,115,22,0.10)" : "rgba(255,255,255,0.035)", border: `1px solid ${izlemede ? "rgba(249,115,22,0.28)" : "rgba(148,163,184,0.10)"}`, cursor: "pointer", padding: 0, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", alignSelf: "center" }}>
+              <button onClick={toggleIzleme} aria-label={izlemede ? `${ticker} izleme listesinden çıkar` : `${ticker} izleme listesine ekle`} style={{ width: 32, height: 32, borderRadius: 9, color: izlemede ? "#F97316" : "#475569", background: izlemede ? "rgba(249,115,22,0.10)" : "rgba(255,255,255,0.035)", border: `1px solid ${izlemede ? "rgba(249,115,22,0.28)" : "rgba(148,163,184,0.10)"}`, cursor: "pointer", padding: 0, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", alignSelf: "center" }}>
                 <Star size={18} fill={izlemede ? "currentColor" : "none"} />
               </button>
               <div className="hisse-title-row">
@@ -313,12 +314,12 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
               <div className="hisse-price-line">
                 <div className="hisse-price-box">
                   <span className="hisse-fiyat" style={{ fontSize: 30, fontWeight: 760, color: "#F8FAFC", letterSpacing: "-0.6px", lineHeight: 1 }} suppressHydrationWarning>
-                    {veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+                    {formatCurrency(veri.fiyat)}
                   </span>
                   {veri.oncekiKapanis && (
                     <span style={{ fontSize: 13, fontWeight: 700, color: fiyatYukselis ? "#10B981" : "#EF4444", display: "inline-flex", alignItems: "center", gap: 4 }}>
                       <span>{fiyatYukselis ? "▲" : "▼"}</span>
-                      <span suppressHydrationWarning>%{Math.abs(veri.degisimYuzde ?? ((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100)).toFixed(2).replace(".", ",")}</span>
+                      <span suppressHydrationWarning>{formatPercent(veri.degisimYuzde ?? ((veri.fiyat - veri.oncekiKapanis) / veri.oncekiKapanis * 100), { symbolPosition: "prefix", signDisplay: "never" })}</span>
                     </span>
                   )}
                 </div>
@@ -326,7 +327,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             )}
             {veri && (
               <div className="hisse-subline">
-                <span style={{ fontSize: 11, color: "#475569" }}>{`Günlük: ${veri.gunlukDusuk} – ${veri.gunlukYuksek} ₺`}</span>
+                <span style={{ fontSize: 11, color: "#475569" }}>{`Günlük: ${formatCurrency(veri.gunlukDusuk)} – ${formatCurrency(veri.gunlukYuksek)}`}</span>
               </div>
             )}
             <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }`}</style>

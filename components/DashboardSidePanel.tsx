@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import RiskProfilWidget from "@/components/RiskProfilWidget";
 import { supabase } from "@/components/lib/supabase";
+import { formatCurrency, formatPercent, formatSignedCurrency } from "@/lib/formatters";
 
 type PortfolioSummary = {
   toplamMaliyet: number;
@@ -39,7 +40,6 @@ type DashboardSidePanelProps = {
 
 function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary | null }) {
   const [mod, setMod] = useState<"total" | "daily">("total");
-  const [infoTip, setInfoTip] = useState<{ x: number; y: number } | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   if (!portfoyOzet) {
@@ -93,14 +93,14 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
       <div style={{ marginBottom: 12 }}>
         <p style={{ fontSize: 10, fontWeight: 700, color: "#2D3F55", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Toplam Değer</p>
         <p style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", margin: 0 }}>
-          {portfoyOzet.toplamGuncel.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+          {formatCurrency(portfoyOzet.toplamGuncel)}
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
           <span style={{ fontSize: 10, color: "#334155", fontWeight: 600 }}>{aktifLabel}</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: aktifPozitif ? "#10B981" : "#EF4444" }}>
-            {aktifPLYuzde >= 0 ? "%" : "%-"}{Math.abs(aktifPLYuzde).toFixed(2).replace(".", ",")}
+            {formatPercent(aktifPLYuzde, { symbolPosition: "prefix" })}
             <span style={{ fontSize: 11, fontWeight: 500, marginLeft: 4, opacity: 0.75 }}>
-              ({aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺)
+              ({formatSignedCurrency(aktifPL)})
             </span>
           </span>
         </div>
@@ -157,7 +157,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
               {hov ? (
                 <>
                   <text x={cx} y={cy - 4} textAnchor="middle" fontSize="8" fill="#CBD5E1" fontWeight="700" fontFamily="sans-serif">{hov.ticker}</text>
-                  <text x={cx} y={cy + 7} textAnchor="middle" fontSize="9" fill={hov.renk} fontWeight="700" fontFamily="sans-serif">%{hov.yuzde.toFixed(1)}</text>
+                  <text x={cx} y={cy + 7} textAnchor="middle" fontSize="9" fill={hov.renk} fontWeight="700" fontFamily="sans-serif">{formatPercent(hov.yuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</text>
                 </>
               ) : (
                 <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fill="#334155" fontWeight="600" fontFamily="sans-serif">{grafikDilims.length} hisse</text>
@@ -170,7 +170,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                     <div style={{ width: 5, height: 5, borderRadius: "50%", background: h.renk, flexShrink: 0 }} />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8" }}>{h.ticker}</span>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#475569" }}>%{h.yuzde.toFixed(1)}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#475569" }}>{formatPercent(h.yuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</span>
                 </div>
               ))}
               {digerDilims.length > 0 && (
@@ -179,7 +179,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                     <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#2D3F55" }} />
                     <span style={{ fontSize: 12, color: "#475569" }}>Diğer</span>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#334155" }}>%{digerYuzde.toFixed(1)}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#334155" }}>{formatPercent(digerYuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</span>
                 </div>
               )}
             </div>
@@ -190,10 +190,10 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
       {/* Alt grid */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
         {[
-          { label: "Ana Para", value: `${portfoyOzet.toplamMaliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`, color: "#94A3B8" },
-          { label: mod === "daily" ? "Günlük K/Z" : "Toplam K/Z", value: `${aktifPL >= 0 ? "+" : ""}${aktifPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`, color: aktifPozitif ? "#10B981" : "#EF4444" },
+          { label: "Ana Para", value: formatCurrency(portfoyOzet.toplamMaliyet), color: "#94A3B8" },
+          { label: mod === "daily" ? "Günlük K/Z" : "Toplam K/Z", value: formatSignedCurrency(aktifPL), color: aktifPozitif ? "#10B981" : "#EF4444" },
           { label: "Hisse Sayısı", value: `${portfoyOzet.hisseSayisi} hisse`, color: "#94A3B8" },
-          { label: mod === "daily" ? "Günlük" : "Getiri", value: `${aktifPLYuzde >= 0 ? "+" : ""}${aktifPLYuzde.toFixed(2)}%`, color: aktifPozitif ? "#10B981" : "#EF4444" },
+          { label: mod === "daily" ? "Günlük" : "Getiri", value: formatPercent(aktifPLYuzde, { signDisplay: "always" }), color: aktifPozitif ? "#10B981" : "#EF4444" },
         ].map((item) => (
           <div key={item.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 7, padding: "7px 10px" }}>
             <p style={{ fontSize: 9, fontWeight: 700, color: "#2D3F55", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</p>
@@ -233,7 +233,7 @@ function ActiveAlarmsCard() {
 
   const hedefLabel = (a: RawAlarm) => {
     if (a.tip === "gosterge" && a.gosterge_tipi) return a.gosterge_tipi.toUpperCase();
-    if (a.hedef_deger != null) return `${a.hedef_deger.toLocaleString("tr-TR")} ₺`;
+    if (a.hedef_deger != null) return formatCurrency(a.hedef_deger);
     if (a.hedef_yuzde != null) return `%${a.hedef_yuzde}`;
     return "—";
   };
@@ -271,7 +271,7 @@ function ActiveAlarmsCard() {
         </div>
       ) : (
         <>
-          {alarmlar.slice(0, 5).map((a, i) => (
+          {alarmlar.slice(0, 5).map((a) => (
             <a key={a.id} href="/alarmlar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", textDecoration: "none", cursor: "pointer" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                 <span style={{ position: "relative", width: 6, height: 6, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -334,6 +334,7 @@ type TakvimEvent = {
   baslik: string;
   onem: string;
   ulke: string;
+  gunEtiketi: string;
 };
 
 const ONEM_RENK: Record<string, string> = {
@@ -342,27 +343,45 @@ const ONEM_RENK: Record<string, string> = {
   "Düşük": "#475569",
 };
 
+function isoDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function eventDayLabel(tarih: string, baseDate: Date) {
+  const bugun = isoDate(baseDate);
+  const yarin = isoDate(addDays(baseDate, 1));
+  if (tarih === bugun) return "Bugün";
+  if (tarih === yarin) return "Yarın";
+  return new Date(tarih).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+}
+
 function UpcomingEventsCard() {
   const [events, setEvents] = useState<TakvimEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const from = new Date().toISOString().slice(0, 10);
-    const to = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+    const today = new Date();
+    const from = isoDate(today);
+    const to = isoDate(addDays(today, 7));
     fetch(`/api/takvim?from=${from}&to=${to}`)
       .then(r => r.json())
-      .then(d => { if (Array.isArray(d.events)) setEvents(d.events.slice(0, 4)); })
+      .then(d => {
+        if (Array.isArray(d.events)) {
+          setEvents(d.events.slice(0, 4).map((event: Omit<TakvimEvent, "gunEtiketi">) => ({
+            ...event,
+            gunEtiketi: eventDayLabel(event.tarih, today),
+          })));
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
-  const gunLabel = (tarih: string) => {
-    const bugun = new Date().toISOString().slice(0, 10);
-    const yarin = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-    if (tarih === bugun) return "Bugün";
-    if (tarih === yarin) return "Yarın";
-    return new Date(tarih).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
-  };
 
   const ONEM_BG: Record<string, string> = {
     "Yüksek": "rgba(239,68,68,0.1)",
@@ -396,7 +415,7 @@ function UpcomingEventsCard() {
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderBottom: i < events.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
             <div style={{ flexShrink: 0, width: 44, textAlign: "center" }}>
               <div style={{ fontSize: 10, fontWeight: 800, color: ONEM_RENK[e.onem] ?? "#475569", background: ONEM_BG[e.onem] ?? "transparent", border: `1px solid ${ONEM_BORDER[e.onem] ?? "transparent"}`, borderRadius: 4, padding: "2px 4px", lineHeight: 1.4 }}>
-                {gunLabel(e.tarih)}
+                {e.gunEtiketi}
               </div>
               <div style={{ fontSize: 10, color: "#334155", marginTop: 2, fontWeight: 500 }}>{e.saat}</div>
             </div>

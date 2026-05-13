@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import StockLogo from "@/components/StockLogo";
+import { formatPercent } from "@/lib/formatters";
 import { tickerRenk } from "@/lib/utils";
 
 type DashboardHisse = {
@@ -37,12 +38,22 @@ export default function DashboardSearchBox({
 }: DashboardSearchBoxProps) {
   const [aramaOneri, setAramaOneri] = useState<DashboardHisse[]>([]);
   const [aramaFiyatlar, setAramaFiyatlar] = useState<Record<string, Fiyat>>({});
+  const [activeIndex, setActiveIndex] = useState(0);
   const fetchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const listboxId = useId();
   const suggestionsOpen = aramaOneri.length > 0;
+  const activeOptionId = suggestionsOpen ? `${listboxId}-${aramaOneri[activeIndex]?.ticker}` : undefined;
 
   const closeSuggestions = () => {
     setAramaOneri([]);
     setAramaFiyatlar({});
+    setActiveIndex(0);
+  };
+
+  const selectSuggestion = (hisse: DashboardHisse) => {
+    onValueChange(hisse.ticker);
+    closeSuggestions();
+    onSelectHisse(hisse.ticker);
   };
 
   const updateSearch = (val: string) => {
@@ -57,6 +68,7 @@ export default function DashboardSearchBox({
       .filter((h) => h.ticker.startsWith(q) || h.name.toUpperCase().startsWith(q))
       .slice(0, 6);
     setAramaOneri(sonuclar);
+    setActiveIndex(0);
 
     if (fetchRef.current) clearTimeout(fetchRef.current);
     if (sonuclar.length === 0) return;
@@ -70,8 +82,30 @@ export default function DashboardSearchBox({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (suggestionsOpen && e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((current) => (current + 1) % aramaOneri.length);
+      return;
+    }
+
+    if (suggestionsOpen && e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((current) => (current - 1 + aramaOneri.length) % aramaOneri.length);
+      return;
+    }
+
+    if (suggestionsOpen && e.key === "Escape") {
+      e.preventDefault();
+      closeSuggestions();
+      return;
+    }
+
     if (e.key === "Enter") {
       e.preventDefault();
+      if (suggestionsOpen && aramaOneri[activeIndex]) {
+        selectSuggestion(aramaOneri[activeIndex]);
+        return;
+      }
       onSubmit(e as unknown as FormEvent<HTMLFormElement>);
     }
   };
@@ -105,7 +139,8 @@ export default function DashboardSearchBox({
           text-align: left;
           min-width: 0;
         }
-        .dash-search-option:hover { background: rgba(59,130,246,0.06); }
+        .dash-search-option:hover,
+        .dash-search-option[aria-selected="true"] { background: rgba(59,130,246,0.06); }
         .dash-search-company { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         @media (max-width: 767px) {
           .dash-search-backdrop {
@@ -162,8 +197,10 @@ export default function DashboardSearchBox({
           onBlur={() => setTimeout(closeSuggestions, 150)}
           style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#94A3B8", padding: "4px 0" }}
           aria-expanded={suggestionsOpen}
-          aria-controls="dashboard-search-suggestions"
+          aria-controls={listboxId}
+          aria-activedescendant={activeOptionId}
           aria-autocomplete="list"
+          aria-haspopup="listbox"
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
@@ -173,7 +210,7 @@ export default function DashboardSearchBox({
         {suggestionsOpen && (
           <>
           <div className="dash-search-backdrop" onMouseDown={(e) => { e.preventDefault(); closeSuggestions(); }} />
-          <div id="dashboard-search-suggestions" className="dash-search-suggestions" role="listbox" aria-label="Hisse arama önerileri">
+          <div className="dash-search-suggestions">
             <div className="dash-search-sheet-header">
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#60A5FA" }}>Hisse Ara</div>
@@ -188,43 +225,43 @@ export default function DashboardSearchBox({
                 ✕
               </button>
             </div>
-            {aramaOneri.map((h) => {
+            <div id={listboxId} role="listbox" aria-label="Hisse arama önerileri">
+            {aramaOneri.map((h, index) => {
               const izlemede = watchlist.some((w) => w.ticker === h.ticker);
               return (
                 <div
                   key={h.ticker}
-                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                  id={`${listboxId}-${h.ticker}`}
+                  className="dash-search-option"
+                  role="option"
+                  aria-selected={activeIndex === index}
+                  tabIndex={-1}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    selectSuggestion(h);
+                  }}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
                 >
-                  <button
-                    type="button"
-                    className="dash-search-option"
-                    role="option"
-                    aria-selected={false}
-                    onMouseDown={() => {
-                      onValueChange(h.ticker);
-                      closeSuggestions();
-                      onSelectHisse(h.ticker);
-                    }}
-                  >
-                    <StockLogo ticker={h.ticker} domain={h.domain} size={28} radius={6} color={tickerRenk(h.ticker)} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</div>
-                      <div className="dash-search-company" style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h.name}</div>
-                    </div>
-                    {(() => { const f = aramaFiyatlar[h.ticker] ?? fiyatlar[h.ticker]; return f ? (
-                      <div style={{ textAlign: "right", marginRight: 4, flexShrink: 0 }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0", whiteSpace: "nowrap" }}>{f.fiyat} ₺</div>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
-                          {f.yukselis ? "▲" : "▼"} %{Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}
-                        </div>
+                  <StockLogo ticker={h.ticker} domain={h.domain} size={28} radius={6} color={tickerRenk(h.ticker)} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</div>
+                    <div className="dash-search-company" style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h.name}</div>
+                  </div>
+                  {(() => { const f = aramaFiyatlar[h.ticker] ?? fiyatlar[h.ticker]; return f ? (
+                    <div style={{ textAlign: "right", marginRight: 4, flexShrink: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0", whiteSpace: "nowrap" }}>{f.fiyat} ₺</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
+                        {f.yukselis ? "▲" : "▼"} {formatPercent(Number(f.degisim), { symbolPosition: "prefix", signDisplay: "never" })}
                       </div>
-                    ) : null; })()}
-                  </button>
+                    </div>
+                  ) : null; })()}
                   <button
                     type="button"
                     aria-label={izlemede ? `${h.ticker} izleme listesinden çıkar` : `${h.ticker} izleme listesine ekle`}
                     onMouseDown={(e) => {
                       e.preventDefault();
+                      e.stopPropagation();
                       if (izlemede) onRemoveFromWatchlist(h.ticker);
                       else onAddToWatchlist(h.ticker);
                     }}
@@ -235,6 +272,7 @@ export default function DashboardSearchBox({
                 </div>
               );
             })}
+            </div>
           </div>
           </>
         )}

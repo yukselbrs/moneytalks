@@ -1,6 +1,7 @@
 "use client";
 
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { formatNumber, formatPercent } from "@/lib/formatters";
 
 type DashboardHisse = {
   ticker: string;
@@ -167,11 +168,11 @@ export default function DashboardChartPanel({
         return (
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
             <span style={{ fontSize: 20, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.6px" }}>
-              {sonFiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+              {formatNumber(sonFiyat, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
             {degisim !== undefined && (
               <span style={{ fontSize: 12, fontWeight: 600, color: overlayColor }}>
-                {degisim >= 0 ? "▲ +" : "▼ "}{degisim.toFixed(2).replace(".", ",")}%
+                {degisim >= 0 ? "▲ +" : "▼ "}{formatPercent(degisim, { signDisplay: "never" })}
               </span>
             )}
             <span style={{ fontSize: 12, color: "#475569" }}>15 dk gecikmeli</span>
@@ -207,12 +208,12 @@ export default function DashboardChartPanel({
                   tickLine={false}
                   axisLine={false}
                   width={60}
-                  tickFormatter={(v: number) => v.toLocaleString("tr-TR", { maximumFractionDigits: 0 })}
+                  tickFormatter={(v: number) => formatNumber(v, { maximumFractionDigits: 0 })}
                 />
                 <Tooltip
                   contentStyle={{ background: "#0F1C2E", border: `1px solid ${color}33`, borderRadius: 8, fontSize: 12 }}
                   labelStyle={{ color: "#94A3B8", marginBottom: 4 }}
-                  formatter={(v: unknown) => [`${typeof v === "number" ? v.toLocaleString("tr-TR", { minimumFractionDigits: 2 }) : v}`, grafikTickerLabel]}
+                  formatter={(v: unknown) => [`${typeof v === "number" ? formatNumber(v, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : v}`, grafikTickerLabel]}
                   cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: "4 4" }}
                 />
                 <Area type="monotone" dataKey="fiyat" stroke={color} strokeWidth={1.5} fill="url(#grafikGrad)" dot={false} activeDot={{ r: 4, fill: color, strokeWidth: 0 }} />

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import StockLogo from "@/components/StockLogo";
+import { formatPercent } from "@/lib/formatters";
 
 type DashboardHisse = {
   ticker: string;
@@ -74,6 +75,7 @@ export default function DashboardWatchlistPanel({
         <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>İzleme Listem</p>
         <button
           onClick={() => { setWatchlistInputAcik(!watchlistInputAcik); setWatchlistInput(""); }}
+          aria-label={watchlistInputAcik ? "İzleme listesine ekleme alanını kapat" : "İzleme listesine hisse ekle"}
           style={{ width: 24, height: 24, borderRadius: 6, background: watchlistInputAcik ? "rgba(255,255,255,0.05)" : "rgba(59,130,246,0.1)", border: `1px solid ${watchlistInputAcik ? "rgba(255,255,255,0.08)" : "rgba(59,130,246,0.25)"}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: watchlistInputAcik ? "#475569" : "#3B82F6", fontSize: 16, lineHeight: 1, fontWeight: 300 }}
         >
           {watchlistInputAcik ? "×" : "+"}
@@ -114,6 +116,7 @@ export default function DashboardWatchlistPanel({
             })()}
           </div>
           <button onMouseDown={addCurrentInput}
+            aria-label="Yazılan hisseyi izleme listesine ekle"
             style={{ fontSize: 12, fontWeight: 600, color: "#fff", background: "#3B82F6", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer" }}>
             Ekle
           </button>
@@ -128,7 +131,7 @@ export default function DashboardWatchlistPanel({
         const degisimler = watchlist.map((w) => Number(fiyatlar[w.ticker]?.degisim || 0)).filter((d) => d !== 0);
         const ortDegisim = degisimler.length > 0 ? degisimler.reduce((a, b) => a + b, 0) / degisimler.length : 0;
         const ortRenk = ortDegisim >= 0 ? "#10B981" : "#EF4444";
-        const ortLabel = `${ortDegisim >= 0 ? "%" : "%-"}${Math.abs(ortDegisim).toFixed(2).replace(".", ",")}`;
+        const ortLabel = formatPercent(ortDegisim, { symbolPosition: "prefix" });
 
         return (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
@@ -156,7 +159,7 @@ export default function DashboardWatchlistPanel({
         watchlist.map((w, i) => {
           const h = bistMap.get(w.ticker);
           const f = fiyatlar[w.ticker];
-          const degisimLabel = f ? `${f.yukselis ? "artı" : "eksi"} %${Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}` : undefined;
+          const degisimLabel = f ? `${f.yukselis ? "artı" : "eksi"} ${formatPercent(Number(f.degisim), { symbolPosition: "prefix", signDisplay: "never" })}` : undefined;
           return (
             <div key={w.ticker} onClick={() => goToHisse(w.ticker)}
               style={{ display: "grid", gridTemplateColumns: "40px 1fr auto auto 32px", alignItems: "center", gap: 12, padding: "11px 16px", borderBottom: i < watchlist.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", transition: "background 0.12s" }}
@@ -172,7 +175,7 @@ export default function DashboardWatchlistPanel({
               </div>
               <div style={{ textAlign: "right" }} aria-label={degisimLabel}>
                 <div aria-hidden="true" style={{ fontSize: 12, fontWeight: 700, color: f?.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 2 }}>
-                  {f ? <><span>{f.yukselis ? "▲" : "▼"}</span><span>{f.yukselis ? "%" : "%-"}{Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}</span></> : "—"}
+                  {f ? <><span>{f.yukselis ? "▲" : "▼"}</span><span>{formatPercent(Number(f.degisim), { symbolPosition: "prefix", signDisplay: "never" })}</span></> : "—"}
                 </div>
               </div>
               <button
@@ -220,7 +223,7 @@ export default function DashboardWatchlistPanel({
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#E2E8F0" }}>{f.fiyat} ₺</div>
                     <div style={{ fontSize: 11, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
-                      {f.yukselis ? "▲" : "▼"} %{Math.abs(Number(f.degisim)).toFixed(2).replace(".", ",")}
+                      {f.yukselis ? "▲" : "▼"} {formatPercent(Number(f.degisim), { symbolPosition: "prefix", signDisplay: "never" })}
                     </div>
                   </div>
                 )}

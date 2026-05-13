@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePollingFetch } from "@/hooks/usePollingFetch";
+import { formatNumber, formatPercent } from "@/lib/formatters";
 
 type RegimeTone = "positive" | "negative" | "neutral" | "selective";
 
@@ -69,7 +70,7 @@ export default function DashboardMarketRegime() {
         </div>
         <div style={{ minWidth: 140, textAlign: "right" }}>
           <p style={{ margin: 0, color: "#64748B", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Yayılım</p>
-          <p style={{ margin: "2px 0 5px", color: style.color, fontSize: 18, fontWeight: 800 }}>{yayilim.toFixed(1)}%</p>
+          <p style={{ margin: "2px 0 5px", color: style.color, fontSize: 18, fontWeight: 800 }}>{formatPercent(yayilim, { fractionDigits: 1 })}</p>
           <div style={{ height: 4, borderRadius: 999, background: "rgba(148,163,184,0.10)", overflow: "hidden" }}>
             <div style={{ width: `${yayilim}%`, height: "100%", background: style.color, opacity: 0.8 }} />
           </div>
@@ -79,12 +80,12 @@ export default function DashboardMarketRegime() {
         {[
           { label: "Yükselen", value: data.metrikler.yukselen, color: "#10B981" },
           { label: "Düşen", value: data.metrikler.dusen, color: "#F87171" },
-          { label: "Ort.", value: `${data.metrikler.ortalamaDegisim >= 0 ? "+" : ""}${data.metrikler.ortalamaDegisim.toLocaleString("tr-TR")}%`, color: style.color },
+          { label: "Ort.", value: formatPercent(data.metrikler.ortalamaDegisim, { signDisplay: "always" }), color: style.color },
           { label: "Hacim", value: data.metrikler.hacimCanliligi, color: "#CBD5E1" },
         ].map((item) => (
           <div key={item.label} style={{ border: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.018)", borderRadius: 8, padding: "8px 9px" }}>
             <p style={{ margin: 0, color: "#475569", fontSize: 10, fontWeight: 700 }}>{item.label}</p>
-            <p style={{ margin: "3px 0 0", color: item.color, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>{item.value}</p>
+            <p style={{ margin: "3px 0 0", color: item.color, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>{typeof item.value === "number" ? formatNumber(item.value) : item.value}</p>
           </div>
         ))}
       </div>}

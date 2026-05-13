@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import StockLogo from "@/components/StockLogo";
+import { formatPercent } from "@/lib/formatters";
 
 type DashboardHisse = {
   ticker: string;
@@ -103,7 +104,7 @@ export default function DashboardMarketFocus({
         ) : liste.map((s, i) => {
           const h = bistMap.get(s.ticker);
           const izlemede = watchlistSet.has(s.ticker);
-          const degisimLabel = `${s.yukselis ? "artı" : "eksi"} %${Math.abs(Number(s.degisim)).toFixed(2).replace(".", ",")}`;
+          const degisimLabel = `${s.yukselis ? "artı" : "eksi"} ${formatPercent(Number(s.degisim), { symbolPosition: "prefix", signDisplay: "never" })}`;
           return (
             <div key={s.ticker} onClick={() => goToHisse(s.ticker)}
               style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 40px", alignItems: "center", gap: 12, padding: "11px 16px", borderBottom: i < liste.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", transition: "background 0.12s" }}
@@ -120,7 +121,7 @@ export default function DashboardMarketFocus({
               <div style={{ textAlign: "right" }} aria-label={degisimLabel}>
                 <div aria-hidden="true" style={{ fontSize: 13, fontWeight: 700, color: s.yukselis ? "#10B981" : "#EF4444", display: "flex", alignItems: "center", gap: 3 }}>
                   <span>{s.yukselis ? "▲" : "▼"}</span>
-                  <span>{s.yukselis ? "%" : "%-"}{Math.abs(Number(s.degisim)).toFixed(2).replace(".", ",")}</span>
+                  <span>{formatPercent(Number(s.degisim), { symbolPosition: "prefix", signDisplay: "never" })}</span>
                 </div>
               </div>
               <button
@@ -136,4 +137,3 @@ export default function DashboardMarketFocus({
     </div>
   );
 }
-
