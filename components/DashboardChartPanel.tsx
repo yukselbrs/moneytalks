@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { formatNumber, formatPercent } from "@/lib/formatters";
 
@@ -57,8 +58,25 @@ export default function DashboardChartPanel({
   setGrafikDropdown,
   fetchBuyukGrafik,
 }: Props) {
+  const chartListboxId = useId();
   const chartHeight = grafikWidth > 0 && grafikWidth < 520 ? 196 : 256;
   const chartShellHeight = grafikWidth > 0 && grafikWidth < 520 ? 220 : 280;
+  const sabitGrafikSecenekleri = [
+    { ticker: "XU100.IS", label: "XU100 - BIST 100" },
+    { ticker: "XU030.IS", label: "XU030 - BIST 30" },
+    { ticker: "USDTRY=X", label: "USD/TRY" },
+    { ticker: "EURTRY=X", label: "EUR/TRY" },
+  ];
+  const sabitTickers = new Set(sabitGrafikSecenekleri.map(s => s.ticker));
+  const tumGrafikSecenekleri = [
+    ...sabitGrafikSecenekleri,
+    ...bistHisseler
+      .map(h => ({ ticker: `${h.ticker}.IS`, label: `${h.ticker} - ${h.name}` }))
+      .filter(b => !sabitTickers.has(b.ticker)),
+  ];
+  const filtreliGrafikSecenekleri = tumGrafikSecenekleri
+    .filter(t => !grafikArama || t.label.toUpperCase().includes(grafikArama))
+    .slice(0, 60);
 
   const handleCustomTicker = () => {
     const t = normalizeGrafikTicker(grafikArama);
@@ -68,6 +86,13 @@ export default function DashboardChartPanel({
     setGrafikArama("");
     fetchBuyukGrafik(grafikRange, t);
   };
+  const handleTickerSelect = (ticker: string, label: string) => {
+    setGrafikTicker(ticker);
+    setGrafikTickerLabel(label.split(" - ")[0]);
+    setGrafikDropdown(false);
+    setGrafikArama("");
+    fetchBuyukGrafik(grafikRange, ticker);
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
@@ -75,7 +100,11 @@ export default function DashboardChartPanel({
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <h2 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>Piyasa Grafiği</h2>
           <div style={{ position: "relative" }}>
-            <button onClick={() => setGrafikDropdown(v => !v)}
+            <button
+              onClick={() => setGrafikDropdown(v => !v)}
+              aria-haspopup="listbox"
+              aria-expanded={grafikDropdown}
+              aria-controls={grafikDropdown ? chartListboxId : undefined}
               style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, padding: "3px 10px", cursor: "pointer" }}>
               {grafikTickerLabel} ▾
             </button>
@@ -88,18 +117,22 @@ export default function DashboardChartPanel({
                     value={grafikArama}
                     onChange={e => setGrafikArama(e.target.value.toUpperCase())}
                     onKeyDown={e => { if (e.key === "Enter" && grafikArama.length >= 2) handleCustomTicker(); }}
+                    role="combobox"
+                    aria-label="Grafik sembolü ara"
+                    aria-expanded={grafikDropdown}
+                    aria-controls={chartListboxId}
+                    aria-autocomplete="list"
                     style={{ width: "100%", background: "#1E293B", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 6, padding: "6px 10px", color: "#F1F5F9", fontSize: 12, outline: "none", boxSizing: "border-box" }}
                   />
                   {grafikArama.length >= 2 && (() => {
-                    const sabit2 = ["XU100.IS","XU030.IS","USDTRY=X","EURTRY=X"];
-                    const eslesmeler = [
-                      ...sabit2.filter(t => t.includes(grafikArama)),
-                      ...bistHisseler.filter(h => h.ticker.includes(grafikArama) || h.name.toUpperCase().includes(grafikArama))
-                    ];
-                    if (eslesmeler.length > 0) return null;
+                    if (filtreliGrafikSecenekleri.length > 0) return null;
                     return (
                     <div
                       onClick={handleCustomTicker}
+                      role="option"
+                      aria-selected={false}
+                      tabIndex={0}
+                      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") handleCustomTicker(); }}
                       style={{ marginTop: 4, padding: "7px 10px", background: "rgba(59,130,246,0.12)", borderRadius: 6, fontSize: 12, color: "#3B82F6", cursor: "pointer", fontWeight: 500 }}
                       onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.2)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "rgba(59,130,246,0.12)")}
@@ -109,33 +142,22 @@ export default function DashboardChartPanel({
                     );
                   })()}
                 </div>
-                <div style={{ maxHeight: 200, overflowY: "auto" }}>
-                  {(() => {
-                    const sabit = [
-                      { ticker: "XU100.IS", label: "XU100 — BIST 100" },
-                      { ticker: "XU030.IS", label: "XU030 — BIST 30" },
-                      { ticker: "USDTRY=X", label: "USD/TRY" },
-                      { ticker: "EURTRY=X", label: "EUR/TRY" },
-                    ];
-                    const bist = bistHisseler.map(h => ({ ticker: `${h.ticker}.IS`, label: `${h.ticker} — ${h.name}` }));
-                    const sabitTickers = new Set(sabit.map(s => s.ticker));
-                    const tumListe = [...sabit, ...bist.filter(b => !sabitTickers.has(b.ticker))];
-                    return tumListe.filter(t => !grafikArama || t.label.toUpperCase().includes(grafikArama)).slice(0, 60).map(t => (
-                    <div key={t.ticker}
-                      onClick={() => {
-                        setGrafikTicker(t.ticker);
-                        setGrafikTickerLabel(t.label.split(" — ")[0]);
-                        setGrafikDropdown(false);
-                        setGrafikArama("");
-                        fetchBuyukGrafik(grafikRange, t.ticker);
-                      }}
+                <div id={chartListboxId} role="listbox" aria-label="Grafik sembol önerileri" style={{ maxHeight: 200, overflowY: "auto" }}>
+                  {filtreliGrafikSecenekleri.map(t => (
+                    <div
+                      key={t.ticker}
+                      role="option"
+                      aria-selected={grafikTicker === t.ticker}
+                      tabIndex={0}
+                      onClick={() => handleTickerSelect(t.ticker, t.label)}
+                      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") handleTickerSelect(t.ticker, t.label); }}
                       style={{ padding: "8px 12px", fontSize: 12, color: grafikTicker === t.ticker ? "#3B82F6" : "#94A3B8", cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.04)" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                     >
                       {t.label}
                     </div>
-                    ));})()}
+                  ))}
                 </div>
               </div>
             )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -61,7 +62,7 @@ export default function RegisterPage() {
           <div style={{ width: 64, height: 64, borderRadius: "50%", margin: "0 auto 20px", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>✉</div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F1F5F9", marginBottom: 12 }}>E-postanı doğrula</h1>
           <p style={{ fontSize: 14, color: "#64748B", lineHeight: 1.7, marginBottom: 24 }}>{email} adresine doğrulama linki gönderdik.</p>
-          <a href="/login" style={{ fontSize: 13, color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Giriş sayfasına dön →</a>
+          <Link href="/login" style={{ fontSize: 13, color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Giriş sayfasına dön →</Link>
         </div>
       </div>
     );
@@ -101,12 +102,12 @@ export default function RegisterPage() {
         {!isMobile && (
           <div style={{ background: "linear-gradient(160deg, #0F1C2E 0%, #0B1220 100%)", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid rgba(59,130,246,0.08)" }}>
 
-            <a href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
               <LogoIcon size={32} />
               <span style={{ fontSize: 18, fontWeight: 700, color: "#F1F5F9" }}>
                 para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#334155" }}>.com</span>
               </span>
-            </a>
+            </Link>
 
             <div style={{ margin: "48px 0 36px" }}>
               <div style={{ display: "inline-block", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "#10B981", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 20, padding: "4px 14px", marginBottom: 20 }}>ÜCRETSİZ</div>
@@ -221,7 +222,7 @@ export default function RegisterPage() {
 
           <p style={{ textAlign: "center", fontSize: 12, color: "#475569", marginTop: 20 }}>
             Zaten hesabın var mı?{" "}
-            <a href="/login" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Giriş yap</a>
+            <Link href="/login" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Giriş yap</Link>
           </p>
         </div>
       </div>

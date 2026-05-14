@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
 import { LS } from "@/lib/storage-keys";
@@ -62,14 +63,14 @@ function MoreMenu({ navItems, pathname, handleLogout }: {
             {extraItems.map(item => {
               const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
               return (
-                <a key={item.label} href={item.href} onClick={() => setOpen(false)} style={{
+                <Link key={item.label} href={item.href} onClick={() => setOpen(false)} style={{
                   display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10,
                   textDecoration: "none", color: isActive ? "#fff" : "#64748B",
                   background: isActive ? "rgba(59,130,246,0.15)" : "transparent",
                 }}>
                   <span style={{ color: isActive ? "#3B82F6" : "#475569" }}>{item.icon}</span>
                   <span style={{ fontSize: 14, fontWeight: 500 }}>{item.label}</span>
-                </a>
+                </Link>
               );
             })}
             <button onClick={() => { setOpen(false); handleLogout(); }} style={{
@@ -86,6 +87,19 @@ function MoreMenu({ navItems, pathname, handleLogout }: {
   );
 }
 
+function AvatarImage({ src, alt = "avatar" }: { src: string; alt?: string }) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={32}
+      height={32}
+      unoptimized
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  );
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -94,7 +108,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem(LS.SB_COLLAPSED) === "1" : false
+  );
   const [tip, setTip] = useState<{ text: string; y: number } | null>(null);
   const [xu100, setXu100] = useState<{ value: string; change: string } | null>(null);
 
@@ -104,11 +120,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   };
   const showTip = (e: React.MouseEvent, text: string) => tipFromEl(e.currentTarget, text);
   const focusTip = (e: React.FocusEvent, text: string) => tipFromEl(e.currentTarget, text);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(LS.SB_COLLAPSED);
-    if (saved === "1") setCollapsed(true);
-  }, []);
 
   function toggleCollapsed() {
     setCollapsed(v => {
@@ -365,7 +376,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </svg>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ color: "#FEF3C7", fontSize: 12, fontWeight: 700, margin: 0, lineHeight: 1.3 }}>Pro'ya Yükselt</p>
-                <p style={{ color: "#92400E", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Gerçek zamanlı & sınırsız analiz</p>
+                <p style={{ color: "#92400E", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Gelişmiş analiz & daha geniş limit</p>
               </div>
               <Link href="/pro" style={{ flexShrink: 0, background: "linear-gradient(135deg, #D97706, #F59E0B)", color: "#1C0A00", fontSize: 10, fontWeight: 800, padding: "5px 8px", borderRadius: 6, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 2px 8px rgba(245,158,11,0.35)" }}>
                 Yükselt →
@@ -386,7 +397,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             gap: collapsed ? 0 : undefined,
           }}>
             <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#3B82F6", flexShrink: 0, overflow: "hidden" }}>
-              {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
+              {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
             </div>
             {!collapsed && (
               <>
@@ -416,9 +427,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="sb-main dot-grid" style={{ marginLeft: SB_W, flex: 1, display: "flex", flexDirection: "column", transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1)" }}>
         {/* Topbar */}
         <div className="sb-topbar" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(8,15,30,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 40 }}>
-          <a href="/" className="sb-topbar-logo">
+          <Link href="/" className="sb-topbar-logo">
             para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#1E293B" }}>.com</span>
-          </a>
+          </Link>
           <div className="sb-topbar-actions" style={{ display: "flex", alignItems: "center", gap: 16 }}>
             {xu100 && (() => {
               const isUp = !xu100.change.startsWith("%-") && xu100.change !== "-";
@@ -432,9 +443,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             })()}
             <span className="sb-topbar-date" style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>{tarihSaat}</span>
             <span className="sb-topbar-username" style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
-            <a href="/profile" className="sb-profile-avatar" aria-label="Profil">
-              {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
-            </a>
+            <Link href="/profile" className="sb-profile-avatar" aria-label="Profil">
+              {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
+            </Link>
           </div>
         </div>
         {children}
@@ -467,7 +478,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         ].map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
-            <a key={item.label} href={item.href} style={{
+            <Link key={item.label} href={item.href} style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
               textDecoration: "none", padding: "6px 12px", borderRadius: 8, flex: 1,
               color: isActive ? "#3B82F6" : "#475569",
@@ -475,21 +486,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             }}>
               <span style={{ color: isActive ? "#3B82F6" : "#475569" }}>{item.icon}</span>
               <span style={{ fontSize: 9, fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
-            </a>
+            </Link>
           );
         })}
         {/* Profil */}
-        <a href="/profile" style={{
+        <Link href="/profile" style={{
           display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
           textDecoration: "none", padding: "6px 12px", borderRadius: 8, flex: 1,
           color: pathname === "/profile" ? "#3B82F6" : "#475569",
           borderBottom: pathname === "/profile" ? "2px solid #3B82F6" : "2px solid transparent",
         }}>
           <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: `1px solid ${pathname === "/profile" ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6", overflow: "hidden" }}>
-            {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : initials}
+            {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
           </div>
           <span style={{ fontSize: 9, fontWeight: pathname === "/profile" ? 700 : 500 }}>Profil</span>
-        </a>
+        </Link>
         {/* Daha Fazla */}
         <MoreMenu navItems={navItems} pathname={pathname} handleLogout={handleLogout} />
       </nav>

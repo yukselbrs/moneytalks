@@ -54,7 +54,7 @@ export default function BildirimlerPage() {
       setBildirimler(data);
       setYukleniyor(false);
     });
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     const el = tabRefs.current[sekme];

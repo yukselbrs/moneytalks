@@ -1,15 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AppShell from "@/components/AppShell";
 
 function WaitlistForm() {
   const [email, setEmail] = useState("");
-  const [durum, setDurum] = useState<"idle"|"yukleniyor"|"basarili"|"hata">("idle");
-
-  useEffect(() => {
-    if (localStorage.getItem("waitlist_kayitli") === "1") setDurum("basarili");
-  }, []);
+  const [durum, setDurum] = useState<"idle"|"yukleniyor"|"basarili"|"hata">(() =>
+    typeof window !== "undefined" && localStorage.getItem("waitlist_kayitli") === "1" ? "basarili" : "idle"
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
 
@@ -48,7 +49,7 @@ export default function LoginPage() {
 
   const features = [
     { title: "Akıllı Analizler", desc: "Yapay zeka destekli analizler ile potansiyel fırsatları keşfedin." },
-    { title: "Gerçek Zamanlı Veriler", desc: "Piyasalardaki gelişmeleri anlık takip edin, hızlı kararlar alın." },
+    { title: "Gecikmeli Veri Şeffaflığı", desc: "Piyasa verilerinde gecikme bilgisini görün, analizleri bu bağlamla okuyun." },
     { title: "Güvenli ve Kişisel", desc: "Verileriniz en üst düzey güvenlik önlemleriyle korunur." },
   ];
 
@@ -66,12 +67,12 @@ export default function LoginPage() {
         {/* SOL KOLON */}
         <div className="login-left" style={{ background: "linear-gradient(160deg, #0F1C2E 0%, #0B1220 100%)", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid rgba(59,130,246,0.08)" }}>
 
-          <a href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
+          <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
             <LogoIcon size={32} />
             <span style={{ fontSize: 18, fontWeight: 700, color: "#F1F5F9" }}>
               para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#334155" }}>.com</span>
             </span>
-          </a>
+          </Link>
 
           <div style={{ margin: "48px 0 36px" }}>
             <h1 style={{ fontSize: 32, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, letterSpacing: "-0.8px", marginBottom: 12 }}>
@@ -79,7 +80,7 @@ export default function LoginPage() {
               <span style={{ color: "#3B82F6" }}>güçlü yatırımlar.</span>
             </h1>
             <p style={{ fontSize: 14, color: "#64748B", lineHeight: 1.7 }}>
-              BIST ve küresel piyasalarda yapay zeka destekli analizler, gerçek zamanlı veriler ve akıllı yatırım araçları.
+              BIST odaklı yapay zeka destekli analizler, 15 dakika gecikmeli veri şeffaflığı ve akıllı yatırım araçları.
             </p>
           </div>
 
@@ -102,7 +103,7 @@ export default function LoginPage() {
               <p style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>Pro özellikler ile yatırımınızı bir üst seviyeye taşıyın.</p>
               <p style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>Daha fazla analiz, gelişmiş araçlar ve özel veriler.</p>
             </div>
-            <a href="/pro" style={{ flexShrink: 0, padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", borderRadius: 8, textDecoration: "none", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>Pro'ya Yükselt</a>
+            <Link href="/pro" style={{ flexShrink: 0, padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", borderRadius: 8, textDecoration: "none", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>Pro'ya Yükselt</Link>
           </div>
 
           <div style={{ display: "flex", gap: 20, marginTop: 32 }}>
@@ -156,7 +157,7 @@ export default function LoginPage() {
                   style={{ width: 14, height: 14, accentColor: "#3B82F6" }} />
                 <span style={{ fontSize: 12, color: "#64748B" }}>Beni hatırla</span>
               </label>
-              <a href="/forgot-password" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none" }}>Şifremi unuttum?</a>
+              <Link href="/forgot-password" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none" }}>Şifremi unuttum?</Link>
             </div>
 
             {error && (
@@ -184,12 +185,12 @@ export default function LoginPage() {
           </form>
 
           <p style={{ textAlign: "center", fontSize: 12, color: "#475569", marginTop: 24 }}>
-            Hesabın yok mu? <a href="/register" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Kayıt ol</a>
+            Hesabın yok mu? <Link href="/register" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Kayıt ol</Link>
           </p>
           <p style={{ textAlign: "center", marginTop: 12 }}>
-            <a href="/" style={{ fontSize: 13, color: "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
+            <Link href="/" style={{ fontSize: 13, color: "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
               ← Ana sayfaya dön
-            </a>
+            </Link>
           </p>
         </div>
       </div>

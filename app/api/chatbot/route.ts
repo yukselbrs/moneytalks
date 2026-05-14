@@ -669,6 +669,7 @@ async function kapHaberleriCek(ticker?: string): Promise<KapHaber[]> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function haberNedenPromptu(tickers: string[]) {
   const hedefTicker = tickers[0];
   const haberler = await kapHaberleriCek(hedefTicker);
@@ -1324,6 +1325,7 @@ function alarmTaslagiCikar(text: string, aktifTicker?: string, veri?: HissePromp
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function alarmPromptu(taslak: AlarmTaslak) {
   return `ALARM TASLAĞI:
 - Ticker: ${taslak.ticker ?? "eksik"}
@@ -1438,6 +1440,7 @@ async function hisseVerisiCek(ticker: string): Promise<HissePromptVeri | null> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function karsilastirmaPromptu(tickers: string[]) {
   if (tickers.length < 2) {
     return tickers.length === 1
@@ -1726,6 +1729,7 @@ function teknikTaramaBasligi(istek: TeknikTaramaIstegi) {
   return `momentumu güçlenen: günlük >= +%${istek.esik}, RSI 50-70, relatif hacim >= 1.2x`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function teknikTaramaPromptu(text: string) {
   const istek = teknikTaramaIstegiCikar(text);
   if (!istek) return "";
@@ -1921,6 +1925,7 @@ function genelPiyasaSatiri(item: GenelPiyasaHisse) {
   return `- ${item.ticker}: ${fiyat ? `${fiyat} ₺` : "fiyat veri yok"} | günlük ${degisim ?? "veri yok"} | relatif hacim ${relatif}${item.sektor ? ` | sektör ${item.sektor}` : ""}`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function genelPiyasaPromptu(baglami?: GenelPiyasaBaglami | null) {
   if (!baglami) {
     return `GENEL PİYASA BAĞLAMI:
@@ -1960,6 +1965,7 @@ GENEL PİYASA KILAVUZU:
 - Veriler gecikmeli olabilir; kesin yön ve garanti getiri dili kurma.`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function hissePromptu(ticker: string, veri?: HissePromptVeri | null, analiz?: string, teknik?: TeknikMetrikler, temel?: TemelMetrikler, temettu?: TemettuGecmisi | null, piyasaKiyas?: PiyasaKiyasBaglami) {
   if (!veri) {
     return `HİSSE BAĞLAMI:
@@ -2303,6 +2309,7 @@ function niyetPromptu(intent: ChatIntent) {
   return prompts[intent];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function veriKapsamiPromptu({
   intent,
   ticker,
@@ -2355,6 +2362,7 @@ function veriKapsamiPromptu({
 - Eksik veri için rakip finans siteleri, aracı kurum uygulamaları veya harici analiz platformları önermeyi bırak. Kullanıcıyı ParaKonuşur içindeki ekranlara, portföyüne, izleme listesine, haber/KAP alanına veya mevcut gecikmeli veriye yönlendir.`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function pakoAkilPlaniPromptu({
   sonMesaj,
   intent,

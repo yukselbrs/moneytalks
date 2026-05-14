@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { formatCurrency } from "@/lib/formatters";
 
 const AYLAR = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 const GUNLER = ["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"];
@@ -59,7 +60,7 @@ export default function TakvimPage() {
 
   useEffect(() => {
     const { ilk, son } = ayinIlkVeSon(yil, ay);
-    setYukleniyor(true);
+    queueMicrotask(() => setYukleniyor(true));
     fetch(`/api/takvim?from=${ilk}&to=${son}`)
       .then(r => r.json())
       .then(d => {
@@ -106,7 +107,16 @@ export default function TakvimPage() {
   return (
     <AppShell>
       <div style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
-        <main style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 24px" }}>
+        <style>{`
+          .takvim-table-scroll { width: 100%; overflow-x: auto; }
+          .takvim-event-title { min-width: 0; overflow-wrap: anywhere; }
+          @media (max-width: 767px) {
+            .takvim-page-main { padding: 14px 12px !important; }
+            .takvim-calendar-cell { min-height: 48px !important; }
+            .takvim-legend { flex-wrap: wrap; gap: 8px !important; }
+          }
+        `}</style>
+        <main className="takvim-page-main" style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 24px" }}>
 
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC", marginBottom: 4 }}>Takvim</h1>
           <p style={{ fontSize: 13, color: "#475569", marginBottom: 20 }}>Finansal takvimdeki tüm önemli ekonomik ve şirket etkinliklerini takip edin.</p>
@@ -153,8 +163,8 @@ export default function TakvimPage() {
                     const onemler = [...new Set(gunEtkinlikleri.map(e => e.onem))].slice(0, 3);
                     const hasTemettu = sekme === "Temettü Takvimi" && (temettuler[key] || []).length > 0;
                     return (
-                      <div key={gun} onClick={() => setSeciliGun(key)}
-                        style={{ padding: "8px 4px", minHeight: 56, cursor: "pointer", borderRadius: 8, margin: 2, background: seciliMi ? "rgba(59,130,246,0.15)" : bugunMu ? "rgba(59,130,246,0.08)" : "transparent", border: seciliMi ? "1px solid rgba(59,130,246,0.4)" : "1px solid transparent", transition: "all 0.1s" }}>
+	                      <div key={gun} className="takvim-calendar-cell" onClick={() => setSeciliGun(key)}
+	                        style={{ padding: "8px 4px", minHeight: 56, cursor: "pointer", borderRadius: 8, margin: 2, background: seciliMi ? "rgba(59,130,246,0.15)" : bugunMu ? "rgba(59,130,246,0.08)" : "transparent", border: seciliMi ? "1px solid rgba(59,130,246,0.4)" : "1px solid transparent", transition: "all 0.1s" }}>
                         <div style={{ textAlign: "center", fontSize: 13, fontWeight: bugunMu ? 800 : 400, color: bugunMu ? "#3B82F6" : "#94A3B8", width: 26, height: 26, borderRadius: "50%", background: bugunMu ? "rgba(59,130,246,0.15)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 4px" }}>
                           {gun}
                         </div>
@@ -168,7 +178,7 @@ export default function TakvimPage() {
                   })}
                 </div>
 
-                <div style={{ display: "flex", gap: 16, padding: "10px 16px", borderTop: "1px solid rgba(59,130,246,0.06)" }}>
+	                <div className="takvim-legend" style={{ display: "flex", gap: 16, padding: "10px 16px", borderTop: "1px solid rgba(59,130,246,0.06)" }}>
                   {Object.entries(ONEM_RENK).map(([k, v]) => (
                     <div key={k} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                       <div style={{ width: 8, height: 8, borderRadius: "50%", background: v }} />
@@ -198,12 +208,13 @@ export default function TakvimPage() {
                             <p style={{ fontSize: 13, color: "#3B82F6", fontWeight: 800 }}>{t.ticker}</p>
                             <p style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>Temettü Tutarı</p>
                           </div>
-                          <span style={{ fontSize: 13, color: "#10B981", fontWeight: 700, whiteSpace: "nowrap" }}>{t.tutar.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
+	                          <span style={{ fontSize: 13, color: "#10B981", fontWeight: 700, whiteSpace: "nowrap" }}>{formatCurrency(t.tutar)}</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+	                    <div className="takvim-table-scroll">
+	                    <table style={{ width: "100%", minWidth: 360, fontSize: 13, borderCollapse: "collapse" }}>
                       <thead>
                         <tr style={{ borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                           {["Hisse", "Temettü Tutarı"].map(h => (
@@ -215,11 +226,12 @@ export default function TakvimPage() {
                         {seciliTemettuler.map((t, i) => (
                           <tr key={i} style={{ borderBottom: i < seciliTemettuler.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none" }}>
                             <td style={{ padding: "10px 12px", color: "#3B82F6", fontWeight: 700 }}>{t.ticker}</td>
-                            <td style={{ padding: "10px 12px", color: "#10B981", fontWeight: 600 }}>{t.tutar.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</td>
+	                            <td style={{ padding: "10px 12px", color: "#10B981", fontWeight: 600 }}>{formatCurrency(t.tutar)}</td>
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+	                    </table>
+	                    </div>
                   )
                 ) : seciliEtkinlikler.length === 0 ? (
                   <div style={{ padding: "24px 16px", textAlign: "center", color: "#334155", fontSize: 13 }}>
@@ -234,7 +246,7 @@ export default function TakvimPage() {
                           <span style={{ fontSize: 12, color: "#64748B", fontWeight: 500 }}>{e.saat}</span>
                           <span style={{ fontSize: 12, fontWeight: 700, color: ONEM_RENK[e.onem], background: ONEM_RENK[e.onem] + "22", borderRadius: 20, padding: "2px 8px" }}>{e.onem}</span>
                         </div>
-                        <p style={{ fontSize: 13, color: "#E2E8F0", fontWeight: 500, marginBottom: 4 }}>{e.baslik}</p>
+	                        <p className="takvim-event-title" style={{ fontSize: 13, color: "#E2E8F0", fontWeight: 500, marginBottom: 4 }}>{e.baslik}</p>
                         {(e.beklenti || e.onceki) && (
                           <div style={{ display: "flex", gap: 12 }}>
                             {e.beklenti && <span style={{ fontSize: 11, color: "#475569" }}>Beklenti: <span style={{ color: "#94A3B8" }}>{e.beklenti}</span></span>}
@@ -245,7 +257,8 @@ export default function TakvimPage() {
                     ))}
                   </div>
                 ) : (
-                  <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+	                  <div className="takvim-table-scroll">
+	                  <table style={{ width: "100%", minWidth: 760, fontSize: 13, borderCollapse: "collapse" }}>
                     <thead>
                       <tr style={{ borderBottom: "1px solid rgba(59,130,246,0.06)" }}>
                         {["Saat", "Ülke", "Etkinlik", "Önem", "Beklenti", "Önceki", "Gerçekleşen"].map(h => (
@@ -258,7 +271,7 @@ export default function TakvimPage() {
                         <tr key={i} style={{ borderBottom: i < seciliEtkinlikler.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none" }}>
                           <td style={{ padding: "10px 12px", textAlign: "center", color: "#64748B", fontWeight: 500 }}>{e.saat}</td>
                           <td style={{ padding: "10px 12px", textAlign: "center", fontSize: 16 }}>{e.ulke || "🌍"}</td>
-                          <td style={{ padding: "10px 12px", color: "#E2E8F0", fontWeight: 500 }}>{e.baslik}</td>
+	                          <td className="takvim-event-title" style={{ padding: "10px 12px", color: "#E2E8F0", fontWeight: 500 }}>{e.baslik}</td>
                           <td style={{ padding: "10px 12px", textAlign: "center" }}>
                             <span style={{ fontSize: 12, fontWeight: 700, color: ONEM_RENK[e.onem], background: ONEM_RENK[e.onem] + "22", borderRadius: 20, padding: "2px 8px" }}>{e.onem}</span>
                           </td>
@@ -268,7 +281,8 @@ export default function TakvimPage() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+	                  </table>
+	                  </div>
                 )}
               </div>
             </div>

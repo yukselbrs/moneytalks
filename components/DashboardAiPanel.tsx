@@ -31,20 +31,23 @@ function gorunumMetni(skor: number) {
 
 export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
   const [displaySkor, setDisplaySkor] = useState<number | null>(null);
+  const visibleSkor = aiPanel && !aiPanel.yukleniyor ? displaySkor : null;
 
   useEffect(() => {
-    if (!aiPanel || aiPanel.yukleniyor) { setDisplaySkor(null); return; }
+    if (!aiPanel || aiPanel.yukleniyor) return;
     const target = aiPanel.skor;
     const duration = 900;
-    const start = Date.now();
+    const start = performance.now();
+    let animationFrame = 0;
     const tick = () => {
-      const p = Math.min((Date.now() - start) / duration, 1);
+      const p = Math.min((performance.now() - start) / duration, 1);
       const eased = 1 - Math.pow(1 - p, 3);
       setDisplaySkor(Math.round(target * eased));
-      if (p < 1) requestAnimationFrame(tick);
+      if (p < 1) animationFrame = requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick);
-  }, [aiPanel?.skor, aiPanel?.yukleniyor]);
+    animationFrame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [aiPanel]);
 
   return (
     <div style={{ position: "relative", borderRadius: 10, padding: "1px", background: "#0B1220" }}>
@@ -95,11 +98,11 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
                 <circle cx="50" cy="50" r="42" fill="none"
                   stroke={skorRenk(aiPanel.skor)}
                   strokeWidth="7" strokeLinecap="round"
-                  strokeDasharray={`${((displaySkor ?? 0) / 100) * 263.9} 263.9`}
+                  strokeDasharray={`${((visibleSkor ?? 0) / 100) * 263.9} 263.9`}
                   style={{ filter: `drop-shadow(0 0 5px ${skorRenk(aiPanel.skor)}88)`, transition: "stroke-dasharray 0.05s linear" }}/>
               </svg>
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1.2px" }}>{displaySkor ?? "—"}</span>
+                <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1.2px" }}>{visibleSkor ?? "—"}</span>
                 <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>AI Skoru</span>
               </div>
             </div>

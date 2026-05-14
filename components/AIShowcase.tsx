@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { formatCurrency, formatPercent } from "@/lib/formatters";
 
 export default function AIShowcase() {
   const [ticker, setTicker] = useState("");
@@ -64,13 +65,13 @@ export default function AIShowcase() {
           {/* Sol */}
           <div>
             <p className="text-[10px] tracking-[0.3em] font-medium mb-4" style={{ color: "#60A5FA", fontFamily: "var(--font-manrope)" }}>
-              CANLI DEMO
+              15 DK GECİKMELİ DEMO
             </p>
             <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-6" style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}>
               Hemen dene, kayıt gerekmez
             </h2>
             <p className="text-[17px] leading-relaxed mb-8" style={{ color: "#64748B", fontFamily: "var(--font-manrope)" }}>
-              İstediğin BIST hissesini yaz, gerçek fiyat verisini gör. Yapay zekâ analizi için ücretsiz hesap oluştur.
+              İstediğin BIST hissesini yaz, 15 dakika gecikmeli fiyat verisini gör. Yapay zekâ analizi için ücretsiz hesap oluştur.
             </p>
             <form onSubmit={handleSubmit} style={{ display: "flex", gap: 10, marginBottom: 32 }}>
               <input
@@ -85,7 +86,7 @@ export default function AIShowcase() {
               </button>
             </form>
             <div className="flex flex-col gap-3">
-              {["Gerçek Yahoo Finance fiyat verisi", "Ücretsiz kayıt ile yapay zekâ analizi", "600+ BIST hissesi kapsama"].map((item) => (
+              {["15 dk gecikmeli piyasa verisi", "Ücretsiz kayıt ile yapay zekâ analizi", "600+ BIST hissesi kapsama"].map((item) => (
                 <div key={item} className="flex items-center gap-3">
                   <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#3B82F6" }} />
                   <span className="text-sm" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>{item}</span>
@@ -120,10 +121,10 @@ export default function AIShowcase() {
                   <div>
                     <div style={{ fontSize: 20, fontWeight: 700, color: "#F8FAFC" }}>{ticker}</div>
                     <div style={{ fontSize: 24, fontWeight: 600, color: "#E2E8F0", marginTop: 2 }}>
-                      <span suppressHydrationWarning>{veri.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
+                      <span suppressHydrationWarning>{formatCurrency(veri.fiyat)}</span>
                       {degisim !== null && (
                         <span style={{ fontSize: 13, fontWeight: 500, color: degisim >= 0 ? "#1D9E75" : "#E24B4A", marginLeft: 8 }}>
-                          {degisim >= 0 ? "▲" : "▼"} %{Math.abs(degisim).toFixed(2).replace(".", ",")}
+                          {degisim >= 0 ? "▲" : "▼"} {formatPercent(degisim, { symbolPosition: "prefix", signDisplay: "never" })}
                         </span>
                       )}
                     </div>
@@ -135,11 +136,11 @@ export default function AIShowcase() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 20 }}>
                   <div style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 12px" }}>
                     <div style={{ fontSize: 12, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Yüksek</div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1D9E75" }}><span suppressHydrationWarning>{veri.gunlukYuksek.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span></div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1D9E75" }}><span suppressHydrationWarning>{formatCurrency(veri.gunlukYuksek)}</span></div>
                   </div>
                   <div style={{ background: "rgba(15,23,42,0.6)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 12px" }}>
                     <div style={{ fontSize: 12, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Günlük Düşük</div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "#E24B4A" }}><span suppressHydrationWarning>{veri.gunlukDusuk.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span></div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#E24B4A" }}><span suppressHydrationWarning>{formatCurrency(veri.gunlukDusuk)}</span></div>
                   </div>
                 </div>
 

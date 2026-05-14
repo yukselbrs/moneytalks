@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export function useChartPanel() {
   const [buyukGrafik, setBuyukGrafik] = useState<{ tarih: string; fiyat: number }[]>([]);

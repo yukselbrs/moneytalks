@@ -11,10 +11,11 @@ export default function Hero({ heroVideo }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const rafRef = useRef<number | null>(null);
 
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false
+  );
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mq.matches);
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
@@ -92,7 +93,7 @@ export default function Hero({ heroVideo }: HeroProps) {
                 className="text-[10px] tracking-[0.3em] font-medium"
                 style={{ color: "#60A5FA", fontFamily: "var(--font-manrope)" }}
               >
-                CANLI · BIST İLE SENKRON
+                15 DK GECİKMELİ · BIST VERİSİ
               </span>
             </div>
 
@@ -111,9 +112,9 @@ export default function Hero({ heroVideo }: HeroProps) {
               className="animate-fade-up delay-300 text-[17px] leading-relaxed mb-10 max-w-[520px]"
               style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
             >
-              Yapay zekâ destekli analiz motorumuz, BIST&apos;teki her hisseyi saniyede bir
-              değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik göstergeleri
-              birleştirip anlaşılır bir bilgi özeti sunar.
+              Yapay zekâ destekli analiz motorumuz, BIST hisselerini 15 dakika gecikmeli
+              fiyat verisiyle değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik
+              göstergeleri birleştirip anlaşılır bir bilgi özeti sunar.
             </p>
 
             {/* CTAs */}
@@ -171,7 +172,7 @@ export default function Hero({ heroVideo }: HeroProps) {
             <div className="animate-fade-up delay-500">
               <div className="h-px mb-6" style={{ background: "rgba(59,130,246,0.12)" }} />
               <div className="flex flex-wrap gap-6">
-                {["600+ BIST HİSSE", "YAPAY ZEKÂ DESTEKLİ", "ERKEN ERİŞİM AÇIK"].map(
+                {["600+ BIST HİSSE", "15 DK GECİKMELİ VERİ", "YATIRIM TAVSİYESİ DEĞİLDİR"].map(
                   (item) => (
                     <span
                       key={item}

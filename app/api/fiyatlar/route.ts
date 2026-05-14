@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { fetchMarketQuote } from "@/lib/market-pricing";
 import { normalizeTicker } from "@/lib/utils";
+import { formatNumber } from "@/lib/formatters";
 
 const DEFAULT_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
 const MAX_EXTRA_TICKERS = 50;
@@ -53,7 +54,7 @@ async function fetchFiyat(ticker: string) {
     const quote = await fetchMarketQuote(ticker, { revalidate: 15 });
     if (!quote) return null;
     const result = {
-      fiyat: quote.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      fiyat: formatNumber(quote.fiyat, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       degisim: (quote.degisimYuzde ?? 0).toFixed(2),
       yukselis: (quote.degisimYuzde ?? 0) >= 0,
       hacim: quote.hacim ?? 0,

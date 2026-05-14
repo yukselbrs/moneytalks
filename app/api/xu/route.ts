@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatNumber, formatPercent } from "@/lib/formatters";
 
 const g = globalThis as typeof globalThis & {
   xuCache?: { xu100: { value: string; change: string }; xu030: { value: string; change: string }; lastFetch: number };
@@ -26,10 +27,9 @@ async function fetchYahoo(symbol: string) {
     if (!meta) return { value: "-", change: "-" };
     const price = meta.regularMarketPrice;
     const prev = meta.chartPreviousClose || meta.previousClose;
-    const changePercent = prev ? (((price - prev) / prev) * 100).toFixed(2) : "-";
-    const formattedPrice = price?.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "-";
-    const sign = Number(changePercent) >= 0 ? "%" : "%-";
-    const changeStr = changePercent !== "-" ? `${sign}${Math.abs(Number(changePercent)).toFixed(2).replace(".", ",")}` : "-";
+    const changePercent = prev ? ((price - prev) / prev) * 100 : null;
+    const formattedPrice = formatNumber(price, { minimumFractionDigits: 2, maximumFractionDigits: 2 }, "-");
+    const changeStr = changePercent === null ? "-" : formatPercent(changePercent, { symbolPosition: "prefix" });
     return { value: formattedPrice, change: changeStr };
   } catch {
     return { value: "-", change: "-" };

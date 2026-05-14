@@ -3,8 +3,8 @@ import { Zap, Target, Radio } from "lucide-react";
 const pillars = [
   {
     icon: Zap,
-    title: "Anlık Analiz",
-    description: "Her hisseyi saniyede değerlendiren yapay zekâ motoru, piyasa kapanmadan önce size ulaşır.",
+    title: "Gecikmeli Veriyle Analiz",
+    description: "Yapay zekâ motoru, BIST hisselerini 15 dakika gecikmeli fiyat verisiyle anlaşılır hale getirir.",
   },
   {
     icon: Target,
@@ -14,7 +14,7 @@ const pillars = [
   {
     icon: Radio,
     title: "Derin Kapsam",
-    description: "600'den fazla BIST hissesini 7/24 kesintisiz izler. Hiçbir hareket gözden kaçmaz.",
+    description: "600'den fazla BIST hissesini takip eder. Veri kapsamını ve gecikme bilgisini açıkça gösterir.",
   },
 ];
 

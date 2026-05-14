@@ -144,7 +144,7 @@ export default function DashboardPage() {
     if (loading || initialGrafikLoadedRef.current) return;
     initialGrafikLoadedRef.current = true;
     fetchBuyukGrafik("1d");
-  }, [fetchBuyukGrafik, loading]);
+  }, [fetchBuyukGrafik, initialGrafikLoadedRef, loading]);
 
   function handleAnaliz(e: React.FormEvent) {
     e.preventDefault();

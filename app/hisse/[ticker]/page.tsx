@@ -128,8 +128,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   }, [ticker]);
 
   useEffect(() => {
-    fetchVeri();
-    fetchGrafik("1d");
+    queueMicrotask(() => {
+      void fetchVeri();
+      fetchGrafik("1d");
+    });
     // Supabase'den analiz yükle
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return;

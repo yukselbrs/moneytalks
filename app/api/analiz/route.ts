@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { fetchMarketQuote } from "@/lib/market-pricing";
 import { normalizeTicker, extractBearerToken } from "@/lib/utils";
+import { formatCurrency, formatQuantity } from "@/lib/formatters";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const supabaseAuth = createClient(
@@ -114,10 +115,10 @@ export async function POST(req: NextRequest) {
 
   const veriMetni = veri
     ? `Guncel piyasa verisi:
-- Fiyat: ${veri.fiyat} ₺
-- Gunluk aralik: ${veri.gunlukDusuk} - ${veri.gunlukYuksek} ₺
-- 52 haftalik aralik: ${veri.yillikDusuk} - ${veri.yillikYuksek} ₺
-- Gunluk islem hacmi: ${veri.hacim > 0 ? veri.hacim?.toLocaleString() + " adet" : "Endeks icin gecerli degil"}`
+- Fiyat: ${formatCurrency(veri.fiyat)}
+- Gunluk aralik: ${formatCurrency(veri.gunlukDusuk)} - ${formatCurrency(veri.gunlukYuksek)}
+- 52 haftalik aralik: ${formatCurrency(veri.yillikDusuk)} - ${formatCurrency(veri.yillikYuksek)}
+- Gunluk islem hacmi: ${veri.hacim > 0 ? formatQuantity(veri.hacim, "adet") : "Endeks icin gecerli degil"}`
     : "Guncel fiyat verisi alinamadi.";
 
   try {

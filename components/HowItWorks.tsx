@@ -3,13 +3,13 @@ const steps = [
     number: "01",
     title: "Hisseyi Seçin",
     description:
-      "BIST'teki herhangi bir hisseyi arayın veya tarayın. 600'den fazla enstrüman anlık olarak erişilebilir.",
+      "BIST'teki herhangi bir hisseyi arayın veya tarayın. 600'den fazla enstrüman 15 dakika gecikmeli fiyat verisiyle erişilebilir.",
   },
   {
     number: "02",
     title: "Analizi Alın",
     description:
-      "AI motoru teknik, temel ve sentiment verisini saniyeler içinde birleştirir. Kaynak verileri Borsa İstanbul'dan gelir.",
+      "AI motoru teknik, temel ve haber akışını fiyat verisinin gecikme bilgisini koruyarak birleştirir.",
   },
   {
     number: "03",

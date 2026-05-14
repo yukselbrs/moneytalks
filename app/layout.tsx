@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.svg" },
   title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
   description:
-    "Yapay zekâ destekli analiz motorumuz BIST'teki 600+ hisseyi saniyede değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik göstergeleri birleştirip anlaşılır içgörüler sunar.",
+    "Yapay zekâ destekli analiz motorumuz BIST'teki 600+ hisseyi 15 dakika gecikmeli fiyat verisiyle değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik göstergeleri birleştirip anlaşılır içgörüler sunar.",
   openGraph: {
     title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
     description: "600+ BIST hissesi için yapay zekâ destekli analiz. Erken erişim açık.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, Fragment } from "react";
+import { useState, useRef, useEffect, Fragment, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 
@@ -268,7 +268,7 @@ export default function YapayZekaPage() {
   }, [sohbetler]);
 
   const aktifSohbet = sohbetler.find(s => s.id === aktifId) ?? null;
-  const messages = aktifSohbet?.mesajlar ?? [];
+  const messages = useMemo(() => aktifSohbet?.mesajlar ?? [], [aktifSohbet]);
   const isEmpty = messages.length === 0;
   const aktifOneriler = ONERILEN_GRUPLAR.find((g) => g.kategori === aktifKategori)?.sorular ?? ONERILEN_GRUPLAR[0].sorular;
 

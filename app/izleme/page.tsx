@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useId } from "react";
+import type { KeyboardEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { tickerRenk } from "@/lib/utils";
+import { formatPercent } from "@/lib/formatters";
 
 type GrafikPoint = {
   fiyat: number;
@@ -45,9 +48,11 @@ export default function IzlemePage() {
   const [loading, setLoading] = useState(true);
   const [aramaInput, setAramaInput] = useState("");
   const [aramaAcik, setAramaAcik] = useState(false);
+  const [aktifOneriIndex, setAktifOneriIndex] = useState(0);
   const [duzenleModu, setDuzenleModu] = useState(false);
   const [sayfa, setSayfa] = useState(1);
   const router = useRouter();
+  const searchListboxId = useId();
 
   const loadData = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -64,7 +69,7 @@ export default function IzlemePage() {
     setLoading(false);
   }, [router]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { queueMicrotask(() => void loadData()); }, [loadData]);
 
   async function addToWatchlist(ticker: string) {
     const { data: { session } } = await supabase.auth.getSession();
@@ -74,7 +79,7 @@ export default function IzlemePage() {
     const { error } = await supabase.from("watchlist").insert({ user_id: session.user.id, ticker: clean });
     if (error) { console.error("Watchlist ekleme hatasi:", error.message); return; }
     setWatchlist(prev => [{ ticker: clean, added_at: new Date().toISOString() }, ...prev]);
-    setAramaInput(""); setAramaAcik(false);
+    setAramaInput(""); setAramaAcik(false); setAktifOneriIndex(0);
     if (clean) {
       fetch(`/api/fiyatlar?extra=${clean}`).then(r => r.json()).then(d => setFiyatlar(prev => ({...prev, ...d})));
     }
@@ -104,6 +109,28 @@ export default function IzlemePage() {
   const filteredBIST = aramaInput.length > 0
     ? BIST_HISSELER.filter(h => h.ticker.startsWith(aramaInput.toUpperCase()) || h.ad.toUpperCase().includes(aramaInput.toUpperCase())).slice(0,6)
     : [];
+  const aktifOneri = filteredBIST[aktifOneriIndex];
+
+  function handleAramaKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (!filteredBIST.length) {
+      if (e.key === "Escape") setAramaAcik(false);
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setAramaAcik(true);
+      setAktifOneriIndex((i) => (i + 1) % filteredBIST.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setAramaAcik(true);
+      setAktifOneriIndex((i) => (i - 1 + filteredBIST.length) % filteredBIST.length);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      void addToWatchlist(aktifOneri?.ticker ?? filteredBIST[0].ticker);
+    } else if (e.key === "Escape") {
+      setAramaAcik(false);
+    }
+  }
 
   if (loading) return <AppShell><div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#0B1220"}}><p style={{color:"#475569",fontSize:13}}>Yükleniyor...</p></div></AppShell>;
 
@@ -118,6 +145,9 @@ export default function IzlemePage() {
           .izleme-icerik-grid { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
           .izleme-tablo-header { display: grid; grid-template-columns: 2fr 1fr 1fr 120px 100px; padding: 10px 18px; border-bottom: 1px solid rgba(59,130,246,0.06); gap: 8px; }
           .izleme-tablo-satir { display: grid; grid-template-columns: 2fr 1fr 1fr 120px 100px; padding: 12px 18px; border-bottom: 1px solid rgba(59,130,246,0.04); gap: 8px; align-items: center; transition: background 0.15s ease, transform 0.15s ease; }
+          .izleme-search-wrap { position: relative; }
+          .izleme-search-panel { position: absolute; top: calc(100% + 4px); left: 0; right: 0; min-width: 220px; background: #0F1C2E; border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; z-index: 100; overflow: hidden; box-shadow: 0 12px 28px rgba(0,0,0,0.36); }
+          .izleme-text-clip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
           @keyframes donut-draw { from { stroke-dashoffset: 314; } }
           .donut-segment { animation: donut-draw 1s cubic-bezier(0.4,0,0.2,1) forwards; }
           .izleme-sag-panel { display: flex; flex-direction: column; gap: 12px; }
@@ -125,6 +155,9 @@ export default function IzlemePage() {
             .izleme-main { padding: 14px 12px; }
             .izleme-baslik { flex-direction: column; gap: 12px; }
             .izleme-baslik-aksiyonlar { width: 100%; flex-wrap: wrap; }
+            .izleme-search-wrap { width: 100%; }
+            .izleme-search-wrap > div:first-child { width: 100%; box-sizing: border-box; }
+            .izleme-search-panel { position: fixed; left: 12px; right: 12px; top: 96px; max-height: min(420px, calc(100vh - 150px)); overflow-y: auto; border-radius: 12px; }
             .izleme-ozet-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .izleme-icerik-grid { grid-template-columns: 1fr; }
             .izleme-sag-panel { display: none; }
@@ -150,28 +183,42 @@ export default function IzlemePage() {
             </div>
             <div className="izleme-baslik-aksiyonlar">
               {/* Arama */}
-              <div style={{ position: "relative" }}>
+              <div className="izleme-search-wrap">
                 <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, padding: "7px 14px" }}>
                   <span style={{ fontSize: 13, color: "#475569" }}>&#128269;</span>
                   <input
                     value={aramaInput}
-                    onChange={e => { setAramaInput(e.target.value); setAramaAcik(true); }}
+                    onChange={e => { setAramaInput(e.target.value); setAramaAcik(true); setAktifOneriIndex(0); }}
                     onFocus={() => setAramaAcik(true)}
                     onBlur={() => setTimeout(() => setAramaAcik(false), 150)}
+                    onKeyDown={handleAramaKeyDown}
+                    role="combobox"
+                    aria-label="İzleme listesine hisse ara"
+                    aria-autocomplete="list"
+                    aria-expanded={aramaAcik && filteredBIST.length > 0}
+                    aria-controls={searchListboxId}
+                    aria-activedescendant={aktifOneri ? `izleme-oneri-${aktifOneri.ticker}` : undefined}
                     placeholder="Hisse ara..."
-                    style={{ background: "none", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0", width: 140 }}
+                    style={{ background: "none", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0", width: 140, minWidth: 0, flex: 1 }}
                   />
                   <span style={{ fontSize: 11, color: "#334155", background: "rgba(255,255,255,0.05)", borderRadius: 4, padding: "2px 6px" }}>&#8984;K</span>
                 </div>
                 {aramaAcik && filteredBIST.length > 0 && (
-                  <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 100, overflow: "hidden", minWidth: 220 }}>
-                    {filteredBIST.map(h => (
-                      <div key={h.ticker} onMouseDown={() => addToWatchlist(h.ticker)}
+                  <div id={searchListboxId} className="izleme-search-panel" role="listbox" aria-label="İzleme hisse önerileri">
+                    {filteredBIST.map((h, index) => (
+                      <div
+                        key={h.ticker}
+                        id={`izleme-oneri-${h.ticker}`}
+                        role="option"
+                        aria-selected={index === aktifOneriIndex}
+                        tabIndex={0}
+                        onMouseDown={() => addToWatchlist(h.ticker)}
+                        onFocus={() => setAktifOneriIndex(index)}
                         style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
                         onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
                         onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                         <span style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{h.ticker}</span>
-                        <span style={{ fontSize: 11, color: "#475569" }}>{h.ad}</span>
+                        <span className="izleme-text-clip" style={{ fontSize: 11, color: "#475569", maxWidth: 150, textAlign: "right" }}>{h.ad}</span>
                       </div>
                     ))}
                   </div>
@@ -192,9 +239,9 @@ export default function IzlemePage() {
           <div className="izleme-ozet-grid">
             {[
               { label: "Toplam Hisse", icon: "📋", value: watchlist.length, sub: "İzleme listenizde", color: "#3B82F6" },
-              { label: "Yükselenler", icon: "↗", value: yukselenler.length, sub: `%${watchlist.length ? ((yukselenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#10B981" },
-              { label: "Düşenler", icon: "↘", value: dusenler.length, sub: `%${watchlist.length ? ((dusenler.length/watchlist.length)*100).toFixed(0) : 0}`, color: "#EF4444" },
-              { label: "Ort. Günlük Değişim", icon: "≒", value: `%${Math.abs(ortDegisim).toFixed(2).replace(".",",")}`, sub: "İzleme listeniz ortalaması", color: ortDegisim >= 0 ? "#10B981" : "#EF4444" },
+              { label: "Yükselenler", icon: "↗", value: yukselenler.length, sub: formatPercent(watchlist.length ? (yukselenler.length/watchlist.length)*100 : 0, { fractionDigits: 0, signDisplay: "never" }), color: "#10B981" },
+              { label: "Düşenler", icon: "↘", value: dusenler.length, sub: formatPercent(watchlist.length ? (dusenler.length/watchlist.length)*100 : 0, { fractionDigits: 0, signDisplay: "never" }), color: "#EF4444" },
+              { label: "Ort. Günlük Değişim", icon: "≒", value: formatPercent(Math.abs(ortDegisim), { signDisplay: "never" }), sub: "İzleme listeniz ortalaması", color: ortDegisim >= 0 ? "#10B981" : "#EF4444" },
             ].map((k, i) => (
               <div key={i} className="card-glass hover-glow" style={{ borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: `${k.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
@@ -230,8 +277,6 @@ export default function IzlemePage() {
                   const f = fiyatlar[w.ticker];
                   const hisseInfo = BIST_HISSELER.find(b => b.ticker === w.ticker);
                   const degisim = f ? parseFloat(String(f.degisim).replace(",",".")) : 0;
-                  const trend = !f ? "Yatay" : degisim > 0.5 ? "Yukselis" : degisim < -0.5 ? "Dusus" : "Yatay";
-                  const trendRenk = trend === "Yukselis" ? "#10B981" : trend === "Dusus" ? "#EF4444" : "#64748B";
                   const addedDate = new Date(w.added_at).toLocaleDateString("tr-TR", { day:"2-digit", month:"short" });
                   return (
                     <div key={w.ticker} className="izleme-tablo-satir" style={{ borderBottom: "1px solid rgba(59,130,246,0.04)", alignItems: "center",
@@ -240,11 +285,11 @@ export default function IzlemePage() {
                       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.005)"; (e.currentTarget as HTMLDivElement).style.transform = "translateX(0)"; }}>
 
                       {/* Hisse */}
-                      <div onClick={() => router.push(`/hisse/${w.ticker}`)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                      <div onClick={() => router.push(`/hisse/${w.ticker}`)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", minWidth: 0 }}>
                         <StockLogo ticker={w.ticker} domain={hisseInfo?.domain} size={28} radius={6} color={tickerRenk(w.ticker)} />
-                        <div>
+                        <div style={{ minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</div>
-                          <div style={{ fontSize: 12, color: "#475569" }}>{hisseInfo?.ad || ""}</div>
+                          <div className="izleme-text-clip" style={{ fontSize: 12, color: "#475569", maxWidth: 260 }}>{hisseInfo?.ad || ""}</div>
                         </div>
                       </div>
 
@@ -259,7 +304,7 @@ export default function IzlemePage() {
                         {f ? (
                           <>
                             <div style={{ fontSize: 13, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
-                              {f.yukselis ? "+" : "-"}%{Math.abs(degisim).toFixed(2).replace(".",",")}
+                              {f.yukselis ? "+" : "-"}{formatPercent(Math.abs(degisim), { signDisplay: "never" })}
                             </div>
                             <div style={{ fontSize: 12, color: "#334155" }}>0,00 ₺</div>
                           </>
@@ -345,7 +390,7 @@ export default function IzlemePage() {
                           <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.color }}/>
                             <span style={{ fontSize: 11, color: "#94A3B8" }}>{s.label}</span>
-                            <span style={{ fontSize: 11, color: "#64748B", marginLeft: "auto" }}>{s.count} (%{watchlist.length ? ((s.count/watchlist.length)*100).toFixed(0) : 0})</span>
+                            <span style={{ fontSize: 11, color: "#64748B", marginLeft: "auto" }}>{s.count} ({formatPercent(watchlist.length ? (s.count/watchlist.length)*100 : 0, { fractionDigits: 0, signDisplay: "never" })})</span>
                           </div>
                         ))}
                       </div>
@@ -369,7 +414,7 @@ export default function IzlemePage() {
                         <StockLogo ticker={w.ticker} size={24} radius={6} color="#10B981" />
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</span>
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: "#10B981" }}>+%{Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))).toFixed(2).replace(".",",")}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "#10B981" }}>+{formatPercent(Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))), { signDisplay: "never" })}</span>
                     </div>
                   ))
                 }
@@ -390,7 +435,7 @@ export default function IzlemePage() {
                         <StockLogo ticker={w.ticker} size={24} radius={6} color="#EF4444" />
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0" }}>{w.ticker}</span>
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: "#EF4444" }}>-%{Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))).toFixed(2).replace(".",",")}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "#EF4444" }}>-{formatPercent(Math.abs(parseFloat(String(fiyatlar[w.ticker]?.degisim||"0").replace(",","."))), { signDisplay: "never" })}</span>
                     </div>
                   ))
                 }
@@ -400,12 +445,12 @@ export default function IzlemePage() {
               <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>Son Haberler</span>
-                  <a href="/haberler" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none" }}>Tümünü Gör →</a>
+                  <Link href="/haberler" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none" }}>Tümünü Gör →</Link>
                 </div>
                 <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center" }}>
                   <div style={{ fontSize: 22 }}>📰</div>
                   <p style={{ fontSize: 12, color: "#475569", margin: 0, lineHeight: 1.5 }}>Takip ettiğiniz hisselere ait<br/>haberleri Haberler sayfasından takip edin</p>
-                  <a href="/haberler" style={{ marginTop: 4, fontSize: 12, fontWeight: 600, color: "#3B82F6", textDecoration: "none", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", padding: "6px 14px", borderRadius: 6 }}>Haberlere Git →</a>
+                  <Link href="/haberler" style={{ marginTop: 4, fontSize: 12, fontWeight: 600, color: "#3B82F6", textDecoration: "none", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", padding: "6px 14px", borderRadius: 6 }}>Haberlere Git →</Link>
                 </div>
               </div>
 

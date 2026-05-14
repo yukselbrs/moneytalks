@@ -40,7 +40,6 @@ export default function RiskProfilWidget() {
   const [cevaplar, setCevaplar] = useState<Record<string, string>>({});
   const [yukleniyor, setYukleniyor] = useState(false);
   const [oneri, setOneri] = useState<Oneri | null>(null);
-  const [mevcutProfil, setMevcutProfil] = useState<Record<string, string> | null>(null);
   const [ilkYukleme, setIlkYukleme] = useState(true);
 
   useEffect(() => {
@@ -54,7 +53,6 @@ export default function RiskProfilWidget() {
         try {
           const parsed = JSON.parse(data.ai_oneri);
           setOneri(parsed);
-          setMevcutProfil(data);
         } catch {}
       }
       setIlkYukleme(false);
@@ -93,7 +91,7 @@ export default function RiskProfilWidget() {
           <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Risk Profili</span>
         </div>
         {oneri && (
-          <button onClick={() => { setOneri(null); setMevcutProfil(null); setAdim(0); setCevaplar({}); }}
+          <button onClick={() => { setOneri(null); setAdim(0); setCevaplar({}); }}
             style={{ fontSize: 12, color: "#3B82F6", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "2px 10px", cursor: "pointer" }}>
             Yenile
           </button>

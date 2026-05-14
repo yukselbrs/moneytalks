@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -56,7 +57,7 @@ export default function Navbar() {
       window.removeEventListener("scroll", onScroll);
       authListener.subscription.unsubscribe();
     };
-  }, []);
+  }, [pathname, router]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -80,7 +81,7 @@ export default function Navbar() {
       }}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
-        <a href={logoHref} className="flex items-center gap-3 group">
+        <Link href={logoHref} className="flex items-center gap-3 group">
           <PKMark />
           <div className="flex flex-col leading-none">
             <span
@@ -94,20 +95,20 @@ export default function Navbar() {
               AI STOCK INTELLIGENCE
             </span>
           </div>
-        </a>
+        </Link>
 
         {/* Desktop center: navLinks sadece logout durumunda */}
         {!user && (
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="text-sm font-medium transition-colors duration-200"
                 style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         )}
@@ -116,7 +117,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <>
-              <a
+              <Link
                 href="/profile"
                 className="flex items-center gap-2"
                 style={{ textDecoration: "none" }}
@@ -143,7 +144,7 @@ export default function Navbar() {
                 <span className="text-sm" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>
                   {user.email}
                 </span>
-              </a>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 rounded-full text-sm font-medium"
@@ -154,8 +155,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <a href="/login" className="px-4 py-2 text-sm font-medium" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>Giriş Yap</a>
-              <a href="/register" className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)", boxShadow: "0 0 0 1px rgba(59,130,246,0.3)" }}>Ücretsiz Kayıt Ol</a>
+              <Link href="/login" className="px-4 py-2 text-sm font-medium" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>Giriş Yap</Link>
+              <Link href="/register" className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)", boxShadow: "0 0 0 1px rgba(59,130,246,0.3)" }}>Ücretsiz Kayıt Ol</Link>
             </>
           )}
         </div>
@@ -182,7 +183,7 @@ export default function Navbar() {
           style={{ background: "rgba(11,18,32,0.98)", borderBottom: "1px solid rgba(59,130,246,0.1)" }}
         >
           {!user && navLinks.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               className="text-sm font-medium py-1"
@@ -190,11 +191,11 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           {user ? (
             <>
-              <a
+              <Link
                 href="/profile"
                 className="flex items-center gap-2 py-1"
                 style={{ textDecoration: "none" }}
@@ -221,15 +222,15 @@ export default function Navbar() {
                 <span className="text-sm" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>
                   {user.email}
                 </span>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/dashboard"
                 className="text-sm font-medium py-1"
                 style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
                 onClick={() => setMenuOpen(false)}
               >
                 Dashboard
-              </a>
+              </Link>
               <button
                 onClick={() => { setMenuOpen(false); handleLogout(); }}
                 className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium"
@@ -240,8 +241,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <a href="/login" className="text-sm font-medium py-1" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Giriş Yap</a>
-              <a href="/register" className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Ücretsiz Kayıt Ol</a>
+              <Link href="/login" className="text-sm font-medium py-1" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Giriş Yap</Link>
+              <Link href="/register" className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Ücretsiz Kayıt Ol</Link>
             </>
           )}
         </div>

@@ -79,11 +79,6 @@ export default function AlarmlarPage() {
   const beklemeSayi = alarmlar.filter(a => a.durum === "beklemede").length;
   const devreDisiSayi = alarmlar.filter(a => a.durum === "devre_disi").length;
 
-  const tipRenk = (tip: string) =>
-    tip === "fiyat" ? { bg: "rgba(59,130,246,0.15)", fg: "#3B82F6" } :
-    tip === "gosterge" ? { bg: "rgba(139,92,246,0.15)", fg: "#8B5CF6" } :
-    { bg: "rgba(249,115,22,0.15)", fg: "#F97316" };
-
   const [tipSecModalAcik, setTipSecModalAcik] = useState(false);
   const openModal = (tip: AlarmModalTip) => { setModalTip(tip); setModalAcik(true); };
   const openTipSec = () => setTipSecModalAcik(true);
@@ -116,7 +111,6 @@ export default function AlarmlarPage() {
   };
 
   const AlarmKart = ({ a }: { a: Alarm }) => {
-    const renk = tipRenk(a.tip);
     const guncelFiyat = fiyatlar[a.hisse];
     const parsedDegisim = guncelFiyat ? Number.parseFloat(String(guncelFiyat.degisim).replace(",", ".")) : NaN;
     const degisimText = Number.isFinite(parsedDegisim) ? `${Math.abs(parsedDegisim).toFixed(2).replace(".", ",")}` : "-";
@@ -176,7 +170,7 @@ export default function AlarmlarPage() {
       ? "KAP duyuruları ve piyasa haberleri için alarm özelliği yakında aktif olacak."
       : "Fiyat hedeflerinize ulaşıldığında bildirim almak için alarm oluşturun.";
 
-  const OzetPanel = () => (
+  const ozetPanel = (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div className="card-glass animate-fade-up" style={{ borderRadius: 12, padding: "16px", animationDelay: "0.15s" }}>
         <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 12 }}>Alarm Özeti</p>
@@ -272,10 +266,10 @@ export default function AlarmlarPage() {
                 )}
               </div>
 
-              {isMobil && <div style={{ marginTop: 20 }}><OzetPanel /></div>}
+              {isMobil && <div style={{ marginTop: 20 }}>{ozetPanel}</div>}
             </div>
 
-            {!isMobil && <OzetPanel />}
+            {!isMobil && ozetPanel}
           </div>
         </main>
       </div>

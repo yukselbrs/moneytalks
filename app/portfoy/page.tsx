@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "next/link";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
+import { formatCurrency, formatNumber, formatPercent, formatQuantity, formatSignedCurrency } from "@/lib/formatters";
 
 const PASTA_RENKLER = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#EF4444","#06B6D4","#F97316","#EC4899","#84CC16","#14B8A6"];
 
@@ -491,12 +492,6 @@ export default function PortfoyPage() {
     requestAnimationFrame(tick);
   }, [toplamGuncel]);
 
-  const riskRenk = (skor: string) => {
-    if (skor === "Düşük") return "text-emerald-400 bg-emerald-400/10";
-    if (skor === "Yüksek") return "text-red-400 bg-red-400/10";
-    return "text-yellow-400 bg-yellow-400/10";
-  };
-
   const sortTikla = (kolon: "kz" | "kzYuzde" | "gunluk" | "guncel") => {
     if (sortKolon === kolon) setSortYon(y => y === "desc" ? "asc" : "desc");
     else { setSortKolon(kolon); setSortYon("desc"); }
@@ -582,6 +577,15 @@ export default function PortfoyPage() {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
           }
+          .portfolio-card-shell { border-radius: 12px; }
+          .portfolio-text-clip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+          @media (max-width: 640px) {
+            .portfolio-number { overflow-wrap: anywhere; }
+            .portfolio-card-shell { border-radius: 10px; }
+            .portfolio-mobile-grid { grid-template-columns: 1fr !important; }
+            .portfolio-actions { width: 100%; justify-content: stretch; }
+            .portfolio-actions > button, .portfolio-actions > a { flex: 1; }
+          }
         `}</style>
 
         <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
@@ -606,16 +610,16 @@ export default function PortfoyPage() {
                 <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
                 <div className="flex items-baseline gap-2 mb-1">
                   <p className="portfolio-number text-white" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1 }}>
-                    {displayDeger.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatNumber(displayDeger, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <span className="text-slate-500 font-bold text-xl">₺</span>
                 </div>
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`portfolio-number text-sm font-bold ${aktifPozitif ? "text-emerald-400" : "text-red-400"}`}>
-                    {aktifPL >= 0 ? "+" : ""}{aktifPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                    {formatSignedCurrency(aktifPL)}
                   </span>
                   <span className={`portfolio-number text-xs font-semibold ${aktifPozitif ? "text-emerald-600" : "text-red-600"}`}>
-                    ({aktifPLYuzde >= 0 ? "+" : ""}{aktifPLYuzde.toFixed(2)}%)
+                    ({formatPercent(aktifPLYuzde, { signDisplay: "always" })})
                   </span>
                   <div className="inline-flex rounded-lg border border-slate-700/60 bg-slate-900/60 p-0.5 ml-1">
                     {[{ key: "daily" as const, label: "Günlük" }, { key: "total" as const, label: "Toplam" }].map(m => (
@@ -629,7 +633,7 @@ export default function PortfoyPage() {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-3 border-t border-slate-800/80">
                   <div>
                     <p className="text-slate-600 text-[10px] font-medium mb-0.5">Ana Para</p>
-                    <p className="portfolio-number text-slate-300 text-sm font-semibold">{toplamMaliyet.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</p>
+                    <p className="portfolio-number text-slate-300 text-sm font-semibold">{formatCurrency(toplamMaliyet, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}</p>
                   </div>
                   <div className="w-px h-5 bg-slate-800" />
                   <div>
@@ -704,7 +708,7 @@ export default function PortfoyPage() {
                           {portfoy.map((_, i) => <Cell key={i} fill={PASTA_RENKLER[i % PASTA_RENKLER.length]} />)}
                         </Pie>
                         <Tooltip
-                          formatter={(value: unknown, name: unknown) => [`${(value as number).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, name as string]}
+                          formatter={(value: unknown, name: unknown) => [formatCurrency(value as number, { maximumFractionDigits: 0, minimumFractionDigits: 0 }), name as string]}
                           contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
                           labelStyle={{ color: "#E2E8F0", fontWeight: 700 }}
                         />
@@ -760,7 +764,7 @@ export default function PortfoyPage() {
               title: "Günün taşıyıcısı",
               text: `${strongest.ticker} portföyün günlük katkısında öne çıkıyor.`,
               tone: "positive",
-              value: `+${strongest.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`,
+              value: formatSignedCurrency(strongest.gunluk, { maximumFractionDigits: 0, minimumFractionDigits: 0 }),
             });
           }
           if (weakest && weakest.gunluk < 0) {
@@ -768,7 +772,7 @@ export default function PortfoyPage() {
               title: "Baskı noktası",
               text: `${weakest.ticker} bugün portföy getirisini aşağı çeken ana pozisyon.`,
               tone: "negative",
-              value: `${weakest.gunluk.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`,
+              value: formatCurrency(weakest.gunluk, { maximumFractionDigits: 0, minimumFractionDigits: 0 }),
             });
           }
           if (topWeight && topWeight.agirlik >= 30) {
@@ -871,7 +875,7 @@ export default function PortfoyPage() {
                 return (
                   <div className="mt-3">
                     <p className={`text-xs font-bold mb-2 ${pozitif ? "text-emerald-400" : "text-red-400"}`}>
-                      {pozitif ? "▲" : "▼"} {Math.abs(son).toFixed(2)}% dönem getirisi
+                      {pozitif ? "▲" : "▼"} {formatPercent(Math.abs(son), { signDisplay: "never" })} dönem getirisi
                     </p>
                     <ResponsiveContainer width="100%" height={100}>
                       <AreaChart data={grafik} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
@@ -886,7 +890,7 @@ export default function PortfoyPage() {
                         <Tooltip
                           contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
                           labelStyle={{ color: "#94A3B8", fontSize: 10 }}
-                          formatter={(v: unknown) => [`${(v as number) >= 0 ? "+" : ""}${(v as number).toFixed(2)}%`, "Getiri"]}
+                          formatter={(v: unknown) => [formatPercent(v as number, { signDisplay: "always" }), "Getiri"]}
                         />
                         <Area type="monotone" dataKey="degisim" stroke={renk} strokeWidth={1.5} fill="url(#pg)" fillOpacity={1} dot={false} baseValue="dataMin" />
                       </AreaChart>
@@ -945,28 +949,28 @@ export default function PortfoyPage() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="font-bold text-white hover:text-blue-400 text-[15px]">{item.ticker}</Link>
-                          {fiyat && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyatDegisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"}{Math.abs(fiyatDegisim).toFixed(2)}%</span>}
+                          {fiyat && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyatDegisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"}{formatPercent(Math.abs(fiyatDegisim), { signDisplay: "never" })}</span>}
                         </div>
                         <p className="mt-0.5 text-xs text-slate-500">
-                          {fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—"} · {item.adet.toLocaleString("tr-TR")} lot
+                          {fiyat ? formatCurrency(fiyat.fiyat) : "—"} · {formatQuantity(item.adet, "lot")}
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="portfolio-number text-sm font-bold text-white">{pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p>
+                        <p className="portfolio-number text-sm font-bold text-white">{pl ? formatCurrency(pl.guncel_toplam) : "—"}</p>
                         <p className={`portfolio-number mt-0.5 text-xs font-semibold ${isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                          {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
+                          {pl ? formatSignedCurrency(pl.pl) : "—"}
                         </p>
-                        {pl && <p className={`portfolio-number text-[10px] ${isPos ? "text-emerald-600" : "text-red-600"}`}>{pl.plYuzde >= 0 ? "+" : ""}{pl.plYuzde.toFixed(2)}%</p>}
+                        {pl && <p className={`portfolio-number text-[10px] ${isPos ? "text-emerald-600" : "text-red-600"}`}>{formatPercent(pl.plYuzde, { signDisplay: "always" })}</p>}
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-slate-600">Maliyet {item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
+                        <span className="text-[10px] text-slate-600">Maliyet {formatCurrency(item.maliyet)}</span>
                         {(() => {
                           const gunluk = gunlukHesapla(item);
                           if (!gunluk) return null;
                           const pozitif = gunluk.gunluk >= 0;
-                          return <span className={`portfolio-number text-[10px] font-semibold ${pozitif ? "text-emerald-500" : "text-red-500"}`}>Günlük {gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</span>;
+                          return <span className={`portfolio-number text-[10px] font-semibold ${pozitif ? "text-emerald-500" : "text-red-500"}`}>Günlük {formatSignedCurrency(gunluk.gunluk)}</span>;
                         })()}
                       </div>
                       <span className="text-slate-600 text-[10px]">{acik ? "▲" : "▼"}</span>
@@ -976,12 +980,12 @@ export default function PortfoyPage() {
                     <div className="px-4 pb-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                       <div className="my-3 grid grid-cols-2 gap-2">
                         {[
-                          { label: "Lot", value: item.adet.toLocaleString("tr-TR"), cls: "text-white" },
-                          { label: "Ort. Maliyet", value: `${item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺`, cls: "text-white" },
-                          { label: "Güncel Fiyat", value: fiyat ? `${fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺` : "—", cls: "text-white" },
-                          { label: "K/Z %", value: pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—", cls: isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400" },
-                          { label: "Ana Para", value: `${(item.adet * item.maliyet).toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`, cls: "text-slate-300" },
-                          { label: "Güncel Değer", value: pl ? `${pl.guncel_toplam.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—", cls: "text-white" },
+                          { label: "Lot", value: formatQuantity(item.adet), cls: "text-white" },
+                          { label: "Ort. Maliyet", value: formatCurrency(item.maliyet), cls: "text-white" },
+                          { label: "Güncel Fiyat", value: fiyat ? formatCurrency(fiyat.fiyat) : "—", cls: "text-white" },
+                          { label: "K/Z %", value: pl ? formatPercent(pl.plYuzde, { signDisplay: "always" }) : "—", cls: isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400" },
+                          { label: "Ana Para", value: formatCurrency(item.adet * item.maliyet, { maximumFractionDigits: 0, minimumFractionDigits: 0 }), cls: "text-slate-300" },
+                          { label: "Güncel Değer", value: pl ? formatCurrency(pl.guncel_toplam) : "—", cls: "text-white" },
                         ].map(s => (
                           <div key={s.label} className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
                             <p className="text-slate-600 text-[10px] mb-1">{s.label}</p>
@@ -996,11 +1000,11 @@ export default function PortfoyPage() {
                             <>
                               <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
                                 <p className="text-slate-600 text-[10px] mb-1">Günlük ₺</p>
-                                <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunluk >= 0 ? "+" : ""}${gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}</p>
+                                <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? formatSignedCurrency(gunluk.gunluk) : "—"}</p>
                               </div>
                               <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
                                 <p className="text-slate-600 text-[10px] mb-1">Günlük %</p>
-                                <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? `${gunluk.gunlukYuzde >= 0 ? "+" : ""}${gunluk.gunlukYuzde.toFixed(2)}%` : "—"}</p>
+                                <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? formatPercent(gunluk.gunlukYuzde, { signDisplay: "always" }) : "—"}</p>
                               </div>
                             </>
                           );
@@ -1100,7 +1104,7 @@ export default function PortfoyPage() {
                               </Link>
                               {fiyat && (
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyat.degisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>
-                                  {fiyat.degisim >= 0 ? "▲" : "▼"}{Math.abs(fiyat.degisim).toFixed(2)}%
+                                  {fiyat.degisim >= 0 ? "▲" : "▼"}{formatPercent(Math.abs(fiyat.degisim), { signDisplay: "never" })}
                                 </span>
                               )}
                             </div>
@@ -1117,30 +1121,30 @@ export default function PortfoyPage() {
                               <span className="mt-1 text-slate-600 text-[10px] animate-pulse block">Hesaplanıyor...</span>
                             )}
                           </td>
-                          <td className="portfolio-number px-3 py-2.5 text-right text-slate-300 text-sm hidden sm:table-cell">{item.adet.toLocaleString("tr-TR")}</td>
-                          <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm">{item.maliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-700">₺</span></td>
+                          <td className="portfolio-number px-3 py-2.5 text-right text-slate-300 text-sm hidden sm:table-cell">{formatQuantity(item.adet)}</td>
+                          <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm">{formatCurrency(item.maliyet)}</td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-sm" style={{ transition: "background 0.7s ease", background: flash === "up" ? "rgba(16,185,129,0.12)" : flash === "down" ? "rgba(239,68,68,0.12)" : "transparent" }}>
-                            {fiyat ? <span className="text-white font-semibold">{fiyat.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} <span className="text-slate-600">₺</span></span> : <span className="text-slate-700">—</span>}
+                            {fiyat ? <span className="text-white font-semibold">{formatCurrency(fiyat.fiyat)}</span> : <span className="text-slate-700">—</span>}
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm hidden sm:table-cell">
-                            {(item.adet * item.maliyet).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-700">₺</span>
+                            {formatCurrency(item.adet * item.maliyet)}
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-white text-sm font-semibold hidden sm:table-cell">
-                            {pl ? <>{pl.guncel_toplam.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-slate-600">₺</span></> : <span className="text-slate-700">—</span>}
+                            {pl ? <>{formatCurrency(pl.guncel_toplam)}</> : <span className="text-slate-700">—</span>}
                           </td>
                           <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
                             {gunluk ? (
                               <div>
-                                <div>{gunluk.gunluk >= 0 ? "+" : ""}{gunluk.gunluk.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</div>
-                                <div className="text-[11px] opacity-60">{gunluk.gunlukYuzde >= 0 ? "+" : ""}{gunluk.gunlukYuzde.toFixed(2)}%</div>
+                                <div>{formatSignedCurrency(gunluk.gunluk)}</div>
+                                <div className="text-[11px] opacity-60">{formatPercent(gunluk.gunlukYuzde, { signDisplay: "always" })}</div>
                               </div>
                             ) : "—"}
                           </td>
                           <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                            {pl ? `${pl.pl >= 0 ? "+" : ""}${pl.pl.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺` : "—"}
+                            {pl ? formatSignedCurrency(pl.pl) : "—"}
                           </td>
                           <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] hidden sm:table-cell ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
-                            {pl ? `${pl.plYuzde >= 0 ? "+" : ""}${pl.plYuzde.toFixed(2)}%` : "—"}
+                            {pl ? formatPercent(pl.plYuzde, { signDisplay: "always" }) : "—"}
                           </td>
                           <td className="px-3 py-2.5">
                             <div className="flex items-center gap-0.5 justify-end">
@@ -1169,13 +1173,13 @@ export default function PortfoyPage() {
                   <tr style={{ borderTop: "1px solid rgba(59,130,246,0.15)", background: "linear-gradient(90deg, rgba(59,130,246,0.06) 0%, rgba(139,92,246,0.04) 100%)" }}>
                     <td className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.6)" }} colSpan={6}>Toplam</td>
                     <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {gunlukPL >= 0 ? "+" : ""}{gunlukPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                      {formatSignedCurrency(gunlukPL)}
                     </td>
                     <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {toplamPL >= 0 ? "+" : ""}{toplamPL.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                      {formatSignedCurrency(toplamPL)}
                     </td>
                     <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] hidden sm:table-cell ${toplamPLYuzde >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {toplamPLYuzde >= 0 ? "+" : ""}{toplamPLYuzde.toFixed(2)}%
+                      {formatPercent(toplamPLYuzde, { signDisplay: "always" })}
                     </td>
                     <td className="px-3 py-2.5" />
                   </tr>
@@ -1265,9 +1269,9 @@ export default function PortfoyPage() {
                           <div>
                             <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em]">Tahmini Etki</p>
                             <p className={`portfolio-number mt-0.5 text-lg font-extrabold ${totalImpact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                              {totalImpact >= 0 ? "+" : ""}{totalImpact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                              {formatSignedCurrency(totalImpact, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
                               <span className="ml-2 text-xs font-semibold opacity-70">
-                                {totalImpactPct >= 0 ? "+" : ""}{totalImpactPct.toFixed(2)}%
+                                {formatPercent(totalImpactPct, { signDisplay: "always" })}
                               </span>
                             </p>
                           </div>
@@ -1292,7 +1296,7 @@ export default function PortfoyPage() {
                                 )}
                               </div>
                               <span className={`portfolio-number text-right text-xs font-semibold ${r.changePct >= 0 ? "text-emerald-500" : "text-red-500"}`}>{r.changePct >= 0 ? "+" : ""}{r.changePct.toFixed(1)}%</span>
-                              <span className={`portfolio-number text-right text-xs font-bold ${r.impact >= 0 ? "text-emerald-400" : "text-red-400"}`}>{r.impact >= 0 ? "+" : ""}{r.impact.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺</span>
+                              <span className={`portfolio-number text-right text-xs font-bold ${r.impact >= 0 ? "text-emerald-400" : "text-red-400"}`}>{formatSignedCurrency(r.impact, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}</span>
                             </div>
                           ))}
                         </div>
@@ -1382,7 +1386,7 @@ export default function PortfoyPage() {
               <button onClick={() => setLotModal((m) => ({ ...m, open: false }))} className="text-slate-400 hover:text-white text-xl leading-none">×</button>
             </div>
             <p className="text-slate-400 text-xs mb-5">
-              Mevcut: {lotModal.mevcutAdet} lot · Ort. maliyet: {lotModal.mevcutMaliyet.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+              Mevcut: {formatQuantity(lotModal.mevcutAdet, "lot")} · Ort. maliyet: {formatCurrency(lotModal.mevcutMaliyet)}
             </p>
             <div className="flex bg-slate-900 rounded-lg p-1 mb-5">
               {(["ekle", "cikar"] as const).map((i) => (
@@ -1409,10 +1413,10 @@ export default function PortfoyPage() {
                 <div className="bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-400">
                   Yeni ort. maliyet:{" "}
                   <span className="text-white font-medium">
-                    {(((lotModal.mevcutAdet * lotModal.mevcutMaliyet) + (parseFloat(lotModal.adet) * parseFloat(lotModal.fiyat))) / (lotModal.mevcutAdet + parseFloat(lotModal.adet))).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+                    {formatCurrency(((lotModal.mevcutAdet * lotModal.mevcutMaliyet) + (parseFloat(lotModal.adet) * parseFloat(lotModal.fiyat))) / (lotModal.mevcutAdet + parseFloat(lotModal.adet)))}
                   </span>
                   {" · Toplam lot: "}
-                  <span className="text-white font-medium">{(lotModal.mevcutAdet + parseFloat(lotModal.adet)).toLocaleString("tr-TR")}</span>
+                  <span className="text-white font-medium">{formatQuantity(lotModal.mevcutAdet + parseFloat(lotModal.adet))}</span>
                 </div>
               )}
               {lotModal.islem === "cikar" && lotModal.adet && lotModal.fiyat && !isNaN(parseFloat(lotModal.adet)) && !isNaN(parseFloat(lotModal.fiyat)) && (() => {
@@ -1426,13 +1430,13 @@ export default function PortfoyPage() {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-slate-400">Bu satıştan gerçekleşen K/Z:</span>
                       <span className={`font-bold ${kazanc >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                        {kazanc >= 0 ? "+" : ""}{kazanc.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺
+                        {formatSignedCurrency(kazanc, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-500">Getiri oranı · Kalan lot</span>
                       <span className={`${kazanc >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                        {kazanc >= 0 ? "+" : ""}{kazancYuzde.toFixed(2)}% · {kalanAdet} lot
+                        {formatPercent(kazancYuzde, { signDisplay: "always" })} · {formatQuantity(kalanAdet, "lot")}
                       </span>
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import { getStockLogoSource, getStockLogoUrl } from "@/lib/stock-logos";
 
@@ -44,8 +45,8 @@ export default function StockLogo({
         width: size,
         height: size,
         borderRadius: radius,
-        background: src ? (hasNeutralPlate ? "#050914" : "transparent") : "rgba(148, 163, 184, 0.08)",
-        border: src ? "none" : "1px solid rgba(148, 163, 184, 0.12)",
+        background: src ? (hasNeutralPlate ? "#050914" : "transparent") : `${color}18`,
+        border: src ? "none" : `1px solid ${color}33`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -55,9 +56,12 @@ export default function StockLogo({
       }}
     >
       {src ? (
-        <img
+        <Image
           src={src}
           alt={`${ticker} logo`}
+          width={hasNeutralPlate ? domainImageSize : resolvedImageSize}
+          height={hasNeutralPlate ? domainImageSize : resolvedImageSize}
+          unoptimized
           style={{
             width: hasNeutralPlate ? domainImageSize : resolvedImageSize,
             height: hasNeutralPlate ? domainImageSize : resolvedImageSize,
@@ -66,7 +70,7 @@ export default function StockLogo({
           onError={() => setFailed(true)}
         />
       ) : (
-        <span style={{ fontSize: fallbackSize, fontWeight: 700, color: "#94A3B8" }}>
+        <span style={{ fontSize: fallbackSize, fontWeight: 700, color }}>
           {fallbackText(ticker)}
         </span>
       )}

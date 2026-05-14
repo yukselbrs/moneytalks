@@ -106,14 +106,14 @@ function HisselerContent() {
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [arama]);
+  }, [arama, q, updateParams]);
 
   // URL değişince data fetch
   useEffect(() => {
     const controller = new AbortController();
     let ignore = false;
 
-    setYukleniyor(true);
+    queueMicrotask(() => setYukleniyor(true));
     const params = new URLSearchParams({ sort, page: String(page) });
     if (sortDir) params.set("dir", sortDir);
     if (q) params.set("q", q);
@@ -138,12 +138,12 @@ function HisselerContent() {
   // Isı haritası verisi — bir kez çek, cache'le
   useEffect(() => {
     if (gorunum !== "isi" || isiData.length > 0) return;
-    setIsiYukleniyor(true);
+    queueMicrotask(() => setIsiYukleniyor(true));
     fetch("/api/hisseler?heatmap=true")
       .then(r => r.json())
       .then((d: { items: IsiHisse[] }) => { setIsiData(d.items || []); setIsiYukleniyor(false); })
       .catch(() => setIsiYukleniyor(false));
-  }, [gorunum]);
+  }, [gorunum, isiData.length]);
 
   const items = data?.items || [];
   const toplam = data?.total || 0;
