@@ -19,6 +19,7 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useChartPanel } from "@/hooks/useChartPanel";
 import { tickerRenk, toTitleCase } from "@/lib/utils";
 import { LS } from "@/lib/storage-keys";
+import Toast from "@/components/ui/Toast";
 import { BIST_HISSELER as TUM_BIST_HISSELER } from "@/lib/bist-hisseler";
 
 const DashboardChartPanel = dynamic(() => import("@/components/DashboardChartPanel"), {
@@ -158,12 +159,7 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-    {watchlistError && (
-      <div role="status" aria-live="polite" style={{ position: "fixed", top: 16, right: 16, zIndex: 100, background: "#7F1D1D", color: "#FECACA", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 500, display: "flex", alignItems: "center", gap: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.35)" }}>
-        <span>{watchlistError}</span>
-        <button onClick={clearWatchlistError} aria-label="Bildirimi kapat" style={{ background: "transparent", border: "none", color: "#FECACA", cursor: "pointer", fontSize: 16, lineHeight: 1 }}>×</button>
-      </div>
-    )}
+    {watchlistError && <Toast message={watchlistError} ton="error" onClose={clearWatchlistError} />}
     <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }
 .dash-surface { border-radius: 10px; transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease; }
@@ -198,6 +194,10 @@ export default function DashboardPage() {
           .dash-search-box { flex-wrap: wrap; gap: 10px !important; }
           .dash-search-field { order: 2; flex-basis: calc(100% - 28px); }
           .dash-search-submit { order: 3; width: 100%; }
+        }
+        @media (max-width: 479px) {
+          .dash-piyasa-grid { grid-template-columns: 1fr !important; }
+          .dash-popular-grid { grid-template-columns: 1fr !important; }
         }`}</style>
 
       <main className="dash-main-padding" style={{ maxWidth: 1600, margin: "0 auto" }}>

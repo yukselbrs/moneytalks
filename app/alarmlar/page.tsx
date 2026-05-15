@@ -128,11 +128,15 @@ export default function AlarmlarPage() {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div
+            <button
+              type="button"
+              role="switch"
+              aria-checked={a.durum === "aktif"}
+              aria-label={`${a.hisse} alarmı ${a.durum === "aktif" ? "aktif, kapatmak için tıkla" : "pasif, açmak için tıkla"}`}
               onClick={() => toggleDurum(a.id)}
-              style={{ width: 38, height: 22, borderRadius: 11, background: a.durum === "aktif" ? "#3B82F6" : "#1E293B", border: `1px solid ${a.durum === "aktif" ? "#3B82F6" : "rgba(255,255,255,0.1)"}`, position: "relative", cursor: "pointer", transition: "all 0.2s", flexShrink: 0 }}>
+              style={{ width: 38, height: 22, borderRadius: 11, background: a.durum === "aktif" ? "#3B82F6" : "#1E293B", border: `1px solid ${a.durum === "aktif" ? "#3B82F6" : "rgba(255,255,255,0.1)"}`, position: "relative", cursor: "pointer", transition: "all 0.2s", flexShrink: 0, padding: 0 }}>
               <div style={{ position: "absolute", top: 3, left: a.durum === "aktif" ? 18 : 3, width: 14, height: 14, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }} />
-            </div>
+            </button>
             <button onClick={() => silAlarm(a.id)} style={{ background: "none", border: "1px solid rgba(239,68,68,0.2)", color: "#EF4444", cursor: "pointer", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6 }}>Sil</button>
           </div>
         </div>
@@ -274,31 +278,36 @@ export default function AlarmlarPage() {
         </main>
       </div>
       {tipSecModalAcik && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
-          onClick={() => setTipSecModalAcik(false)}>
+        <div role="dialog" aria-modal="true" aria-label="Alarm türü seç"
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+          onClick={() => setTipSecModalAcik(false)}
+          onKeyDown={e => { if (e.key === "Escape") setTipSecModalAcik(false); }}>
           <div style={{ background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 16, width: "100%", maxWidth: 400, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}
             onClick={e => e.stopPropagation()}>
             <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(59,130,246,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ fontSize: 15, fontWeight: 700, color: "#F8FAFC" }}>Alarm Türü Seç</span>
-              <button onClick={() => setTipSecModalAcik(false)} style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: 18 }}>✕</button>
+              <button onClick={() => setTipSecModalAcik(false)} aria-label="Kapat" style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: 18 }}>✕</button>
             </div>
             <div style={{ padding: "16px" }}>
               {[
                 { tip: "fiyat_seviye" as AlarmModalTip, ikon: "📈", renk: "#10B981", baslik: "Fiyat Alarmı", aciklama: "Belirli bir fiyat seviyesine ulaşınca" },
                 { tip: "gosterge" as AlarmModalTip, ikon: "📊", renk: "#8B5CF6", baslik: "Gösterge Alarmı", aciklama: "RSI, MACD, MA50 gibi teknik göstergeler" },
-              ].map((s, i, arr) => (
-                <div key={s.tip} onClick={() => { setTipSecModalAcik(false); openModal(s.tip); }}
-                  style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 12px", borderRadius: 10, cursor: "pointer", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                  <div style={{ width: 42, height: 42, borderRadius: 10, background: s.renk + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{s.ikon}</div>
-                  <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>{s.baslik}</p>
-                    <p style={{ fontSize: 12, color: "#475569", margin: "2px 0 0" }}>{s.aciklama}</p>
-                  </div>
-                  <span style={{ marginLeft: "auto", color: "#334155" }}>›</span>
-                </div>
-              ))}
+              ].map((s, i, arr) => {
+                const sec = () => { setTipSecModalAcik(false); openModal(s.tip); };
+                return (
+                  <button key={s.tip} type="button" onClick={sec}
+                    style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, padding: "14px 12px", borderRadius: 10, cursor: "pointer", borderBottom: i < arr.length - 1 ? "1px solid rgba(59,130,246,0.06)" : "none", background: "transparent", border: "none", textAlign: "left", color: "inherit" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.06)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                    <div style={{ width: 42, height: 42, borderRadius: 10, background: s.renk + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{s.ikon}</div>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>{s.baslik}</p>
+                      <p style={{ fontSize: 12, color: "#475569", margin: "2px 0 0" }}>{s.aciklama}</p>
+                    </div>
+                    <span style={{ marginLeft: "auto", color: "#334155" }}>›</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
