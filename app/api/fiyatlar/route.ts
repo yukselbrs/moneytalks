@@ -5,6 +5,7 @@ import { formatNumber } from "@/lib/formatters";
 
 const DEFAULT_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
 const MAX_EXTRA_TICKERS = 50;
+const MAX_EXTRA_PARAM_LENGTH = 600;
 
 type FiyatData = {
   fiyat: string;
@@ -15,39 +16,57 @@ type FiyatData = {
   ts: number;
 };
 
-// Global in-memory cache - 15 saniye TTL
-const g = globalThis as typeof globalThis & {
-  fiyatCache?: Record<string, FiyatData>;
-};
-if (!g.fiyatCache) g.fiyatCache = {};
-
 const TTL = 15000;
 const MAX_CACHE_SIZE = 200;
+
+// Map preserves insertion order → kullanılan LRU davranışı için yeterli.
+const g = globalThis as typeof globalThis & {
+  fiyatCache?: Map<string, FiyatData>;
+};
+if (!g.fiyatCache) g.fiyatCache = new Map();
+
+function cacheGet(ticker: string): FiyatData | undefined {
+  const cache = g.fiyatCache!;
+  const entry = cache.get(ticker);
+  if (!entry) return undefined;
+  // LRU: erişimi en taze konuma taşı
+  cache.delete(ticker);
+  cache.set(ticker, entry);
+  return entry;
+}
+
+function cacheSet(ticker: string, value: FiyatData) {
+  const cache = g.fiyatCache!;
+  if (cache.has(ticker)) cache.delete(ticker);
+  cache.set(ticker, value);
+  while (cache.size > MAX_CACHE_SIZE) {
+    const oldest = cache.keys().next().value;
+    if (oldest === undefined) break;
+    cache.delete(oldest);
+  }
+}
 
 function pruneCache() {
   const cache = g.fiyatCache!;
   const now = Date.now();
-  for (const key of Object.keys(cache)) {
-    if (now - cache[key].ts > TTL * 4) delete cache[key];
-  }
-  if (Object.keys(cache).length > MAX_CACHE_SIZE) {
-    const sorted = Object.entries(cache).sort((a, b) => a[1].ts - b[1].ts);
-    sorted.slice(0, sorted.length - MAX_CACHE_SIZE).forEach(([k]) => delete cache[k]);
+  for (const [key, value] of cache) {
+    if (now - value.ts > TTL * 4) cache.delete(key);
   }
 }
 
 function parseExtraTickers(extra: string | null): string[] {
   if (!extra) return [];
-  const normalized = extra
-    .split(",")
+  if (extra.length > MAX_EXTRA_PARAM_LENGTH) return [];
+  const parts = extra.split(",", MAX_EXTRA_TICKERS + 1).slice(0, MAX_EXTRA_TICKERS);
+  const normalized = parts
     .map(normalizeTicker)
     .filter((ticker): ticker is string => ticker !== null);
-  return [...new Set(normalized)].slice(0, MAX_EXTRA_TICKERS);
+  return [...new Set(normalized)];
 }
 
 async function fetchFiyat(ticker: string) {
   const now = Date.now();
-  const cached = g.fiyatCache![ticker];
+  const cached = cacheGet(ticker);
   if (cached && now - cached.ts < TTL) return cached;
 
   try {
@@ -61,7 +80,7 @@ async function fetchFiyat(ticker: string) {
       piyasaDegeri: quote.piyasaDegeri ?? 0,
       ts: now,
     };
-    g.fiyatCache![ticker] = result;
+    cacheSet(ticker, result);
     return result;
   } catch {
     return null;

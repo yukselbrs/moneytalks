@@ -46,7 +46,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return;
-    fetch("/api/haberler")
+    const controller = new AbortController();
+    fetch("/api/haberler", { signal: controller.signal })
       .then(r => r.json())
       .then(data => {
         const haberler = (data.haberler || []).slice(0, 8).map((h: { ticker: string; baslik: string; tarih: string }) => ({
@@ -57,6 +58,7 @@ export default function DashboardPage() {
         setKapHaberler(haberler);
       })
       .catch(() => {});
+    return () => controller.abort();
   }, [user]);
 
   const selamlama = () => {
@@ -125,7 +127,9 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
+    let canceled = false;
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (canceled) return;
       if (!session) {
         router.push("/login");
         return;
@@ -136,8 +140,9 @@ export default function DashboardPage() {
         loadWatchlist(session.user.id),
         loadPortfolioSummary(),
       ]);
-      setLoading(false);
+      if (!canceled) setLoading(false);
     });
+    return () => { canceled = true; };
   }, [loadPortfolioSummary, loadWatchlist, router]);
 
   useEffect(() => {
@@ -146,8 +151,7 @@ export default function DashboardPage() {
     fetchBuyukGrafik("1d");
   }, [fetchBuyukGrafik, initialGrafikLoadedRef, loading]);
 
-  function handleAnaliz(e: React.FormEvent) {
-    e.preventDefault();
+  function handleAnaliz() {
     if (!ticker.trim()) return;
     const t = ticker.trim().toUpperCase();
     const entry = { ticker: t, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };

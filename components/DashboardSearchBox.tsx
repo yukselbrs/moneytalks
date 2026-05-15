@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useId, useRef, useState, type KeyboardEvent } from "react";
 import StockLogo from "@/components/StockLogo";
 import { formatPercent } from "@/lib/formatters";
 import { tickerRenk } from "@/lib/utils";
@@ -16,7 +16,7 @@ type Fiyat = { fiyat: string; degisim: string; yukselis: boolean } | null;
 type DashboardSearchBoxProps = {
   value: string;
   onValueChange: (ticker: string) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onSubmit: () => void;
   onSelectHisse: (ticker: string) => void;
   bistHisseler: DashboardHisse[];
   watchlist: { ticker: string }[];
@@ -106,7 +106,8 @@ export default function DashboardSearchBox({
         selectSuggestion(aramaOneri[activeIndex]);
         return;
       }
-      onSubmit(e as unknown as FormEvent<HTMLFormElement>);
+      e.preventDefault();
+      onSubmit();
     }
   };
 
@@ -277,7 +278,7 @@ export default function DashboardSearchBox({
           </>
         )}
       </div>
-      <button className="dash-search-submit" type="button" onClick={(e) => onSubmit(e as unknown as FormEvent<HTMLFormElement>)} style={{ height: 32, padding: "0 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+      <button className="dash-search-submit" type="button" onClick={() => onSubmit()} style={{ height: 32, padding: "0 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
         Analiz Et
       </button>
     </div>

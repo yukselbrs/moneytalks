@@ -84,11 +84,13 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   }, [ticker]);
 
   useEffect(() => {
+    let canceled = false;
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return;
+      if (!session || canceled) return;
       const { data } = await supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
-      if (data) setIzlemede(true);
+      if (!canceled && data) setIzlemede(true);
     });
+    return () => { canceled = true; };
   }, [ticker]);
 
   async function toggleIzleme() {
@@ -106,55 +108,73 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       console.error("Izleme guncelleme hatasi:", err);
     }
   }
-  const fetchGrafik = useCallback((range: string) => {
-    fetch(`/api/grafik?ticker=${ticker}.IS&range=${range}`).then(r => r.json()).then(d => { if (d.points) setGrafik(d.points); });
+  const fetchGrafik = useCallback((range: string, signal?: AbortSignal) => {
+    fetch(`/api/grafik?ticker=${ticker}.IS&range=${range}`, { signal })
+      .then(r => r.json())
+      .then(d => { if (d.points) setGrafik(d.points); })
+      .catch(() => {});
   }, [ticker]);
 
-  const fetchGetiriler = useCallback(() => {
-    fetch(`/api/getiri?ticker=${ticker}`)
+  const fetchGetiriler = useCallback((signal?: AbortSignal) => {
+    fetch(`/api/getiri?ticker=${ticker}`, { signal })
       .then(r => r.json())
       .then(d => setGetiriler({ "1wk": d["1wk"], "1mo": d["1mo"], "3mo": d["3mo"], "1y": d["1y"] }))
       .catch(() => setGetiriler({}));
   }, [ticker]);
 
-  const fetchVeri = useCallback(async () => {
-    const res = await fetch("/api/analiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ticker, veriOnly: true }),
-    });
-    const data = await res.json();
-    if (data.veri) setVeri(data.veri);
+  const fetchVeri = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const res = await fetch("/api/analiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker, veriOnly: true }),
+        signal,
+      });
+      const data = await res.json();
+      if (data.veri) setVeri(data.veri);
+    } catch {
+      // abort ya da network hatasi
+    }
   }, [ticker]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    let canceled = false;
     queueMicrotask(() => {
-      void fetchVeri();
-      fetchGrafik("1d");
+      if (canceled) return;
+      void fetchVeri(controller.signal);
+      fetchGrafik("1d", controller.signal);
     });
-    // Supabase'den analiz yükle
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return;
+      if (!session || canceled) return;
       const { data } = await supabase.from("analizler").select("analiz,created_at").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
+      if (canceled) return;
       if (data?.analiz) {
         setAnaliz(data.analiz);
         if (data.created_at) setAnalizTarih(new Date(data.created_at));
       }
     });
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return;
+      if (!session || canceled) return;
       const { data } = await supabase.from("portfoy").select("ticker,adet,maliyet").eq("user_id", session.user.id);
-      if (data) setPortfoy(data);
+      if (!canceled && data) setPortfoy(data);
     });
-    const interval = setInterval(fetchVeri, 15000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => { void fetchVeri(controller.signal); }, 15000);
+    return () => {
+      canceled = true;
+      controller.abort();
+      clearInterval(interval);
+    };
   }, [fetchGrafik, fetchVeri, ticker]);
 
   useEffect(() => {
-    fetchGetiriler();
-    fetch(`/api/risk?ticker=${ticker}`)
+    const controller = new AbortController();
+    let canceled = false;
+    fetchGetiriler(controller.signal);
+    fetch(`/api/risk?ticker=${ticker}`, { signal: controller.signal })
       .then(r => r.json())
       .then(d => {
+        if (canceled) return;
         if (d.skor !== undefined) setRiskVeri({ skor: Math.round(d.skor), seviyeTR: d.seviyeTR || "" });
         if (d.bilesenler) {
           const pe = d.bilesenler.find((f: {ad: string}) => f.ad === "F/K Orani");
@@ -166,6 +186,10 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
         }
       })
       .catch(() => {});
+    return () => {
+      canceled = true;
+      controller.abort();
+    };
   }, [fetchGetiriler, ticker]);
 
   async function handleAnaliz() {
