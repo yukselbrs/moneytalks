@@ -1,16 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { normalizeTicker, extractBearerToken } from "@/lib/utils";
+import { normalizeTicker } from "@/lib/utils";
+import { requireUser } from "@/lib/auth";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(req: NextRequest) {
-  const token = extractBearerToken(req);
-  if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
+  const auth = await requireUser(req, supabase);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
   const { data, error: selectError } = await supabase
     .from("alarmlar")
     .select("*")
@@ -21,10 +21,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const token = extractBearerToken(req);
-  if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
+  const auth = await requireUser(req, supabase);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
   const body = await req.json();
   const { ticker, tip, kosul, hedef_deger, hedef_yuzde } = body;
 
@@ -119,10 +118,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const token = extractBearerToken(req);
-  if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
+  const auth = await requireUser(req, supabase);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
   const { id, durum } = await req.json();
   if (!id || !durum) return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
   if (!["aktif", "devre_disi", "beklemede"].includes(durum)) return NextResponse.json({ error: "Geçersiz durum" }, { status: 400 });
@@ -139,10 +137,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const token = extractBearerToken(req);
-  if (!token) return NextResponse.json({ error: "Giriş gerekli" }, { status: 401 });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
+  const auth = await requireUser(req, supabase);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
   const { id } = await req.json();
   if (!id) return NextResponse.json({ error: "Eksik id" }, { status: 400 });
   const { data, error: deleteError } = await supabase

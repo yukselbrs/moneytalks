@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireUser } from "@/lib/auth";
 
 const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,13 +8,8 @@ const supabaseAuth = createClient(
 );
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  }
-  const token = authHeader.slice(7);
-  const { error } = await supabaseAuth.auth.getUser(token);
-  if (error) return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
+  const auth = await requireUser(req, supabaseAuth);
+  if (!auth.user) return auth.response;
 
   const tickers = (req.nextUrl.searchParams.get("tickers") ?? "")
     .split(",")

@@ -3,7 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { fetchMarketQuote } from "@/lib/market-pricing";
-import { normalizeTicker, extractBearerToken } from "@/lib/utils";
+import { normalizeTicker } from "@/lib/utils";
+import { requireUser } from "@/lib/auth";
 import { formatCurrency, formatQuantity } from "@/lib/formatters";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -100,14 +101,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ veri });
   }
 
-  const token = extractBearerToken(req);
-  if (!token) {
-    return NextResponse.json({ error: "Analiz için giriş gerekli" }, { status: 401 });
-  }
-  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
-  if (authError || !user) {
-    return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
-  }
+  const auth = await requireUser(req, supabaseAuth);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
 
   if (!checkRateLimit(user.id)) {
     return NextResponse.json({ error: "Saatte en fazla 10 analiz yapabilirsiniz. Lütfen daha sonra tekrar deneyin." }, { status: 429 });

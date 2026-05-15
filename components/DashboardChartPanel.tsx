@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { formatNumber, formatPercent } from "@/lib/formatters";
+import type { useChartPanel } from "@/hooks/useChartPanel";
 
 type DashboardHisse = {
   ticker: string;
@@ -10,54 +11,34 @@ type DashboardHisse = {
   domain?: string;
 };
 
-type GrafikPoint = {
-  tarih: string;
-  fiyat: number;
-};
-
 type Props = {
   bistHisseler: DashboardHisse[];
-  grafikTicker: string;
-  grafikTickerLabel: string;
-  grafikRange: string;
-  grafikRangeDegisim: Record<string, number>;
-  grafikArama: string;
-  grafikDropdown: boolean;
-  grafikYukleniyor: boolean;
-  buyukGrafik: GrafikPoint[];
-  grafikWidth: number;
-  setGrafikContainerRef: (node: HTMLDivElement | null) => void;
-  setGrafikTicker: (ticker: string) => void;
-  setGrafikTickerLabel: (label: string) => void;
-  setGrafikRange: (range: string) => void;
-  setGrafikArama: (value: string) => void;
-  setGrafikDropdown: (value: boolean | ((prev: boolean) => boolean)) => void;
-  fetchBuyukGrafik: (range: string, ticker?: string) => void;
+  chart: ReturnType<typeof useChartPanel>;
 };
 
 function normalizeGrafikTicker(value: string) {
   return value.endsWith(".IS") || value.includes("=X") ? value : `${value}.IS`;
 }
 
-export default function DashboardChartPanel({
-  bistHisseler,
-  grafikTicker,
-  grafikTickerLabel,
-  grafikRange,
-  grafikRangeDegisim,
-  grafikArama,
-  grafikDropdown,
-  grafikYukleniyor,
-  buyukGrafik,
-  grafikWidth,
-  setGrafikContainerRef,
-  setGrafikTicker,
-  setGrafikTickerLabel,
-  setGrafikRange,
-  setGrafikArama,
-  setGrafikDropdown,
-  fetchBuyukGrafik,
-}: Props) {
+export default function DashboardChartPanel({ bistHisseler, chart }: Props) {
+  const {
+    grafikTicker,
+    grafikTickerLabel,
+    grafikRange,
+    grafikRangeDegisim,
+    grafikArama,
+    grafikDropdown,
+    grafikYukleniyor,
+    buyukGrafik,
+    grafikWidth,
+    setGrafikContainerRef,
+    setGrafikTicker,
+    setGrafikTickerLabel,
+    setGrafikRange,
+    setGrafikArama,
+    setGrafikDropdown,
+    fetchBuyukGrafik,
+  } = chart;
   const chartListboxId = useId();
   const chartHeight = grafikWidth > 0 && grafikWidth < 520 ? 196 : 256;
   const chartShellHeight = grafikWidth > 0 && grafikWidth < 520 ? 220 : 280;

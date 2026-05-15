@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,23 +12,12 @@ const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   try {
-    // 1. Bearer token zorunlu
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Yetkisiz istek" }, { status: 401 });
-    }
-    const token = authHeader.slice(7);
+    const auth = await requireUser(req, supabaseAuth);
+    if (!auth.user) return auth.response;
 
-    // 2. Token ile authenticated user al
-    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
-    if (authError || !user) {
-      return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
-    }
-
-    // 3. Sadece kendi hesabını silebilir — body'deki userId kullanılmıyor
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(auth.user.id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     return NextResponse.json({ success: true });

@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const [fullName, setFullName] = useState("");
   const [piyasaOdagiTab, setPiyasaOdagiTab] = useState("one");
   const { piyasa, piyasaFlash, sparklines, topMovers } = useDashboardMarket(Boolean(user));
-  const { watchlist, recent, fiyatlar, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const { watchlist, recent, fiyatlar, error: watchlistError, clearError: clearWatchlistError, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const { portfoyOzet, loadPortfolioSummary } = usePortfolioSummary();
   const [kapHaberler, setKapHaberler] = useState<{ ticker: string; title: string; time: string }[]>([]);
 
@@ -68,25 +68,8 @@ export default function DashboardPage() {
     if (saat >= 18 && saat < 24) return "İyi akşamlar";
     return "İyi geceler";
   };
-  const {
-    buyukGrafik,
-    grafikRange,
-    grafikRangeDegisim,
-    grafikYukleniyor,
-    grafikTicker,
-    grafikTickerLabel,
-    grafikArama,
-    grafikDropdown,
-    grafikWidth,
-    initialGrafikLoadedRef,
-    setGrafikContainerRef,
-    fetchBuyukGrafik,
-    setGrafikRange,
-    setGrafikTicker,
-    setGrafikTickerLabel,
-    setGrafikArama,
-    setGrafikDropdown,
-  } = useChartPanel();
+  const chart = useChartPanel();
+  const { grafikTicker, grafikTickerLabel, initialGrafikLoadedRef, fetchBuyukGrafik } = chart;
   const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
 
   const fetchAiPanel = useCallback(async (ticker?: string) => {
@@ -175,6 +158,12 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
+    {watchlistError && (
+      <div role="status" aria-live="polite" style={{ position: "fixed", top: 16, right: 16, zIndex: 100, background: "#7F1D1D", color: "#FECACA", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 500, display: "flex", alignItems: "center", gap: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.35)" }}>
+        <span>{watchlistError}</span>
+        <button onClick={clearWatchlistError} aria-label="Bildirimi kapat" style={{ background: "transparent", border: "none", color: "#FECACA", cursor: "pointer", fontSize: 16, lineHeight: 1 }}>×</button>
+      </div>
+    )}
     <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }
 .dash-surface { border-radius: 10px; transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease; }
@@ -234,25 +223,7 @@ export default function DashboardPage() {
 
         {/* Piyasa Grafiği + AI Panel */}
         <div className="dash-grafik-ai-grid" style={{ marginTop: 4, alignItems: "stretch" }}>
-        <DashboardChartPanel
-          bistHisseler={BIST_HISSELER}
-          grafikTicker={grafikTicker}
-          grafikTickerLabel={grafikTickerLabel}
-          grafikRange={grafikRange}
-          grafikRangeDegisim={grafikRangeDegisim}
-          grafikArama={grafikArama}
-          grafikDropdown={grafikDropdown}
-          grafikYukleniyor={grafikYukleniyor}
-          buyukGrafik={buyukGrafik}
-          grafikWidth={grafikWidth}
-          setGrafikContainerRef={setGrafikContainerRef}
-          setGrafikTicker={setGrafikTicker}
-          setGrafikTickerLabel={setGrafikTickerLabel}
-          setGrafikRange={setGrafikRange}
-          setGrafikArama={setGrafikArama}
-          setGrafikDropdown={setGrafikDropdown}
-          fetchBuyukGrafik={fetchBuyukGrafik}
-        />
+        <DashboardChartPanel bistHisseler={BIST_HISSELER} chart={chart} />
 
         {/* AI Panel */}
         <DashboardAiPanel aiPanel={aiPanel} onAnalyze={() => fetchAiPanel()} />

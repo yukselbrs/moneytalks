@@ -52,33 +52,34 @@ export function useDashboardMarket(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
     const flashTimeouts = flashTimeoutRef.current;
+    let canceled = false;
 
     const fetchPiyasaOzeti = async () => {
-      try {
-        const response = await fetch("/api/piyasa", { cache: "no-store" });
-        const data = await response.json();
+      const response = await fetch("/api/piyasa", { cache: "no-store" });
+      if (!response.ok) throw new Error(`piyasa ${response.status}`);
+      const data = await response.json();
+      if (canceled) return;
 
-        (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {
-          const onceki = parsePiyasaDeger(piyasaRef.current[key]?.value || "-");
-          const yeni = parsePiyasaDeger(data[key]?.value || "-");
-          if (onceki === null || yeni === null || onceki === yeni) return;
+      (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {
+        const onceki = parsePiyasaDeger(piyasaRef.current[key]?.value || "-");
+        const yeni = parsePiyasaDeger(data[key]?.value || "-");
+        if (onceki === null || yeni === null || onceki === yeni) return;
 
-          if (flashTimeouts[key]) clearTimeout(flashTimeouts[key]!);
-          setPiyasaFlash((prev) => ({ ...prev, [key]: yeni > onceki ? "up" : "down" }));
-          flashTimeouts[key] = setTimeout(() => {
-            setPiyasaFlash((prev) => {
-              const next = { ...prev };
-              delete next[key];
-              return next;
-            });
-            flashTimeouts[key] = null;
-          }, 550);
-        });
+        if (flashTimeouts[key]) clearTimeout(flashTimeouts[key]!);
+        setPiyasaFlash((prev) => ({ ...prev, [key]: yeni > onceki ? "up" : "down" }));
+        flashTimeouts[key] = setTimeout(() => {
+          setPiyasaFlash((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            return next;
+          });
+          flashTimeouts[key] = null;
+        }, 550);
+      });
 
-        piyasaRef.current = data;
-        setPiyasa(data);
-        try { localStorage.setItem(LS.PIYASA, JSON.stringify(data)); } catch {}
-      } catch {}
+      piyasaRef.current = data;
+      setPiyasa(data);
+      try { localStorage.setItem(LS.PIYASA, JSON.stringify(data)); } catch {}
     };
 
     const fetchSparklines = () => {
@@ -124,16 +125,38 @@ export function useDashboardMarket(enabled = true) {
       }
     };
 
-    fetchPiyasaOzeti();
+    const BASE_DELAY = 3000;
+    const MAX_DELAY = 60000;
+    let failures = 0;
+    let nextTick: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleNext = (delay: number) => {
+      if (canceled) return;
+      nextTick = setTimeout(runPiyasaOzeti, delay);
+    };
+
+    const runPiyasaOzeti = async () => {
+      try {
+        await fetchPiyasaOzeti();
+        failures = 0;
+        scheduleNext(BASE_DELAY);
+      } catch {
+        failures += 1;
+        const delay = Math.min(BASE_DELAY * 2 ** failures, MAX_DELAY);
+        scheduleNext(delay);
+      }
+    };
+
+    runPiyasaOzeti();
     fetchPiyasa();
     fetchSparklines();
 
-    const piyasaOzetiInterval = setInterval(fetchPiyasaOzeti, 3000);
     const piyasaInterval = setInterval(fetchPiyasa, 300000);
     const sparklineInterval = setInterval(fetchSparklines, 60000);
 
     return () => {
-      clearInterval(piyasaOzetiInterval);
+      canceled = true;
+      if (nextTick) clearTimeout(nextTick);
       clearInterval(piyasaInterval);
       clearInterval(sparklineInterval);
       (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {

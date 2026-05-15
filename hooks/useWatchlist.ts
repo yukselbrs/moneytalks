@@ -24,7 +24,19 @@ export function useWatchlist() {
   const [recent, setRecent] = useState<RecentAnalysis[]>([]);
   const [fiyatlar, setFiyatlar] = useState<Record<string, Fiyat>>({});
   const [pricePollingActive, setPricePollingActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const watchlistRef = useRef<WatchlistItem[]>([]);
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flashError = useCallback((msg: string) => {
+    setError(msg);
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    errorTimerRef.current = setTimeout(() => setError(null), 4000);
+  }, []);
+
+  useEffect(() => () => {
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+  }, []);
 
   const fetchFiyatlar = useCallback((extraList?: string[]) => {
     const wl = extraList ?? watchlistRef.current.map((w) => w.ticker);
@@ -75,7 +87,10 @@ export function useWatchlist() {
 
   const addToWatchlist = useCallback(async (ticker: string) => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      flashError("Eklemek için giriş yapmalısın.");
+      return;
+    }
     if (watchlistRef.current.some((w) => w.ticker === ticker)) return;
 
     setWatchlist((prev) => {
@@ -84,32 +99,45 @@ export function useWatchlist() {
       return next;
     });
 
-    const { error } = await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
-    if (error) {
+    const { error: dbError } = await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
+    if (dbError) {
       setWatchlist((prev) => {
         const next = prev.filter((w) => w.ticker !== ticker);
         watchlistRef.current = next;
         return next;
       });
+      flashError(`${ticker} izleme listesine eklenemedi.`);
     }
-  }, []);
+  }, [flashError]);
 
   const removeFromWatchlist = useCallback(async (ticker: string) => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      flashError("Çıkarmak için giriş yapmalısın.");
+      return;
+    }
 
-    await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+    const snapshot = watchlistRef.current;
     setWatchlist((prev) => {
       const next = prev.filter((w) => w.ticker !== ticker);
       watchlistRef.current = next;
       return next;
     });
-  }, []);
+
+    const { error: dbError } = await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+    if (dbError) {
+      setWatchlist(snapshot);
+      watchlistRef.current = snapshot;
+      flashError(`${ticker} izleme listesinden çıkarılamadı.`);
+    }
+  }, [flashError]);
 
   return {
     watchlist,
     recent,
     fiyatlar,
+    error,
+    clearError: () => setError(null),
     setRecent,
     loadWatchlist,
     addToWatchlist,

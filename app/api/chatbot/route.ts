@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { requireUser } from "@/lib/auth";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -2625,15 +2626,9 @@ export async function POST(req: NextRequest) {
   const requestStart = Date.now();
 
   // 1. Auth kontrolü
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Yetkisiz istek" }, { status: 401 });
-  }
-  const token = authHeader.slice(7);
-  const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
-  if (authError || !user) {
-    return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
-  }
+  const auth = await requireUser(req, supabaseAuth);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
 
   // 2. Günlük mesaj limiti (ücretsiz: 3 mesaj/gün)
   const bugun = new Date().toISOString().split("T")[0];

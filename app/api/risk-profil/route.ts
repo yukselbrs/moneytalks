@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { requireUser } from "@/lib/auth";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -77,20 +78,18 @@ function parseAiOneri(text: string): AiOneri {
 }
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (!token) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
+  const auth = await requireUser(req, supabase);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
   const { data, error: selectError } = await supabase.from("risk_profil").select("*").eq("user_id", user.id).maybeSingle();
   if (selectError) return NextResponse.json({ error: selectError.message }, { status: 500 });
   return NextResponse.json(data || null);
 }
 
 export async function POST(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (!token) return NextResponse.json({ error: "Giris gerekli" }, { status: 401 });
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return NextResponse.json({ error: "Gecersiz token" }, { status: 401 });
+  const auth = await requireUser(req, supabase);
+  if (!auth.user) return auth.response;
+  const user = auth.user;
 
   let body: unknown;
   try {
