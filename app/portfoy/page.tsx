@@ -8,19 +8,10 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "next/link";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
 import { formatCurrency, formatNumber, formatPercent, formatQuantity, formatSignedCurrency } from "@/lib/formatters";
+import { usePortfolioData, type PortfoyItem } from "@/hooks/usePortfolioData";
+import { usePortfolioGrafik } from "@/hooks/usePortfolioGrafik";
 
 const PASTA_RENKLER = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#EF4444","#06B6D4","#F97316","#EC4899","#84CC16","#14B8A6"];
-
-interface PortfoyItem {
-  id: string;
-  ticker: string;
-  adet: number;
-  maliyet: number;
-}
-
-interface FiyatMap {
-  [ticker: string]: { fiyat: number; degisim: number };
-}
 
 interface RiskBilesen {
   ad: string; deger: string; risk: number; agirlik: number;
@@ -41,14 +32,6 @@ const RISK_ACIKLAMALARI: Record<string, string> = {
   "RSI (14)": ">70 aşırı alım, <30 aşırı satım.",
   "Gunluk Range": "Intraday volatilite göstergesi.",
 };
-
-function fiyatDegeriOku(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value !== "string") return null;
-  const normalized = value.includes(",") ? value.replace(/\./g, "").replace(",", ".") : value;
-  const parsed = parseFloat(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
-}
 
 function RiskBilesenGrid({ bilesenler, mobil = false }: { bilesenler: RiskBilesen[]; mobil?: boolean }) {
   return (
@@ -135,8 +118,17 @@ function sonVeriZamaniLabel(sonGuncelleme: Date | null): string {
 
 export default function PortfoyPage() {
   const router = useRouter();
-  const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
-  const [fiyatlar, setFiyatlar] = useState<FiyatMap>({});
+  const {
+    portfoy,
+    fiyatlar,
+    yükleniyor,
+    sonFiyatGuncelleme,
+    fiyatlarYenileniyor,
+    portfoyRiskSkor,
+    flashTickers,
+    fiyatlariYenile,
+    portfoyuYukle,
+  } = usePortfolioData();
   const [riskler, setRiskler] = useState<RiskMap>(() => {
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem("portfoy_riskler") : null;
@@ -147,7 +139,6 @@ export default function PortfoyPage() {
       return parsed;
     } catch { return {}; }
   });
-  const [yükleniyor, setYükleniyor] = useState(true);
   const [displayDeger, setDisplayDeger] = useState(0);
   const prevDegerRef = useRef(0);
 
@@ -163,105 +154,26 @@ export default function PortfoyPage() {
   });
 
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
-  const [portfoyRiskSkor, setPortfoyRiskSkor] = useState<{ skor: number; seviye: string; yukleniyor: boolean } | null>(null);
   const [sonRiskHesaplama, setSonRiskHesaplama] = useState<Date | null>(() => {
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem("portfoy_son_risk_hesaplama") : null;
       return raw ? new Date(raw) : null;
     } catch { return null; }
   });
-  const [sonFiyatGuncelleme, setSonFiyatGuncelleme] = useState<Date | null>(null);
-  const [fiyatlarYenileniyor, setFiyatlarYenileniyor] = useState(false);
   const isMobil = useMediaQuery("(max-width: 767px)");
   const [acikHisse, setAcikHisse] = useState<string | null>(null);
   const [getiriModu, setGetiriModu] = useState<"daily" | "total">("total");
-  const [grafik, setGrafik] = useState<{ tarih: string; degisim: number }[]>([]);
-  const [grafikAralik, setGrafikAralik] = useState<"1d" | "1mo" | "3mo" | "1y">("1d");
-  const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
+  const { grafik, grafikAralik, grafikYukleniyor, setGrafikAralik } = usePortfolioGrafik(portfoy);
   const [grafikAcik, setGrafikAcik] = useState(false);
   const [radarAcik, setRadarAcik] = useState(false);
   const [sortKolon, setSortKolon] = useState<"kz" | "kzYuzde" | "gunluk" | "guncel" | null>(null);
   const [sortYon, setSortYon] = useState<"asc" | "desc">("desc");
-  const [flashTickers, setFlashTickers] = useState<Record<string, "up" | "down">>({});
-  const prevFiyatlarRef = useRef<FiyatMap>({});
 
   // Senaryo analizi
   const [senaryoAcik, setSenaryoAcik] = useState(false);
   const [senaryoYuzde, setSenaryoYuzde] = useState(0);
   const [betaVerisi, setBetaVerisi] = useState<Record<string, { beta: number | null; sirketAdi: string }>>({});
   const [betaYukleniyor, setBetaYukleniyor] = useState(false);
-
-  const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
-    const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
-    if (!tickers) return {};
-    if (!sessiz) setFiyatlarYenileniyor(true);
-    try {
-      const res = await fetch("/api/fiyatlar?extra=" + tickers);
-      const json = await res.json();
-      const map: FiyatMap = {};
-      Object.entries(json).forEach(([ticker, val]) => {
-        if (!val) return;
-        const v = val as { fiyat?: unknown; degisim?: unknown };
-        const fiyat = fiyatDegeriOku(v.fiyat);
-        const degisim = fiyatDegeriOku(v.degisim);
-        if (fiyat === null) return;
-        map[ticker] = { fiyat, degisim: degisim ?? 0 };
-      });
-      setFiyatlar((prev) => ({ ...prev, ...map }));
-      setSonFiyatGuncelleme(new Date());
-      return map;
-    } catch (e) {
-      console.error("Portfoy fiyat yenileme HATA:", e);
-      return {};
-    } finally {
-      if (!sessiz) setFiyatlarYenileniyor(false);
-    }
-  }, []);
-
-  const portfoyuYukle = useCallback(async () => {
-    setYükleniyor(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push("/login"); return; }
-      const { data, error } = await supabase
-        .from("portfoy")
-        .select("id, ticker, adet, maliyet")
-        .order("created_at", { ascending: true });
-      if (error) { console.error("Portfoy yuklenemedi", error); return; }
-      if (!data || data.length === 0) {
-        setPortfoy([]);
-        setFiyatlar({});
-        setPortfoyRiskSkor(null);
-        return;
-      }
-      setPortfoy(data);
-      try {
-        const map = await fiyatlariYenile(data, true);
-
-        // Portföy ortalama risk — tüm hisselerin skorlarını paralel çek
-        setPortfoyRiskSkor({ skor: 0, seviye: "", yukleniyor: true });
-        const riskSonuclari = await Promise.all(
-          data.map(async (p: { ticker: string; adet: number; maliyet: number }) => {
-            try {
-              const r = await fetch(`/api/risk?ticker=${p.ticker.trim()}`);
-              const rj = await r.json();
-              const fiyat = map[p.ticker.trim()]?.fiyat || p.maliyet;
-              const deger = p.adet * fiyat;
-              return { skor: rj.skor || 0, deger };
-            } catch { return { skor: 35, deger: p.adet * p.maliyet }; }
-          })
-        );
-        const toplamDeger = riskSonuclari.reduce((a, b) => a + b.deger, 0);
-        const agirlikliSkor = toplamDeger > 0
-          ? riskSonuclari.reduce((a, b) => a + (b.skor * b.deger / toplamDeger), 0)
-          : riskSonuclari.reduce((a, b) => a + b.skor, 0) / riskSonuclari.length;
-        const seviye = agirlikliSkor >= 60 ? "Yüksek" : agirlikliSkor >= 35 ? "Orta" : "Düşük";
-        setPortfoyRiskSkor({ skor: Math.round(agirlikliSkor), seviye, yukleniyor: false });
-      } catch (e) { console.error("Fiyat fetch HATA:", e); }
-    } finally { setYükleniyor(false); }
-  }, [fiyatlariYenile, router]);
-
-  useEffect(() => { portfoyuYukle(); }, [portfoyuYukle]);
 
   useEffect(() => {
     try { localStorage.setItem("portfoy_riskler", JSON.stringify(riskler)); } catch { /* ignore */ }
@@ -272,88 +184,6 @@ export default function PortfoyPage() {
       if (sonRiskHesaplama) localStorage.setItem("portfoy_son_risk_hesaplama", sonRiskHesaplama.toISOString());
     } catch { /* ignore */ }
   }, [sonRiskHesaplama]);
-
-  useEffect(() => {
-    if (portfoy.length === 0) return;
-    const id = window.setInterval(() => {
-      void fiyatlariYenile(portfoy, true);
-    }, 15000);
-    return () => window.clearInterval(id);
-  }, [fiyatlariYenile, portfoy]);
-
-
-  const grafikCek = useCallback(async (aralik: "1d" | "1mo" | "3mo" | "1y", items: PortfoyItem[], sessiz = false) => {
-    if (items.length === 0) return;
-    if (!sessiz) setGrafikYukleniyor(true);
-    try {
-      const sonuclar = await Promise.all(
-        items.map(async (p) => {
-          const res = await fetch(`/api/grafik?ticker=${p.ticker}.IS&range=${aralik}`);
-          const json = await res.json();
-          const fiyatMap: Record<string, number> = {};
-          (json.points || []).forEach((pt: { tarih: string; fiyat: number }) => {
-            if (pt.fiyat) fiyatMap[pt.tarih] = pt.fiyat;
-          });
-          return { adet: p.adet, fiyatMap, tarihler: Object.keys(fiyatMap) };
-        })
-      );
-      const tarihler = sonuclar[0]?.tarihler || [];
-      const degerler = tarihler.map(tarih => {
-        let deger = 0;
-        let tamam = true;
-        for (const s of sonuclar) {
-          if (!s.fiyatMap[tarih]) { tamam = false; break; }
-          deger += s.adet * s.fiyatMap[tarih];
-        }
-        return tamam ? { tarih, deger } : null;
-      }).filter((n): n is { tarih: string; deger: number } => n !== null);
-
-      if (degerler.length < 2) { setGrafik([]); return; }
-      const ilk = degerler[0].deger;
-      setGrafik(degerler.map(n => ({ tarih: n.tarih, degisim: parseFloat(((n.deger - ilk) / ilk * 100).toFixed(2)) })));
-    } catch (e) {
-      console.error("Portföy grafik hatası:", e);
-    } finally {
-      setGrafikYukleniyor(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (portfoy.length > 0) void grafikCek(grafikAralik, portfoy);
-  }, [portfoy, grafikAralik, grafikCek]);
-
-  useEffect(() => {
-    if (grafikAralik !== "1d" || portfoy.length === 0) return;
-    const piyasaAcikMi = () => {
-      const now = new Date();
-      const istanbul = new Date(now.getTime() + 3 * 60 * 60 * 1000);
-      const gun = istanbul.getUTCDay();
-      const dk = istanbul.getUTCHours() * 60 + istanbul.getUTCMinutes();
-      return gun >= 1 && gun <= 5 && dk >= 600 && dk <= 1090; // 10:00–18:10
-    };
-    const id = window.setInterval(() => {
-      if (piyasaAcikMi()) void grafikCek("1d", portfoy, true);
-    }, 15000);
-    return () => window.clearInterval(id);
-  }, [grafikAralik, portfoy, grafikCek]);
-
-  useEffect(() => {
-    const prev = prevFiyatlarRef.current;
-    const changed: Record<string, "up" | "down"> = {};
-    Object.entries(fiyatlar).forEach(([ticker, { fiyat }]) => {
-      const prevFiyat = prev[ticker]?.fiyat;
-      if (prevFiyat !== undefined && prevFiyat !== fiyat) {
-        changed[ticker] = fiyat > prevFiyat ? "up" : "down";
-      }
-    });
-    prevFiyatlarRef.current = fiyatlar;
-    if (Object.keys(changed).length === 0) return;
-    setFlashTickers(changed);
-    const t = setTimeout(() => setFlashTickers({}), 700);
-    return () => clearTimeout(t);
-  }, [fiyatlar]);
-
-
 
   const riskSkoru = useCallback(async (ticker: string) => {
     if (riskler[ticker]?.skor100 !== undefined) return;
