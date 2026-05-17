@@ -24,7 +24,14 @@ export const metadata: Metadata = {
   verification: {
     google: "07quE2WQ2Y35Xug7Ezge5_eyMAxSzP_WZg40homYMT8",
   },
-  icons: { icon: "/favicon.svg" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg?v=pk-20260517-2", type: "image/svg+xml" },
+      { url: "/icon?v=pk-20260517-2", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: [{ url: "/favicon.svg?v=pk-20260517-2", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon?v=pk-20260517-2", type: "image/png", sizes: "180x180" }],
+  },
   title: "ParaKonusur — BIST Yapay Zekâ Analiz Platformu",
   description:
     "Yapay zekâ destekli analiz motorumuz BIST'teki 600+ hisseyi 15 dakika gecikmeli fiyat verisiyle değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik göstergeleri birleştirip anlaşılır içgörüler sunar.",

@@ -18,6 +18,10 @@ type TopMovers = {
 };
 
 const BIST_DAILY_LIMIT = 10.01;
+const PIYASA_SUMMARY_POLL_MS = 15000;
+const PIYASA_SUMMARY_HIDDEN_POLL_MS = 60000;
+const PIYASA_LIST_POLL_MS = 300000;
+const SPARKLINE_POLL_MS = 120000;
 
 const EMPTY_PIYASA: Record<PiyasaKey, PiyasaItem> = {
   usd: { value: "-", change: "-" },
@@ -46,6 +50,7 @@ export function useDashboardMarket(enabled = true) {
   const [piyasaFlash, setPiyasaFlash] = useState<Partial<Record<PiyasaKey, PiyasaYon>>>({});
   const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
   const [topMovers, setTopMovers] = useState<TopMovers | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const piyasaRef = useRef(piyasa);
   const flashTimeoutRef = useRef<Record<PiyasaKey, ReturnType<typeof setTimeout> | null>>({ xu100: null, xu030: null, usd: null, eur: null });
 
@@ -79,6 +84,7 @@ export function useDashboardMarket(enabled = true) {
 
       piyasaRef.current = data;
       setPiyasa(data);
+      setError(null);
       try { localStorage.setItem(LS.PIYASA, JSON.stringify(data)); } catch {}
     };
 
@@ -120,19 +126,24 @@ export function useDashboardMarket(enabled = true) {
           dusenler: (topJson.dusenler || []).filter(validDailyMove),
           hacimliler: (hacimJson.items || []).map(mapH).filter(validDailyMove).slice(0, 5),
         });
+        setError(null);
       } catch (error) {
         console.error("fetchPiyasa err:", error);
+        setError("Piyasa verileri yenilenemedi.");
       }
     };
 
-    const BASE_DELAY = 3000;
-    const MAX_DELAY = 60000;
+    const BASE_DELAY = PIYASA_SUMMARY_POLL_MS;
+    const MAX_DELAY = 120000;
     let failures = 0;
     let nextTick: ReturnType<typeof setTimeout> | null = null;
 
     const scheduleNext = (delay: number) => {
       if (canceled) return;
-      nextTick = setTimeout(runPiyasaOzeti, delay);
+      const hiddenDelay = typeof document !== "undefined" && document.hidden
+        ? Math.max(delay, PIYASA_SUMMARY_HIDDEN_POLL_MS)
+        : delay;
+      nextTick = setTimeout(runPiyasaOzeti, hiddenDelay);
     };
 
     const runPiyasaOzeti = async () => {
@@ -142,6 +153,7 @@ export function useDashboardMarket(enabled = true) {
         scheduleNext(BASE_DELAY);
       } catch {
         failures += 1;
+        setError("Piyasa özeti yenilenemedi.");
         const delay = Math.min(BASE_DELAY * 2 ** failures, MAX_DELAY);
         scheduleNext(delay);
       }
@@ -151,19 +163,27 @@ export function useDashboardMarket(enabled = true) {
     fetchPiyasa();
     fetchSparklines();
 
-    const piyasaInterval = setInterval(fetchPiyasa, 300000);
-    const sparklineInterval = setInterval(fetchSparklines, 60000);
+    const piyasaInterval = setInterval(fetchPiyasa, PIYASA_LIST_POLL_MS);
+    const sparklineInterval = setInterval(fetchSparklines, SPARKLINE_POLL_MS);
+    const refreshWhenVisible = () => {
+      if (document.hidden) return;
+      void fetchPiyasaOzeti().catch(() => setError("Piyasa özeti yenilenemedi."));
+      fetchPiyasa();
+      fetchSparklines();
+    };
+    document.addEventListener("visibilitychange", refreshWhenVisible);
 
     return () => {
       canceled = true;
       if (nextTick) clearTimeout(nextTick);
       clearInterval(piyasaInterval);
       clearInterval(sparklineInterval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
       (["xu100", "xu030", "usd", "eur"] as PiyasaKey[]).forEach((key) => {
         if (flashTimeouts[key]) clearTimeout(flashTimeouts[key]!);
       });
     };
   }, [enabled]);
 
-  return { piyasa, piyasaFlash, sparklines, topMovers };
+  return { piyasa, piyasaFlash, sparklines, topMovers, error, clearError: () => setError(null) };
 }

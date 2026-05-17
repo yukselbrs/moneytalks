@@ -4,29 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
-
-const PKMark = () => (
-  <svg width="36" height="36" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" aria-label="ParaKonusur mark">
-    <defs>
-      <linearGradient id="navGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#60A5FA" />
-        <stop offset="55%" stopColor="#3B82F6" />
-        <stop offset="100%" stopColor="#1E40AF" />
-      </linearGradient>
-      <linearGradient id="navGradSoft" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.35" />
-        <stop offset="100%" stopColor="#1E40AF" stopOpacity="0.25" />
-      </linearGradient>
-    </defs>
-    <rect x="2" y="2" width="256" height="256" rx="48" fill="#0B1220" stroke="rgba(59,130,246,0.18)" strokeWidth="0.5" />
-    <rect x="70" y="170" width="18" height="30" rx="3" fill="url(#navGradSoft)" />
-    <rect x="70" y="130" width="18" height="70" rx="3" fill="url(#navGrad)" />
-    <rect x="94" y="110" width="18" height="90" rx="3" fill="url(#navGrad)" />
-    <path d="M112 110 Q 180 110 180 140 Q 180 170 122 170" fill="none" stroke="url(#navGrad)" strokeWidth="18" strokeLinecap="round" />
-    <circle cx="180" cy="92" r="7" fill="#60A5FA" />
-    <circle cx="180" cy="92" r="14" fill="none" stroke="#3B82F6" strokeWidth="0.5" strokeOpacity="0.5" />
-  </svg>
-);
+import LogoIcon from "@/components/LogoIcon";
 
 const navLinks = [
   { label: "Nasıl Çalışır", href: "/#nasil-calisir" },
@@ -82,7 +60,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link href={logoHref} className="flex items-center gap-3 group">
-          <PKMark />
+          <LogoIcon size={36} />
           <div className="flex flex-col leading-none">
             <span
               className="text-[15px] font-medium tracking-tight"

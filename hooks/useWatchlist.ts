@@ -19,12 +19,15 @@ type Fiyat = {
   yukselis: boolean;
 } | null;
 
+const PRICE_POLL_INTERVAL_MS = 15000;
+
 export function useWatchlist() {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [recent, setRecent] = useState<RecentAnalysis[]>([]);
   const [fiyatlar, setFiyatlar] = useState<Record<string, Fiyat>>({});
   const [pricePollingActive, setPricePollingActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [priceError, setPriceError] = useState<string | null>(null);
   const watchlistRef = useRef<WatchlistItem[]>([]);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,29 +52,50 @@ export function useWatchlist() {
     const extra = allTickers.join(",");
     const url = extra ? `/api/fiyatlar?extra=${extra}` : "/api/fiyatlar";
     fetch(url)
-      .then((r) => r.json())
-      .then((data) => setFiyatlar(data))
-      .catch(() => {});
+      .then((r) => {
+        if (!r.ok) throw new Error(`fiyatlar ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        setFiyatlar(data);
+        setPriceError(null);
+      })
+      .catch(() => setPriceError("Fiyat verileri yenilenemedi."));
   }, []);
 
   const loadWatchlist = useCallback(async (userId: string) => {
-    const { data } = await supabase
+    const { data, error: dbError } = await supabase
       .from("watchlist")
       .select("ticker")
       .eq("user_id", userId)
       .order("added_at", { ascending: false });
 
+    if (dbError) {
+      flashError("İzleme listesi yüklenemedi.");
+      return;
+    }
     if (!data) return;
     setWatchlist(data);
     watchlistRef.current = data;
     fetchFiyatlar(data.map((w: WatchlistItem) => w.ticker));
     setPricePollingActive(true);
-  }, [fetchFiyatlar]);
+  }, [fetchFiyatlar, flashError]);
 
   useEffect(() => {
     if (!pricePollingActive) return;
-    const interval = setInterval(() => fetchFiyatlar(), 5000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      fetchFiyatlar();
+    }, PRICE_POLL_INTERVAL_MS);
+    const refreshWhenVisible = () => {
+      if (document.hidden) return;
+      fetchFiyatlar();
+    };
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [fetchFiyatlar, pricePollingActive]);
 
   useEffect(() => {
@@ -137,7 +161,9 @@ export function useWatchlist() {
     recent,
     fiyatlar,
     error,
+    priceError,
     clearError: () => setError(null),
+    clearPriceError: () => setPriceError(null),
     setRecent,
     loadWatchlist,
     addToWatchlist,

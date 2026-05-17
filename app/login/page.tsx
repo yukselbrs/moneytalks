@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
+import { LS } from "@/lib/storage-keys";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,21 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const rememberedIdentifier = localStorage.getItem(LS.LOGIN_IDENTIFIER);
+      if (!rememberedIdentifier) return;
+      setEmail(rememberedIdentifier);
+      setBeniHatirla(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  function handleRememberChange(checked: boolean) {
+    setBeniHatirla(checked);
+    if (!checked) localStorage.removeItem(LS.LOGIN_IDENTIFIER);
+  }
 
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
@@ -28,9 +44,10 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    let loginEmail = email;
-    if (!email.includes("@")) {
-      const { data, error: rpcError } = await supabase.rpc("get_email_by_username", { uname: email });
+    const loginIdentifier = email.trim();
+    let loginEmail = loginIdentifier;
+    if (!loginIdentifier.includes("@")) {
+      const { data, error: rpcError } = await supabase.rpc("get_email_by_username", { uname: loginIdentifier });
       if (rpcError || !data) {
         setError("Kullanıcı adı bulunamadı.");
         setLoading(false);
@@ -43,6 +60,8 @@ export default function LoginPage() {
       setError("E-posta/kullanıcı adı veya şifre hatalı.");
       setLoading(false);
     } else {
+      if (beniHatirla) localStorage.setItem(LS.LOGIN_IDENTIFIER, loginIdentifier);
+      else localStorage.removeItem(LS.LOGIN_IDENTIFIER);
       router.push("/dashboard");
     }
   }
@@ -151,13 +170,17 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input type="checkbox" checked={beniHatirla} onChange={(e) => setBeniHatirla(e.target.checked)}
-                  style={{ width: 14, height: 14, accentColor: "#3B82F6" }} />
-                <span style={{ fontSize: 12, color: "#64748B" }}>Beni hatırla</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", flex: "1 1 190px", minWidth: 0 }}>
+                <input
+                  type="checkbox"
+                  checked={beniHatirla}
+                  onChange={(e) => handleRememberChange(e.target.checked)}
+                  style={{ width: 14, height: 14, accentColor: "#3B82F6" }}
+                />
+                <span style={{ fontSize: 12, color: "#64748B", lineHeight: 1.35 }}>E-posta/kullanıcı adımı hatırla</span>
               </label>
-              <Link href="/forgot-password" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none" }}>Şifremi unuttum?</Link>
+              <Link href="/forgot-password" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none", whiteSpace: "nowrap" }}>Şifremi unuttum?</Link>
             </div>
 
             {error && (

@@ -20,6 +20,8 @@ type PortfolioRow = {
   maliyet: number;
 };
 
+const PORTFOLIO_SUMMARY_POLL_MS = 30000;
+
 function piyasaSayisiOku(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value !== "string") return null;
@@ -32,21 +34,26 @@ function piyasaSayisiOku(value: unknown): number | null {
 export function usePortfolioSummary() {
   const [portfoyOzet, setPortfoyOzet] = useState<PortfolioSummary | null>(null);
   const [pollingActive, setPollingActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadPortfolioSummary = useCallback(async () => {
     try {
-      const { data: portfoyData } = await supabase
+      const { data: portfoyData, error: dbError } = await supabase
         .from("portfoy")
         .select("ticker, adet, maliyet");
+
+      if (dbError) throw dbError;
 
       if (!portfoyData || portfoyData.length === 0) {
         setPortfoyOzet(null);
         setPollingActive(false);
+        setError(null);
         return;
       }
 
       const tickers = portfoyData.map((p: PortfolioRow) => p.ticker.trim()).join(",");
       const fiyatResponse = await fetch("/api/fiyatlar?extra=" + tickers);
+      if (!fiyatResponse.ok) throw new Error(`fiyatlar ${fiyatResponse.status}`);
       const fiyatJson = await fiyatResponse.json();
       let toplamMaliyet = 0;
       let toplamGuncel = 0;
@@ -81,18 +88,29 @@ export function usePortfolioSummary() {
 
       setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, gunlukPL, gunlukPLYuzde, hisseSayisi: portfoyData.length, hisseDagilim });
       setPollingActive(true);
+      setError(null);
     } catch (error) {
       console.error("Portfoy ozet hatasi:", error);
+      setError("Portföy özeti yenilenemedi.");
     }
   }, []);
 
   useEffect(() => {
     if (!pollingActive) return;
     const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
       loadPortfolioSummary();
-    }, 15000);
-    return () => clearInterval(interval);
+    }, PORTFOLIO_SUMMARY_POLL_MS);
+    const refreshWhenVisible = () => {
+      if (document.hidden) return;
+      loadPortfolioSummary();
+    };
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [loadPortfolioSummary, pollingActive]);
 
-  return { portfoyOzet, loadPortfolioSummary };
+  return { portfoyOzet, error, clearError: () => setError(null), loadPortfolioSummary };
 }

@@ -28,9 +28,18 @@ const DashboardChartPanel = dynamic(() => import("@/components/DashboardChartPan
 });
 
 const POPULAR_TICKERS = ["THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "BIMAS"];
+const AUTH_TIMEOUT_MS = 7000;
 
 const BIST_HISSELER = TUM_BIST_HISSELER.map(h => ({ ticker: h.ticker, name: toTitleCase(h.ad), domain: h.domain }));
 const POPULAR = BIST_HISSELER.filter(h => POPULAR_TICKERS.includes(h.ticker));
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
+}
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null);
@@ -40,9 +49,9 @@ export default function DashboardPage() {
   const [watchlistInputAcik, setWatchlistInputAcik] = useState(false);
   const [fullName, setFullName] = useState("");
   const [piyasaOdagiTab, setPiyasaOdagiTab] = useState("one");
-  const { piyasa, piyasaFlash, sparklines, topMovers } = useDashboardMarket(Boolean(user));
-  const { watchlist, recent, fiyatlar, error: watchlistError, clearError: clearWatchlistError, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
-  const { portfoyOzet, loadPortfolioSummary } = usePortfolioSummary();
+  const { piyasa, piyasaFlash, sparklines, topMovers, error: marketError, clearError: clearMarketError } = useDashboardMarket(Boolean(user));
+  const { watchlist, recent, fiyatlar, error: watchlistError, priceError, clearError: clearWatchlistError, clearPriceError, setRecent, loadWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const { portfoyOzet, error: portfolioError, clearError: clearPortfolioError, loadPortfolioSummary } = usePortfolioSummary();
   const [kapHaberler, setKapHaberler] = useState<{ ticker: string; title: string; time: string }[]>([]);
 
   useEffect(() => {
@@ -112,20 +121,36 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let canceled = false;
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (canceled) return;
-      if (!session) {
-        router.push("/login");
-        return;
+
+    const loadDashboard = async () => {
+      try {
+        const { data: { session } } = await withTimeout(
+          supabase.auth.getSession(),
+          AUTH_TIMEOUT_MS,
+          "Oturum kontrolü zaman aşımına uğradı."
+        );
+        if (canceled) return;
+        if (!session) {
+          setLoading(false);
+          router.replace("/login");
+          return;
+        }
+
+        setUser(session.user);
+        setFullName(session.user.user_metadata?.full_name || "");
+        await Promise.allSettled([
+          loadWatchlist(session.user.id),
+          loadPortfolioSummary(),
+        ]);
+      } catch (error) {
+        console.error("Dashboard oturum yükleme hatası:", error);
+        if (!canceled) router.replace("/login");
+      } finally {
+        if (!canceled) setLoading(false);
       }
-      setUser(session.user);
-      setFullName(session.user.user_metadata?.full_name || "");
-      await Promise.all([
-        loadWatchlist(session.user.id),
-        loadPortfolioSummary(),
-      ]);
-      if (!canceled) setLoading(false);
-    });
+    };
+
+    void loadDashboard();
     return () => { canceled = true; };
   }, [loadPortfolioSummary, loadWatchlist, router]);
 
@@ -148,18 +173,24 @@ export default function DashboardPage() {
 
 
   const firstName = fullName ? fullName.split(" ")[0] : user?.email?.split("@")[0] ?? "";
+  const dashboardErrorToast =
+    watchlistError ? { message: watchlistError, onClose: clearWatchlistError } :
+    priceError ? { message: priceError, onClose: clearPriceError } :
+    marketError ? { message: marketError, onClose: clearMarketError } :
+    portfolioError ? { message: portfolioError, onClose: clearPortfolioError } :
+    null;
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1220" }}>
-        <p style={{ color: "#475569", fontSize: 14 }}>Yükleniyor...</p>
+        <p style={{ color: "#475569", fontSize: 14 }}>{loading ? "Yükleniyor..." : "Giriş sayfasına yönlendiriliyor..."}</p>
       </div>
     );
   }
 
   return (
     <AppShell>
-    {watchlistError && <Toast message={watchlistError} ton="error" onClose={clearWatchlistError} />}
+    {dashboardErrorToast && <Toast message={dashboardErrorToast.message} ton="error" onClose={dashboardErrorToast.onClose} />}
     <div style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)", minHeight: "100vh" }}>
       <style>{`.g-tooltip-wrap:hover .g-tooltip { opacity: 1 !important; }
 .dash-surface { border-radius: 10px; transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease; }
