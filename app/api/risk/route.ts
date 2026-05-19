@@ -71,6 +71,24 @@ function rsiHesapla(closes: number[], period = 14): number {
   return 100 - (100 / (1 + rs));
 }
 
+function emaHesapla(closes: number[], period: number): number {
+  if (closes.length < period) return closes[closes.length - 1] ?? 0;
+  const k = 2 / (period + 1);
+  let ema = ortalama(closes.slice(0, period));
+  for (let i = period; i < closes.length; i++) {
+    ema = closes[i] * k + ema * (1 - k);
+  }
+  return ema;
+}
+
+function periyodikGetiri(closes: number[], gun: number): number | null {
+  if (closes.length < gun + 1) return null;
+  const son = closes[closes.length - 1];
+  const oncesi = closes[closes.length - 1 - gun];
+  if (!son || !oncesi || oncesi <= 0) return null;
+  return ((son - oncesi) / oncesi) * 100;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const ticker = searchParams.get("ticker");
@@ -94,51 +112,95 @@ export async function GET(req: NextRequest) {
 
     // 1. Beta (sistematik risk) — CAPM
     const beta = isEndeks ? 1 : betaHesapla(hisseGetiri, piyasaGetiri);
-    const betaRisk = isEndeks ? 0 : (beta < 0.5 ? 10 : beta < 0.8 ? 20 : beta < 1.2 ? 35 : beta < 1.6 ? 55 : 75);
+    const betaRisk = isEndeks ? 0 : (beta < 0.5 ? 15 : beta < 0.8 ? 25 : beta < 1.2 ? 40 : beta < 1.6 ? 65 : 85);
 
-    // 2. Volatilite (annualized)
+    // 2. Volatilite (annualized) — genişletilmiş bant
     const volatilite = stdDev(hisseGetiri) * Math.sqrt(252) * 100;
-    const volRisk = volatilite < 20 ? 10 : volatilite < 35 ? 25 : volatilite < 50 ? 45 : volatilite < 70 ? 60 : 80;
+    const volRisk = volatilite < 15 ? 5 : volatilite < 25 ? 20 : volatilite < 40 ? 40 : volatilite < 60 ? 65 : volatilite < 80 ? 85 : 95;
 
-    // 3. 52 Hafta Pozisyonu — momentum & destek/direnç
+    // 3. Kısa vade trend (1H, 5 gün) — NEGATİF GETİRİ = YÜKSEK RİSK
+    const getiri1H = periyodikGetiri(hisse.closes, 5);
+    const trend1HRisk = getiri1H === null ? 40
+      : getiri1H <= -10 ? 95
+      : getiri1H <= -5 ? 80
+      : getiri1H <= -2 ? 60
+      : getiri1H < 2 ? 30
+      : getiri1H < 5 ? 20
+      : getiri1H < 10 ? 25
+      : 45; // aşırı yükseliş de risk (geri çekilme olasılığı)
+
+    // 4. Orta vade trend (1A, 21 gün)
+    const getiri1A = periyodikGetiri(hisse.closes, 21);
+    const trend1ARisk = getiri1A === null ? 40
+      : getiri1A <= -20 ? 90
+      : getiri1A <= -10 ? 70
+      : getiri1A <= -3 ? 50
+      : getiri1A < 5 ? 25
+      : getiri1A < 15 ? 20
+      : getiri1A < 30 ? 35
+      : 55;
+
+    // 5. Kısa-Orta Momentum EMA(5) / EMA(20) — son haftaya tepki verir
+    const ema5 = emaHesapla(hisse.closes, 5);
+    const ema20 = emaHesapla(hisse.closes, 20);
+    const emaSpread = ema20 > 0 ? ((ema5 - ema20) / ema20) * 100 : 0;
+    const momentumRisk = emaSpread <= -5 ? 85
+      : emaSpread <= -2 ? 65
+      : emaSpread <= -0.5 ? 50
+      : emaSpread < 0.5 ? 35
+      : emaSpread < 2 ? 25
+      : emaSpread < 5 ? 20
+      : 40; // çok pozitif spread = aşırı alım biası
+    // EMA ile uyumlu momentum oranı (UI bileşenlerinde gösterim için)
+    const momentumRatio = emaSpread;
+
+    // 6. 52 Hafta Pozisyonu — YÖNLE BİRLEŞTİRİLMİŞ
     const range52 = hisse.fiftyTwoWeekHigh - hisse.fiftyTwoWeekLow;
     const pozisyon52 = range52 > 0 ? (hisse.currentPrice - hisse.fiftyTwoWeekLow) / range52 : 0.5;
-    // Aşırı yüksek (>0.9) → balon riski, aşırı düşük (<0.15) → dip riski
-    const pozisyonRisk = pozisyon52 > 0.9 ? 65 : pozisyon52 > 0.7 ? 35 : pozisyon52 > 0.4 ? 20 : pozisyon52 > 0.15 ? 30 : 55;
-
-    // 4. Momentum (son 20 gün vs önceki 40 gün)
-    const son20 = hisse.closes.slice(-20);
-    const onceki40 = hisse.closes.slice(-60, -20);
-    const momentumRatio = onceki40.length > 0
-      ? (ortalama(son20) / ortalama(onceki40) - 1) * 100
-      : 0;
-    const momentumRisk = momentumRatio > 15 ? 55 : momentumRatio > 5 ? 30 : momentumRatio > -5 ? 20 : momentumRisk2(momentumRatio);
-
-    function momentumRisk2(r: number): number {
-      return r > -15 ? 35 : 50;
+    // 52H pozisyonu yüksek + son trend negatif = TEPE FORMASYONU riski
+    // 52H pozisyonu düşük + son trend pozitif = DİP TOPLAMA fırsatı
+    const trendYonu = (getiri1H ?? 0) + (getiri1A ?? 0); // basit toplam
+    let pozisyonRisk: number;
+    if (pozisyon52 > 0.85) {
+      pozisyonRisk = trendYonu < -3 ? 80 : trendYonu < 3 ? 55 : 35;
+    } else if (pozisyon52 > 0.6) {
+      pozisyonRisk = trendYonu < -5 ? 60 : trendYonu < 3 ? 30 : 20;
+    } else if (pozisyon52 > 0.35) {
+      pozisyonRisk = trendYonu < -5 ? 55 : trendYonu < 3 ? 35 : 25;
+    } else if (pozisyon52 > 0.15) {
+      pozisyonRisk = trendYonu < -5 ? 65 : trendYonu < 3 ? 45 : 30;
+    } else {
+      pozisyonRisk = trendYonu < 0 ? 80 : 55;
     }
 
-    // 5. Hacim Anomalisi (günlük hacim / 3 aylık ortalama)
+    // 7. Hacim Anomalisi — YONLU: düşüşре yüksek hacim = risk artışı
     const ortHacim = ortalama(hisse.volumes.filter(v => v > 0));
     const hacimOrani = ortHacim > 0 ? hisse.currentVolume / ortHacim : 1;
-    const hacimRisk = hacimOrani > 3 ? 60 : hacimOrani > 2 ? 40 : hacimOrani > 0.5 ? 15 : 35;
+    const hacimYonu = (getiri1H ?? 0) < -2 ? "satis" : (getiri1H ?? 0) > 2 ? "alis" : "yatay";
+    const hacimRisk = hacimOrani > 2.5
+      ? (hacimYonu === "satis" ? 85 : hacimYonu === "alis" ? 25 : 50)
+      : hacimOrani > 1.5
+        ? (hacimYonu === "satis" ? 60 : hacimYonu === "alis" ? 20 : 35)
+        : hacimOrani > 0.5 ? 25 : 45; // düşük hacim = belirsizlik
 
-    // 6. RSI (aşırı alım/satım)
+    // 8. RSI (aşırı alım/satım)
     const rsi = rsiHesapla(hisse.closes);
-    const rsiRisk = rsi > 75 ? 65 : rsi > 60 ? 30 : rsi > 40 ? 15 : rsi > 25 ? 30 : 60;
+    const rsiRisk = rsi > 80 ? 80 : rsi > 70 ? 55 : rsi > 55 ? 25 : rsi > 45 ? 15 : rsi > 30 ? 35 : rsi > 20 ? 65 : 85;
 
-    // 7. Günlük Range (intraday volatilite)
+    // 9. Günlük Range (intraday volatilite)
     const gunlukRange = hisse.currentPrice > 0
       ? (hisse.gunlukYuksek - hisse.gunlukDusuk) / hisse.currentPrice * 100
       : 0;
-    const gunlukRangeRisk = gunlukRange > 5 ? 55 : gunlukRange > 3 ? 35 : gunlukRange > 1.5 ? 20 : 10;
+    const gunlukRangeRisk = gunlukRange > 6 ? 80 : gunlukRange > 4 ? 60 : gunlukRange > 2 ? 30 : gunlukRange > 1 ? 15 : 10;
 
-    // 8. Temel Analiz (TradingView Scanner)
+    // 10. Temel Analiz (TradingView Scanner)
     let fk: number | null = null;
     let pddd: number | null = null;
     let piyasaDegeri: number | null = null;
-    let fkRisk = 40; // varsayilan
-    let pdddRisk = 40;
+    let fkRisk = 0;   // veri yoksa skora dahil olmasın (ağırlık dinamik düşürülüyor)
+    let pdddRisk = 0;
+    let fkVar = false;
+    let pdddVar = false;
 
     try {
       const tvRes = await fetch("https://scanner.tradingview.com/turkey/scan", {
@@ -157,55 +219,67 @@ export async function GET(req: NextRequest) {
         pddd = d[1];
         piyasaDegeri = d[2];
         
-        // F/K risk skorlama
-        if (fk === null || fk === undefined) fkRisk = 40;
-        else if (fk < 0) fkRisk = 70; // zarar eden firma
-        else if (fk < 8) fkRisk = 15;
-        else if (fk < 15) fkRisk = 20;
-        else if (fk < 25) fkRisk = 35;
-        else if (fk < 40) fkRisk = 55;
-        else fkRisk = 70;
-        
-        // PD/DD risk skorlama
-        if (pddd === null || pddd === undefined) pdddRisk = 40;
-        else if (pddd < 0) pdddRisk = 65;
-        else if (pddd < 1) pdddRisk = 15;
-        else if (pddd < 2) pdddRisk = 25;
-        else if (pddd < 4) pdddRisk = 40;
-        else pdddRisk = 60;
+        // F/K risk skorlama — veri yoksa ağırlık 0
+        if (fk !== null && fk !== undefined) {
+          fkVar = true;
+          if (fk < 0) fkRisk = 75; // zarar eden firma
+          else if (fk < 8) fkRisk = 15;
+          else if (fk < 15) fkRisk = 20;
+          else if (fk < 25) fkRisk = 35;
+          else if (fk < 40) fkRisk = 60;
+          else fkRisk = 80;
+        }
+
+        // PD/DD risk skorlama — veri yoksa ağırlık 0
+        if (pddd !== null && pddd !== undefined) {
+          pdddVar = true;
+          if (pddd < 0) pdddRisk = 70;
+          else if (pddd < 1) pdddRisk = 15;
+          else if (pddd < 2) pdddRisk = 25;
+          else if (pddd < 4) pdddRisk = 45;
+          else pdddRisk = 70;
+        }
       }
     } catch (e) {
       console.error("TradingView Scanner hatasi:", e);
     }
 
-    // 9. Likidite Riski (mutlak hacim)
+    // 11. Likidite Riski (mutlak hacim)
     const ortHacimMutlak = ortalama(hisse.volumes.filter((v: number) => v > 0));
-    const liikiditeRisk = ortHacimMutlak < 100000 ? 80 : ortHacimMutlak < 500000 ? 55 : ortHacimMutlak < 2000000 ? 30 : ortHacimMutlak < 10000000 ? 15 : 10;
+    const liikiditeRisk = ortHacimMutlak < 100000 ? 85 : ortHacimMutlak < 500000 ? 60 : ortHacimMutlak < 2000000 ? 35 : ortHacimMutlak < 10000000 ? 15 : 5;
 
-    // 9. Veri Güvenilirliği
+    // 12. Veri Güvenilirliği
     const veriSayisi = hisse.closes.length;
     const veriGüvenilir = veriSayisi >= 45;
 
     // === AĞIRLIKLI SKOR ===
+    // Trend (1H + 1A + Momentum EMA) toplam %40 ağırlık → kısa vade düşüş skoru hızlı yansır
+    const fkAg = isEndeks ? 0 : (fkVar ? 0.05 : 0);
+    const pdddAg = isEndeks ? 0 : (pdddVar ? 0.05 : 0);
     const skorBilesenleri = [
-      { ad: "Beta (Sistematik Risk)", deger: isEndeks ? "N/A" : beta.toFixed(2), risk: betaRisk, agirlik: isEndeks ? 0 : 0.25 },
-      { ad: "Volatilite (Yillik)", deger: volatilite.toFixed(1) + "%", risk: volRisk, agirlik: isEndeks ? 0.30 : 0.20 },
-      { ad: "52H Pozisyonu", deger: (pozisyon52 * 100).toFixed(0) + "%", risk: pozisyonRisk, agirlik: isEndeks ? 0.25 : 0.15 },
-      { ad: "Momentum (20g)", deger: (momentumRatio > 0 ? "+" : "") + momentumRatio.toFixed(1) + "%", risk: momentumRisk, agirlik: isEndeks ? 0.25 : 0.15 },
-      { ad: "Hacim Anomalisi", deger: hacimOrani.toFixed(2) + "x", risk: hacimRisk, agirlik: isEndeks ? 0.10 : 0.10 },
-      { ad: "RSI (14)", deger: rsi.toFixed(0), risk: rsiRisk, agirlik: isEndeks ? 0.10 : 0.10 },
-      { ad: "Gunluk Range", deger: gunlukRange.toFixed(2) + "%", risk: gunlukRangeRisk, agirlik: isEndeks ? 0 : 0.04 },
-      { ad: "Likidite", deger: ortHacimMutlak > 1000000 ? (ortHacimMutlak/1000000).toFixed(1)+"M" : (ortHacimMutlak/1000).toFixed(0)+"K", risk: liikiditeRisk, agirlik: isEndeks ? 0 : 0.05 },
-      { ad: "F/K Orani", deger: fk !== null ? fk.toFixed(2) : "N/A", risk: fkRisk, agirlik: isEndeks ? 0 : 0.05 },
-      { ad: "PD/DD Orani", deger: pddd !== null ? pddd.toFixed(2) : "N/A", risk: pdddRisk, agirlik: isEndeks ? 0 : 0.05 },
+      { ad: "Beta (Sistematik Risk)", deger: isEndeks ? "N/A" : beta.toFixed(2), risk: betaRisk, agirlik: isEndeks ? 0 : 0.10 },
+      { ad: "Volatilite (Yillik)", deger: volatilite.toFixed(1) + "%", risk: volRisk, agirlik: isEndeks ? 0.15 : 0.10 },
+      { ad: "1 Haftalık Trend", deger: getiri1H !== null ? (getiri1H > 0 ? "+" : "") + getiri1H.toFixed(2) + "%" : "N/A", risk: trend1HRisk, agirlik: isEndeks ? 0.25 : 0.18 },
+      { ad: "1 Aylık Trend", deger: getiri1A !== null ? (getiri1A > 0 ? "+" : "") + getiri1A.toFixed(2) + "%" : "N/A", risk: trend1ARisk, agirlik: isEndeks ? 0.15 : 0.12 },
+      { ad: "Momentum (EMA5/EMA20)", deger: (emaSpread > 0 ? "+" : "") + emaSpread.toFixed(2) + "%", risk: momentumRisk, agirlik: isEndeks ? 0.15 : 0.10 },
+      { ad: "52H Pozisyonu (yön ile)", deger: (pozisyon52 * 100).toFixed(0) + "%", risk: pozisyonRisk, agirlik: isEndeks ? 0.10 : 0.08 },
+      { ad: "Hacim Anomalisi (yön ile)", deger: hacimOrani.toFixed(2) + "x · " + hacimYonu, risk: hacimRisk, agirlik: isEndeks ? 0.05 : 0.05 },
+      { ad: "RSI (14)", deger: rsi.toFixed(0), risk: rsiRisk, agirlik: isEndeks ? 0.10 : 0.08 },
+      { ad: "Gunluk Range", deger: gunlukRange.toFixed(2) + "%", risk: gunlukRangeRisk, agirlik: isEndeks ? 0.05 : 0.03 },
+      { ad: "Likidite", deger: ortHacimMutlak > 1000000 ? (ortHacimMutlak/1000000).toFixed(1)+"M" : (ortHacimMutlak/1000).toFixed(0)+"K", risk: liikiditeRisk, agirlik: isEndeks ? 0 : 0.03 },
+      { ad: "F/K Orani", deger: fk !== null ? fk.toFixed(2) : "N/A", risk: fkRisk, agirlik: fkAg },
+      { ad: "PD/DD Orani", deger: pddd !== null ? pddd.toFixed(2) : "N/A", risk: pdddRisk, agirlik: pdddAg },
     ];
 
     const toplamAgirlik = skorBilesenleri.reduce((acc, b) => acc + b.agirlik, 0);
-    const toplamSkor = skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0) / toplamAgirlik * (isEndeks ? 1 : 1);
+    const toplamSkor = toplamAgirlik > 0
+      ? skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0) / toplamAgirlik
+      : 50;
 
-    const seviye = toplamSkor >= 60 ? "Yuksek" : toplamSkor >= 35 ? "Orta" : "Dusuk";
-    const seviyeTR = toplamSkor >= 60 ? "Yüksek" : toplamSkor >= 35 ? "Orta" : "Düşük";
-    const renk = toplamSkor >= 60 ? "red" : toplamSkor >= 35 ? "yellow" : "green";
+    // Genişletilmiş bantlar — skorun ortaya yığılması önlenir
+    const seviye = toplamSkor >= 65 ? "Yuksek" : toplamSkor >= 50 ? "OrtaUstu" : toplamSkor >= 35 ? "Orta" : toplamSkor >= 20 ? "Dusuk" : "CokDusuk";
+    const seviyeTR = toplamSkor >= 65 ? "Yüksek" : toplamSkor >= 50 ? "Orta-Üstü" : toplamSkor >= 35 ? "Orta" : toplamSkor >= 20 ? "Düşük" : "Çok Düşük";
+    const renk = toplamSkor >= 65 ? "red" : toplamSkor >= 50 ? "orange" : toplamSkor >= 35 ? "yellow" : toplamSkor >= 20 ? "lightgreen" : "green";
 
     return NextResponse.json({
       ticker,

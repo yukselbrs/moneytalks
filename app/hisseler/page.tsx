@@ -172,6 +172,22 @@ function HisselerContent() {
     );
   };
 
+  const isiRenk = (d: number | null) => {
+    if (d === null) return { bg: "rgba(30,41,59,0.55)", border: "rgba(148,163,184,0.07)", text: "#475569" };
+    const a = Math.abs(d);
+    if (d >= 0) {
+      if (a >= 5) return { bg: "rgba(5,150,105,0.88)", border: "rgba(16,185,129,0.45)", text: "#ECFDF5" };
+      if (a >= 2) return { bg: "rgba(16,185,129,0.50)", border: "rgba(16,185,129,0.28)", text: "#D1FAE5" };
+      if (a >= 0.5) return { bg: "rgba(16,185,129,0.22)", border: "rgba(16,185,129,0.14)", text: "#A7F3D0" };
+      return { bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.08)", text: "#6EE7B7" };
+    } else {
+      if (a >= 5) return { bg: "rgba(185,28,28,0.88)", border: "rgba(239,68,68,0.45)", text: "#FEF2F2" };
+      if (a >= 2) return { bg: "rgba(239,68,68,0.50)", border: "rgba(239,68,68,0.28)", text: "#FEE2E2" };
+      if (a >= 0.5) return { bg: "rgba(239,68,68,0.22)", border: "rgba(239,68,68,0.14)", text: "#FECACA" };
+      return { bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.08)", text: "#FCA5A5" };
+    }
+  };
+
   return (
     <AppShell>
       <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>

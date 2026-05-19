@@ -102,7 +102,7 @@ export default function DashboardPage() {
       ]);
       const risk = await riskRes.json();
       const yorumJson = await yorumRes.json();
-      const skor = risk.skor ? Math.round(100 - risk.skor) : 50;
+      let skor = risk.skor !== undefined && risk.skor !== null ? Math.round(100 - risk.skor) : 50;
       const analizMetin: string = yorumJson.analiz || "";
       const temizMetin = analizMetin.replace(/[#*]/g, "").trim();
       // Satırları gez, 30+ karakter olan ilk tam cümleyi al
@@ -110,7 +110,21 @@ export default function DashboardPage() {
       const ilkSatir = satirlar[0] || temizMetin;
       const cumleMatch = ilkSatir.match(/^.+?\.(?=\s+[A-ZÇĞİÖŞÜ]|\s*$)|^.+?[!?]/);
       const yorum = cumleMatch ? cumleMatch[0].trim() : (ilkSatir.length > 160 ? ilkSatir.slice(0, 160) + "..." : ilkSatir);
-      const guven = risk.seviyeTR === "Düşük" ? "Yüksek" : risk.seviyeTR === "Orta" ? "Orta" : "Düşük";
+
+      // === TUTARLILIK KONTROLÜ ===
+      // Yorum metni bearish kelimeler içeriyorsa "Düşük Risk · Stabil" gösterilemez.
+      // Skoru en fazla "Orta Risk" bandına (50-64) çek.
+      const metinLower = temizMetin.toLocaleLowerCase("tr-TR");
+      const bearishKelimeler = ["geriledi", "düştü", "düşüş", "düşerek", "zayıf", "zayıflama", "kayıp", "değer kaybı", "satış baskısı", "negatif", "kırıldı", "stop", "alt sınır", "destek altı", "panik", "sert düşüş", "ayı"];
+      const bullishKelimeler = ["yükseldi", "yükseliş", "toparlandı", "tepki", "rallı", "ralli", "alım baskısı", "pozitif görünüm", "boğa"];
+      const bearishHit = bearishKelimeler.some(k => metinLower.includes(k));
+      const bullishHit = bullishKelimeler.some(k => metinLower.includes(k));
+      if (bearishHit && !bullishHit && skor >= 65) skor = Math.min(skor, 58);
+      if (bullishHit && !bearishHit && skor <= 35) skor = Math.max(skor, 42);
+
+      // Veri güvenilirliği: 45+ gün veri → Güvenilir, 25-44 → Kısmi, <25 → Yetersiz
+      const veriSayisi: number = typeof risk.veriSayisi === "number" ? risk.veriSayisi : 0;
+      const guven = veriSayisi >= 45 ? "Güvenilir" : veriSayisi >= 25 ? "Kısmi" : "Yetersiz";
       setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
     } catch {
       setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz alınamadı.", guven: "Düşük", yukleniyor: false });

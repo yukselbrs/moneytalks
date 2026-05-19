@@ -16,17 +16,20 @@ type Props = {
 };
 
 function skorRenk(skor: number) {
-  if (skor >= 65) return "#10B981";
-  if (skor >= 45) return "#F59E0B";
+  if (skor >= 80) return "#10B981";
+  if (skor >= 65) return "#22C55E";
+  if (skor >= 50) return "#F59E0B";
+  if (skor >= 35) return "#F97316";
   return "#EF4444";
 }
 
+// Yönsüz etiketler — "yükseliş/düşüş" iması yok, sadece risk seviyesi.
 function gorunumMetni(skor: number) {
-  if (skor >= 65) return "Güçlü Görünüm";
-  if (skor >= 55) return "Olumlu Görünüm";
-  if (skor >= 45) return "Nötr Görünüm";
-  if (skor >= 35) return "Zayıf Görünüm";
-  return "Olumsuz Görünüm";
+  if (skor >= 80) return "Çok Düşük Risk";
+  if (skor >= 65) return "Düşük Risk · Stabil";
+  if (skor >= 50) return "Orta Risk";
+  if (skor >= 35) return "Yüksek Risk";
+  return "Çok Yüksek Risk";
 }
 
 export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
@@ -122,8 +125,8 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
                   </a>
                 </div>
               )}
-              <p style={{ fontSize: 12, color: "#334155", marginTop: 6 }}>
-                Güven: <span style={{ color: aiPanel.guven === "Yüksek" ? "#10B981" : aiPanel.guven === "Orta" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
+              <p style={{ fontSize: 12, color: "#64748B", marginTop: 6 }}>
+                Veri: <span style={{ color: aiPanel.guven === "Güvenilir" ? "#10B981" : aiPanel.guven === "Kısmi" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
               </p>
               <a href="/pro" style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8, fontSize: 11, fontWeight: 500, color: "#64748B", textDecoration: "none" }}>
                 <span style={{ color: "#F97316" }}>⚡</span> Detaylı teknik analiz için Pro&apos;ya geç →
