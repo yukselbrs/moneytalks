@@ -2632,16 +2632,27 @@ export async function POST(req: NextRequest) {
 
   // 2. Günlük mesaj limiti (ücretsiz: 3 mesaj/gün)
   const bugun = new Date().toISOString().split("T")[0];
-  const { data: usageData } = await supabaseAdmin
-    .from("chatbot_usage")
-    .select("mesaj_sayisi")
-    .eq("user_id", user.id)
-    .eq("gun", bugun)
-    .single();
+  const [usageRes, profileRes] = await Promise.all([
+    supabaseAdmin
+      .from("chatbot_usage")
+      .select("mesaj_sayisi")
+      .eq("user_id", user.id)
+      .eq("gun", bugun)
+      .single(),
+    supabaseAdmin
+      .from("profiles")
+      .select("is_pro, pro_until")
+      .eq("id", user.id)
+      .single(),
+  ]);
 
-  const mevcutSayi = usageData?.mesaj_sayisi ?? 0;
+  const mevcutSayi = usageRes.data?.mesaj_sayisi ?? 0;
+  const profile = profileRes.data as { is_pro?: boolean | null; pro_until?: string | null } | null;
+  const proAktif = profile?.is_pro === true && (
+    !profile.pro_until || new Date(profile.pro_until).getTime() > Date.now()
+  );
   const BYPASS_EMAILS = (process.env.CHATBOT_BYPASS_EMAILS ?? "").split(",").map(e => e.trim());
-  const limitAtlandi = BYPASS_EMAILS.includes(user.email ?? "");
+  const limitAtlandi = proAktif || BYPASS_EMAILS.includes(user.email ?? "");
   const GUNLUK_LIMIT = 3;
 
   if (!limitAtlandi && mevcutSayi >= GUNLUK_LIMIT) {

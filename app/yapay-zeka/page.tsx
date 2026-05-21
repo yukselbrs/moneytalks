@@ -368,6 +368,15 @@ export default function YapayZekaPage() {
         body: JSON.stringify({ messages: newMessages, portfoy: portfoy.length > 0 ? portfoy : undefined }),
       });
 
+      // 429 ve diğer non-stream hatalar: JSON parse et, kullanıcıya göster
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null) as { mesaj?: string; error?: string } | null;
+        const errMesaj = errJson?.mesaj || errJson?.error || `İstek başarısız (HTTP ${res.status}).`;
+        setLoading(false);
+        appendAssistant(currentId!, errMesaj);
+        return;
+      }
+
       if (!res.body) throw new Error("no stream");
 
       const reader = res.body.getReader();
