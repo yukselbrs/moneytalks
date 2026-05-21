@@ -62,23 +62,74 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
         },
         body: JSON.stringify({ messages: yeniMesajlar, ticker, veri, analiz, portfoy }),
       });
-      const data = await res.json();
-      if (data.error === "gunluk_limit") {
-        setLimitDoldu(true);
-        setMesajlar(prev => [...prev, {
-          role: "assistant",
-          content: "⚡ Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz için Pro'ya geçin.",
-          proLink: true,
-        }]);
-      } else if (data.reply) {
-        const kalanBilgi = data.kalanHak === 0
-          ? " · Günlük hakkınız bitti, Pro'ya geçin."
-          : data.kalanHak === 1
-          ? ` · Son mesaj hakkınız.`
-          : "";
-        setMesajlar(prev => [...prev, { role: "assistant", content: data.reply + kalanBilgi }]);
-      } else {
-        setMesajlar(prev => [...prev, { role: "assistant", content: "Bir hata oluştu, tekrar dene." }]);
+
+      // 429 / hata: JSON cevap — SSE değil
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null) as { error?: string; mesaj?: string } | null;
+        if (errJson?.error === "gunluk_limit") {
+          setLimitDoldu(true);
+          setMesajlar(prev => [...prev, {
+            role: "assistant",
+            content: "⚡ Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz için Pro'ya geçin.",
+            proLink: true,
+          }]);
+        } else {
+          setMesajlar(prev => [...prev, { role: "assistant", content: errJson?.mesaj || errJson?.error || "Bir hata oluştu, tekrar dene." }]);
+        }
+        setYukleniyor(false);
+        return;
+      }
+
+      if (!res.body) throw new Error("no stream");
+
+      // SSE stream'i oku ve mesaja yaz
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let aktifMesajVar = false;
+      let kalanHak: number | undefined;
+
+      const upsertSon = (icerik: string) => {
+        setMesajlar(prev => {
+          if (!aktifMesajVar) {
+            aktifMesajVar = true;
+            return [...prev, { role: "assistant", content: icerik }];
+          }
+          const next = [...prev];
+          const son = next[next.length - 1];
+          if (son?.role === "assistant") next[next.length - 1] = { ...son, content: icerik };
+          return next;
+        });
+      };
+      let toplam = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; kalanHak?: number };
+            if (ev.type === "delta" && ev.text) { toplam += ev.text; upsertSon(toplam); }
+            else if (ev.type === "replace" && ev.text) { toplam = ev.text; upsertSon(toplam); }
+            else if (ev.type === "done" && typeof ev.kalanHak === "number") { kalanHak = ev.kalanHak; }
+          } catch { /* parse skip */ }
+        }
+      }
+
+      if (!aktifMesajVar) {
+        setMesajlar(prev => [...prev, { role: "assistant", content: "Cevap üretilemedi, tekrar dene." }]);
+      } else if (kalanHak === 0 || kalanHak === 1) {
+        const ek = kalanHak === 0 ? " · Günlük hakkınız bitti, Pro'ya geçin." : " · Son mesaj hakkınız.";
+        setMesajlar(prev => {
+          const next = [...prev];
+          const son = next[next.length - 1];
+          if (son?.role === "assistant") next[next.length - 1] = { ...son, content: son.content + ek };
+          return next;
+        });
       }
     } catch {
       setMesajlar(prev => [...prev, { role: "assistant", content: "Bir hata oluştu, tekrar dene." }]);
