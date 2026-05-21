@@ -41,7 +41,8 @@ type LiveGetiriler = {
 
 type SnapshotSortColumn = keyof HisseSnapshot;
 
-// Whitelist — frontend'den gelen sort key'i Supabase kolonuna map'liyoruz
+// Whitelist — frontend'den gelen sort key'i Supabase kolonuna map'liyoruz.
+// "islem_hacmi" türev alan: hacim * fiyat. Comparator'da özel case ile hesaplanır.
 const SORT_MAP: Record<string, { col: SnapshotSortColumn; ascDefault: boolean }> = {
   alfabetik: { col: "ticker", ascDefault: true },
   fiyat: { col: "fiyat", ascDefault: false },
@@ -49,6 +50,7 @@ const SORT_MAP: Record<string, { col: SnapshotSortColumn; ascDefault: boolean }>
   yukselis: { col: "degisim_yuzde", ascDefault: false },
   dusus: { col: "degisim_yuzde", ascDefault: true },
   hacim: { col: "hacim", ascDefault: false },
+  islem_hacmi: { col: "hacim", ascDefault: false }, // virtual: hacim * fiyat
   piyasa: { col: "piyasa_degeri", ascDefault: false },
   "1wk": { col: "getiri_1h", ascDefault: false },
   "1mo": { col: "getiri_1a", ascDefault: false },
@@ -139,6 +141,20 @@ export async function GET(req: NextRequest) {
   const shouldReturnSort = sort === "1wk" || sort === "1mo" || sort === "3mo" || sort === "1y";
   const sortLiveMap = new Map<string, LiveFiyat>();
   const sortReturnMap = shouldReturnSort ? await fetchLiveGetiriler(allTickers) : new Map<string, LiveGetiriler>();
+  const islemHacmiSort = sort === "islem_hacmi";
+  const islemHacmiOf = (snap: HisseSnapshot | undefined) => {
+    if (!snap) return null;
+    const h = typeof snap.hacim === "number" ? snap.hacim : null;
+    const fRaw = snap.fiyat;
+    const f = typeof fRaw === "number"
+      ? fRaw
+      : typeof fRaw === "string"
+        ? Number(String(fRaw).replace(/\./g, "").replace(",", "."))
+        : null;
+    if (h === null || f === null || !Number.isFinite(h) || !Number.isFinite(f) || f <= 0) return null;
+    return h * f;
+  };
+
   const sortedTickers = [...allTickers].sort((a, b) => {
     if (sort === "alfabetik") return a.localeCompare(b, "tr");
 
@@ -148,20 +164,24 @@ export async function GET(req: NextRequest) {
     const liveB = sortLiveMap.get(b);
     const returnA = sortReturnMap.get(a);
     const returnB = sortReturnMap.get(b);
-    const rawA = sortDef.col === "fiyat"
-      ? (liveA?.fiyat ?? snapA?.fiyat)
-      : sortDef.col === "degisim_yuzde"
-        ? (safeDailyChange(snapA?.degisim_yuzde) ?? safeDailyChange(liveA?.degisim))
-        : shouldReturnSort
-          ? (returnA?.[sortDef.col as keyof LiveGetiriler] ?? snapA?.[sortDef.col])
-          : snapA?.[sortDef.col];
-    const rawB = sortDef.col === "fiyat"
-      ? (liveB?.fiyat ?? snapB?.fiyat)
-      : sortDef.col === "degisim_yuzde"
-        ? (safeDailyChange(snapB?.degisim_yuzde) ?? safeDailyChange(liveB?.degisim))
-        : shouldReturnSort
-          ? (returnB?.[sortDef.col as keyof LiveGetiriler] ?? snapB?.[sortDef.col])
-          : snapB?.[sortDef.col];
+    const rawA = islemHacmiSort
+      ? islemHacmiOf(snapA)
+      : sortDef.col === "fiyat"
+        ? (liveA?.fiyat ?? snapA?.fiyat)
+        : sortDef.col === "degisim_yuzde"
+          ? (safeDailyChange(snapA?.degisim_yuzde) ?? safeDailyChange(liveA?.degisim))
+          : shouldReturnSort
+            ? (returnA?.[sortDef.col as keyof LiveGetiriler] ?? snapA?.[sortDef.col])
+            : snapA?.[sortDef.col];
+    const rawB = islemHacmiSort
+      ? islemHacmiOf(snapB)
+      : sortDef.col === "fiyat"
+        ? (liveB?.fiyat ?? snapB?.fiyat)
+        : sortDef.col === "degisim_yuzde"
+          ? (safeDailyChange(snapB?.degisim_yuzde) ?? safeDailyChange(liveB?.degisim))
+          : shouldReturnSort
+            ? (returnB?.[sortDef.col as keyof LiveGetiriler] ?? snapB?.[sortDef.col])
+            : snapB?.[sortDef.col];
     const hasA = rawA !== null && rawA !== undefined;
     const hasB = rawB !== null && rawB !== undefined;
 
