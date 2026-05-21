@@ -31,6 +31,12 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
+-- Pro plan: chatbot günlük mesaj limitini atlatan alanlar.
+-- is_pro = true ve (pro_until NULL veya gelecekte) ise kullanıcı sınırsız.
+-- /api/chatbot bu kolonları okur; eksik olduklarında Pro özelliği sessizce devre dışı kalır.
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_pro BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS pro_until TIMESTAMPTZ;
+
 CREATE UNIQUE INDEX IF NOT EXISTS profiles_username_unique_idx ON public.profiles (username) WHERE username IS NOT NULL;
 CREATE INDEX IF NOT EXISTS profiles_username_idx ON public.profiles (username);
 
