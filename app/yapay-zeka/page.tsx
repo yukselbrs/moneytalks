@@ -395,7 +395,7 @@ export default function YapayZekaPage() {
           if (!line.startsWith("data: ")) continue;
           try {
             const ev = JSON.parse(line.slice(6)) as {
-              type: string; text?: string; kalanHak?: number; alarmTaslak?: unknown;
+              type: string; text?: string; kalanHak?: number | null; pro?: boolean; alarmTaslak?: unknown;
             };
 
             if (ev.type === "delta" && ev.text) {
@@ -410,7 +410,8 @@ export default function YapayZekaPage() {
               if (firstDelta) { firstDelta = false; setLoading(false); appendAssistant(currentId!, ev.text); }
               else updateLastAssistant(currentId!, () => ev.text!);
             } else if (ev.type === "done") {
-              if (ev.kalanHak !== undefined) setKalanHak(ev.kalanHak);
+              // Pro / bypass kullanıcılarda backend kalanHak=null döner → metin gizlenir
+              if (ev.kalanHak !== undefined) setKalanHak(ev.kalanHak ?? null);
             } else if (ev.type === "error") {
               if (firstDelta) { firstDelta = false; setLoading(false); }
               updateLastAssistant(currentId!, () => "Bir hata oluştu. Lütfen tekrar deneyin.");

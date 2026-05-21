@@ -112,10 +112,11 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           try {
-            const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; kalanHak?: number };
+            const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; kalanHak?: number | null; pro?: boolean };
             if (ev.type === "delta" && ev.text) { toplam += ev.text; upsertSon(toplam); }
             else if (ev.type === "replace" && ev.text) { toplam = ev.text; upsertSon(toplam); }
             else if (ev.type === "done" && typeof ev.kalanHak === "number") { kalanHak = ev.kalanHak; }
+            // Pro kullanıcılarda kalanHak=null gelir, ek metin eklenmez
           } catch { /* parse skip */ }
         }
       }

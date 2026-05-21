@@ -2809,7 +2809,8 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
         send({ type: "replace", text: reply });
       }
 
-      if (!engellendi) {
+      // Pro / bypass kullanıcılarda sayacı arttırma
+      if (!engellendi && !limitAtlandi) {
         if (mevcutSayi === 0) {
           await supabaseAdmin.from("chatbot_usage").insert({ user_id: user.id, gun: bugun, mesaj_sayisi: 1 });
         } else {
@@ -2830,7 +2831,12 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
         outputTokens: outputTokensTotal,
       });
 
-      send({ type: "done", kalanHak: GUNLUK_LIMIT - mevcutSayi - 1, alarmTaslak });
+      send({
+        type: "done",
+        kalanHak: limitAtlandi ? null : Math.max(0, GUNLUK_LIMIT - mevcutSayi - 1),
+        pro: limitAtlandi,
+        alarmTaslak,
+      });
       controller.close();
     },
   });
