@@ -53,6 +53,7 @@ const TABLO_BASLIKLARI = [
   { label: "FİYAT", sort: "fiyat", align: "right" },
   { label: "GÜN %", sort: "gun", align: "right" },
   { label: "HACİM", sort: "hacim", align: "right" },
+  { label: "İŞLEM HACMİ", align: "right" },
   { label: "1H %", sort: "1wk", align: "right" },
   { label: "1A %", sort: "1mo", align: "right" },
   { label: "3A %", sort: "3mo", align: "right" },
@@ -163,6 +164,17 @@ function HisselerContent() {
     return v.toLocaleString("tr-TR");
   };
 
+  const formatIslemHacmi = (hacim: number | null, fiyat: string | null) => {
+    if (hacim === null || !Number.isFinite(hacim) || !fiyat) return "—";
+    const f = parseFloat(fiyat.replace(",", "."));
+    if (!Number.isFinite(f) || f <= 0) return "—";
+    const tl = hacim * f;
+    if (tl >= 1_000_000_000) return `${(tl / 1_000_000_000).toFixed(2).replace(".", ",")} Mr ₺`;
+    if (tl >= 1_000_000) return `${(tl / 1_000_000).toFixed(1).replace(".", ",")} Mn ₺`;
+    if (tl >= 1_000) return `${(tl / 1_000).toFixed(0)} B ₺`;
+    return `${tl.toFixed(0)} ₺`;
+  };
+
   const renderPercent = (value: string | null, className = "") => {
     const val = value !== null ? parseFloat(value) : null;
     return (
@@ -213,6 +225,7 @@ function HisselerContent() {
             .hisse-row { display: grid !important; grid-template-columns: 1fr auto !important; gap: 10px !important; margin-bottom: 8px; padding: 13px 14px !important; border: 1px solid rgba(59,130,246,0.08) !important; border-radius: 12px; background: rgba(255,255,255,0.012) !important; }
             .hisse-row .col-no { display: none !important; }
             .hisse-row .col-hacim { display: none !important; }
+            .hisse-row .col-islem-hacmi { display: none !important; }
             .hisse-row .col-getiri { display: none !important; }
             .hisse-row .col-gun { text-align: right !important; align-self: end; }
             .hisse-row .col-fiyat { text-align: right !important; align-self: start; }
@@ -328,7 +341,7 @@ function HisselerContent() {
           {gorunum === "tablo" && (
             <>
             <div className="card-glass" style={{ borderRadius: 12, overflow: "hidden" }}>
-              <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 100px 80px 80px 80px 80px", gap: 8, padding: "13px 18px", borderBottom: "1px solid rgba(59,130,246,0.12)", background: "linear-gradient(180deg, rgba(59,130,246,0.04), rgba(255,255,255,0.005))" }}>
+              <div className="hisse-tablo-header" style={{ display: "grid", gridTemplateColumns: "44px 1fr 100px 84px 92px 120px 76px 76px 76px 76px", gap: 8, padding: "13px 18px", borderBottom: "1px solid rgba(59,130,246,0.12)", background: "linear-gradient(180deg, rgba(59,130,246,0.04), rgba(255,255,255,0.005))" }}>
               {TABLO_BASLIKLARI.map((h) => {
                 const active = h.sort && sort === h.sort && sortDir;
                 const alignRight = h.align === "right";
@@ -366,7 +379,7 @@ function HisselerContent() {
               const globalNo = (page - 1) * pageSize + i + 1;
               return (
                 <div key={hisse.ticker} className="hisse-row" onClick={() => router.push(`/hisse/${hisse.ticker}`)}
-                  style={{ display: "grid", gridTemplateColumns: "48px 1fr 110px 90px 100px 80px 80px 80px 80px", gap: 8, padding: "14px 18px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer", alignItems: "center", background: "transparent" }}>
+                  style={{ display: "grid", gridTemplateColumns: "44px 1fr 100px 84px 92px 120px 76px 76px 76px 76px", gap: 8, padding: "14px 18px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer", alignItems: "center", background: "transparent" }}>
                   <span className="col-no" style={{ fontSize: 12, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
                     <StockLogo ticker={hisse.ticker} domain={hisse.domain} size={30} radius={7} color={renk} />
@@ -384,9 +397,15 @@ function HisselerContent() {
                   <p className="col-hacim" style={{ fontSize: 12.5, fontWeight: 600, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums", color: hisse.hacim !== null && hisse.hacim > 0 ? "#CBD5E1" : "#475569" }}>
                     {formatHacim(hisse.hacim)}
                   </p>
+                  <p className="col-islem-hacmi" style={{ fontSize: 12.5, fontWeight: 600, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums", color: hisse.hacim !== null && hisse.fiyat ? "#A78BFA" : "#475569" }}>
+                    {formatIslemHacmi(hisse.hacim, hisse.fiyat)}
+                  </p>
                   <div className="hisse-mobile-returns">
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", fontSize: 12, color: "#DBEAFE", whiteSpace: "nowrap", fontWeight: 600 }}>
                       Hacim <span style={{ color: "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{formatHacim(hisse.hacim)}</span>
+                    </span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(167,139,250,0.1)", border: "1px solid rgba(167,139,250,0.2)", fontSize: 12, color: "#DDD6FE", whiteSpace: "nowrap", fontWeight: 600 }}>
+                      İşlem <span style={{ color: "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{formatIslemHacmi(hisse.hacim, hisse.fiyat)}</span>
                     </span>
                     {[
                       ["1H", hisse.getiri_1h],

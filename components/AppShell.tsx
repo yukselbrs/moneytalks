@@ -191,7 +191,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         @keyframes ai-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); } 50% { box-shadow: 0 0 10px 2px rgba(99,102,241,0.25); } }
         @keyframes ai-dot { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
         .sb-ai-btn { display:flex; align-items:center; border-radius:10px; text-decoration:none; cursor:pointer; width:100%; border:none; text-align:left; transition:all 0.18s; position:relative; overflow:hidden; }
-        .sb-ai-btn::before { content:''; position:absolute; inset:0; border-radius:10px; padding:1px; background:linear-gradient(135deg,rgba(99,102,241,0.6),rgba(59,130,246,0.4),rgba(139,92,246,0.5)); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; }
         .sb-ai-btn:hover { background:rgba(99,102,241,0.12) !important; animation:ai-pulse 1.5s ease-in-out infinite; }
         .sb-topbar { min-height: 44px; }
         .sb-topbar-logo { font-size: 14px; font-weight: 600; color: #F8FAFC; text-decoration: none; white-space: nowrap; }
