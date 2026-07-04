@@ -458,3 +458,9 @@ ALTER TABLE public.chatbot_usage ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "chatbot_usage_select_own" ON public.chatbot_usage;
 CREATE POLICY "chatbot_usage_select_own" ON public.chatbot_usage
 FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+-- RLS audit (Temmuz 2026): profiles_select_authenticated policy'si tum satirlari aciyor
+-- (username musaitlik kontrolu icin gerekli) ama email kolonu herkese gorunmemeli.
+-- RLS satir bazlidir; kolon kisiti icin column-level GRANT kullanilir (ikisi birlikte uygulanir).
+REVOKE SELECT ON public.profiles FROM authenticated;
+GRANT SELECT (id, username, full_name, avatar_url, created_at, updated_at) ON public.profiles TO authenticated;

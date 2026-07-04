@@ -43,7 +43,7 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `/auth/callback` — OAuth SSR callback. Supabase SSR cookie yazımı (@supabase/ssr).
 
 ## Supabase Tables
-- `profiles` — user metadata (username, avatar_url, full_name)
+- `profiles` — user metadata (username, avatar_url, full_name, email, is_pro, pro_until). Authenticated SELECT kolon-kısıtlı (GRANT): email/is_pro/pro_until yalnız service role.
 - `watchlist` — (user_id, ticker, added_at)
 - `analizler` — (user_id, ticker, analiz TEXT, created_at)
 - `portfoy` — (user_id, ticker, adet, maliyet, alis_tarihi)
@@ -52,6 +52,8 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `hisse_snapshots` — (ticker, fiyat, degisim_yuzde, hacim, getiri_1h/1a/3a/1y, updated_at)
 - `waitlist` — (email, created_at)
 - `risk_profil` — (user_id, vade, risk_toleransi, sermaye, sektor, deneyim, ai_oneri JSON)
+- `chatbot_usage` — (user_id, gun, mesaj_sayisi, updated_at) PK(user_id,gun). Günlük mesaj kotası; yazma yalnız service role, kullanıcı kendi satırını okur.
+- `rate_limits` — (key, window_start, count, updated_at). `rate_limit_hit()` RPC ile atomik sayaç; yalnız service role (policy yok). Şema kaynağı: `supabase/migrations.sql` (SQL Editor'de manuel çalıştırılır).
 
 ## Data Sources
 - Yahoo Finance — fiyat, grafik, beta, volatilite (15dk gecikmeli, `.IS` suffix zorunlu)
