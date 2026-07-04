@@ -103,8 +103,16 @@ export async function GET(req: NextRequest) {
     }
 
     if (tetiklendi) {
+      // Idempotency: satiri atomik sahiplen — es zamanli ikinci calistirma ayni alarmi tekrar bildiremez
+      const { data: claimed } = await supabase
+        .from("alarmlar")
+        .update({ durum: "tetiklendi" })
+        .eq("id", alarm.id)
+        .eq("durum", "aktif")
+        .select("id");
+      if (!claimed?.length) continue;
+
       tetiklenen++;
-      await supabase.from("alarmlar").update({ durum: "tetiklendi" }).eq("id", alarm.id);
       await supabase.from("bildirimler").insert({
         user_id: alarm.user_id,
         baslik: `🔔 ${alarm.ticker} alarm tetiklendi!`,
