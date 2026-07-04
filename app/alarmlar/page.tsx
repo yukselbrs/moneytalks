@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AppShell from "@/components/AppShell";
 import AlarmModal from "@/components/AlarmModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -13,17 +13,25 @@ type QuickTip = AlarmModalTip | "haber";
 type Alarm = {
   id: string | number;
   tip: string;
+  tipRaw: string;
   hisse: string;
   sirket: string;
   kosul: string;
   detay: string;
   hedef: string;
+  hedefDeger: number | null;
   guncel: string;
   degisim: string;
   yukselis: boolean;
   tarih: string;
   durum: string;
 };
+
+function fiyatParse(value?: string): number | null {
+  if (!value) return null;
+  const parsed = Number.parseFloat(value.replace(/\./g, "").replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 const HIZLI: { ikon: string; renk: string; baslik: string; aciklama: string; tip: QuickTip }[] = [
   { ikon: "📈", renk: "#10B981", baslik: "Fiyat Alarmı Ekle", aciklama: "Belirlediğiniz fiyat seviyelerine ulaşıldığında bildirim alın.", tip: "fiyat_seviye" },
@@ -40,37 +48,40 @@ export default function AlarmlarPage() {
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean }>>({});
   const isMobil = useMediaQuery("(max-width: 767px)");
 
-  useEffect(() => {
-    async function fetchAlarmlar() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const res = await fetch("/api/alarmlar", { headers: { authorization: `Bearer ${session.access_token}` } });
-      const data = await res.json();
-      if (!Array.isArray(data)) return;
-      const mapped: Alarm[] = data.map((a: { id: string; ticker: string; tip: string; kosul: string; hedef_deger: number | null; hedef_yuzde: number | null; durum: string; created_at: string }) => ({
-        id: a.id,
-        tip: a.tip === "fiyat_seviye" || a.tip === "fiyat_yuzde" ? "fiyat" : a.tip === "gosterge" ? "gosterge" : "haber",
-        hisse: a.ticker,
-        sirket: "",
-        kosul: a.kosul === "yukari" ? "Yükselirse" : "Düşerse",
-        detay: a.tip === "fiyat_seviye" ? "Fiyat seviyesi" : a.tip === "fiyat_yuzde" ? "Yüzde değişim" : "",
-        hedef: a.hedef_deger !== null && a.hedef_deger !== undefined
-          ? `${a.hedef_deger} ₺`
-          : a.hedef_yuzde !== null && a.hedef_yuzde !== undefined
-            ? `%${a.hedef_yuzde}`
-            : "-",
-        guncel: "-",
-        degisim: "",
-        yukselis: true,
-        tarih: new Date(a.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "2-digit" }),
-        durum: a.durum || "aktif",
-      }));
-      setAlarmlar(mapped);
-      const tickers = [...new Set(mapped.map(a => a.hisse))].join(",");
-      if (tickers) fetch(`/api/fiyatlar?extra=${tickers}`).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
-    }
-    fetchAlarmlar();
+  const fetchAlarmlar = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch("/api/alarmlar", { headers: { authorization: `Bearer ${session.access_token}` } });
+    const data = await res.json();
+    if (!Array.isArray(data)) return;
+    const mapped: Alarm[] = data.map((a: { id: string; ticker: string; tip: string; kosul: string; hedef_deger: number | null; hedef_yuzde: number | null; durum: string; created_at: string }) => ({
+      id: a.id,
+      tip: a.tip === "fiyat_seviye" || a.tip === "fiyat_yuzde" ? "fiyat" : a.tip === "gosterge" ? "gosterge" : "haber",
+      tipRaw: a.tip,
+      hisse: a.ticker,
+      sirket: "",
+      kosul: a.kosul === "yukari" ? "Yükselirse" : "Düşerse",
+      detay: a.tip === "fiyat_seviye" ? "Fiyat seviyesi" : a.tip === "fiyat_yuzde" ? "Yüzde değişim" : "",
+      hedef: a.hedef_deger !== null && a.hedef_deger !== undefined
+        ? `${a.hedef_deger} ₺`
+        : a.hedef_yuzde !== null && a.hedef_yuzde !== undefined
+          ? `%${a.hedef_yuzde}`
+          : "-",
+      hedefDeger: a.hedef_deger ?? null,
+      guncel: "-",
+      degisim: "",
+      yukselis: true,
+      tarih: new Date(a.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "2-digit" }),
+      durum: a.durum || "aktif",
+    }));
+    setAlarmlar(mapped);
+    const tickers = [...new Set(mapped.map(a => a.hisse))].join(",");
+    if (tickers) fetch(`/api/fiyatlar?extra=${tickers}`).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetchAlarmlar();
+  }, [fetchAlarmlar]);
 
   const fiyatAlarmlar = alarmlar.filter(a => a.tip === "fiyat");
   const gostergeAlarmlar = alarmlar.filter(a => a.tip === "gosterge");
@@ -115,6 +126,14 @@ export default function AlarmlarPage() {
     const parsedDegisim = guncelFiyat ? Number.parseFloat(String(guncelFiyat.degisim).replace(",", ".")) : NaN;
     const degisimText = Number.isFinite(parsedDegisim) ? `${Math.abs(parsedDegisim).toFixed(2).replace(".", ",")}` : "-";
 
+    const guncelDeger = fiyatParse(guncelFiyat?.fiyat);
+    const uzaklikYuzde = a.tipRaw === "fiyat_seviye" && a.hedefDeger !== null && guncelDeger !== null && guncelDeger > 0
+      ? ((a.hedefDeger - guncelDeger) / guncelDeger) * 100
+      : null;
+    const uzaklikMutlak = uzaklikYuzde !== null ? Math.abs(uzaklikYuzde) : null;
+    const yakinlikOrani = uzaklikMutlak !== null ? Math.max(0, Math.min(1, 1 - uzaklikMutlak / 20)) : null;
+    const uzaklikRenk = uzaklikMutlak === null ? "#475569" : uzaklikMutlak < 1 ? "#10B981" : uzaklikMutlak < 5 ? "#F59E0B" : "#64748B";
+
     return (
       <div className="hover-glow" style={{ padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", display: "flex", flexDirection: "column", gap: 10, transition: "background 0.15s ease", borderRadius: 0 }}
         onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "rgba(59,130,246,0.04)"}
@@ -154,6 +173,18 @@ export default function AlarmlarPage() {
             )}
           </div>
         </div>
+        {uzaklikYuzde !== null && uzaklikMutlak !== null && yakinlikOrani !== null && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ flex: 1, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }} aria-hidden="true">
+              <div style={{ width: `${(yakinlikOrani * 100).toFixed(0)}%`, height: "100%", borderRadius: 2, background: uzaklikRenk, transition: "width 0.3s ease" }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 600, color: uzaklikRenk, whiteSpace: "nowrap" }}>
+              {uzaklikMutlak < 0.05
+                ? "Hedef seviyede"
+                : `Hedefe ${uzaklikYuzde > 0 ? "↑" : "↓"} %${uzaklikMutlak.toFixed(1).replace(".", ",")} uzakta`}
+            </span>
+          </div>
+        )}
       </div>
     );
   };
@@ -315,7 +346,7 @@ export default function AlarmlarPage() {
       {modalAcik && (
         <AlarmModal
           onKapat={() => setModalAcik(false)}
-          onEklendi={() => { setModalAcik(false); window.location.reload(); }}
+          onEklendi={() => { setModalAcik(false); fetchAlarmlar(); }}
           varsayilanTip={modalTip}
         />
       )}
