@@ -1,11 +1,37 @@
 import { MetadataRoute } from "next";
+import { createClient } from "@supabase/supabase-js";
+import bistHisseler from "@/data/bist-companies.json";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+type BistEntry = { ticker: string };
+
+async function kapBildirimUrls(base: string): Promise<MetadataRoute.Sitemap> {
+  try {
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    const { data, error } = await supabase
+      .from("kap_bildirimleri")
+      .select("disclosure_index, kap_zamani")
+      .not("ozet_tek_cumle", "is", null)
+      .order("kap_zamani", { ascending: false })
+      .limit(500);
+    if (error || !data) return [];
+    return data.map(b => ({
+      url: `${base}/kap/${b.disclosure_index}`,
+      lastModified: b.kap_zamani ? new Date(b.kap_zamani) : new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://parakonusur.com";
   const statikSayfalar = [
     { url: base, priority: 1.0 },
     { url: `${base}/dashboard`, priority: 0.9 },
     { url: `${base}/hisseler`, priority: 0.9 },
+    { url: `${base}/kap`, priority: 0.9 },
     { url: `${base}/analizler`, priority: 0.8 },
     { url: `${base}/portfoy`, priority: 0.8 },
     { url: `${base}/izleme`, priority: 0.7 },
@@ -19,10 +45,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/gizlilik`, priority: 0.3 },
     { url: `${base}/kvkk`, priority: 0.3 },
   ];
-  return statikSayfalar.map(s => ({
+
+  const statik: MetadataRoute.Sitemap = statikSayfalar.map(s => ({
     url: s.url,
     lastModified: new Date(),
     changeFrequency: "daily" as const,
     priority: s.priority,
   }));
+
+  const hisseler: MetadataRoute.Sitemap = (bistHisseler as BistEntry[]).map(h => ({
+    url: `${base}/hisse/${h.ticker}`,
+    lastModified: new Date(),
+    changeFrequency: "daily" as const,
+    priority: 0.7,
+  }));
+
+  const kap = await kapBildirimUrls(base);
+
+  return [...statik, ...hisseler, ...kap];
 }

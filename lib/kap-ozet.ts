@@ -174,7 +174,7 @@ function icerikTopla(detay: KapDetay): string {
   return parcalar.join(" ").slice(0, MAX_ICERIK_KARAKTER).trim();
 }
 
-const TIP_ETIKET: Record<KapBildirimTipi, string> = {
+export const TIP_ETIKET: Record<KapBildirimTipi, string> = {
   ozel_durum: "Özel Durum Açıklaması",
   finansal_rapor: "Finansal Rapor / Bilanço",
   pay_geri_alim: "Pay Geri Alım",
