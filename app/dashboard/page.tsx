@@ -89,7 +89,7 @@ export default function DashboardPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz için giriş gerekli.", guven: "Düşük", yukleniyor: false });
+        setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz için giriş gerekli.", guven: "Yetersiz", yukleniyor: false });
         return;
       }
       const [riskRes, yorumRes] = await Promise.all([
@@ -127,7 +127,7 @@ export default function DashboardPage() {
       const guven = veriSayisi >= 45 ? "Güvenilir" : veriSayisi >= 25 ? "Kısmi" : "Yetersiz";
       setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
     } catch {
-      setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz alınamadı.", guven: "Düşük", yukleniyor: false });
+      setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz alınamadı.", guven: "Yetersiz", yukleniyor: false });
     }
   }, [grafikTicker, grafikTickerLabel]);
 

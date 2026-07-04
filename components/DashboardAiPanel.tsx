@@ -107,6 +107,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1.2px" }}>{visibleSkor ?? "—"}</span>
                 <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>AI Skoru</span>
+                <span style={{ fontSize: 9, color: "#475569", fontWeight: 500 }}>risk ölçüsü</span>
               </div>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -126,7 +127,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
                 </div>
               )}
               <p style={{ fontSize: 12, color: "#64748B", marginTop: 6 }}>
-                Veri: <span style={{ color: aiPanel.guven === "Güvenilir" ? "#10B981" : aiPanel.guven === "Kısmi" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
+                Veri yeterliliği: <span style={{ color: aiPanel.guven === "Güvenilir" ? "#10B981" : aiPanel.guven === "Kısmi" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
               </p>
               <a href="/pro" style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8, fontSize: 11, fontWeight: 500, color: "#64748B", textDecoration: "none" }}>
                 <span style={{ color: "#F97316" }}>⚡</span> Detaylı teknik analiz için Pro&apos;ya geç →
@@ -147,7 +148,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
             </div>
           </div>
           <p style={{ fontSize: 12, color: "#334155", marginTop: 6, textAlign: "center", lineHeight: 1.5 }}>
-            Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.
+            Skor bir risk ölçüsüdür, getiri tahmini değildir. Yatırım tavsiyesi değildir.
           </p>
         </>
       ) : (
