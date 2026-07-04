@@ -5,6 +5,7 @@ import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { fetchMarketQuote } from "@/lib/market-pricing";
 import { normalizeTicker } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
+import { rateLimitHit } from "@/lib/rate-limit";
 import { formatCurrency, formatQuantity } from "@/lib/formatters";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -57,32 +58,7 @@ async function getHisseVerisi(ticker: string) {
 }
 
 const RATE_LIMIT = 10;
-const RATE_WINDOW = 3600000;
-
-const g = globalThis as typeof globalThis & {
-  analizRateLimit?: Map<string, { count: number; ts: number }>;
-  analizRateLimitCleanup?: NodeJS.Timeout;
-};
-if (!g.analizRateLimit) g.analizRateLimit = new Map();
-if (!g.analizRateLimitCleanup) {
-  g.analizRateLimitCleanup = setInterval(() => {
-    const now = Date.now();
-    g.analizRateLimit!.forEach((v, k) => { if (now - v.ts > RATE_WINDOW * 2) g.analizRateLimit!.delete(k); });
-  }, RATE_WINDOW);
-}
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  const map = g.analizRateLimit!;
-  const entry = map.get(key);
-  if (!entry || now - entry.ts > RATE_WINDOW) {
-    map.set(key, { count: 1, ts: now });
-    return true;
-  }
-  if (entry.count >= RATE_LIMIT) return false;
-  entry.count++;
-  return true;
-}
+const RATE_WINDOW_SANIYE = 3600;
 
 export async function POST(req: NextRequest) {
   let body: { ticker?: unknown; veriOnly?: unknown; kisaYorum?: unknown };
@@ -105,7 +81,8 @@ export async function POST(req: NextRequest) {
   if (!auth.user) return auth.response;
   const user = auth.user;
 
-  if (!checkRateLimit(user.id)) {
+  const limit = await rateLimitHit(`analiz:${user.id}`, RATE_WINDOW_SANIYE, RATE_LIMIT);
+  if (!limit.allowed) {
     return NextResponse.json({ error: "Saatte en fazla 10 analiz yapabilirsiniz. Lütfen daha sonra tekrar deneyin." }, { status: 429 });
   }
 

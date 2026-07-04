@@ -382,3 +382,79 @@ DROP POLICY IF EXISTS "avatars_delete_own" ON storage.objects;
 CREATE POLICY "avatars_delete_own" ON storage.objects
 FOR DELETE TO authenticated
 USING (bucket_id = 'avatars' AND name LIKE 'avatars/' || auth.uid()::text || '.%');
+
+-- Rate limit sayaci (fixed window). Sadece service role erisir.
+CREATE TABLE IF NOT EXISTS public.rate_limits (
+  key TEXT PRIMARY KEY,
+  window_start TIMESTAMPTZ NOT NULL,
+  count INT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- RLS acik, policy YOK: hicbir role satir goremez/yazamaz.
+-- Service role RLS'i bypass ettigi icin yalniz o erisir.
+ALTER TABLE public.rate_limits ENABLE ROW LEVEL SECURITY;
+
+-- Atomik rate limit artirma. Tek statement upsert oldugundan yaris kosulu yok.
+-- Sabit pencere: pencere basi epoch'un p_window_seconds'a bolunup taban alinmasiyla bulunur.
+-- Ayni pencere -> count+1, yeni pencere -> count=1 ve window_start guncellenir.
+-- Donus: count <= p_max ise TRUE (izin var), degilse FALSE (limit asildi).
+CREATE OR REPLACE FUNCTION public.rate_limit_hit(p_key TEXT, p_window_seconds INT, p_max INT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_window_start TIMESTAMPTZ;
+  v_count INT;
+BEGIN
+  v_window_start := to_timestamp(floor(extract(epoch from now()) / p_window_seconds) * p_window_seconds);
+
+  INSERT INTO public.rate_limits (key, window_start, count, updated_at)
+  VALUES (p_key, v_window_start, 1, NOW())
+  ON CONFLICT (key) DO UPDATE SET
+    count = CASE
+      WHEN public.rate_limits.window_start = v_window_start THEN public.rate_limits.count + 1
+      ELSE 1
+    END,
+    window_start = v_window_start,
+    updated_at = NOW()
+  RETURNING count INTO v_count;
+
+  RETURN v_count <= p_max;
+END;
+$$;
+
+-- Yalniz service role cagirir; anon/authenticated erisimini kaldir.
+REVOKE EXECUTE ON FUNCTION public.rate_limit_hit(TEXT, INT, INT) FROM anon, authenticated;
+
+-- Eski pencere satirlarini temizler. Simdilik manuel; ileride cron'dan cagrilabilir.
+CREATE OR REPLACE FUNCTION public.rate_limits_temizle()
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  DELETE FROM public.rate_limits WHERE updated_at < NOW() - INTERVAL '2 days';
+$$;
+
+-- Chatbot gunluk mesaj sayaci. Production'da mevcut; burada geriye uyumlu tanimlanir.
+-- /api/chatbot (user_id, gun) bazli okur; service role insert/update eder.
+CREATE TABLE IF NOT EXISTS public.chatbot_usage (
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  gun DATE NOT NULL,
+  mesaj_sayisi INT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_id, gun)
+);
+
+ALTER TABLE public.chatbot_usage ADD COLUMN IF NOT EXISTS mesaj_sayisi INT NOT NULL DEFAULT 0;
+ALTER TABLE public.chatbot_usage ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+ALTER TABLE public.chatbot_usage ENABLE ROW LEVEL SECURITY;
+
+-- Kullanici yalniz kendi satirini okur. INSERT/UPDATE policy YOK: yazma yalniz service role.
+DROP POLICY IF EXISTS "chatbot_usage_select_own" ON public.chatbot_usage;
+CREATE POLICY "chatbot_usage_select_own" ON public.chatbot_usage
+FOR SELECT TO authenticated USING (auth.uid() = user_id);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimitHit, istekIpAdresi } from "@/lib/rate-limit";
 
 async function fetchOHLCV(ticker: string) {
   const res = await fetch(
@@ -89,10 +90,51 @@ function periyodikGetiri(closes: number[], gun: number): number | null {
   return ((son - oncesi) / oncesi) * 100;
 }
 
+type RiskCacheEntry = { payload: Record<string, unknown>; ts: number };
+
+const gRisk = globalThis as typeof globalThis & { riskCache?: Map<string, RiskCacheEntry> };
+if (!gRisk.riskCache) gRisk.riskCache = new Map();
+
+const RISK_CACHE_TTL = 60000;
+const RISK_CACHE_MAX = 300;
+const RISK_IP_LIMIT = 30;
+const RISK_IP_WINDOW_SANIYE = 60;
+
+function riskCacheOku(ticker: string): Record<string, unknown> | null {
+  const entry = gRisk.riskCache!.get(ticker);
+  if (!entry || Date.now() - entry.ts > RISK_CACHE_TTL) return null;
+  return entry.payload;
+}
+
+function riskCacheYaz(ticker: string, payload: Record<string, unknown>) {
+  const cache = gRisk.riskCache!;
+  if (cache.size >= RISK_CACHE_MAX) {
+    const now = Date.now();
+    for (const [k, v] of cache) {
+      if (now - v.ts > RISK_CACHE_TTL) cache.delete(k);
+    }
+    if (cache.size >= RISK_CACHE_MAX) {
+      const eskiler = [...cache.entries()].sort((a, b) => a[1].ts - b[1].ts);
+      for (const [k] of eskiler.slice(0, cache.size - RISK_CACHE_MAX + 1)) cache.delete(k);
+    }
+  }
+  cache.set(ticker, { payload, ts: Date.now() });
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const ticker = searchParams.get("ticker");
   if (!ticker) return NextResponse.json({ error: "ticker gerekli" }, { status: 400 });
+
+  const cacheKey = ticker.toUpperCase();
+  const cached = riskCacheOku(cacheKey);
+  if (cached) return NextResponse.json(cached);
+
+  const ip = istekIpAdresi(req.headers);
+  const limit = await rateLimitHit(`risk:ip:${ip}`, RISK_IP_WINDOW_SANIYE, RISK_IP_LIMIT);
+  if (!limit.allowed) {
+    return NextResponse.json({ error: "Çok fazla istek. Lütfen 1 dakika bekleyin." }, { status: 429 });
+  }
 
   try {
     const endeksler = ["XU100", "XU030", "XU050"];
@@ -281,7 +323,7 @@ export async function GET(req: NextRequest) {
     const seviyeTR = toplamSkor >= 65 ? "Yüksek" : toplamSkor >= 50 ? "Orta-Üstü" : toplamSkor >= 35 ? "Orta" : toplamSkor >= 20 ? "Düşük" : "Çok Düşük";
     const renk = toplamSkor >= 65 ? "red" : toplamSkor >= 50 ? "orange" : toplamSkor >= 35 ? "yellow" : toplamSkor >= 20 ? "lightgreen" : "green";
 
-    return NextResponse.json({
+    const payload = {
       ticker,
       skor: Math.round(toplamSkor),
       seviye,
@@ -299,7 +341,9 @@ export async function GET(req: NextRequest) {
         momentumYuzde: parseFloat(momentumRatio.toFixed(2)),
         hacimOrani: parseFloat(hacimOrani.toFixed(2)),
       }
-    });
+    };
+    riskCacheYaz(cacheKey, payload);
+    return NextResponse.json(payload);
   } catch (e) {
     console.error("Risk API hatasi:", e);
     return NextResponse.json({ error: "Hesaplama hatasi" }, { status: 500 });

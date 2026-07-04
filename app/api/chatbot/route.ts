@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { requireUser } from "@/lib/auth";
+import { rateLimitHit } from "@/lib/rate-limit";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -16,10 +17,8 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// In-memory rate limit: user başına son istek zamanları
-const rateLimitMap = new Map<string, number[]>();
-const RATE_LIMIT = 20;       // max istek
-const RATE_WINDOW = 60000;   // 1 dakika (ms)
+const RATE_LIMIT = 20;           // max istek / pencere
+const RATE_WINDOW_SANIYE = 60;   // 1 dakika
 const KAP_API_URL = process.env.KAP_API_URL || "https://apigwdev.mkk.com.tr/api/vyk";
 const KAP_AUTH = Buffer.from(`${process.env.KAP_API_KEY}:${process.env.KAP_API_SECRET}`).toString("base64");
 const KAP_HEADERS = { Authorization: `Basic ${KAP_AUTH}` };
@@ -2664,13 +2663,11 @@ export async function POST(req: NextRequest) {
     }, { status: 429 });
   }
 
-  // 3. Dakika bazlı rate limit
-  const now = Date.now();
-  const userRequests = (rateLimitMap.get(user.id) || []).filter(t => now - t < RATE_WINDOW);
-  if (userRequests.length >= RATE_LIMIT) {
+  // 3. Dakika bazlı rate limit (Supabase kalıcı sayaç, erişilemezse in-memory fallback)
+  const dakikaLimiti = await rateLimitHit(`chatbot:${user.id}`, RATE_WINDOW_SANIYE, RATE_LIMIT);
+  if (!dakikaLimiti.allowed) {
     return NextResponse.json({ error: "Çok fazla istek. 1 dakika bekleyin." }, { status: 429 });
   }
-  rateLimitMap.set(user.id, [...userRequests, now]);
 
   const { messages, ticker, portfoy } = await req.json();
   const chatMessages = (messages ?? []) as ChatMessage[];
