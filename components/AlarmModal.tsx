@@ -257,15 +257,21 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
               <p style={{ fontSize: 12, color: "#334155", marginTop: 8, textAlign: "center" }}>Alarm tetiklendiğinde e-posta bildirim alacaksınız.</p>
             </>)}
 
-            {/* HABER ALARMI - YAKINDA */}
+            {/* HABER BILDIRIMLERI - IZLEME LISTESI UZERINDEN OTOMATIK */}
             {modalTip === "haber" && (
-              <div style={{ padding: "32px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ padding: "24px 0 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
                 <div style={{ fontSize: 40 }}>📰</div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9" }}>Haber Alarmları</p>
-                <p style={{ fontSize: 13, color: "#475569", textAlign: "center", lineHeight: 1.6 }}>KAP duyuruları ve piyasa haberleri için alarm özelliği yakında aktif olacak.</p>
-                <div style={{ marginTop: 8, padding: "8px 20px", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 20 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#F97316" }}>Çok Yakında</span>
-                </div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", margin: 0 }}>KAP Haber Bildirimleri</p>
+                <p style={{ fontSize: 13, color: "#94A3B8", textAlign: "center", lineHeight: 1.6, margin: 0 }}>
+                  İzleme listendeki bir hisse için KAP&apos;a yeni bildirim düştüğünde, sade Türkçe özetiyle e-posta alırsın — tek cümle özet, &quot;bu ne demek&quot; açıklaması ve bildirimin aslına giden bağlantı.
+                </p>
+                <p style={{ fontSize: 12, color: "#475569", textAlign: "center", lineHeight: 1.5, margin: 0 }}>
+                  Ayrı alarm kurmana gerek yok; izleme listene hisse eklemen yeterli.
+                </p>
+                <a href="/izleme"
+                  style={{ marginTop: 8, width: "100%", padding: "12px", background: "linear-gradient(135deg, #1D4ED8, #3B82F6)", borderRadius: 10, color: "#fff", fontSize: 14, fontWeight: 600, textAlign: "center", textDecoration: "none", boxSizing: "border-box" }}>
+                  İzleme Listeni Yönet →
+                </a>
               </div>
             )}
 

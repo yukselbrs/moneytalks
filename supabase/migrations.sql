@@ -464,3 +464,178 @@ FOR SELECT TO authenticated USING (auth.uid() = user_id);
 -- RLS satir bazlidir; kolon kisiti icin column-level GRANT kullanilir (ikisi birlikte uygulanir).
 REVOKE SELECT ON public.profiles FROM authenticated;
 GRANT SELECT (id, username, full_name, avatar_url, created_at, updated_at) ON public.profiles TO authenticated;
+
+-- ============================================================================
+-- KAP Tercumani (2026-07-04 eklendi)
+-- Akis: cron KAP API'den yeni bildirimleri ceker (disclosureIndex artimli) ->
+--   kap_bildirimleri'ne yazar -> Claude ile 3 katmanli ozet BIR KEZ uretilip
+--   cache'lenir -> izleme listesinde ilgili ticker olan kullanicilara e-posta
+--   gider -> ayni icerik SEO sayfalarinda herkese acik gosterilir.
+-- Yazma yalniz service role (cron); okuma anon/authenticated SELECT (kamuya acik
+--   KAP verisi + SEO). E-posta gonderim durumu ayri junction tablosunda tutulur.
+-- ============================================================================
+
+-- Ana tablo: bir satir = bir KAP bildirimi + cache'lenmis AI ozet katmanlari.
+CREATE TABLE IF NOT EXISTS public.kap_bildirimleri (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- KAP disclosureIndex: dogal unique anahtar, ayni zamanda cache anahtari.
+  -- BIGINT cunku KAP index'i monoton artan buyuk tamsayidir.
+  disclosure_index BIGINT NOT NULL,
+  -- Birincil ticker (senderExchCodes[0]). Cross-endeks bildirimlerde ilk kod.
+  ticker TEXT,
+  -- Coklu durum: KAP senderExchCodes birden cok kod donebilir ( or. holding + istirak).
+  -- Ticker bazli listelemede array-overlap sorgusu icin dizi olarak da saklanir.
+  tickerlar TEXT[] NOT NULL DEFAULT '{}',
+  -- Siniflandirma. Genisleyebilir olsun diye TEXT + CHECK; yeni tip eklemek
+  -- CHECK'i CREATE OR REPLACE degil ALTER ile guncellemeyi gerektirir (asagida idempotent yonetiliyor).
+  bildirim_tipi TEXT NOT NULL DEFAULT 'diger',
+  -- KAP disclosureType ham degeri (ODA, FR, DG, ...). Siniflandirma girdisi + denetim izi.
+  kap_tipi TEXT,
+  baslik TEXT,
+  konu TEXT,
+  -- KAP bildirim zamani (disclosure.time parse edilmis UTC).
+  kap_zamani TIMESTAMPTZ,
+  kap_link TEXT,
+  -- Ham KAP disclosureDetail JSON'u. Yeniden ozet uretimi/denetim icin kaynak-of-truth.
+  ham_detay JSONB,
+  -- AI ozet katmanlari (BIR KEZ uretilir, burada cache'lenir).
+  ozet_tek_cumle TEXT,     -- (1) tek cumle ozet
+  ozet_ne_demek TEXT,      -- (2) "bu ne demek" sade aciklama
+  -- 3. katman (portfoy/izleme baglami) kullaniciya gore gonderim aninda sablonla
+  -- kurulur, Claude'a gitmez, burada saklanmaz.
+  ozet_uretim_zamani TIMESTAMPTZ,
+  -- Islenme durumu: yeni -> ozetlendi -> bildirildi (terminal; per-user detay
+  -- kap_bildirim_gonderim'de). 'bildirildi' olmadan gonderim kuyrugu tikanir:
+  -- limit'li sorgu hep ayni eski satirlari doner. 'hata' = ozet uretimi kalici
+  -- basarisiz; cron atlar, manuel mudahale.
+  durum TEXT NOT NULL DEFAULT 'yeni',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (disclosure_index),
+  CONSTRAINT kap_bildirimleri_durum_check CHECK (durum IN ('yeni', 'ozetlendi', 'bildirildi', 'hata'))
+);
+
+-- Geriye uyumlu kolon eklemeleri (tablo elle onceden olusturulmus olabilir).
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS ticker TEXT;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS tickerlar TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS bildirim_tipi TEXT NOT NULL DEFAULT 'diger';
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS kap_tipi TEXT;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS baslik TEXT;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS konu TEXT;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS kap_zamani TIMESTAMPTZ;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS kap_link TEXT;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS ham_detay JSONB;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS ozet_tek_cumle TEXT;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS ozet_ne_demek TEXT;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS ozet_uretim_zamani TIMESTAMPTZ;
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS durum TEXT NOT NULL DEFAULT 'yeni';
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+ALTER TABLE public.kap_bildirimleri ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+-- bildirim_tipi allowlist. Genisleyebilir: yeni tip icin bu bloku guncelle, dosyayi
+-- tekrar calistir. DROP + ADD ile idempotent (ayni isimli constraint yeniden kurulur).
+ALTER TABLE public.kap_bildirimleri DROP CONSTRAINT IF EXISTS kap_bildirimleri_tip_check;
+ALTER TABLE public.kap_bildirimleri ADD CONSTRAINT kap_bildirimleri_tip_check
+  CHECK (bildirim_tipi IN (
+    'ozel_durum',
+    'finansal_rapor',
+    'pay_geri_alim',
+    'sermaye_artirimi',
+    'temettu',
+    'genel_kurul',
+    'diger'
+  ));
+
+-- durum allowlist. Tablo onceden olusturulmussa da ayni isimli constraint
+-- yeniden kurulur (inline CHECK ile ayni ad: kap_bildirimleri_durum_check).
+ALTER TABLE public.kap_bildirimleri DROP CONSTRAINT IF EXISTS kap_bildirimleri_durum_check;
+ALTER TABLE public.kap_bildirimleri ADD CONSTRAINT kap_bildirimleri_durum_check
+  CHECK (durum IN ('yeni', 'ozetlendi', 'bildirildi', 'hata'));
+
+-- Index'ler.
+-- (a) SEO sayfasi tekil cekim: disclosure_index UNIQUE zaten b-tree index sagliyor;
+--     ayrica id PK var. Ek index gerekmez.
+-- (b) Ticker bazli listeleme (SEO ticker sayfasi + izleme eslesmesi): birincil
+--     ticker uzerinden en yeni bildirimler.
+CREATE INDEX IF NOT EXISTS kap_bildirimleri_ticker_zaman_idx
+  ON public.kap_bildirimleri (ticker, kap_zamani DESC);
+-- (c) Coklu-ticker eslesme (senderExchCodes overlap): izleme listesindeki ticker
+--     seti ile array-overlap (&&) sorgusu icin GIN.
+CREATE INDEX IF NOT EXISTS kap_bildirimleri_tickerlar_gin_idx
+  ON public.kap_bildirimleri USING GIN (tickerlar);
+-- (d) Cron "ozetlenmemis bildirimleri bul": durum='yeni' kismi index (kucuk, sicak).
+CREATE INDEX IF NOT EXISTS kap_bildirimleri_yeni_idx
+  ON public.kap_bildirimleri (created_at) WHERE durum = 'yeni';
+-- (e) Genel akis / SEO ana liste: en yeni bildirimler.
+CREATE INDEX IF NOT EXISTS kap_bildirimleri_zaman_idx
+  ON public.kap_bildirimleri (kap_zamani DESC);
+
+DROP TRIGGER IF EXISTS kap_bildirimleri_updated_at ON public.kap_bildirimleri;
+CREATE TRIGGER kap_bildirimleri_updated_at BEFORE UPDATE ON public.kap_bildirimleri
+FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- E-posta gonderim idempotency: bir bildirim N kullaniciya gider, her (bildirim, user)
+-- cifti bir kez gonderilmeli. Bu junction tablosu "gonderildi mi" gercegini tutar.
+-- Ana tablodaki 'durum' per-bildirim ozet asamasini; bu tablo per-user gonderimi izler.
+CREATE TABLE IF NOT EXISTS public.kap_bildirim_gonderim (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  bildirim_id UUID NOT NULL REFERENCES public.kap_bildirimleri(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  gonderildi_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- Insert-once idempotency anahtari: ayni cift ikinci kez INSERT edilirse
+  -- ON CONFLICT DO NOTHING ile sessizce atlanir -> mukerrer e-posta gonderilmez.
+  UNIQUE (bildirim_id, user_id)
+);
+
+ALTER TABLE public.kap_bildirim_gonderim ADD COLUMN IF NOT EXISTS gonderildi_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+-- Kullaniciya "hangi KAP bildirimleri e-posta olarak geldi" gecmisi icin.
+CREATE INDEX IF NOT EXISTS kap_bildirim_gonderim_user_idx
+  ON public.kap_bildirim_gonderim (user_id, gonderildi_at DESC);
+
+-- Cursor: son islenen disclosureIndex. rate_limits key-value deseni yerine
+-- tek-satirlik tip-guvenli tablo (BIGINT). Neden ana tablodan MAX(disclosure_index)
+-- degil: cron ODA disi bildirimleri de "gordu" ama tabloya yazmayabilir; cursor
+-- gorulen en yuksek index'i tutar ki bir daha ayni araligi taramayalim.
+-- id sabit 1 (tek satir); CHECK ile tekil satir garanti.
+CREATE TABLE IF NOT EXISTS public.kap_cursor (
+  id INT PRIMARY KEY DEFAULT 1,
+  son_index BIGINT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (id = 1)
+);
+
+ALTER TABLE public.kap_cursor ADD COLUMN IF NOT EXISTS son_index BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE public.kap_cursor ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+-- Tek satiri garantiye al (idempotent seed).
+INSERT INTO public.kap_cursor (id, son_index) VALUES (1, 0)
+ON CONFLICT (id) DO NOTHING;
+
+DROP TRIGGER IF EXISTS kap_cursor_updated_at ON public.kap_cursor;
+CREATE TRIGGER kap_cursor_updated_at BEFORE UPDATE ON public.kap_cursor
+FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- RLS
+ALTER TABLE public.kap_bildirimleri ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kap_bildirim_gonderim ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kap_cursor ENABLE ROW LEVEL SECURITY;
+
+-- kap_bildirimleri: icerik kamuya acik (SEO). Anon/authenticated SELECT serbest.
+-- Yazma policy YOK -> INSERT/UPDATE yalniz service role (cron).
+-- Not: operasyonel kolon (durum, ozet_uretim_zamani) sizmasi sorun degil; kisisel
+-- veri degil. Kisisel gonderim bilgisi ayri kap_bildirim_gonderim tablosunda ve
+-- oraya anon/authenticated erisemez.
+DROP POLICY IF EXISTS "kap_bildirimleri_read_all" ON public.kap_bildirimleri;
+CREATE POLICY "kap_bildirimleri_read_all" ON public.kap_bildirimleri
+FOR SELECT TO anon, authenticated USING (true);
+
+-- kap_bildirim_gonderim: kullanici yalniz kendi gonderim gecmisini okur.
+-- Yazma policy YOK -> INSERT yalniz service role (cron).
+DROP POLICY IF EXISTS "kap_bildirim_gonderim_select_own" ON public.kap_bildirim_gonderim;
+CREATE POLICY "kap_bildirim_gonderim_select_own" ON public.kap_bildirim_gonderim
+FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+-- kap_cursor: operasyonel durum. RLS acik, policy YOK -> yalniz service role erisir
+-- (rate_limits ile ayni desen).
+-- (policy tanimlanmaz)

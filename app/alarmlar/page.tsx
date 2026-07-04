@@ -7,8 +7,8 @@ import { supabase } from "@/components/lib/supabase";
 import StockLogo from "@/components/StockLogo";
 import { tickerRenk } from "@/lib/utils";
 
-type AlarmModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "bildirim_tercihleri";
-type QuickTip = AlarmModalTip | "haber";
+type AlarmModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "haber" | "bildirim_tercihleri";
+type QuickTip = AlarmModalTip;
 
 type Alarm = {
   id: string | number;
@@ -36,7 +36,7 @@ function fiyatParse(value?: string): number | null {
 const HIZLI: { ikon: string; renk: string; baslik: string; aciklama: string; tip: QuickTip }[] = [
   { ikon: "📈", renk: "#10B981", baslik: "Fiyat Alarmı Ekle", aciklama: "Belirlediğiniz fiyat seviyelerine ulaşıldığında bildirim alın.", tip: "fiyat_seviye" },
   { ikon: "📊", renk: "#8B5CF6", baslik: "Gösterge Alarmı Ekle", aciklama: "Teknik göstergelere göre alarm oluşturun.", tip: "gosterge" },
-  { ikon: "📰", renk: "#F97316", baslik: "Haber Alarmı Ekle", aciklama: "Önemli haber ve duyurularda bildirim alın.", tip: "haber" },
+  { ikon: "📰", renk: "#F97316", baslik: "KAP Haber Bildirimleri", aciklama: "İzleme listendeki hisselerin KAP bildirimleri sade özetiyle e-postana gelsin.", tip: "haber" },
   { ikon: "⚙️", renk: "#64748B", baslik: "Alarm Bildirim Tercihleri", aciklama: "Bildirim kanallarınızı yönetin.", tip: "bildirim_tercihleri" },
 ];
 
@@ -228,21 +228,16 @@ export default function AlarmlarPage() {
         {HIZLI.map((h, i) => (
           <div
             key={h.baslik}
-            onClick={() => { if (h.tip === "haber") return; openModal(h.tip as AlarmModalTip); }}
-            style={{ padding: "12px 16px", borderBottom: i < HIZLI.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: h.tip === "haber" ? "default" : "pointer" }}
-            onMouseEnter={e => { if (h.tip !== "haber") e.currentTarget.style.background = "rgba(59,130,246,0.04)"; }}
+            onClick={() => openModal(h.tip)}
+            style={{ padding: "12px 16px", borderBottom: i < HIZLI.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.04)"; }}
             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: h.renk + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{h.ikon}</div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: h.tip === "haber" ? "#475569" : "#E2E8F0", margin: 0 }}>
-                {h.baslik}
-                {h.tip === "haber" && (
-                  <span style={{ fontSize: 12, marginLeft: 6, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 4, padding: "1px 6px" }}>Yakında</span>
-                )}
-              </p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>{h.baslik}</p>
               <p style={{ fontSize: 11, color: "#475569", margin: "2px 0 0" }}>{h.aciklama}</p>
             </div>
-            {h.tip !== "haber" && <span style={{ color: "#334155" }}>›</span>}
+            <span style={{ color: "#334155" }}>›</span>
           </div>
         ))}
       </div>

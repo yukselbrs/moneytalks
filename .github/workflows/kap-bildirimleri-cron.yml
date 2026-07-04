@@ -1,0 +1,23 @@
+name: KAP Bildirimleri Cron Job
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-kap-bildirimleri:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: KAP bildirim kontrolü
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "https://www.parakonusur.com/api/cron/kap-bildirimleri" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 60)
+          echo "HTTP Status: $response"
+          if [ "$response" != "200" ]; then
+            echo "Hata: $response"
+            exit 1
+          fi

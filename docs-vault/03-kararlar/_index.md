@@ -17,6 +17,9 @@ Her karar tek dosya:
 - Piyasa değeri: KAP pay adedi × fiyat (vendor'sız)
 - Rate limit: in-memory → Upstash Redis
 
+## Kayıtlı kararlar
+- [[kap-tercumani-supabase-semasi]] — KAP Tercümanı 3 tablosu (kap_bildirimleri, kap_bildirim_gonderim, kap_cursor), RLS ve idempotency
+
 ## İlgili
 - Kararı besleyen araştırma → [[04-arastirma]]
 - Stratejik gerekçe → [[01-strateji]]
