@@ -1,0 +1,23 @@
+name: Haftalik Portfoy Karnesi Cron Job
+
+on:
+  schedule:
+    - cron: '5 17,18,19 * * 0'
+  workflow_dispatch:
+
+jobs:
+  haftalik-karne:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Haftalik karne gonderimi
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "https://www.parakonusur.com/api/cron/haftalik-karne" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 60)
+          echo "HTTP Status: $response"
+          if [ "$response" != "200" ]; then
+            echo "Hata: $response"
+            exit 1
+          fi

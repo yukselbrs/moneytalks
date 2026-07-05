@@ -8,7 +8,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "A1YEN",
@@ -19,7 +20,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AAGYO",
@@ -30,7 +32,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ACSEL",
@@ -41,7 +44,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ADEL",
@@ -52,7 +56,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "ADESE",
@@ -63,7 +68,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ADGYO",
@@ -74,7 +80,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AEFES",
@@ -85,7 +92,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "AFYON",
@@ -96,7 +104,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "AGESA",
@@ -107,7 +116,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AGHOL",
@@ -118,7 +128,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "AGROT",
@@ -129,7 +140,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "AGYO",
@@ -140,7 +152,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AHGAZ",
@@ -151,7 +164,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AHSGY",
@@ -162,7 +176,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AKBNK",
@@ -174,7 +189,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AKCNS",
@@ -185,7 +201,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "AKENR",
@@ -196,7 +213,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AKFGY",
@@ -207,7 +225,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AKFIS",
@@ -218,7 +237,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "AKFYE",
@@ -229,7 +249,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AKGRT",
@@ -240,7 +261,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AKHAN",
@@ -251,7 +273,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "AKMGY",
@@ -262,7 +285,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AKSA",
@@ -273,7 +297,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "AKSEN",
@@ -284,7 +309,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AKSGY",
@@ -295,7 +321,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AKSUE",
@@ -306,7 +333,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AKYHO",
@@ -317,7 +345,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "ALARK",
@@ -328,7 +357,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ALBRK",
@@ -339,7 +369,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ALCAR",
@@ -350,7 +381,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "ALCTL",
@@ -361,7 +393,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "ALFAS",
@@ -372,7 +405,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ALGYO",
@@ -383,7 +417,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ALKA",
@@ -394,7 +429,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ALKIM",
@@ -405,7 +441,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ALKLC",
@@ -416,7 +453,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "ALTNY",
@@ -427,7 +465,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "ALVES",
@@ -438,7 +477,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "ANELE",
@@ -449,7 +489,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "ANGEN",
@@ -460,7 +501,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "ANHYT",
@@ -471,7 +513,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ANSGR",
@@ -482,7 +525,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ARASE",
@@ -493,7 +537,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ARCLK",
@@ -505,7 +550,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "ARDYZ",
@@ -516,7 +562,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "ARENA",
@@ -527,7 +574,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "ARFYE",
@@ -538,7 +586,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ARMGD",
@@ -549,7 +598,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "ARSAN",
@@ -560,7 +610,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ARTMS",
@@ -571,7 +622,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "ARZUM",
@@ -582,7 +634,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "ASELS",
@@ -593,7 +646,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "ASGYO",
@@ -604,7 +658,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ASTOR",
@@ -615,7 +670,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "ASUZU",
@@ -626,7 +682,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "ATAGY",
@@ -637,7 +694,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ATAKP",
@@ -648,7 +706,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "ATATP",
@@ -659,7 +718,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "ATATR",
@@ -670,7 +730,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "ATEKS",
@@ -681,7 +742,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ATLAS",
@@ -692,7 +754,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "ATSYH",
@@ -703,7 +766,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "AVGYO",
@@ -714,7 +778,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AVHOL",
@@ -725,7 +790,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Hizmetleri"
   },
   {
     "ticker": "AVOD",
@@ -736,7 +802,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "AVPGY",
@@ -747,7 +814,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "AVTUR",
@@ -758,7 +826,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "AYCES",
@@ -769,7 +838,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "AYDEM",
@@ -780,7 +850,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AYEN",
@@ -791,7 +862,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AYES",
@@ -802,7 +874,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "AYGAZ",
@@ -813,7 +886,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "AZTEK",
@@ -824,7 +898,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "BAGFS",
@@ -835,7 +910,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BAHKM",
@@ -846,7 +922,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BAKAB",
@@ -857,7 +934,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BALAT",
@@ -868,7 +946,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "BALSU",
@@ -879,7 +958,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "BANVT",
@@ -890,7 +970,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BARMA",
@@ -901,7 +982,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BASCM",
@@ -912,7 +994,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BASGZ",
@@ -923,7 +1006,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "BAYRK",
@@ -934,7 +1018,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "BEGYO",
@@ -945,7 +1030,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "BERA",
@@ -956,7 +1042,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "BESLR",
@@ -967,7 +1054,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "BESTE",
@@ -978,7 +1066,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "BEYAZ",
@@ -989,7 +1078,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "BFREN",
@@ -1000,7 +1090,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "BIENY",
@@ -1011,7 +1102,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BIGCH",
@@ -1022,7 +1114,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "BIGEN",
@@ -1033,7 +1126,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "BIGTK",
@@ -1044,7 +1138,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "BIMAS",
@@ -1056,7 +1151,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "BINBN",
@@ -1067,7 +1163,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "BINHO",
@@ -1078,7 +1175,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "BIOEN",
@@ -1089,7 +1187,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "BIZIM",
@@ -1100,7 +1199,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "BJKAS",
@@ -1111,7 +1211,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "BLCYT",
@@ -1122,7 +1223,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BLUME",
@@ -1133,7 +1235,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "BMSCH",
@@ -1144,7 +1247,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "BMSTL",
@@ -1155,7 +1259,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "BNTAS",
@@ -1166,7 +1271,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BOBET",
@@ -1177,7 +1283,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BORLS",
@@ -1188,7 +1295,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "BORSK",
@@ -1199,7 +1307,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BOSSA",
@@ -1210,7 +1319,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BRISA",
@@ -1222,7 +1332,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "BRKO",
@@ -1233,7 +1344,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "BRKSN",
@@ -1244,7 +1356,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BRKVY",
@@ -1255,7 +1368,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "BRLSM",
@@ -1266,7 +1380,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BRMEN",
@@ -1277,7 +1392,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "BRSAN",
@@ -1288,7 +1404,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BRYAT",
@@ -1299,7 +1416,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "BSOKE",
@@ -1310,7 +1428,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BTCIM",
@@ -1321,7 +1440,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BUCIM",
@@ -1332,7 +1452,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BULGS",
@@ -1343,7 +1464,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "BURCE",
@@ -1354,7 +1476,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "BURVA",
@@ -1365,7 +1488,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "BVSAN",
@@ -1376,7 +1500,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "BYDNR",
@@ -1387,7 +1512,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "CANTE",
@@ -1398,7 +1524,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "CASA",
@@ -1409,7 +1536,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "CATES",
@@ -1420,7 +1548,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "CCOLA",
@@ -1432,7 +1561,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "CELHA",
@@ -1443,7 +1573,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CEMAS",
@@ -1454,7 +1585,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CEMTS",
@@ -1465,7 +1597,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CEMZY",
@@ -1476,7 +1609,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "CEOEM",
@@ -1487,7 +1621,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "CGCAM",
@@ -1498,7 +1633,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "CIMSA",
@@ -1509,7 +1645,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CLEBI",
@@ -1520,7 +1657,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "CMBTN",
@@ -1531,7 +1669,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CMENT",
@@ -1542,7 +1681,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CONSE",
@@ -1553,7 +1693,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "COSMO",
@@ -1564,7 +1705,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "CRDFA",
@@ -1575,7 +1717,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "CRFSA",
@@ -1587,7 +1730,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "CUSAN",
@@ -1598,7 +1742,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CVKMD",
@@ -1609,7 +1754,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "CWENE",
@@ -1620,7 +1766,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "DAGI",
@@ -1631,7 +1778,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DAPGM",
@@ -1642,7 +1790,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "DARDL",
@@ -1653,7 +1802,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DCTTR",
@@ -1664,7 +1814,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "DENGE",
@@ -1675,7 +1826,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "DERHL",
@@ -1686,7 +1838,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DERIM",
@@ -1697,7 +1850,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DESA",
@@ -1708,7 +1862,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DESPC",
@@ -1719,7 +1874,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "DEVA",
@@ -1730,7 +1886,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "DGATE",
@@ -1741,7 +1898,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "DGGYO",
@@ -1752,7 +1910,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "DGNMO",
@@ -1763,7 +1922,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "DIRIT",
@@ -1774,7 +1934,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "DITAS",
@@ -1785,7 +1946,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "DMRGD",
@@ -1796,7 +1958,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DMSAS",
@@ -1807,7 +1970,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "DNISI",
@@ -1818,7 +1982,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "DOAS",
@@ -1830,7 +1995,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "DOCO",
@@ -1841,7 +2007,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "DOFER",
@@ -1852,7 +2019,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "DOFRB",
@@ -1863,7 +2031,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "DOGUB",
@@ -1874,7 +2043,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "DOHOL",
@@ -1885,7 +2055,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "DOKTA",
@@ -1896,7 +2067,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "DSTKF",
@@ -1907,7 +2079,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "DUNYH",
@@ -1918,7 +2091,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DURDO",
@@ -1929,7 +2103,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "DURKN",
@@ -1940,7 +2115,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "DYOBY",
@@ -1951,7 +2127,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "DZGYO",
@@ -1962,7 +2139,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EBEBK",
@@ -1973,7 +2151,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "ECILC",
@@ -1984,7 +2163,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "ECOGR",
@@ -1995,7 +2175,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ECZYT",
@@ -2006,7 +2187,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EDATA",
@@ -2017,7 +2199,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "EDIP",
@@ -2028,7 +2211,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EFOR",
@@ -2039,7 +2223,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "EGEEN",
@@ -2050,7 +2235,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "EGEGY",
@@ -2061,7 +2247,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EGEPO",
@@ -2072,7 +2259,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Hizmetleri"
   },
   {
     "ticker": "EGGUB",
@@ -2083,7 +2271,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "EGPRO",
@@ -2094,7 +2283,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "EGSER",
@@ -2105,7 +2295,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "EKGYO",
@@ -2116,7 +2307,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EKIZ",
@@ -2127,7 +2319,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "EKOS",
@@ -2138,7 +2331,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "EKSUN",
@@ -2149,7 +2343,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ELITE",
@@ -2160,7 +2355,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "EMKEL",
@@ -2171,7 +2367,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "EMNIS",
@@ -2182,7 +2379,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "EMPAE",
@@ -2193,7 +2391,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "ENDAE",
@@ -2204,7 +2403,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ENERY",
@@ -2215,7 +2415,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ENJSA",
@@ -2226,7 +2427,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ENKAI",
@@ -2238,7 +2440,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "ENPRA",
@@ -2249,7 +2452,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ENSRI",
@@ -2260,7 +2464,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "ENTRA",
@@ -2271,7 +2476,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "EPLAS",
@@ -2282,7 +2488,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "ERBOS",
@@ -2293,7 +2500,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "ERCB",
@@ -2304,7 +2512,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "EREGL",
@@ -2315,7 +2524,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "ERSU",
@@ -2326,7 +2536,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "ESCAR",
@@ -2337,7 +2548,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ESCOM",
@@ -2348,7 +2560,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "ESEN",
@@ -2359,7 +2572,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ETILR",
@@ -2370,7 +2584,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "ETYAT",
@@ -2381,7 +2596,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EUHOL",
@@ -2392,7 +2608,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EUKYO",
@@ -2403,7 +2620,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EUPWR",
@@ -2414,7 +2632,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "EUREN",
@@ -2425,7 +2644,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "EUYO",
@@ -2436,7 +2656,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "EYGYO",
@@ -2447,7 +2668,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "FADE",
@@ -2458,7 +2680,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "FENER",
@@ -2469,7 +2692,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "FLAP",
@@ -2480,7 +2704,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "FMIZP",
@@ -2491,7 +2716,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "FONET",
@@ -2502,7 +2728,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "FORMT",
@@ -2513,7 +2740,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "FORTE",
@@ -2524,7 +2752,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "FRIGO",
@@ -2535,7 +2764,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "FRMPL",
@@ -2546,7 +2776,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "FROTO",
@@ -2558,7 +2789,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "FZLGY",
@@ -2569,7 +2801,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "GARAN",
@@ -2581,7 +2814,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GARFA",
@@ -2592,7 +2826,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GATEG",
@@ -2603,7 +2838,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "GEDIK",
@@ -2614,7 +2850,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GEDZA",
@@ -2625,7 +2862,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "GENIL",
@@ -2636,7 +2874,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "GENKM",
@@ -2647,7 +2886,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "GENTS",
@@ -2658,7 +2898,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "GEREL",
@@ -2669,7 +2910,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "GESAN",
@@ -2680,7 +2922,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "GIPTA",
@@ -2691,7 +2934,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "GLBMD",
@@ -2702,7 +2946,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GLCVY",
@@ -2713,7 +2958,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GLRMK",
@@ -2724,7 +2970,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "GLRYH",
@@ -2735,7 +2982,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GLYHO",
@@ -2746,7 +2994,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GMTAS",
@@ -2757,7 +3006,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "GOKNR",
@@ -2768,7 +3018,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "GOLTS",
@@ -2779,7 +3030,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "GOODY",
@@ -2790,7 +3042,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "GOZDE",
@@ -2801,7 +3054,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GRNYO",
@@ -2812,7 +3066,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "GRSEL",
@@ -2823,7 +3078,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "GRTHO",
@@ -2834,7 +3090,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "GSDDE",
@@ -2845,7 +3102,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "GSDHO",
@@ -2856,7 +3114,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "GSRAY",
@@ -2867,7 +3126,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "GUBRF",
@@ -2878,7 +3138,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "GUNDG",
@@ -2889,7 +3150,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "GWIND",
@@ -2900,7 +3162,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "GZNMI",
@@ -2911,7 +3174,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "HALKB",
@@ -2923,7 +3187,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "HATEK",
@@ -2934,7 +3199,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "HATSN",
@@ -2945,7 +3211,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "HDFGS",
@@ -2956,7 +3223,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "HEDEF",
@@ -2967,7 +3235,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "HEKTS",
@@ -2978,7 +3247,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "HKTM",
@@ -2989,7 +3259,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "HLGYO",
@@ -3000,7 +3271,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "HOROZ",
@@ -3011,7 +3283,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "HRKET",
@@ -3022,7 +3295,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "HTTBT",
@@ -3033,7 +3307,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "HUBVC",
@@ -3044,7 +3319,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "HUNER",
@@ -3055,7 +3331,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "HURGZ",
@@ -3066,7 +3343,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "ICBCT",
@@ -3077,7 +3355,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "IDGYO",
@@ -3088,7 +3367,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "IEYHO",
@@ -3099,7 +3379,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "IHAAS",
@@ -3110,7 +3391,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "IHEVA",
@@ -3121,7 +3403,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "IHGZT",
@@ -3132,7 +3415,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "IHLAS",
@@ -3143,7 +3427,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "IHLGM",
@@ -3154,7 +3439,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "IHYAY",
@@ -3165,7 +3451,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "IMASM",
@@ -3176,7 +3463,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "INDES",
@@ -3187,7 +3475,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "INFO",
@@ -3198,7 +3487,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "INGRM",
@@ -3209,7 +3499,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "INTEK",
@@ -3220,7 +3511,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "INTEM",
@@ -3231,7 +3523,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "INVEO",
@@ -3242,7 +3535,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "INVES",
@@ -3253,7 +3547,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISBIR",
@@ -3264,7 +3559,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ISBTR",
@@ -3275,7 +3571,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISCTR",
@@ -3287,7 +3584,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISDMR",
@@ -3298,7 +3596,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "ISFIN",
@@ -3309,7 +3608,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISGSY",
@@ -3320,7 +3620,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISGYO",
@@ -3331,7 +3632,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISKPL",
@@ -3342,7 +3644,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "ISKUR",
@@ -3353,7 +3656,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISMEN",
@@ -3364,7 +3668,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ISSEN",
@@ -3375,7 +3680,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "IZENR",
@@ -3386,7 +3692,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "IZFAS",
@@ -3397,7 +3704,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "IZINV",
@@ -3408,7 +3716,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "IZMDC",
@@ -3419,7 +3728,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "JANTS",
@@ -3430,7 +3740,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KAPLM",
@@ -3441,7 +3752,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KAREL",
@@ -3452,7 +3764,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "KARSN",
@@ -3463,7 +3776,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KARTN",
@@ -3474,7 +3788,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KATMR",
@@ -3485,7 +3800,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KAYSE",
@@ -3496,7 +3812,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "KBORU",
@@ -3507,7 +3824,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KCAER",
@@ -3518,7 +3836,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "KCHOL",
@@ -3529,7 +3848,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Madenciliği"
   },
   {
     "ticker": "KENT",
@@ -3540,7 +3860,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "KERVN",
@@ -3551,7 +3872,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "KFEIN",
@@ -3562,7 +3884,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "KGYO",
@@ -3573,7 +3896,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "KIMMR",
@@ -3584,7 +3908,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "KLGYO",
@@ -3595,7 +3920,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "KLKIM",
@@ -3606,7 +3932,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KLMSN",
@@ -3617,7 +3944,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KLNMA",
@@ -3628,7 +3956,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "KLRHO",
@@ -3639,7 +3968,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "KLSER",
@@ -3650,7 +3980,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KLSYN",
@@ -3661,7 +3992,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "KLYPV",
@@ -3672,7 +4004,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KMPUR",
@@ -3683,7 +4016,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "KNFRT",
@@ -3694,7 +4028,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "KOCMT",
@@ -3705,7 +4040,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "KONKA",
@@ -3716,7 +4052,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KONTR",
@@ -3727,7 +4064,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "KONYA",
@@ -3738,7 +4076,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "KOPOL",
@@ -3749,7 +4088,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KORDS",
@@ -3760,7 +4100,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KOTON",
@@ -3771,7 +4112,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "KRDMA",
@@ -3782,7 +4124,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "KRDMB",
@@ -3793,7 +4136,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "KRDMD",
@@ -3804,7 +4148,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "KRGYO",
@@ -3815,7 +4160,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "KRONT",
@@ -3826,7 +4172,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "İletişim"
   },
   {
     "ticker": "KRPLS",
@@ -3837,7 +4184,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "KRSTL",
@@ -3848,7 +4196,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "KRTEK",
@@ -3859,7 +4208,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KRVGD",
@@ -3870,7 +4220,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "KSTUR",
@@ -3881,7 +4232,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "KTLEV",
@@ -3892,7 +4244,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "KTSKR",
@@ -3903,7 +4256,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "KUTPO",
@@ -3914,7 +4268,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "KUVVA",
@@ -3925,7 +4280,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "KUYAS",
@@ -3936,7 +4292,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "KZBGY",
@@ -3947,7 +4304,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "KZGYO",
@@ -3958,7 +4316,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "LIDER",
@@ -3969,7 +4328,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "LIDFA",
@@ -3980,7 +4340,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "LILAK",
@@ -3991,7 +4352,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "LINK",
@@ -4002,7 +4364,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "LKMNH",
@@ -4013,7 +4376,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Hizmetleri"
   },
   {
     "ticker": "LMKDC",
@@ -4024,7 +4388,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "LOGO",
@@ -4035,7 +4400,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "LRSHO",
@@ -4046,7 +4412,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "LUKSK",
@@ -4057,7 +4424,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "LXGYO",
@@ -4068,7 +4436,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "LYDHO",
@@ -4079,7 +4448,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "LYDYE",
@@ -4090,7 +4460,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "MAALT",
@@ -4101,7 +4472,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "MACKO",
@@ -4112,7 +4484,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "MAGEN",
@@ -4123,7 +4496,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "MAKIM",
@@ -4134,7 +4508,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "MAKTK",
@@ -4145,7 +4520,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "MANAS",
@@ -4156,7 +4532,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "MARBL",
@@ -4167,7 +4544,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "MARKA",
@@ -4178,7 +4556,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "MARMR",
@@ -4189,7 +4568,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "MARTI",
@@ -4200,7 +4580,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "MAVI",
@@ -4211,7 +4592,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "MCARD",
@@ -4222,7 +4604,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "MEDTR",
@@ -4233,7 +4616,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "MEGAP",
@@ -4244,7 +4628,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "MEGMT",
@@ -4255,7 +4640,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "MEKAG",
@@ -4266,7 +4652,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "MEPET",
@@ -4277,7 +4664,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "MERCN",
@@ -4288,7 +4676,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "MERIT",
@@ -4299,7 +4688,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "MERKO",
@@ -4310,7 +4700,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "METRO",
@@ -4321,7 +4712,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "MEYSU",
@@ -4332,7 +4724,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "MGROS",
@@ -4344,7 +4737,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "MHRGY",
@@ -4355,7 +4749,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "MIATK",
@@ -4366,7 +4761,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "MMCAS",
@@ -4377,7 +4773,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "MNDRS",
@@ -4388,7 +4785,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "MNDTR",
@@ -4399,7 +4797,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "MOBTL",
@@ -4410,7 +4809,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "MOGAN",
@@ -4421,7 +4821,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "MOPAS",
@@ -4432,7 +4833,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "MPARK",
@@ -4444,7 +4846,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Hizmetleri"
   },
   {
     "ticker": "MRGYO",
@@ -4455,7 +4858,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "MRSHL",
@@ -4466,7 +4870,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "MSGYO",
@@ -4477,7 +4882,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "MTRKS",
@@ -4488,7 +4894,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "MTRYO",
@@ -4499,7 +4906,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "MZHLD",
@@ -4510,7 +4918,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "NATEN",
@@ -4521,7 +4930,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "NETAS",
@@ -4532,7 +4942,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "NETCD",
@@ -4543,7 +4954,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "NIBAS",
@@ -4554,7 +4966,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "NTGAZ",
@@ -4565,7 +4978,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "NTHOL",
@@ -4576,7 +4990,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "NUGYO",
@@ -4587,7 +5002,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "NUHCM",
@@ -4598,7 +5014,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "OBAMS",
@@ -4609,7 +5026,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "OBASE",
@@ -4620,7 +5038,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "ODAS",
@@ -4631,7 +5050,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ODINE",
@@ -4642,7 +5062,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "OFSYM",
@@ -4653,7 +5074,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ONCSM",
@@ -4664,7 +5086,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "ONRYT",
@@ -4675,7 +5098,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "ORCAY",
@@ -4686,7 +5110,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "ORGE",
@@ -4697,7 +5122,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "ORMA",
@@ -4708,7 +5134,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "OSMEN",
@@ -4719,7 +5146,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "OSTIM",
@@ -4730,7 +5158,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "OTKAR",
@@ -4741,7 +5170,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "OTTO",
@@ -4752,7 +5182,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "OYAKC",
@@ -4763,7 +5194,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "OYAYO",
@@ -4774,7 +5206,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "OYLUM",
@@ -4785,7 +5218,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "OYYAT",
@@ -4796,7 +5230,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "OZATD",
@@ -4807,7 +5242,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "OZGYO",
@@ -4818,7 +5254,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "OZKGY",
@@ -4829,7 +5266,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "OZRDN",
@@ -4840,7 +5278,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "OZSUB",
@@ -4851,7 +5290,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "OZYSR",
@@ -4862,7 +5302,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "PAGYO",
@@ -4873,7 +5314,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "PAHOL",
@@ -4884,7 +5326,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "PAMEL",
@@ -4895,7 +5338,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "PAPIL",
@@ -4906,7 +5350,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "PARSN",
@@ -4917,7 +5362,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "PASEU",
@@ -4928,7 +5374,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "PATEK",
@@ -4939,7 +5386,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "PCILT",
@@ -4950,7 +5398,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "PEKGY",
@@ -4961,7 +5410,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "PENGD",
@@ -4972,7 +5422,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "PENTA",
@@ -4983,7 +5434,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "PETKM",
@@ -4995,7 +5447,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "PETUN",
@@ -5006,7 +5459,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "PGSUS",
@@ -5018,7 +5472,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "PINSU",
@@ -5029,7 +5484,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "PKART",
@@ -5040,7 +5496,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "PKENT",
@@ -5051,7 +5508,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "PLTUR",
@@ -5062,7 +5520,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "PNLSN",
@@ -5073,7 +5532,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "PNSUT",
@@ -5084,7 +5544,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "POLHO",
@@ -5095,7 +5556,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "POLTK",
@@ -5106,7 +5568,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "PRDGS",
@@ -5117,7 +5580,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "PRKAB",
@@ -5128,7 +5592,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "PRKME",
@@ -5139,7 +5604,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "PRZMA",
@@ -5150,7 +5616,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "PSDTC",
@@ -5161,7 +5628,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "PSGYO",
@@ -5172,7 +5640,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "QNBFK",
@@ -5183,7 +5652,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "QNBTR",
@@ -5194,7 +5664,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "QUAGR",
@@ -5205,7 +5676,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "RALYH",
@@ -5216,7 +5688,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "RAYSG",
@@ -5227,7 +5700,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "REEDR",
@@ -5238,7 +5712,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "RGYAS",
@@ -5249,7 +5724,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "RNPOL",
@@ -5260,7 +5736,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "RODRG",
@@ -5271,7 +5748,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "RTALB",
@@ -5282,7 +5760,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "RUBNS",
@@ -5293,7 +5772,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "RUZYE",
@@ -5304,7 +5784,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "RYGYO",
@@ -5315,7 +5796,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "RYSAS",
@@ -5326,7 +5808,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "SAFKR",
@@ -5337,7 +5820,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "SAHOL",
@@ -5349,7 +5833,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SAMAT",
@@ -5360,7 +5845,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "SANEL",
@@ -5371,7 +5857,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "SANFM",
@@ -5382,7 +5869,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SANKO",
@@ -5393,7 +5881,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SARKY",
@@ -5404,7 +5893,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "SASA",
@@ -5416,7 +5906,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SAYAS",
@@ -5427,7 +5918,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "SDTTR",
@@ -5438,7 +5930,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "SEGMN",
@@ -5449,7 +5942,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "SEGYO",
@@ -5460,7 +5954,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SEKFK",
@@ -5471,7 +5966,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SEKUR",
@@ -5482,7 +5978,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SELEC",
@@ -5493,7 +5990,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "SELVA",
@@ -5504,7 +6002,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "SERNT",
@@ -5515,7 +6014,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "SEYKM",
@@ -5526,7 +6026,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "SILVR",
@@ -5537,7 +6038,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "SISE",
@@ -5548,7 +6050,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "SKBNK",
@@ -5559,7 +6062,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SKTAS",
@@ -5570,7 +6074,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SKYLP",
@@ -5581,7 +6086,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "SKYMD",
@@ -5592,7 +6098,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SMART",
@@ -5603,7 +6110,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "SMRTG",
@@ -5614,7 +6122,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Elektronik Teknoloji"
   },
   {
     "ticker": "SMRVA",
@@ -5625,7 +6134,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ticari Hizmetler"
   },
   {
     "ticker": "SNGYO",
@@ -5636,7 +6146,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SNICA",
@@ -5647,7 +6158,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "SNPAM",
@@ -5658,7 +6170,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SODSN",
@@ -5669,7 +6182,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SOKE",
@@ -5680,7 +6194,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SOKM",
@@ -5692,7 +6207,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "SONME",
@@ -5703,7 +6219,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SRVGY",
@@ -5714,7 +6231,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SUMAS",
@@ -5725,7 +6243,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "SUNTK",
@@ -5736,7 +6255,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "SURGY",
@@ -5747,7 +6267,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "SUWEN",
@@ -5758,7 +6279,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "SVGYO",
@@ -5769,7 +6291,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TABGD",
@@ -5780,7 +6303,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "TARKM",
@@ -5791,7 +6315,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "TATEN",
@@ -5802,7 +6327,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "TATGD",
@@ -5813,7 +6339,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "TAVHL",
@@ -5825,7 +6352,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "TBORG",
@@ -5836,7 +6364,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "TCELL",
@@ -5848,7 +6377,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "İletişim"
   },
   {
     "ticker": "TCKRC",
@@ -5859,7 +6389,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "TDGYO",
@@ -5870,7 +6401,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TEHOL",
@@ -5881,7 +6413,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TEKTU",
@@ -5892,7 +6425,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "TERA",
@@ -5903,7 +6437,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TEZOL",
@@ -5914,7 +6449,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "TGSAS",
@@ -5925,7 +6461,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "THYAO",
@@ -5937,7 +6474,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "TKFEN",
@@ -5948,7 +6486,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "TKNSA",
@@ -5959,7 +6498,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Perakende Ticaret"
   },
   {
     "ticker": "TLMAN",
@@ -5970,7 +6510,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Ulaştırma"
   },
   {
     "ticker": "TMPOL",
@@ -5981,7 +6522,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "TMSN",
@@ -5992,7 +6534,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "TNZTP",
@@ -6003,7 +6546,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Hizmetleri"
   },
   {
     "ticker": "TOASO",
@@ -6015,7 +6559,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "TRALT",
@@ -6026,7 +6571,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "TRCAS",
@@ -6037,7 +6583,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "TRENJ",
@@ -6048,7 +6595,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Madenciliği"
   },
   {
     "ticker": "TRGYO",
@@ -6059,7 +6607,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TRHOL",
@@ -6070,7 +6619,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TRILC",
@@ -6081,7 +6631,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
   },
   {
     "ticker": "TRMET",
@@ -6092,7 +6643,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "TSGYO",
@@ -6103,7 +6655,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TSKB",
@@ -6114,7 +6667,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TSPOR",
@@ -6125,7 +6679,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "TTKOM",
@@ -6137,7 +6692,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "İletişim"
   },
   {
     "ticker": "TTRAK",
@@ -6148,7 +6704,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "TUCLK",
@@ -6159,7 +6716,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "TUKAS",
@@ -6170,7 +6728,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "TUPRS",
@@ -6182,7 +6741,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Madenciliği"
   },
   {
     "ticker": "TUREX",
@@ -6193,7 +6753,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TURGG",
@@ -6204,7 +6765,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "TURSG",
@@ -6215,7 +6777,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "UCAYM",
@@ -6226,7 +6789,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "UFUK",
@@ -6237,7 +6801,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ULAS",
@@ -6248,7 +6813,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "ULKER",
@@ -6260,7 +6826,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "ULUFA",
@@ -6271,7 +6838,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ULUSE",
@@ -6282,7 +6850,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "ULUUN",
@@ -6293,7 +6862,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "UNLU",
@@ -6304,7 +6874,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "USAK",
@@ -6315,7 +6886,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "VAKBN",
@@ -6327,7 +6899,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VAKFA",
@@ -6338,7 +6911,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VAKFN",
@@ -6349,7 +6923,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VAKKO",
@@ -6360,7 +6935,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "VANGD",
@@ -6371,7 +6947,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "VBTYZ",
@@ -6382,7 +6959,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Teknoloji Hizmetleri"
   },
   {
     "ticker": "VERTU",
@@ -6393,7 +6971,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VERUS",
@@ -6404,7 +6983,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VESBE",
@@ -6415,7 +6995,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "VESTL",
@@ -6426,7 +7007,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "VKFYO",
@@ -6437,7 +7019,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VKGYO",
@@ -6448,7 +7031,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VKING",
@@ -6459,7 +7043,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
   },
   {
     "ticker": "VRGYO",
@@ -6470,7 +7055,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "VSNMD",
@@ -6481,7 +7067,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "YAPRK",
@@ -6492,7 +7079,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "YATAS",
@@ -6503,7 +7091,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "YAYLA",
@@ -6514,7 +7103,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "YBTAS",
@@ -6525,7 +7115,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
   },
   {
     "ticker": "YEOTK",
@@ -6536,7 +7127,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "YESIL",
@@ -6547,7 +7139,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Çeşitli"
   },
   {
     "ticker": "YGGYO",
@@ -6558,7 +7151,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "YIGIT",
@@ -6569,7 +7163,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
   },
   {
     "ticker": "YKBNK",
@@ -6581,7 +7176,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "YKSLN",
@@ -6592,7 +7188,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dağıtım Hizmetleri"
   },
   {
     "ticker": "YONGA",
@@ -6603,7 +7200,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "YUNSA",
@@ -6614,7 +7212,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "YYAPI",
@@ -6625,7 +7224,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Endüstriyel Hizmetler"
   },
   {
     "ticker": "YYLGD",
@@ -6636,7 +7236,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Süreç Endüstrileri"
   },
   {
     "ticker": "ZEDUR",
@@ -6647,7 +7248,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Tüketici Hizmetleri"
   },
   {
     "ticker": "ZERGY",
@@ -6658,7 +7260,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ZGYO",
@@ -6669,7 +7272,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   },
   {
     "ticker": "ZOREN",
@@ -6680,7 +7284,8 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
   },
   {
     "ticker": "ZRGYO",
@@ -6691,6 +7296,7 @@
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
-    "priceAvailable": true
+    "priceAvailable": true,
+    "sektor": "Finans"
   }
 ]

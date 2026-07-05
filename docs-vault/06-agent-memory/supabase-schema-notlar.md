@@ -54,5 +54,14 @@ Amaç: KAP bildirimlerini saklamak + Claude 3 katmanlı özeti bir kez üretip c
 
 **Rollback:** `DROP TABLE kap_bildirim_gonderim` (önce, FK child) → `kap_bildirimleri` → `kap_cursor`. Yeni tablolar; mevcut şemaya dokunulmadı, veri kaybı riski yok. `set_updated_at()` paylaşımlı, DROP edilmez.
 
+## karne_gonderim tablosu (2026-07-05 eklendi)
+Amaç: Portföy Haftalık Karnesi e-postası idempotency. Cron `app/api/cron/haftalik-karne` (Pazar akşamı) her kullanıcıya haftada EN FAZLA BİR karne maili atar; GitHub Actions birden çok tetikleyebilir. `kap_bildirim_gonderim` insert-then-check deseniyle birebir tutarlı.
+
+- `public.karne_gonderim (id UUID PK, user_id UUID FK auth.users ON DELETE CASCADE, hafta_baslangic DATE, created_at)`, **UNIQUE (user_id, hafta_baslangic)** = idempotency anahtarı. `hafta_baslangic` = o haftanın Pazartesi'si (ISO hafta başı). Cron `INSERT ... ON CONFLICT (user_id, hafta_baslangic) DO NOTHING` → etkilenen satır 1 ise mail gönder, 0 ise atla.
+- **RLS**: kullanıcı kendi satırını SELECT eder (`karne_gonderim_select_own`, `auth.uid() = user_id`). INSERT/UPDATE policy YOK → yazma yalnız service role (cron).
+- Index: `(user_id, hafta_baslangic DESC)` (gönderim geçmişi + son gönderim lookup).
+- Rollback: `DROP TABLE IF EXISTS public.karne_gonderim;` — yeni tablo, FK child yok, paylaşımlı trigger/fonksiyon yok, veri kaybı riski yok. ADR yazılmadı (küçük tablo, ana oturum karar notunda anılıyor).
+- migrations.sql'de "GOREV 10" bloğu (yaklaşık satır 643-691).
+
 ## Auth pattern (referans)
 - Client: `getSession()` → Bearer token. API: `getUser(token)`. Service role key asla client-side.

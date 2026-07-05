@@ -639,3 +639,49 @@ FOR SELECT TO authenticated USING (auth.uid() = user_id);
 -- kap_cursor: operasyonel durum. RLS acik, policy YOK -> yalniz service role erisir
 -- (rate_limits ile ayni desen).
 -- (policy tanimlanmaz)
+
+-- ============================================================================
+-- GOREV 12: Portfoy Haftalik Karne e-posta idempotency (karne_gonderim)
+-- ============================================================================
+-- Cron (app/api/cron/haftalik-karne, Pazar aksami) her kullaniciya HAFTADA EN
+-- FAZLA BIR karne e-postasi gonderir. GitHub Actions ayni tetiklemeyi birden
+-- cok kez calistirabilir; bu tablo (user, hafta) ciftini insert-once ile
+-- kilitler. kap_bildirim_gonderim ile ayni desen (insert-then-check).
+-- Idempotency anahtari: hafta o haftanin Pazartesi'si (hafta_baslangic DATE).
+-- Cron akisi: her user icin INSERT ... ON CONFLICT (user_id, hafta_baslangic)
+-- DO NOTHING; etkilenen satir sayisi 1 ise mail gonder, 0 ise zaten gonderilmis
+-- -> atla. Boylece ayni hafta ikinci calisma mukerrer mail atmaz.
+CREATE TABLE IF NOT EXISTS public.karne_gonderim (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  -- Haftanin Pazartesi'si (gonderim penceresi anahtari). Cron ISO hafta basini
+  -- hesaplayip yazar; ayni hafta icin ikinci INSERT UNIQUE'e takilir.
+  hafta_baslangic DATE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- Insert-once idempotency anahtari: ayni (user, hafta) ikinci kez INSERT
+  -- edilirse ON CONFLICT DO NOTHING ile sessizce atlanir -> ikinci mail yok.
+  UNIQUE (user_id, hafta_baslangic)
+);
+
+-- Tablo onceden elle olusturulmus olabilir: kolonlari geriye uyumlu ekle.
+ALTER TABLE public.karne_gonderim ADD COLUMN IF NOT EXISTS hafta_baslangic DATE NOT NULL DEFAULT CURRENT_DATE;
+ALTER TABLE public.karne_gonderim ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+-- Kullaniciya "hangi haftalar karne aldim" gecmisi + son gonderim lookup icin.
+CREATE INDEX IF NOT EXISTS karne_gonderim_user_idx
+  ON public.karne_gonderim (user_id, hafta_baslangic DESC);
+
+-- RLS: kap_bildirim_gonderim ile ayni desen.
+ALTER TABLE public.karne_gonderim ENABLE ROW LEVEL SECURITY;
+
+-- Kullanici yalniz kendi gonderim gecmisini okur.
+-- Yazma policy YOK -> INSERT yalniz service role (cron).
+DROP POLICY IF EXISTS "karne_gonderim_select_own" ON public.karne_gonderim;
+CREATE POLICY "karne_gonderim_select_own" ON public.karne_gonderim
+FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+-- Rollback (GOREV 12):
+--   DROP TABLE IF EXISTS public.karne_gonderim;
+-- Yeni tablo; mevcut semaya dokunulmadi, veri kaybi riski yok. FK child'i yok,
+-- paylasimli fonksiyon/trigger kullanmiyor -> tek DROP yeterli. auth.users FK
+-- ON DELETE CASCADE oldugu icin kullanici silinince satirlar otomatik gider.

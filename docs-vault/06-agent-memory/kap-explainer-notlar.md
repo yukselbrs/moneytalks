@@ -26,6 +26,16 @@
 
 - Nötr tek cümle şablon: "Bu bildirim izleme listendeki {ticker} hissesini ilgilendiriyor." "İyi/kötü haber" ASLA deme. Yatırım tavsiyesi olmadığı ibaresini ekle.
 
+## Teşhis dili — portföy/karne metinleri (haftalik-karne route incelemesi, Temmuz 2026)
+
+- **Teşhis vs. eylem sınırı — çalışan kalıp:** Durumu tarif et, ardından mekanik sonucu nötr belirt, ama kullanıcıya ne yapacağını ASLA söyleme. Onaylanmış örnek: "Portföyünün %62'si X sektöründe. Tek sektör ağırlığı yüksek olduğunda o sektöre özgü dalgalanmalar portföyün geneline daha güçlü yansır." — "çeşitlendir/dengele/azalt" YOK, sadece neden-sonuç.
+- **Yargı sıfatı = örtük yönlendirme:** "riskli/tehlikeli/sağlıksız/güvenli" gibi değer yargısı sıfatları yönlendirme sayılır. Bunun yerine tarif eden ifade: "yüksek konsantrasyon", "endeksten daha oynak/yumuşak", "endekse yakın profil". Beta yorumunda bu üçlü (oynak/yumuşak/yakın) temiz çalışıyor.
+- **Risk skoru daima çerçevele:** Risk sayısını verince hemen "Bu bir risk ölçüsüdür, getiri tahmini değildir." ekle. Skor ≠ tahmin ayrımını her seferinde yaz.
+- **Eğitim içeriği başlığı tuzağı:** "Çeşitlendirme ne işe yarar?" başlığı hafif örtük tavsiye kokuyor ama gövde salt mekanizmayı (konsantrasyon↑ → dalgalanma portföye geçer) anlatıp "sen yapmalısın" demediği sürece eğitim çerçevesinde kalıyor. Sınırda ama kabul edilebilir; gövdeyi asla imperatife çevirme.
+- **RSI eğitim metninde "tek başına yön garantisi vermez" ibaresi ZORUNLU** — kaldırma/gevşetme. "aşırı alım/aşırı satım" standart terimleri tırnak içinde + bu disclaimer ile birlikte kullan.
+- **Karne disclaimer katmanı (yeterli bulunan set):** (1) üst başlık altı: "durumu tarif eder; ne yapman gerektiğini söylemez", (2) risk satırında getiri-tahmini-değil, (3) alt footer: 15dk gecikme + yatırım tavsiyesi değil + "al/sat yönlendirmesi içermez". Üç katman bir arada SPK açısından temiz.
+- **Bildirim (in-app) başlığı/açıklaması nötr kalmalı:** "Haftalık portföy karnen hazır" + "%X hareket etti" — hareketi tarif eder, yön yorumu (iyi/kötü hafta) yapmaz. Emoji (📊) bilgilendirici, hırs/korku tetiklemiyor; kabul.
+
 ## Açık işler / gözlem
 
 - `presentation` alanı (ODA tipi bildirimler) `flatData` yoksa parse edilmiyor; içerik boş kalırsa model yalnız subject+summary'den yazıyor. Kapsamı artırmak için `presentation` çıkarımı eklenebilir.

@@ -31,3 +31,10 @@ export async function ozetUret(detay: KapDetay, tip: KapBildirimTipi): Promise<{
 export function baglamMetni(ticker: string): string;
 ```
 Bu tipler `kap_bildirimleri.bildirim_tipi` CHECK constraint'iyle birebir eşleşmeli (supabase/migrations.sql satır ~537). Gelecekte modül değişirse burayı güncelle.
+
+## TradingView Scanner — `sector` kolonu (2026-07-05)
+
+- `POST https://scanner.tradingview.com/turkey/scan`, body `{ symbols: { tickers: ["BIST:THYAO", ...] }, columns: ["sector"] }` — **606 ticker'ın tamamı tek istekte** kabul edildi (chunk'a bölmeye gerek kalmadı, `totalCount: 606`, `data.length: 606`). Aynı endpoint F/K, PD/DD, piyasa değeri için `app/api/risk/route.ts` satır ~257'de tek-ticker olarak kullanılıyor; çoklu-ticker (batch) modu da destekleniyor.
+- Response sırası istek sırasıyla aynı çıktı (606/606 test edildi) ama **garanti değil** — eşleştirmeyi index'e göre değil, response'taki `s` alanına (`"BIST:TICKER"` formatında) göre yap. Geçersiz/rename olmuş ticker'lar (ör. eski `KOZAA`) `data` dizisinden sessizce düşer, hata dönmez.
+- Sektör kategorileri sabit ~20 değerlik İngilizce bir taksonomi (GICS-benzeri: Finance, Process Industries, Producer Manufacturing, Non-Energy Minerals, Technology Services, Electronic Technology, vb.) — TradingView'in kendi sektör şeması, GICS ile birebir aynı isimlendirme değil. 606 BIST hissesinin tamamında bu kolon dolu geldi (null yok), `data/bist-companies.json`'a `sektor` alanı bu şekilde eklendi (`scripts/add-sektor.mjs`, çeviri tablosu `SEKTOR_CEVIRI` scriptin içinde).
+- Kapsama %100 çıktığı için fallback/yedek kaynak (KAP sektör alanı vb.) araştırılmadı — ileride bir ticker null dönerse önce TradingView'in ticker formatını (rename/deList olasılığı) kontrol et, sonra fallback kaynağa geç.
