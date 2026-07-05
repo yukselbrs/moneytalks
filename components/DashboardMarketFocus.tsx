@@ -1,8 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StockLogo from "@/components/StockLogo";
 import { formatPercent } from "@/lib/formatters";
+
+type NedenKap = { index: number; tipEtiket: string; ozet: string | null };
+
+type NedenData = {
+  endeksDegisim: number | null;
+  hisseler: Record<string, { kap: NedenKap | null }>;
+};
 
 type DashboardHisse = {
   ticker: string;
@@ -59,6 +66,23 @@ export default function DashboardMarketFocus({
   const bistMap = useMemo(() => new Map(bistHisseler.map(h => [h.ticker, h])), [bistHisseler]);
   const watchlistSet = useMemo(() => new Set(watchlist.map(w => w.ticker)), [watchlist]);
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [neden, setNeden] = useState<NedenData | null>(null);
+
+  const moverTickers = useMemo(() => {
+    if (!topMovers) return "";
+    const uniq = [...new Set([...topMovers.yukselenler, ...topMovers.dusenler].map(h => h.ticker))];
+    return uniq.slice(0, 20).join(",");
+  }, [topMovers]);
+
+  useEffect(() => {
+    if (!moverTickers) return;
+    let iptal = false;
+    fetch(`/api/neden?tickers=${moverTickers}`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => { if (!iptal && data?.hisseler) setNeden(data); })
+      .catch(() => {});
+    return () => { iptal = true; };
+  }, [moverTickers]);
 
   const liste = piyasaOdagiTab === "yukselenler"
     ? (topMovers?.yukselenler || []).map(h => ({ ticker: h.ticker, fiyat: h.fiyat, degisim: h.degisim, yukselis: h.degisim >= 0 }))
@@ -105,6 +129,10 @@ export default function DashboardMarketFocus({
           const h = bistMap.get(s.ticker);
           const izlemede = watchlistSet.has(s.ticker);
           const degisimLabel = `${s.yukselis ? "artı" : "eksi"} ${formatPercent(Number(s.degisim), { symbolPosition: "prefix", signDisplay: "never" })}`;
+          const moverTab = piyasaOdagiTab === "yukselenler" || piyasaOdagiTab === "dusenler";
+          const kap = moverTab ? neden?.hisseler[s.ticker]?.kap ?? null : null;
+          const endeks = neden?.endeksDegisim ?? null;
+          const endeksYonlu = moverTab && !kap && endeks !== null && Math.abs(endeks) >= 1 && (endeks >= 0) === s.yukselis;
           return (
             <div key={s.ticker} onClick={() => goToHisse(s.ticker)}
               style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 40px", alignItems: "center", gap: 12, padding: "11px 16px", borderBottom: i < liste.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", transition: "background 0.12s" }}
@@ -112,7 +140,24 @@ export default function DashboardMarketFocus({
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
               <StockLogo ticker={s.ticker} domain={h?.domain} size={40} radius={10} color={tickerRenk(s.ticker)} />
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.3px" }}>{s.ticker}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.3px" }}>{s.ticker}</span>
+                  {kap && (
+                    <a href={`/kap/${kap.index}`}
+                      onClick={ev => ev.stopPropagation()}
+                      title={`${kap.ozet ? kap.ozet + " — " : ""}Bu hareketin son 24 saatteki KAP bildirimiyle zamansal örtüşmesi var; kesin neden göstermez. Detay için tıkla.`}
+                      style={{ fontSize: 10, fontWeight: 600, color: "#A78BFA", background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 20, padding: "2px 8px", textDecoration: "none", whiteSpace: "nowrap" }}>
+                      KAP: {kap.tipEtiket}
+                    </a>
+                  )}
+                  {endeksYonlu && (
+                    <span
+                      title={`XU100 bugün ${formatPercent(endeks!, { symbolPosition: "prefix" })} — hareket endeksle aynı yönde; hisseye özgü bir gelişme göstermez.`}
+                      style={{ fontSize: 10, fontWeight: 600, color: "#64748B", background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.25)", borderRadius: 20, padding: "2px 8px", whiteSpace: "nowrap" }}>
+                      Endeks yönlü
+                    </span>
+                  )}
+                </div>
                 <div title={h?.name || s.ticker} style={{ fontSize: 11, color: "#334155", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>{h?.name || s.ticker}</div>
               </div>
               <div style={{ textAlign: "right" }}>
