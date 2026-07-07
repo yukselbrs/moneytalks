@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 *.bak
 .env*.local
+docs-vault/.obsidian/
+.claude/worktrees/
+.claude/agent-memory/

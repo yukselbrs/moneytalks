@@ -132,7 +132,26 @@ export default function IzlemePage() {
     }
   }
 
-  if (loading) return <AppShell><div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#0B1220"}}><p style={{color:"#475569",fontSize:13}}>Yükleniyor...</p></div></AppShell>;
+  if (loading) return (
+    <AppShell>
+      <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 28px" }}>
+          <div className="skl" style={{ width: 180, height: 26, marginBottom: 8 }} />
+          <div className="skl" style={{ width: 280, height: 13, marginBottom: 24, opacity: 0.6 }} />
+          <div className="card-glass" style={{ borderRadius: 14, overflow: "hidden" }}>
+            {[0, 1, 2, 3, 4].map(i => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", borderBottom: "1px solid rgba(59,130,246,0.04)" }}>
+                <div className="skl" style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0 }} />
+                <div className="skl" style={{ width: "22%", height: 13 }} />
+                <div className="skl" style={{ width: "14%", height: 13, marginLeft: "auto" }} />
+                <div className="skl" style={{ width: 90, height: 13 }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
 
   return (
     <AppShell>
@@ -178,6 +197,7 @@ export default function IzlemePage() {
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
                 <span style={{ fontSize: 20 }}>&#9733;</span>
                 <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC" }}>İzleme Listem</h1>
+                <span className="delay-pill">15 dk gecikmeli</span>
               </div>
               <p style={{ fontSize: 12, color: "#475569" }}>Piyasayı takip ettiğin hisseleri buradan yönet ve anlık gelişmeleri kaçırma.</p>
             </div>
@@ -269,8 +289,12 @@ export default function IzlemePage() {
               </div>
 
               {watchlist.length === 0 ? (
-                <div style={{ padding: "40px 18px", textAlign: "center" }}>
-                  <p style={{ fontSize: 13, color: "#475569" }}>Izleme listeniz bos.</p>
+                <div style={{ padding: "48px 24px", textAlign: "center" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 12 }}>☆</div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: "#94A3B8", margin: "0 0 6px" }}>İzleme listen henüz boş</p>
+                  <p style={{ fontSize: 12.5, color: "#475569", margin: 0, lineHeight: 1.6, maxWidth: 380, marginLeft: "auto", marginRight: "auto" }}>
+                    Yukarıdaki arama kutusundan hisse ekle. İzlemeye aldığın hisselerin KAP bildirimleri sade Türkçe özetiyle e-postana gelir.
+                  </p>
                 </div>
               ) : (
                 paginated.map((w, i) => {
@@ -295,7 +319,7 @@ export default function IzlemePage() {
 
                       {/* Fiyat */}
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{f ? `${f.fiyat} ₺` : "-"}</div>
+                        <div className="tabular" style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>{f ? `${f.fiyat} ₺` : "-"}</div>
                         <div style={{ fontSize: 12, color: "#334155" }}>{addedDate}</div>
                       </div>
 

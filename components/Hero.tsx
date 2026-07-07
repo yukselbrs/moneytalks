@@ -61,13 +61,21 @@ export default function Hero({ heroVideo }: HeroProps) {
       className="relative w-full flex items-start justify-center"
       style={{ minHeight: "100vh", paddingTop: "64px" }}
     >
-      <div className="relative w-full min-h-screen flex items-center overflow-hidden">
+      <div className="grain relative w-full min-h-screen flex items-center overflow-hidden">
         {/* Background glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
               "radial-gradient(ellipse 80% 60% at 60% 50%, rgba(30,64,175,0.18) 0%, transparent 70%)",
+          }}
+        />
+        {/* Secondary depth glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 50% 40% at 15% 85%, rgba(139,92,246,0.07) 0%, transparent 70%)",
           }}
         />
         {/* Grid overlay */}

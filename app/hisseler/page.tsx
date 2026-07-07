@@ -250,6 +250,7 @@ function HisselerContent() {
               </h1>
             </div>
             <div style={{ fontSize: 12, color: "#64748B", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <span className="delay-pill">15 dk gecikmeli veri</span>
               <span style={{ color: "#94A3B8" }}>Aktif:</span>
               <span style={{ color: "#DBEAFE", fontWeight: 600, background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.22)", borderRadius: 999, padding: "3px 10px" }}>{aktifSiralamaMetni}</span>
               {q && <span style={{ color: "#60A5FA", fontWeight: 500 }}>Arama: {q}</span>}

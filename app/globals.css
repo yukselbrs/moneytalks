@@ -165,6 +165,54 @@ body {
   background-size: 22px 22px;
 }
 
+/* ── Grain overlay (derinlik dokusu) ───────────────── */
+.grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Gecikmeli veri rozeti (güven sinyali) ─────────── */
+.delay-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748B;
+  background: rgba(100, 116, 139, 0.08);
+  border: 1px solid rgba(100, 116, 139, 0.18);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.delay-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #64748B;
+  opacity: 0.6;
+}
+
+/* ── Skeleton shimmer (markaya uygun yükleme) ──────── */
+@keyframes skl-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skl {
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(59,130,246,0.05) 25%, rgba(59,130,246,0.12) 50%, rgba(59,130,246,0.05) 75%);
+  background-size: 800px 100%;
+  animation: skl-shimmer 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skl { animation: none; }
+}
+
 /* ── Hover glow card ───────────────────────────────── */
 .hover-glow {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;

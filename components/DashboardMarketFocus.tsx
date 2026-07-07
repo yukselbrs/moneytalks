@@ -145,15 +145,16 @@ export default function DashboardMarketFocus({
                   {kap && (
                     <a href={`/kap/${kap.index}`}
                       onClick={ev => ev.stopPropagation()}
+                      aria-label={`${s.ticker} KAP bildirimi: ${kap.tipEtiket} — detayı aç`}
                       title={`${kap.ozet ? kap.ozet + " — " : ""}Bu hareketin son 24 saatteki KAP bildirimiyle zamansal örtüşmesi var; kesin neden göstermez. Detay için tıkla.`}
-                      style={{ fontSize: 10, fontWeight: 600, color: "#A78BFA", background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 20, padding: "2px 8px", textDecoration: "none", whiteSpace: "nowrap" }}>
+                      style={{ fontSize: 11, fontWeight: 600, color: "#A78BFA", background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 20, padding: "4px 10px", textDecoration: "none", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
                       KAP: {kap.tipEtiket}
                     </a>
                   )}
                   {endeksYonlu && (
                     <span
                       title={`XU100 bugün ${formatPercent(endeks!, { symbolPosition: "prefix" })} — hareket endeksle aynı yönde; hisseye özgü bir gelişme göstermez.`}
-                      style={{ fontSize: 10, fontWeight: 600, color: "#64748B", background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.25)", borderRadius: 20, padding: "2px 8px", whiteSpace: "nowrap" }}>
+                      style={{ fontSize: 11, fontWeight: 600, color: "#64748B", background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.25)", borderRadius: 20, padding: "4px 10px", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
                       Endeks yönlü
                     </span>
                   )}
