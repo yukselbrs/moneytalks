@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimitHit, istekIpAdresi } from "@/lib/rate-limit";
+import { getMacroRiskSnapshot } from "@/lib/macro-risk";
 
 async function fetchOHLCV(ticker: string) {
   const res = await fetch(
@@ -303,11 +304,11 @@ export async function GET(req: NextRequest) {
     const veriSayisi = hisse.closes.length;
     const veriGüvenilir = veriSayisi >= 45;
 
-    // === AĞIRLIKLI SKOR ===
-    // Trend (1H + 1A + Momentum EMA) toplam %40 ağırlık → kısa vade düşüş skoru hızlı yansır
+    // === TEKNIK / FINANSAL SKOR ===
+    // Trend (1H + 1A + Momentum EMA) toplam %40 ağırlık -> kısa vade düşüş skoru hızlı yansır.
     const fkAg = isEndeks ? 0 : (fkVar ? 0.05 : 0);
     const pdddAg = isEndeks ? 0 : (pdddVar ? 0.05 : 0);
-    const skorBilesenleri = [
+    const teknikBilesenleri = [
       { ad: "Beta (Sistematik Risk)", deger: isEndeks ? "N/A" : beta.toFixed(2), risk: betaRisk, agirlik: isEndeks ? 0 : 0.10 },
       { ad: "Volatilite (Yillik)", deger: volatilite.toFixed(1) + "%", risk: volRisk, agirlik: isEndeks ? 0.15 : 0.10 },
       { ad: "1 Haftalık Trend", deger: getiri1H !== null ? (getiri1H > 0 ? "+" : "") + getiri1H.toFixed(2) + "%" : "N/A", risk: trend1HRisk, agirlik: isEndeks ? 0.25 : 0.18 },
@@ -322,10 +323,25 @@ export async function GET(req: NextRequest) {
       { ad: "PD/DD Orani", deger: pddd !== null ? pddd.toFixed(2) : "N/A", risk: pdddRisk, agirlik: pdddAg },
     ];
 
+    const teknikAgirlik = teknikBilesenleri.reduce((acc, b) => acc + b.agirlik, 0);
+    const teknikRiskSkor = teknikBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0) / teknikAgirlik;
+
+    const macroRisk = await getMacroRiskSnapshot().catch(() => null);
+    const macroRiskSkor = macroRisk?.score ?? 0;
+    const macroRiskAgirlik = macroRiskSkor >= 35 ? (isEndeks ? 0.28 : 0.14) : 0;
+
+    // === BILESIK SKOR ===
+    const skorBilesenleri = [
+      ...teknikBilesenleri,
+      { ad: "Makro/Siyasi Risk", deger: macroRisk ? `${macroRisk.levelTR} (${macroRisk.score}/100)` : "N/A", risk: macroRiskSkor, agirlik: macroRiskAgirlik },
+    ];
+
     const toplamAgirlik = skorBilesenleri.reduce((acc, b) => acc + b.agirlik, 0);
-    const toplamSkor = toplamAgirlik > 0
+    const hamSkor = toplamAgirlik > 0
       ? skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0) / toplamAgirlik
       : 50;
+    const makroTaban = macroRiskSkor >= 85 ? (isEndeks ? 58 : 52) : macroRiskSkor >= 65 ? (isEndeks ? 48 : 43) : 0;
+    const toplamSkor = Math.max(hamSkor, makroTaban);
 
     // Genişletilmiş bantlar — skorun ortaya yığılması önlenir
     const seviye = toplamSkor >= 65 ? "Yuksek" : toplamSkor >= 50 ? "OrtaUstu" : toplamSkor >= 35 ? "Orta" : toplamSkor >= 20 ? "Dusuk" : "CokDusuk";
@@ -342,6 +358,16 @@ export async function GET(req: NextRequest) {
       veriSayisi,
       bilesenler: skorBilesenleri,
       piyasaDegeri,
+      teknikSkor: Math.round(100 - teknikRiskSkor),
+      teknikRiskSkor: Math.round(teknikRiskSkor),
+      makroRisk: macroRisk ? {
+        skor: macroRisk.score,
+        seviye: macroRisk.levelTR,
+        ozet: macroRisk.summary,
+        tetikleyiciler: macroRisk.triggers,
+        kaynaklar: macroRisk.sources,
+        guncelleme: macroRisk.updatedAt,
+      } : null,
       meta: {
         beta: parseFloat(beta.toFixed(3)),
         volatilite: parseFloat(volatilite.toFixed(2)),

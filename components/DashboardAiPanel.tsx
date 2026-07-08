@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 
 type AiPanel = {
   skor: number;
+  teknikSkor?: number;
+  makroSkor?: number;
   seviye: string;
   yorum: string;
   guven: string;
@@ -24,6 +26,15 @@ function skorRenk(skor: number) {
 }
 
 // Yönsüz etiketler — "yükseliş/düşüş" iması yok, sadece risk seviyesi.
+
+function makroRenk(skor?: number) {
+  if (skor === undefined) return "#64748B";
+  if (skor >= 85) return "#F97316";
+  if (skor >= 65) return "#EF4444";
+  if (skor >= 35) return "#F59E0B";
+  return "#10B981";
+}
+
 function gorunumMetni(skor: number) {
   if (skor >= 80) return "Çok Düşük Risk";
   if (skor >= 65) return "Düşük Risk · Stabil";
@@ -106,7 +117,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
               </svg>
               <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ fontSize: 28, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-1.2px" }}>{visibleSkor ?? "—"}</span>
-                <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>AI Skoru</span>
+                <span style={{ fontSize: 12, color: "#64748B", fontWeight: 600 }}>Bileşik Skor</span>
                 <span style={{ fontSize: 9, color: "#475569", fontWeight: 500 }}>risk ölçüsü</span>
               </div>
             </div>
@@ -114,6 +125,20 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
               <p style={{ fontSize: 17, fontWeight: 700, color: skorRenk(aiPanel.skor), marginBottom: 6, letterSpacing: "-0.3px" }}>
                 {gorunumMetni(aiPanel.skor)}
               </p>
+              {(aiPanel.teknikSkor !== undefined || aiPanel.makroSkor !== undefined) ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+                  {aiPanel.teknikSkor !== undefined ? (
+                    <span style={{ fontSize: 10, color: skorRenk(aiPanel.teknikSkor), border: `1px solid ${skorRenk(aiPanel.teknikSkor)}30`, background: `${skorRenk(aiPanel.teknikSkor)}12`, borderRadius: 999, padding: "3px 7px", fontWeight: 700 }}>
+                      Teknik {aiPanel.teknikSkor}/100
+                    </span>
+                  ) : null}
+                  {aiPanel.makroSkor !== undefined ? (
+                    <span style={{ fontSize: 10, color: makroRenk(aiPanel.makroSkor), border: `1px solid ${makroRenk(aiPanel.makroSkor)}30`, background: `${makroRenk(aiPanel.makroSkor)}12`, borderRadius: 999, padding: "3px 7px", fontWeight: 700 }}>
+                      Makro {aiPanel.makroSkor}/100 risk
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
               {aiPanel.yorum && aiPanel.yorum !== "Analiz yükleniyor..." ? (
                 <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6 }}>{aiPanel.yorum}</p>
               ) : (
@@ -148,7 +173,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
             </div>
           </div>
           <p style={{ fontSize: 12, color: "#334155", marginTop: 6, textAlign: "center", lineHeight: 1.5 }}>
-            Skor bir risk ölçüsüdür, getiri tahmini değildir. Yatırım tavsiyesi değildir.
+            Skor bir risk ölçüsüdür, getiri tahmini değildir. Teknik ve makro haber bağlamı sınırlıdır. Yatırım tavsiyesi değildir.
           </p>
         </>
       ) : (

@@ -33,6 +33,17 @@ const AUTH_TIMEOUT_MS = 7000;
 const BIST_HISSELER = TUM_BIST_HISSELER.map(h => ({ ticker: h.ticker, name: toTitleCase(h.ad), domain: h.domain }));
 const POPULAR = BIST_HISSELER.filter(h => POPULAR_TICKERS.includes(h.ticker));
 
+function aiPanelSkoruHesapla(risk: { skor?: number; teknikSkor?: number; makroRisk?: { skor?: number } }) {
+  const teknikSkor = typeof risk.teknikSkor === "number" ? risk.teknikSkor : risk.skor ? Math.round(100 - risk.skor) : 50;
+  const makroSkor = risk.makroRisk?.skor ?? 0;
+  const bilesikSkor = makroSkor >= 85
+    ? Math.min(teknikSkor, 44)
+    : makroSkor >= 65
+      ? Math.min(teknikSkor, 54)
+      : teknikSkor;
+  return { bilesikSkor, teknikSkor, makroSkor };
+}
+
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
   let timeoutId: ReturnType<typeof setTimeout>;
   const timeout = new Promise<never>((_, reject) => {
@@ -80,7 +91,7 @@ export default function DashboardPage() {
   };
   const chart = useChartPanel();
   const { grafikTicker, grafikTickerLabel, initialGrafikLoadedRef, fetchBuyukGrafik } = chart;
-  const [aiPanel, setAiPanel] = useState<{skor: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
+  const [aiPanel, setAiPanel] = useState<{skor: number; teknikSkor?: number; makroSkor?: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
 
   const fetchAiPanel = useCallback(async (ticker?: string) => {
     const t = (ticker || grafikTicker).replace(".IS","").replace("=X","");
@@ -102,14 +113,15 @@ export default function DashboardPage() {
       ]);
       const risk = await riskRes.json();
       const yorumJson = await yorumRes.json();
-      let skor = risk.skor !== undefined && risk.skor !== null ? Math.round(100 - risk.skor) : 50;
+      const { bilesikSkor, teknikSkor, makroSkor } = aiPanelSkoruHesapla(risk);
+      let skor = bilesikSkor;
       const analizMetin: string = yorumJson.analiz || "";
       const temizMetin = analizMetin.replace(/[#*]/g, "").trim();
       // Satırları gez, 30+ karakter olan ilk tam cümleyi al
       const satirlar = temizMetin.split("\n").map((s: string) => s.trim()).filter((s: string) => s.length > 30);
       const ilkSatir = satirlar[0] || temizMetin;
       const cumleMatch = ilkSatir.match(/^.+?\.(?=\s+[A-ZÇĞİÖŞÜ]|\s*$)|^.+?[!?]/);
-      const yorum = cumleMatch ? cumleMatch[0].trim() : (ilkSatir.length > 160 ? ilkSatir.slice(0, 160) + "..." : ilkSatir);
+      const ilkCumle = cumleMatch ? cumleMatch[0].trim() : ilkSatir;
 
       // === TUTARLILIK KONTROLÜ ===
       // Yorum metni bearish kelimeler içeriyorsa "Düşük Risk · Stabil" gösterilemez.
@@ -122,10 +134,16 @@ export default function DashboardPage() {
       if (bearishHit && !bullishHit && skor >= 65) skor = Math.min(skor, 58);
       if (bullishHit && !bearishHit && skor <= 35) skor = Math.max(skor, 42);
 
-      // Veri güvenilirliği: 45+ gün veri → Güvenilir, 25-44 → Kısmi, <25 → Yetersiz
+      const makroOzet = risk.makroRisk?.skor >= 65
+        ? `Teknik skor ${teknikSkor}; ancak ${risk.makroRisk.seviye.toLocaleLowerCase("tr-TR")} makro risk bileşik görünümü baskılıyor.`
+        : "";
+      const yorumKaynak = makroOzet || ilkCumle;
+      const yorum = yorumKaynak.length > 150 ? yorumKaynak.slice(0, 147).trim() + "..." : yorumKaynak;
+
+      // Veri güvenilirliği: 45+ gün veri -> Güvenilir, 25-44 -> Kısmi, <25 -> Yetersiz
       const veriSayisi: number = typeof risk.veriSayisi === "number" ? risk.veriSayisi : 0;
       const guven = veriSayisi >= 45 ? "Güvenilir" : veriSayisi >= 25 ? "Kısmi" : "Yetersiz";
-      setAiPanel({ skor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
+      setAiPanel({ skor, teknikSkor, makroSkor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
     } catch {
       setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz alınamadı.", guven: "Yetersiz", yukleniyor: false });
     }

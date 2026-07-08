@@ -7,6 +7,7 @@ import { normalizeTicker } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
 import { rateLimitHit } from "@/lib/rate-limit";
 import { formatCurrency, formatQuantity } from "@/lib/formatters";
+import { getMacroRiskSnapshot, macroRiskPromptBlock } from "@/lib/macro-risk";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const supabaseAuth = createClient(
@@ -95,6 +96,8 @@ export async function POST(req: NextRequest) {
     : "Guncel fiyat verisi alinamadi.";
 
   try {
+    const macroRisk = await getMacroRiskSnapshot().catch(() => null);
+    const makroMetni = macroRisk ? `\n\n${macroRiskPromptBlock(macroRisk)}` : "";
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 1024,
@@ -102,12 +105,12 @@ export async function POST(req: NextRequest) {
         {
           role: "user",
           content: body.kisaYorum === true
-            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} icin asagidaki veriyi kullanarak TAM OLARAK 1 cumlelik ozet yaz. Cümle nokta ile bitmeli. Sadece en onemli 1 gozlemi belirt. Fiyat veya degisim bilgisini kullan. Turkce yaz. ₺ sembolunu kullan. Yatirim tavsiyesi verme.
+            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} icin asagidaki veriyi kullanarak TAM OLARAK 1 cumlelik ozet yaz. Cümle nokta ile bitmeli. Sadece en onemli 1 gozlemi belirt. Fiyat, degisim veya makro risk bilgisini kullan. Turkce yaz. ₺ sembolunu kullan. Yatirim tavsiyesi verme.
 
-${veriMetni}`
+${veriMetni}${makroMetni}`
             : `Sen bir Turk borsasi uzmanisisin. Asagidaki veriyi kullanarak ${ticker} hissesi icin somut ve analitik bir degerlendirme yap.
 
-${veriMetni}
+${veriMetni}${makroMetni}
 
 Asagidaki formati AYNEN kullan:
 

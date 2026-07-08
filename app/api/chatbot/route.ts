@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { requireUser } from "@/lib/auth";
 import { rateLimitHit } from "@/lib/rate-limit";
+import { getMacroRiskSnapshot } from "@/lib/macro-risk";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -2513,7 +2514,7 @@ const PAKO_TOOLS = [
   },
   {
     name: "get_genel_piyasa",
-    description: "XU100, XU030 endeks verileri, günün en çok yükselen ve düşen hisseleri, hacim anomalileri ve genel piyasa özeti. Piyasa geneli veya endeks hakkında soru sorulduğunda kullan. Yüzde değerlerini formatlı stringlerden oku; 0.61 +%0,61 demektir, 100 ile çarpma.",
+    description: "XU100, XU030 endeks verileri, günün en çok yükselen ve düşen hisseleri, hacim anomalileri, genel piyasa özeti ve makro/siyasi haber risk radarını getirir. Piyasa geneli, endeks, bugün neden düştük/yükseldik veya haber kaynaklı stres sorulduğunda kullan. Yüzde değerlerini formatlı stringlerden oku; 0.61 +%0,61 demektir, 100 ile çarpma.",
     input_schema: {
       type: "object" as const,
       properties: {},
@@ -2590,7 +2591,27 @@ async function toolExecute(
     }
 
     case "get_genel_piyasa": {
-      return genelPiyasaToolCevabi(await genelPiyasaBaglamiCek());
+      const [piyasaBaglami, macroRisk] = await Promise.all([
+        genelPiyasaBaglamiCek(),
+        getMacroRiskSnapshot().catch(() => null),
+      ]);
+      return {
+        ...genelPiyasaToolCevabi(piyasaBaglami),
+        makroRisk: macroRisk ? {
+          skor: macroRisk.score,
+          seviye: macroRisk.levelTR,
+          ozet: macroRisk.summary,
+          tetikleyiciler: macroRisk.triggers,
+          kaynaklar: macroRisk.sources,
+          haberler: macroRisk.articles.slice(0, 5).map((article) => ({
+            baslik: article.title,
+            kaynak: article.source,
+            tarih: article.publishedAt ?? null,
+            eslesenler: article.matchedKeywords,
+          })),
+          not: "Makro risk radarı kesin neden değil; haber akışından türetilmiş ek bağlamdır.",
+        } : null,
+      };
     }
 
     case "get_portfoy": {
@@ -2696,7 +2717,7 @@ ARAÇLAR:
 - get_hisse_fiyat: Güncel fiyat, değişim, hacim, 52H aralığı → hisse hakkında soru sorulduğunda çağır
 - get_teknik_analiz: RSI, MACD, EMA, pivot, F/K, PD/DD, temettü, sektör kıyaslaması → teknik/temel analiz istendiğinde çağır
 - get_kap_haberler: KAP bildirimleri → haber veya "neden hareket etti" sorularında çağır
-- get_genel_piyasa: XU100/XU030, en çok yükselen/düşenler → piyasa geneli sorulduğunda çağır. Yüzdeleri formatlı stringlerden aynen kullan; 0.61 değeri +%0,61'dir, +%61 değildir.
+- get_genel_piyasa: XU100/XU030, en çok yükselen/düşenler ve makro/siyasi risk radarı → piyasa geneli, "bugün neden düştük" veya haber kaynaklı stres sorulduğunda çağır. Yüzdeleri formatlı stringlerden aynen kullan; 0.61 değeri +%0,61'dir, +%61 değildir.
 - get_portfoy: Kullanıcının portföyü + Portföy Risk Motoru → portföy analizi/risk/getiri sorulduğunda çağır
 - search_hisse: Ticker arama → tam kod bilinmediğinde ya da şirket adı yazıldığında çağır
 
