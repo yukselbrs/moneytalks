@@ -282,6 +282,58 @@ CREATE INDEX IF NOT EXISTS hisse_snapshots_degisim_idx ON public.hisse_snapshots
 CREATE INDEX IF NOT EXISTS hisse_snapshots_hacim_idx ON public.hisse_snapshots (hacim);
 CREATE INDEX IF NOT EXISTS hisse_snapshots_piyasa_degeri_idx ON public.hisse_snapshots (piyasa_degeri);
 
+-- TEFAS fon snapshot cache
+CREATE TABLE IF NOT EXISTS public.fon_snapshots (
+  kod TEXT PRIMARY KEY,
+  unvan TEXT NOT NULL,
+  kategori TEXT,
+  fiyat NUMERIC,
+  gunluk_getiri NUMERIC,
+  getiri_1a NUMERIC,
+  getiri_3a NUMERIC,
+  getiri_6a NUMERIC,
+  getiri_1y NUMERIC,
+  getiri_yb NUMERIC,
+  getiri_3y NUMERIC,
+  getiri_5y NUMERIC,
+  risk_degeri NUMERIC,
+  portfoy_buyukluk NUMERIC,
+  kisi_sayisi NUMERIC,
+  tedavuldeki_pay NUMERIC,
+  yonetim_ucreti_yillik NUMERIC,
+  toplam_gider_orani NUMERIC,
+  tefas_durum BOOLEAN,
+  veri_tarihi DATE,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS kod TEXT;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS unvan TEXT;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS kategori TEXT;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS fiyat NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS gunluk_getiri NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_1a NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_3a NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_6a NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_1y NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_yb NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_3y NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_5y NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS risk_degeri NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS portfoy_buyukluk NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS kisi_sayisi NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS tedavuldeki_pay NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS yonetim_ucreti_yillik NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS toplam_gider_orani NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS tefas_durum BOOLEAN;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS veri_tarihi DATE;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+CREATE INDEX IF NOT EXISTS fon_snapshots_getiri_1a_idx ON public.fon_snapshots (getiri_1a);
+CREATE INDEX IF NOT EXISTS fon_snapshots_getiri_1y_idx ON public.fon_snapshots (getiri_1y);
+CREATE INDEX IF NOT EXISTS fon_snapshots_risk_idx ON public.fon_snapshots (risk_degeri);
+CREATE INDEX IF NOT EXISTS fon_snapshots_buyukluk_idx ON public.fon_snapshots (portfoy_buyukluk);
+
 -- updated_at triggerleri
 DROP TRIGGER IF EXISTS profiles_updated_at ON public.profiles;
 CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON public.profiles
@@ -313,6 +365,7 @@ ALTER TABLE public.alarmlar ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bildirimler ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.risk_profil ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hisse_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fon_snapshots ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "profiles_select_authenticated" ON public.profiles;
 CREATE POLICY "profiles_select_authenticated" ON public.profiles
@@ -356,6 +409,10 @@ FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = u
 
 DROP POLICY IF EXISTS "hisse_snapshots_read_all" ON public.hisse_snapshots;
 CREATE POLICY "hisse_snapshots_read_all" ON public.hisse_snapshots
+FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "fon_snapshots_read_all" ON public.fon_snapshots;
+CREATE POLICY "fon_snapshots_read_all" ON public.fon_snapshots
 FOR SELECT TO anon, authenticated USING (true);
 
 -- Avatar bucket
