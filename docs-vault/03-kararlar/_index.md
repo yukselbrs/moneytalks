@@ -20,8 +20,9 @@ Her karar tek dosya:
 ## Kayıtlı kararlar
 
 ### Analiz / bağlam
-- [[handoff-v9-fark-analizi]] — v9 (4 Mayıs) ↔ güncel kod farkı
+- [[handoff-v9-fark-analizi]] — v9 (4 Mayıs) ↔ 4 Temmuz kod farkı (arşiv)
 - [[kap-tercumani-supabase-semasi]] — KAP Tercümanı 3 tablosu, RLS ve idempotency
+- [[vault-bakim-2026-07]] — Faz 3 vault bakımı kaydı (13 Temmuz)
 
 ### Track 1 (6 Temmuz 2026 — tamamlandı, production'da)
 Genel bakış: [[parakonusur_handoff_v10]]

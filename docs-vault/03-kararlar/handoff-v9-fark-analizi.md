@@ -1,5 +1,7 @@
 # Handoff v9 — Kod Tabanı Fark Analizi
 
+> ℹ️ **Arşiv notu (13 Temmuz 2026):** Bu analiz 4 Temmuz'daki kod durumunun fotoğrafıdır; "teknik borç" bölümündeki maddelerin çoğu Track 1'de kapatıldı (bkz. [[parakonusur_handoff_v10]]). Güncel denetim: [[2026-07-tam-audit]].
+
 **Tarih:** 4 Temmuz 2026
 **Karşılaştırılan:** [[parakonusur_handoff_v9]] (4 Mayıs 2026) ↔ kod tabanının güncel hali (son commit: `5b4c06c`, **9 Mayıs 2026**)
 **Önemli bağlam:** 9 Mayıs'tan bu yana (~2 ay) **hiç commit yok**. Kod tabanı 9 Mayıs durumunda donmuş; v9 (4 Mayıs) ile bugün arasındaki fark, 4-9 Mayıs arasındaki 121 commit'ten ibaret.

@@ -1,4 +1,7 @@
 # ParaKonuşur.com — Project Handoff v9
+
+> ⚠️ **GÜNCEL DEĞİL — bkz. [[parakonusur_handoff_v10]]** (6 Temmuz 2026). Bu dokümandaki şu iddialar geçersizleşti: RSI basit ortalama (→ Wilder, Track 1 GÖREV 8), rate limit in-memory (→ Supabase RPC, GÖREV 3), KAP tablosuz/entegrasyonsuz (→ KAP Tercümanı boru hattı, GÖREV 9), CRON_SECRET düz metin (→ redakte + rotasyon runbook'u, GÖREV 2), alarm çift cron riski (→ tek tetikleyici, GÖREV 7). Arşiv amaçlı saklanıyor.
+
 **Tarih:** 4 Mayıs 2026
 **Durum:** Dashboard grafik fix, AI panel düzeltmeleri, endeks beta fix, MKK/KAP API erişimi sağlandı
 **Önceki handoff:** v8 (3 Mayıs 2026)

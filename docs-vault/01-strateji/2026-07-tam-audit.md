@@ -207,3 +207,46 @@ Sentry/log-drain hâlâ kurulu değil; cron'lar `if (!res.ok) return []` deseniy
 
 ### D.6 Bundle gözlemi
 Turbopack build sorunsuz; en ağır client sayfaları portföy (1200+ satır, recharts) ve dashboard. `recharts` tek grafik kütüphanesi olarak makul; ek grafik kütüphanesi eklenmemeli (mevcut tutarlılık iyi). Acil bundle borcu yok.
+
+---
+
+## BÖLÜM E — Vault Bakımı (uygulandı)
+
+Bu bölümün çıktısı rapor değil, vault'un kendisi — tam kayıt: [[vault-bakim-2026-07]]. Özet: v9 handoff'a "GÜNCEL DEĞİL" notu (5 geçersiz iddia işaretli), fark-analizine arşiv etiketi, **04-arastirma ilk kez açıldı** ([[rakip-analizi]], [[pazar-verileri]], [[vergi-mevzuati]] — Bölüm B/C'nin kaynak tabanı artık aranabilir), MOC ve klasör indexleri güncel, 05-gunluk'a oturum notu. Birleştirme önerileri (uygulanmadı): agent-memory/ADR mükerrerliği, brainstorm'a uygulama-durumu tablosu.
+
+---
+
+# RAPOR SONU — Yönetici Özeti
+
+## 1. En kritik 5 fonksiyonel bug (Bölüm A)
+1. **KAP Tercümanı hiç veri toplamıyor** — cursor seed(0) + `disclosureIndex=0`→400 + sessiz yutma; omurga özellik ve 4 bağlı yüzey 6 gündür ölü (A.1). *Fix ~2 satır + tek SQL.*
+2. **Chatbot boş-gövde 500'ü** — validation'sız boş `messages` Anthropic'e gidiyor (A.2). *Fix ~5 satır.*
+3. **Oturum yarışı şüphesi** — hard-load'da sayfa "çıkışlı" davranabiliyor; gerçek login ile repro şart, D.5'teki çift-depo (localStorage/SSR cookie) meselesiyle birlikte ele alınmalı (A.4).
+4. **İzleme yıldızı sessiz hata** — başarısız insert'te sıfır geri bildirim (A.3).
+5. **KAP akışında tarih yok** — eski bildirim bugünmüş gibi; production'da güven zedeler (A.5).
+
+## 2. En yüksek etkili 5 özellik yükseltmesi (Bölüm B)
+1. Makro risk şeffaflığı: taban yerine "Teknik X + Makro Y" ayrıştırması (B.1 — bugün canlıda skorları eziyor).
+2. Chatbot tool-status SSE + alarmTaslak→buton köprüsü (B.4 — 27 sn sessizliği his olarak kısaltır, alarm dönüşümü bedava).
+3. Neden-chip'e sektör kıyası + büyüklük şartı (B.9 — sektör verisi hazır, yanlış atıfı bitirir).
+4. Karnenin web görünümü "karnemi şimdi gör" (B.7 — cron beklemeden değer, dry-run verisi hazır).
+5. İzleme sayfasına kişisel KAP sekmesi (B.6 — A.1 fix'i sonrası sıfır ek veri maliyeti).
+
+## 3. En radikal / savunulabilir 5 fikir (Bölüm C — raporun kalbi)
+| Fikir | Efor | Etki | Veri desteği |
+|---|---|---|---|
+| **C.1 Akşam Raporu** (kişisel gün sonu atıf özeti) | 1-1,5 hf | Günlük retention + Plus çapası | Robinhood Digests: 1M+ kullanıcı, Gold +%76 YoY; TR'de karşılığı yok |
+| **C.2 Halka Arz Tercümanı** | 1 hf pilot | Sezonluk viral edinim | Ç2'de 16 arz, 13,28M katılım |
+| **C.3 Temettü & Vergi Rehberi** | 1,5-2 hf | Rakipsiz konum + Şubat-Mart SEO | %10 stopaj + GVK 22/2 + beyan eşiği karmaşası; GİB takip haberleri |
+| **C.4 Fon Karnesi** | 3-5 gün | Fintables ₺149 çekirdeğini Plus'a katar | 5,89M fon yatırımcısı; TEFAS verisi içeride |
+| **C.5 Bilanço Günü Tercümanı** | 2 hf pilot | "Karne günü" ritüeli | 2Ç sezonu Temmuz sonunda başlıyor |
+Önerilen sıra: A.1-A.2 fix'leri → C.1 → C.2 (sezon) → C.4 → C.3 → C.5 (bilanço sezonuna pilot).
+
+## 4. Teknik borç özeti (Bölüm D)
+Test altyapısı sıfır (en yüksek getirili: saf fonksiyon testleri, fixture'lar hazır) · gözlemlenebilirlik yok — A.1'in kök nedeni (Sentry + cron hata sayacı) · 2 `.bak` dosyası + ölü WaitlistCTA · @anthropic-ai/sdk 21 minor geride, next patch alınmalı · cron düzlem tutarsızlığı (GH Actions vs Vercel) · supabase client çift-depo riski. Temiz: strict TS, sıfır any/console.log/TODO, build yeşil.
+
+## 5. Vault bakımı özeti (Bölüm E)
+04-arastirma artık canlı (3 kaynaklı not); v9 arşivlendi; MOC güncel; birleştirme önerileri Faz 4'e bırakıldı. Kayıt: [[vault-bakim-2026-07]].
+
+---
+*Faz 3 burada durur — kod tabanına dokunulmadı. Faz 4 (uygulama) kapsam onayı Barış'ta.*
