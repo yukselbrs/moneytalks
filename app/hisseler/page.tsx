@@ -3,7 +3,7 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
-import { Search, X } from "lucide-react";
+import { BadgePercent, ChevronDown, Search, Shield, SlidersHorizontal, TrendingUp, Users, Wallet, X } from "lucide-react";
 import { tickerRenk } from "@/lib/utils";
 
 type IsiHisse = {
@@ -250,6 +250,20 @@ function HisselerContent() {
   const aktifSiralamaMetni = aktifSiralama
     ? `${aktifSiralama.label}${sortDir ? ` ${sortDir === "desc" ? "azalan" : "artan"}` : ""}`
     : "A-Z";
+  const fonGetiriSortlari = fonKapali ? ["gun", "1wk", "1mo", "3mo", "6mo"] : ["gun", "1mo", "3mo", "6mo", "1y"];
+  const fonMetricTabs = varlik === "fon"
+    ? [
+        { key: "gun", label: "Getiri", icon: TrendingUp, activeKeys: fonGetiriSortlari },
+        { key: "buyukluk", label: "Büyüklük", icon: Wallet, activeKeys: ["buyukluk"] },
+        { key: "kisi", label: "Yatırımcı", icon: Users, activeKeys: ["kisi"] },
+        ...(fonKapali
+          ? [{ key: "1y", label: "Yıllık Getiri", icon: BadgePercent, activeKeys: ["1y", "ytd"] }]
+          : [
+              { key: "risk", label: "Risk", icon: Shield, activeKeys: ["risk"] },
+              { key: "ucret", label: "Yönetim Ücreti", icon: BadgePercent, activeKeys: ["ucret"] },
+            ]),
+      ]
+    : [];
 
   const hisseItems = varlik === "hisse" ? items as Hisse[] : [];
   const fonItems = varlik === "fon" ? items as Fon[] : [];
@@ -338,6 +352,23 @@ function HisselerContent() {
           .hisse-toolbar { display: grid; grid-template-columns: minmax(0,1fr) minmax(260px, 360px); gap: 14px; align-items: center; margin-bottom: 18px; }
           .fon-toolbar { grid-template-columns: minmax(0,1fr) minmax(240px, 330px); gap: 12px; margin-bottom: 14px; }
           .fon-table-shell { overflow-x: auto !important; }
+          .fon-control-panel { display: flex; align-items: center; gap: 12px; padding: 14px; margin-bottom: 14px; border-radius: 14px; background: rgba(15,23,42,0.72); border: 1px solid rgba(148,163,184,0.13); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+          .fon-control { height: 42px; border-radius: 10px; border: 1px solid rgba(148,163,184,0.13); background: rgba(30,41,59,0.56); color: #E2E8F0; transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease; }
+          .fon-control:focus-within { border-color: rgba(59,130,246,0.45); background: rgba(30,41,59,0.76); box-shadow: 0 0 0 4px rgba(59,130,246,0.09); }
+          .fon-select-wrap { position: relative; display: inline-flex; align-items: center; flex: 0 0 auto; min-width: 156px; }
+          .fon-select-wrap svg { pointer-events: none; }
+          .fon-select { width: 100%; height: 100%; appearance: none; border: 0; outline: 0; background: transparent; color: #E2E8F0; font-size: 13px; font-weight: 700; padding: 0 34px 0 12px; cursor: pointer; }
+          .fon-sort-select { min-width: 214px; }
+          .fon-search-control { flex: 1 1 360px; display: flex; align-items: center; gap: 10px; padding: 0 12px; min-width: 260px; }
+          .fon-search-control input { background: transparent; border: 0; outline: 0; width: 100%; color: #F1F5F9; font-size: 14px; }
+          .fon-direction-btn { height: 42px; display: inline-flex; align-items: center; gap: 8px; padding: 0 13px; border-radius: 10px; border: 1px solid rgba(148,163,184,0.13); background: rgba(30,41,59,0.42); color: #CBD5E1; font-size: 12.5px; font-weight: 750; cursor: pointer; white-space: nowrap; }
+          .fon-direction-btn:hover { border-color: rgba(59,130,246,0.32); background: rgba(59,130,246,0.09); color: #DBEAFE; }
+          .fon-meta-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: -2px 0 14px; color: #475569; font-size: 11px; }
+          .fon-metric-tabs { display: flex; align-items: center; gap: 28px; margin: 10px 0 20px; padding: 0 0 12px; border-bottom: 1px solid rgba(148,163,184,0.14); overflow-x: auto; }
+          .fon-metric-tab { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0; border: 0; background: transparent; color: #94A3B8; font-size: 14px; font-weight: 760; cursor: pointer; white-space: nowrap; }
+          .fon-metric-tab:hover { color: #CBD5E1; }
+          .fon-metric-tab-active { color: #E2E8F0; }
+          .fon-metric-tab-active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -13px; height: 2px; border-radius: 999px; background: #93C5FD; }
           .sort-btn { position: relative; padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.18s ease; letter-spacing: -0.1px; }
           .fon-sort-btn { padding: 8px 12px; font-size: 12px; border-radius: 9px; }
           .sort-btn-inactive { background: rgba(148,163,184,0.04); border: 1px solid rgba(148,163,184,0.1); color: #94A3B8; }
@@ -373,6 +404,11 @@ function HisselerContent() {
             .hisse-mobile-returns { display: flex !important; grid-column: 1 / -1; gap: 6px; overflow-x: auto; padding-top: 2px; }
             .hisse-arama { min-width: unset !important; width: 100% !important; }
             .hisse-siralama { overflow-x: auto; flex-wrap: nowrap !important; padding-bottom: 4px; }
+            .fon-control-panel { flex-direction: column; align-items: stretch; padding: 12px; }
+            .fon-select-wrap, .fon-sort-select, .fon-search-control { width: 100%; min-width: 0; flex-basis: auto; }
+            .fon-direction-btn { justify-content: center; width: 100%; }
+            .fon-meta-line { align-items: flex-start; flex-direction: column; gap: 4px; }
+            .fon-metric-tabs { gap: 20px; margin-bottom: 14px; }
           }
         `}</style>
         <main style={{ width: "100%", maxWidth: varlik === "fon" ? "100%" : 1440, margin: "0 auto", padding: varlik === "fon" ? "24px 28px" : "32px 40px", boxSizing: "border-box", overflowX: "hidden" }}>
@@ -406,49 +442,116 @@ function HisselerContent() {
             </div>
           </div>
 
-          {varlik === "fon" && (
-            <div style={{ fontSize: 11, color: "#475569", marginBottom: 12, textAlign: "right" }}>
-              Kaynak: TEFAS/Takasbank · Yatırım tavsiyesi değildir
+          {varlik === "fon" ? (
+            <>
+              <div className="fon-control-panel">
+                <label className="fon-control fon-select-wrap" aria-label="TEFAS durumu">
+                  <select
+                    className="fon-select"
+                    value={tefasFilter}
+                    onChange={(event) => updateParams({ tefas: event.target.value === "acik" ? null : event.target.value, page: "1" })}
+                  >
+                    {FON_TEFAS_FILTERS.map((filter) => (
+                      <option key={filter.key} value={filter.key}>{filter.label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={17} color="#CBD5E1" style={{ position: "absolute", right: 11 }} />
+                </label>
+
+                <div className="fon-control fon-search-control">
+                  <Search size={18} color="#94A3B8" />
+                  <input
+                    value={arama}
+                    onChange={e => setArama(e.target.value)}
+                    placeholder="Fon kodu veya adı ile ara..."
+                  />
+                  {arama && (
+                    <button
+                      onClick={() => setArama("")}
+                      aria-label="Aramayı temizle"
+                      style={{ background: "rgba(148,163,184,0.08)", border: "1px solid rgba(148,163,184,0.15)", color: "#94A3B8", cursor: "pointer", width: 26, height: 26, borderRadius: 7, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0, flexShrink: 0 }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                <label className="fon-control fon-select-wrap fon-sort-select" aria-label="Sıralama seçimi">
+                  <SlidersHorizontal size={16} color="#94A3B8" style={{ position: "absolute", left: 12 }} />
+                  <select
+                    className="fon-select"
+                    value={siralamaOptions.some((s) => s.key === sort) ? sort : "alfabetik"}
+                    onChange={(event) => updateParams({ sort: event.target.value, dir: null, page: "1" })}
+                    style={{ paddingLeft: 38 }}
+                  >
+                    {siralamaOptions.map((option) => (
+                      <option key={option.key} value={option.key}>{option.label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={17} color="#CBD5E1" style={{ position: "absolute", right: 11 }} />
+                </label>
+
+                {sort !== "alfabetik" && (
+                  <button
+                    type="button"
+                    className="fon-direction-btn"
+                    onClick={() => updateParams({ dir: sortDir === "asc" ? "desc" : "asc", page: "1" })}
+                    aria-label="Sıralama yönünü değiştir"
+                  >
+                    <span>{sortDir === "asc" ? "Artan" : "Azalan"}</span>
+                    <span style={{ color: "#60A5FA", fontSize: 15 }}>{sortDir === "asc" ? "↑" : "↓"}</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="fon-meta-line">
+                <span>Kaynak: TEFAS/Takasbank · Yatırım tavsiyesi değildir</span>
+                <span>{aktifSiralamaMetni}</span>
+              </div>
+
+              <div className="fon-metric-tabs" aria-label="Fon metrikleri">
+                {fonMetricTabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const active = tab.activeKeys.includes(sort);
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => updateParams({ sort: tab.key, dir: null, page: "1" })}
+                      className={`fon-metric-tab ${active ? "fon-metric-tab-active" : ""}`}
+                      aria-pressed={active}
+                    >
+                      <Icon size={17} />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="hisse-toolbar">
+              <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                {siralamaOptions.map(s => (
+                  <button
+                    key={s.key}
+                    onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
+                    className={`sort-btn ${sort === s.key ? "sort-btn-active" : "sort-btn-inactive"}`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+                {gorunum === "isi" && (
+                  <span style={{ fontSize: 12, color: "#475569" }}>Alfabetik sıralı · Renk: günlük değişim</span>
+                )}
+              </div>
+              <div className="hisse-arama card-glass" style={{ display: "flex", alignItems: "center", gap: 10, borderRadius: 12, padding: "10px 14px", minWidth: 280, transition: "all 0.18s ease" }}>
+                <Search size={16} color="#94A3B8" />
+                <input value={arama} onChange={e => setArama(e.target.value)} placeholder="Hisse kodu veya şirket adı ara..."
+                  style={{ background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#F1F5F9", width: "100%" }} />
+                {arama && <button onClick={() => setArama("")} aria-label="Aramayı temizle" style={{ background: "rgba(148,163,184,0.08)", border: "1px solid rgba(148,163,184,0.15)", color: "#94A3B8", cursor: "pointer", width: 24, height: 24, borderRadius: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0 }}><X size={13} /></button>}
+              </div>
             </div>
           )}
-
-          <div className={`hisse-toolbar ${varlik === "fon" ? "fon-toolbar" : ""}`}>
-            <div className="hisse-siralama" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              {siralamaOptions.map(s => (
-                <button
-                  key={s.key}
-                  onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
-                  className={`sort-btn ${varlik === "fon" ? "fon-sort-btn" : ""} ${sort === s.key ? "sort-btn-active" : "sort-btn-inactive"}`}
-                >
-                  {s.label}
-                </button>
-              ))}
-              {varlik === "fon" && (
-                <div className="tefas-filter" aria-label="TEFAS durum filtresi">
-                  {FON_TEFAS_FILTERS.map((filter) => (
-                    <button
-                      key={filter.key}
-                      type="button"
-                      onClick={() => updateParams({ tefas: filter.key === "acik" ? null : filter.key, page: "1" })}
-                      className={`tefas-filter-btn ${tefasFilter === filter.key ? "tefas-filter-btn-active" : ""}`}
-                      aria-pressed={tefasFilter === filter.key}
-                    >
-                      {filter.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {gorunum === "isi" && (
-                <span style={{ fontSize: 12, color: "#475569" }}>Alfabetik sıralı · Renk: günlük değişim</span>
-              )}
-            </div>
-            <div className="hisse-arama card-glass" style={{ display: "flex", alignItems: "center", gap: 10, borderRadius: 12, padding: "10px 14px", minWidth: 280, transition: "all 0.18s ease" }}>
-              <Search size={16} color="#94A3B8" />
-              <input value={arama} onChange={e => setArama(e.target.value)} placeholder={varlik === "fon" ? "Fon kodu, adı veya türü ara..." : "Hisse kodu veya şirket adı ara..."}
-                style={{ background: "transparent", border: "none", outline: "none", fontSize: 14, color: "#F1F5F9", width: "100%" }} />
-              {arama && <button onClick={() => setArama("")} aria-label="Aramayı temizle" style={{ background: "rgba(148,163,184,0.08)", border: "1px solid rgba(148,163,184,0.15)", color: "#94A3B8", cursor: "pointer", width: 24, height: 24, borderRadius: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0 }}><X size={13} /></button>}
-            </div>
-          </div>
 
           {/* Isı Haritası */}
           {varlik === "hisse" && gorunum === "isi" && (
