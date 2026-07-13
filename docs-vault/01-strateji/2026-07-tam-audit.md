@@ -177,3 +177,33 @@ Beş fikir, öncelik sırasıyla. Ortak zemin: MKK'ya göre pay senedi yatırım
 - **AI ajan portföyleri** (eToro "Agent Portfolios"): Türkiye'de III-37.1 kapsamında lisanssız savunulamaz — kategorik hayır.
 - **VİOP/opsiyon eğitimi:** Midas VİOP'u açtı, eğitim boşluğu gerçek; ama persona'mız (yeni başlayan) için kaldıraçlı ürüne köprü kurmak güven konumlandırmasıyla çelişiyor. İzlemede.
 - **Yabancı yatırımcı için İngilizce KAP özeti:** boru hattına çeviri katmanı eklemek ucuz; ama dağıtım kanalımız yok ve persona dışı. Backlog'a not (B2B API'nin — strateji raporu 4.3 — bir müşteri segmenti olabilir).
+
+---
+
+## BÖLÜM D — Teknik Borç (Track 1 sonrası; bilinen açık işler hariç)
+
+Tarama: 13 Temmuz 2026, `main` @ `295c553`. Temiz çıkanlar: TypeScript `strict: true` ve kodda sıfır `any` ✅; sıfır `console.log` kalıntısı, sıfır TODO/FIXME ✅; `npm run build` başarılı (tüm route'lar derleniyor, ISR yapılandırmaları doğru) ✅.
+
+### D.1 🔴 Test altyapısı hiç yok
+`package.json`'da test script'i yok, repoda tek test dosyası yok. Finansal hesap yoğunluğu (risk faktörleri, Wilder RSI, değer-ağırlıklı karne, KAP sınıflandırıcı, rate-limit penceresi) göz önünde — regresyonlar ancak kullanıcıda patlayınca görünüyor (A.1 bunun kanıtı). **Öneri:** Vitest + yalnız saf fonksiyon testleri (route testi değil): `lib/kap-ozet.ts siniflandir()` için agent-memory'deki 9 gerçek kalibrasyon vakası hazır fixture; RSI/beta için GÖREV 8 doğrulama tablosundaki 8 hisse değeri; `rate_limit_hit` pencere mantığı. ~1 gün, en yüksek getirili borç ödemesi.
+
+### D.2 🔴 Hata gözlemlenebilirliği yok (A.1'in kök nedeni)
+Sentry/log-drain hâlâ kurulu değil; cron'lar `if (!res.ok) return []` deseniyle hatayı yutuyor ([kap-bildirimleri/route.ts:49](../../app/api/cron/kap-bildirimleri/route.ts) dahil). KAP boru hattının 6 gün ölü kalması bu yüzden görünmez kaldı. **Öneri:** (a) Sentry (ücretsiz katman yeterli) yalnız API route'lara; (b) cron yanıtlarına `hata` sayacı + GitHub Actions'ta yanıt gövdesinde `"hata":[1-9]` grep'iyle kırmızı işaretleme — sıfır bağımlılıkla "sessiz başarısızlık" sınıfını bitirir.
+
+### D.3 🟡 Repoda unutulmuş yedek dosyalar
+`app/profile/page.tsx.bak` ve `app/hisseler/page.tsx.bak` commit'lenmiş durumda (ikincisi `as any` içeriyor — kod taramalarında gürültü). `components/WaitlistCTA.tsx` hiçbir yerden import edilmiyor (landing'den Mayıs'ta kaldırılmıştı). **Öneri:** üçünü sil; `.gitignore`'a `*.bak` ekle.
+
+### D.4 🟡 Bağımlılık güncelliği
+- `@anthropic-ai/sdk` 0.90.0 → 0.111.0 (21 minor geride; yeni model/feature parametreleri için güncellenmeli — düşük risk).
+- `next` 16.2.3 → 16.2.10 (patch serisi; güvenlik yamaları içerebilir, alınmalı).
+- `@supabase/supabase-js` 2.103 → 2.110, `resend` 6.12 → 6.17: rutin minor.
+- `sanity` 5 → 6 major: **dokunma** (studio çalışıyor; major migration ayrı iş).
+- `styled-components` yalnız Sanity studio zinciri için duruyor (uygulama kodu Tailwind) — kaldırılamaz, not olarak kalsın.
+
+### D.5 🟡 Mimari küçük borçlar (Track 1'de doğan)
+- Cron tetikleyici tutarsızlığı yeniden başladı: GÖREV 7 "tek tetikleyici GitHub Actions" demişti; fon-snapshot Vercel cron'a kondu (`vercel.json`). Çift tetikleme yok (tek kaynak) ama iki ayrı zamanlama düzlemi yönetim yükü. Karar netleşmeli: ya hepsi GH Actions ya `vercel.json` yorumla gerekçelendirilsin.
+- `components/lib/supabase.ts` düz `createClient` (localStorage) kullanıyor; `.claude/CLAUDE.md` client için `createBrowserClient` diyor — OAuth callback SSR cookie yazarken client localStorage okuyor (iki ayrı oturum deposu). A.4'teki oturum yarışı şüphesiyle birlikte ele alınmalı: `@supabase/ssr` browser client'a geçiş tek dosyalık değişiklik ama tüm oturumları bir kez düşürür — planlı yapılmalı.
+- `/api/analiz`'in veri-servisi olarak kullanımı (A.7) — endpoint sorumluluk ayrımı.
+
+### D.6 Bundle gözlemi
+Turbopack build sorunsuz; en ağır client sayfaları portföy (1200+ satır, recharts) ve dashboard. `recharts` tek grafik kütüphanesi olarak makul; ek grafik kütüphanesi eklenmemeli (mevcut tutarlılık iyi). Acil bundle borcu yok.
