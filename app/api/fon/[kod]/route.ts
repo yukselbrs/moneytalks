@@ -189,7 +189,7 @@ export async function GET(
     if (recentHistory.length === 0 && range !== "1mo") recentHistory = await getHistoryRows(kod, "1mo");
     if (recentHistory.length === 0 && cachedLatestPoint) recentHistory = [cachedLatestPoint];
     const snapshotRows = await getSnapshotRows();
-    const baseFon = snapshotRows.find((row) => row.kod === kod && row.tefas_durum !== false);
+    const baseFon = snapshotRows.find((row) => row.kod === kod);
     const fon = baseFon ? withLatestKnownFields(withHistoryFallback(baseFon, recentHistory), [history, recentHistory]) : null;
     if (!fon) {
       return NextResponse.json({ error: "Fon bulunamadı" }, { status: 404 });

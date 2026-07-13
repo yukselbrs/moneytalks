@@ -35,6 +35,7 @@ type Fon = {
   kategori: string | null;
   fiyat: string | null;
   gunluk_getiri: string | null;
+  getiri_1h: string | null;
   getiri_1a: string | null;
   getiri_3a: string | null;
   getiri_6a: string | null;
@@ -82,9 +83,15 @@ const FON_SIRALAMA_OPTIONS = [
 
 const FON_KAPALI_SIRALAMA_OPTIONS = [
   { key: "alfabetik", label: "A-Z", short: "A-Z" },
+  { key: "gun", label: "Gün %" },
+  { key: "1wk", label: "1H %" },
+  { key: "1mo", label: "1A %" },
+  { key: "3mo", label: "3A %" },
+  { key: "6mo", label: "6A %" },
+  { key: "ytd", label: "YBB %" },
+  { key: "1y", label: "1Y %" },
   { key: "buyukluk", label: "Büyüklük" },
   { key: "kisi", label: "Yatırımcı Sayısı" },
-  { key: "ucret", label: "Yıllık Yönetim Ücreti" },
 ];
 
 const FON_TEFAS_FILTERS = [
@@ -122,10 +129,14 @@ const FON_KAPALI_TABLO_BASLIKLARI = [
   { label: "#", align: "left" },
   { label: "FON", align: "left" },
   { label: "FİYAT", align: "right" },
+  { label: "GÜN %", sort: "gun", align: "right" },
+  { label: "1H %", sort: "1wk", align: "right" },
+  { label: "1A %", sort: "1mo", align: "right" },
+  { label: "3A %", sort: "3mo", align: "right" },
+  { label: "6A %", sort: "6mo", align: "right" },
+  { label: "YBB %", sort: "ytd", align: "right" },
+  { label: "1Y %", sort: "1y", align: "right" },
   { label: "BÜYÜKLÜK", sort: "buyukluk", align: "right" },
-  { label: "YATIRIMCI SAYISI", sort: "kisi", align: "right" },
-  { label: "YILLIK YÖN. ÜCRETİ", sort: "ucret", align: "right" },
-  { label: "DURUM", align: "right" },
 ];
 
 function HisselerContent() {
@@ -250,7 +261,7 @@ function HisselerContent() {
   const tabloBasliklari = varlik === "fon" ? (fonKapali ? FON_KAPALI_TABLO_BASLIKLARI : [...FON_TABLO_BASLIKLARI, fonSonKolon]) : TABLO_BASLIKLARI;
   const tabloGrid = varlik === "fon"
     ? fonKapali
-      ? "36px minmax(260px,1fr) 110px 128px 126px 128px 82px"
+      ? "36px minmax(170px,1fr) 84px 62px 62px 66px 66px 66px 66px 66px 112px"
       : "36px minmax(170px,1fr) 82px 64px 70px 70px 70px 70px 48px 116px"
     : "44px 1fr 100px 84px 92px 120px 76px 76px 76px 76px";
 
@@ -383,7 +394,7 @@ function HisselerContent() {
               {varlik === "fon" && (
                 <p style={{ fontSize: 13, color: "#64748B", margin: "8px 0 0", lineHeight: 1.5 }}>
                   {fonKapali
-                    ? "TEFAS kapalı fonlarda yayınlanan fiyat, büyüklük ve yatırımcı sayısı verilerini takip edin."
+                    ? "TEFAS kapalı fonlarda fiyat geçmişinden hesaplanan getirileri, büyüklük ve yatırımcı sayısıyla takip edin."
                     : "TEFAS yatırım fonlarını getiri, risk, büyüklük ve yatırımcı sayısına göre takip edin."}
                 </p>
               )}
@@ -612,23 +623,26 @@ function HisselerContent() {
                     <p className="col-fiyat" style={{ fontSize: 12, fontWeight: 650, color: "#F1F5F9", textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums" }}>
                       {fon.fiyat ? `${fon.fiyat} ₺` : <span style={{ color: "#64748B", fontSize: 10.5, fontWeight: 500 }}>Veri yok</span>}
                     </p>
+                    <p className="col-gun" style={{ fontSize: 12, fontWeight: 700, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+                      {renderPercent(fon.gunluk_getiri)}
+                    </p>
+                    {(["getiri_1h","getiri_1a","getiri_3a","getiri_6a","getiri_yb","getiri_1y"] as const).map(key => (
+                      <p key={key} className="col-fon-getiri" style={{ fontSize: 12, fontWeight: 650, textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+                        {renderPercent(fon[key])}
+                      </p>
+                    ))}
                     <p className="col-fon-extra" style={{ fontSize: 12, fontWeight: 650, textAlign: "right", margin: 0, color: "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>
                       {formatBuyukluk(fon.portfoy_buyukluk)}
-                    </p>
-                    <p className="col-fon-extra" style={{ fontSize: 12, fontWeight: 650, textAlign: "right", margin: 0, color: "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>
-                      {formatKisi(fon.kisi_sayisi)}
-                    </p>
-                    <p className="col-fon-extra" style={{ fontSize: 12, fontWeight: 650, textAlign: "right", margin: 0, color: "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>
-                      {formatUcret(fon.yonetim_ucreti_yillik)}
-                    </p>
-                    <p className="col-fon-extra" style={{ textAlign: "right", margin: 0 }}>
-                      <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 58, height: 24, padding: "0 9px", borderRadius: 999, background: "rgba(148,163,184,0.06)", border: "1px solid rgba(148,163,184,0.12)", color: "#94A3B8", fontSize: 10.5, fontWeight: 750 }}>
-                        Kapalı
-                      </span>
                     </p>
                     <div className="hisse-mobile-returns">
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(20,184,166,0.08)", border: "1px solid rgba(20,184,166,0.18)", fontSize: 12, color: "#CCFBF1", whiteSpace: "nowrap", fontWeight: 600 }}>
                         Büyüklük <span style={{ color: "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{formatBuyukluk(fon.portfoy_buyukluk)}</span>
+                      </span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#94A3B8", whiteSpace: "nowrap" }}>
+                        Gün {renderPercent(fon.gunluk_getiri)}
+                      </span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#94A3B8", whiteSpace: "nowrap" }}>
+                        1A {renderPercent(fon.getiri_1a)}
                       </span>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#94A3B8", whiteSpace: "nowrap" }}>
                         Yatırımcı sayısı {formatKisi(fon.kisi_sayisi)}

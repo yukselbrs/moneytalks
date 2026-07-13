@@ -289,6 +289,7 @@ CREATE TABLE IF NOT EXISTS public.fon_snapshots (
   kategori TEXT,
   fiyat NUMERIC,
   gunluk_getiri NUMERIC,
+  getiri_1h NUMERIC,
   getiri_1a NUMERIC,
   getiri_3a NUMERIC,
   getiri_6a NUMERIC,
@@ -312,6 +313,7 @@ ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS unvan TEXT;
 ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS kategori TEXT;
 ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS fiyat NUMERIC;
 ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS gunluk_getiri NUMERIC;
+ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_1h NUMERIC;
 ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_1a NUMERIC;
 ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_3a NUMERIC;
 ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS getiri_6a NUMERIC;
@@ -330,6 +332,7 @@ ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS veri_tarihi DATE;
 ALTER TABLE public.fon_snapshots ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS fon_snapshots_getiri_1a_idx ON public.fon_snapshots (getiri_1a);
+CREATE INDEX IF NOT EXISTS fon_snapshots_getiri_1h_idx ON public.fon_snapshots (getiri_1h);
 CREATE INDEX IF NOT EXISTS fon_snapshots_getiri_1y_idx ON public.fon_snapshots (getiri_1y);
 CREATE INDEX IF NOT EXISTS fon_snapshots_risk_idx ON public.fon_snapshots (risk_degeri);
 CREATE INDEX IF NOT EXISTS fon_snapshots_buyukluk_idx ON public.fon_snapshots (portfoy_buyukluk);

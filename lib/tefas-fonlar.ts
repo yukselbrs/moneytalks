@@ -1,5 +1,5 @@
 const TEFAS_ROOT = "https://www.tefas.gov.tr";
-const PAGE_SIZE = 1000;
+const PAGE_SIZE = 30000;
 
 type TefasResponse<T> = {
   errorCode?: string | null;
@@ -60,6 +60,7 @@ export type FonSnapshotRow = {
   kategori: string | null;
   fiyat: number | null;
   gunluk_getiri: number | null;
+  getiri_1h: number | null;
   getiri_1a: number | null;
   getiri_3a: number | null;
   getiri_6a: number | null;
@@ -84,6 +85,16 @@ export type FonHistoryPoint = {
   portfoy_buyukluk: number | null;
   kisi_sayisi: number | null;
   tedavuldeki_pay: number | null;
+};
+
+type HistoricalReturnFallback = {
+  gunluk_getiri: number | null;
+  getiri_1h: number | null;
+  getiri_1a: number | null;
+  getiri_3a: number | null;
+  getiri_6a: number | null;
+  getiri_yb: number | null;
+  getiri_1y: number | null;
 };
 
 function tefasHeaders() {
@@ -131,6 +142,12 @@ function addDays(date: Date, days: number) {
   return copy;
 }
 
+function addMonths(date: Date, months: number) {
+  const copy = new Date(date);
+  copy.setMonth(copy.getMonth() + months);
+  return copy;
+}
+
 function previousBusinessDay(date: Date) {
   let cursor = addDays(date, -1);
   while (cursor.getDay() === 0 || cursor.getDay() === 6) {
@@ -159,6 +176,10 @@ function toNumber(value: unknown): number | null {
 function percentChange(latest: number | null, previous: number | null) {
   if (latest === null || previous === null || previous === 0) return null;
   return ((latest - previous) / previous) * 100;
+}
+
+function isoDate(date: Date) {
+  return date.toISOString().slice(0, 10);
 }
 
 function managementFee(fee: TefasFundManagement | undefined) {
@@ -304,8 +325,12 @@ export async function fetchTefasGeneralRange(startDate: Date, endDate: Date) {
   const rows = [...(first.resultList ?? [])];
   const totalPages = first.toplamSayfa ?? 1;
   for (let page = 2; page <= totalPages; page++) {
-    const body = await fetchGeneralPage(startDate, endDate, page);
-    rows.push(...(body.resultList ?? []));
+    try {
+      const body = await fetchGeneralPage(startDate, endDate, page);
+      rows.push(...(body.resultList ?? []));
+    } catch {
+      // TEFAS bazen ara sayfada 429/503 donuyor; gelen sayfalari yine de kullan.
+    }
   }
   return rows;
 }
@@ -328,12 +353,84 @@ export async function fetchLatestTefasGeneral(maxLookbackDays = 10) {
   return { date: null, rows: [] };
 }
 
+function pickRowsByDate(rows: TefasFundGeneral[], target: Date, mode: "before" | "after") {
+  const targetIso = isoDate(target);
+  const picked = new Map<string, TefasFundGeneral>();
+
+  rows.forEach((row) => {
+    if (!row.fonKodu || toNumber(row.fiyat) === null || !row.tarih) return;
+    if (mode === "before" && row.tarih >= targetIso) return;
+    if (mode === "after" && row.tarih < targetIso) return;
+
+    const current = picked.get(row.fonKodu);
+    if (!current) {
+      picked.set(row.fonKodu, row);
+      return;
+    }
+    if (mode === "before" && row.tarih > current.tarih) picked.set(row.fonKodu, row);
+    if (mode === "after" && row.tarih < current.tarih) picked.set(row.fonKodu, row);
+  });
+
+  return picked;
+}
+
+async function fetchAnchorRows(target: Date, mode: "before" | "after") {
+  const start = mode === "before" ? addDays(target, -4) : target;
+  const end = mode === "before" ? target : addDays(target, 3);
+  const rows = await fetchTefasGeneralRange(start, end);
+  return pickRowsByDate(rows, target, mode);
+}
+
+export async function fetchHistoricalReturnFallbacks(currentDate: string | null, currentRows: TefasFundGeneral[]) {
+  if (!currentDate || currentRows.length === 0) return new Map<string, HistoricalReturnFallback>();
+
+  const end = new Date(`${currentDate}T12:00:00`);
+  const currentMap = new Map<string, TefasFundGeneral>();
+  currentRows.forEach((row) => {
+    if (row.fonKodu && toNumber(row.fiyat) !== null) currentMap.set(row.fonKodu, row);
+  });
+
+  const firstDayOfYear = new Date(end.getFullYear(), 0, 1, 12);
+  const anchorRequests: Array<[Date, "before" | "after"]> = [
+    [end, "before"],
+    [addDays(end, -7), "after"],
+    [addMonths(end, -1), "after"],
+    [addMonths(end, -3), "after"],
+    [addMonths(end, -6), "after"],
+    [firstDayOfYear, "after"],
+    [addMonths(end, -12), "after"],
+  ];
+  const anchors: Array<Map<string, TefasFundGeneral>> = [];
+  for (const [target, mode] of anchorRequests) {
+    anchors.push(await fetchAnchorRows(target, mode).catch(() => new Map<string, TefasFundGeneral>()));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  const [daily, week, month, quarter, half, ytd, year] = anchors;
+
+  const result = new Map<string, HistoricalReturnFallback>();
+  currentMap.forEach((current, kod) => {
+    const currentPrice = toNumber(current.fiyat);
+    result.set(kod, {
+      gunluk_getiri: percentChange(currentPrice, toNumber(daily.get(kod)?.fiyat)),
+      getiri_1h: percentChange(currentPrice, toNumber(week.get(kod)?.fiyat)),
+      getiri_1a: percentChange(currentPrice, toNumber(month.get(kod)?.fiyat)),
+      getiri_3a: percentChange(currentPrice, toNumber(quarter.get(kod)?.fiyat)),
+      getiri_6a: percentChange(currentPrice, toNumber(half.get(kod)?.fiyat)),
+      getiri_yb: percentChange(currentPrice, toNumber(ytd.get(kod)?.fiyat)),
+      getiri_1y: percentChange(currentPrice, toNumber(year.get(kod)?.fiyat)),
+    });
+  });
+
+  return result;
+}
+
 export function mergeTefasSnapshot(
   generalRows: TefasFundGeneral[],
   returnRows: TefasFundReturn[],
   managementRows: TefasFundManagement[],
   sizeRows: TefasFundSize[] = [],
   dailyRows: TefasFundReturn[] = [],
+  historicalReturns = new Map<string, HistoricalReturnFallback>(),
 ): FonSnapshotRow[] {
   const returnMap = new Map(returnRows.map((row) => [row.fonKodu, row]));
   const managementMap = new Map(managementRows.map((row) => [row.fonKodu, row]));
@@ -366,18 +463,23 @@ export function mergeTefasSnapshot(
     const sizeValue = toNumber(size?.sonPortfoyDegeri);
     const shareCount = toNumber(size?.sonPayAdedi);
     const inferredPrice = sizeValue !== null && shareCount !== null && shareCount > 0 ? sizeValue / shareCount : null;
+    const tefasDurum = ret?.tefasDurum ?? size?.tefasDurum ?? null;
+    const isClosedTefas = tefasDurum === false;
+    const hist = historicalReturns.get(kod);
+    const dailyReturn = toNumber(daily?.getiriOrani) ?? toNumber(size?.netGetiriOrani) ?? percentChange(toNumber(latest?.fiyat), toNumber(previous?.fiyat));
 
     return {
       kod,
       unvan: latest?.fonUnvan || ret?.fonUnvan || size?.fonUnvan || kod,
       kategori: ret?.fonTurAciklama ?? size?.fonTurAciklama ?? null,
       fiyat: toNumber(latest?.fiyat) ?? inferredPrice,
-      gunluk_getiri: toNumber(daily?.getiriOrani) ?? toNumber(size?.netGetiriOrani) ?? percentChange(toNumber(latest?.fiyat), toNumber(previous?.fiyat)),
-      getiri_1a: toNumber(ret?.getiri1a),
-      getiri_3a: toNumber(ret?.getiri3a),
-      getiri_6a: toNumber(ret?.getiri6a),
-      getiri_1y: toNumber(ret?.getiri1y),
-      getiri_yb: toNumber(ret?.getiriyb),
+      gunluk_getiri: isClosedTefas ? (hist?.gunluk_getiri ?? dailyReturn) : (dailyReturn ?? hist?.gunluk_getiri ?? null),
+      getiri_1h: hist?.getiri_1h ?? null,
+      getiri_1a: toNumber(ret?.getiri1a) ?? hist?.getiri_1a ?? null,
+      getiri_3a: toNumber(ret?.getiri3a) ?? hist?.getiri_3a ?? null,
+      getiri_6a: toNumber(ret?.getiri6a) ?? hist?.getiri_6a ?? null,
+      getiri_1y: toNumber(ret?.getiri1y) ?? hist?.getiri_1y ?? null,
+      getiri_yb: toNumber(ret?.getiriyb) ?? hist?.getiri_yb ?? null,
       getiri_3y: toNumber(ret?.getiri3y),
       getiri_5y: toNumber(ret?.getiri5y),
       risk_degeri: toNumber(ret?.riskDegeri),
@@ -386,7 +488,7 @@ export function mergeTefasSnapshot(
       tedavuldeki_pay: toNumber(latest?.tedPaySayisi) ?? shareCount,
       yonetim_ucreti_yillik: managementFee(fee),
       toplam_gider_orani: toNumber(fee?.fonTopGiderKesoran),
-      tefas_durum: ret?.tefasDurum ?? size?.tefasDurum ?? null,
+      tefas_durum: tefasDurum,
       veri_tarihi: latest?.tarih ?? null,
     };
   });
@@ -394,13 +496,14 @@ export function mergeTefasSnapshot(
 
 export async function fetchLiveTefasSnapshot() {
   const general = await fetchLatestTefasGeneral(10).catch(() => ({ date: null, rows: [] as TefasFundGeneral[] }));
-  const [returns, management, sizeRows, dailyRows] = await Promise.all([
+  const [returns, management, sizeRows, dailyRows, historicalReturns] = await Promise.all([
     fetchTefasReturns(),
     fetchTefasManagementFees().catch(() => [] as TefasFundManagement[]),
     fetchTefasSizeRows().catch(() => [] as TefasFundSize[]),
     fetchTefasDailyReturns().catch(() => [] as TefasFundReturn[]),
+    fetchHistoricalReturnFallbacks(general.date, general.rows).catch(() => new Map<string, HistoricalReturnFallback>()),
   ]);
-  return mergeTefasSnapshot(general.rows, returns, management, sizeRows, dailyRows);
+  return mergeTefasSnapshot(general.rows, returns, management, sizeRows, dailyRows, historicalReturns);
 }
 
 export async function fetchTefasFundHistory(kod: string, range = "1mo"): Promise<FonHistoryPoint[]> {

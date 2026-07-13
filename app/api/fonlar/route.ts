@@ -18,7 +18,7 @@ let liveFallbackCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = nu
 
 const fetchCachedLiveTefasSnapshot = unstable_cache(
   async () => fetchLiveTefasSnapshot(),
-  ["tefas-fonlar-live-snapshot-v1"],
+  ["tefas-fonlar-live-snapshot-v2"],
   { revalidate: 60 * 60 }
 );
 
@@ -27,9 +27,11 @@ type SortColumn = keyof FonSnapshotRow;
 const SORT_MAP: Record<string, { col: SortColumn; ascDefault: boolean }> = {
   alfabetik: { col: "kod", ascDefault: true },
   gun: { col: "gunluk_getiri", ascDefault: false },
+  "1wk": { col: "getiri_1h", ascDefault: false },
   "1mo": { col: "getiri_1a", ascDefault: false },
   "3mo": { col: "getiri_3a", ascDefault: false },
   "6mo": { col: "getiri_6a", ascDefault: false },
+  ytd: { col: "getiri_yb", ascDefault: false },
   "1y": { col: "getiri_1y", ascDefault: false },
   risk: { col: "risk_degeri", ascDefault: true },
   buyukluk: { col: "portfoy_buyukluk", ascDefault: false },
@@ -53,6 +55,7 @@ function normalize(row: Partial<FonSnapshotRow>): FonSnapshotRow {
     kategori: row.kategori ?? null,
     fiyat: safeNumber(row.fiyat),
     gunluk_getiri: safeNumber(row.gunluk_getiri),
+    getiri_1h: safeNumber(row.getiri_1h),
     getiri_1a: safeNumber(row.getiri_1a),
     getiri_3a: safeNumber(row.getiri_3a),
     getiri_6a: safeNumber(row.getiri_6a),
@@ -84,6 +87,7 @@ function formatRow(row: FonSnapshotRow) {
       ? row.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: 4, maximumFractionDigits: 6 })
       : null,
     gunluk_getiri: formatPercent(row.gunluk_getiri),
+    getiri_1h: formatPercent(row.getiri_1h),
     getiri_1a: formatPercent(row.getiri_1a),
     getiri_3a: formatPercent(row.getiri_3a),
     getiri_6a: formatPercent(row.getiri_6a),
