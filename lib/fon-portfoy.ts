@@ -72,6 +72,152 @@ const DFI_PORTFOY: FonPortfoy = {
   ],
 };
 
+const TLY_PORTFOY: FonPortfoy = {
+  kod: "TLY",
+  donem: "Haziran 2026",
+  yayinTarihi: "02.07.2026",
+  toplamDeger: 203_121_895_304.84,
+  dagilim: [
+    { ad: "Hisse Senedi", oran: 69.04, renk: "#22C55E" },
+    { ad: "Repo-Trepo", oran: 14.29, renk: "#38BDF8" },
+    { ad: "Yatırım Fonu", oran: 13.4, renk: "#A78BFA" },
+    { ad: "Finansman Bonosu", oran: 2.46, renk: "#F59E0B" },
+    { ad: "Teminat", oran: 0.73, renk: "#64748B" },
+    { ad: "Kira Sertifikaları", oran: 0.08, renk: "#14B8A6" },
+  ],
+  pozisyonlar: [
+    {
+      kod: "DSTKF",
+      ad: "Destek Faktoring A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 22.85,
+      deger: 46_395_976_567.5,
+    },
+    {
+      kod: "OZATD",
+      ad: "Özata Denizcilik Sanayi ve Ticaret A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 14.3,
+      deger: 29_034_026_456,
+    },
+    {
+      kod: "PEKGY",
+      ad: "Peker Gayrimenkul Yatırım Ortaklığı A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 7.73,
+      deger: 15_701_639_419.62,
+    },
+    {
+      kod: "TEHOL",
+      ad: "Tera Yatırım Teknoloji Holding A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 7.14,
+      deger: 14_490_910_012.5,
+    },
+    {
+      kod: "TERA",
+      ad: "Tera Yatırım Menkul Değerler A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 6.63,
+      deger: 13_470_283_939.82,
+    },
+    {
+      kod: "TRHOL",
+      ad: "Tera Finansal Yatırımlar Holding A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 5.61,
+      deger: 11_393_428_746,
+    },
+    {
+      kod: "ANELE",
+      ad: "Anel Elektrik Proje Taahhüt ve Ticaret A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 1.99,
+      deger: 4_049_683_600,
+    },
+    {
+      kod: "SELEC",
+      ad: "Selçuk Ecza Deposu Ticaret ve Sanayi A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 1.04,
+      deger: 2_113_484_307.3,
+    },
+    {
+      kod: "ALKLC",
+      ad: "Altınkılıç Gıda ve Süt Sanayi Ticaret A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.54,
+      deger: 1_086_222_894,
+    },
+    {
+      kod: "SVGYO",
+      ad: "Savur Gayrimenkul Yatırım Ortaklığı A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.52,
+      deger: 1_060_441_912.5,
+    },
+    {
+      kod: "HEDEF",
+      ad: "Hedef Holding A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.27,
+      deger: 546_100_241.08,
+    },
+    {
+      kod: "MANAS",
+      ad: "Manas Enerji Yönetimi Sanayi ve Ticaret A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.14,
+      deger: 293_195_727.36,
+    },
+    {
+      kod: "DAPGM",
+      ad: "DAP Gayrimenkul Geliştirme A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.07,
+      deger: 137_200_000,
+    },
+    {
+      kod: "EUPWR",
+      ad: "Europower Enerji ve Otomasyon Teknolojileri A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.01,
+      deger: 10_226_262.15,
+    },
+    {
+      kod: "EFOR",
+      ad: "Efor Çay Sanayi Ticaret A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.01,
+      deger: 8_754_000,
+    },
+    {
+      kod: "TMPOL",
+      ad: "Temapol Polimer Plastik A.Ş.",
+      tur: "Hisse Senedi",
+      oran: 0.01,
+      deger: 20_784_268,
+    },
+    {
+      kod: "TPKGY",
+      ad: "Tera Portföy TPKGY Fonu",
+      tur: "Yatırım Fonu",
+      oran: 11.91,
+      deger: 24_190_479_986.86,
+    },
+    {
+      kod: "T3B",
+      ad: "Tera Portföy T3B Fonu",
+      tur: "Yatırım Fonu",
+      oran: 0.02,
+      deger: 47_181_952.15,
+    },
+  ],
+};
+
 export function getFonPortfoy(kod: string) {
-  return kod.toLocaleUpperCase("tr-TR") === "DFI" ? DFI_PORTFOY : null;
+  const normalized = kod.toLocaleUpperCase("tr-TR");
+  if (normalized === "DFI") return DFI_PORTFOY;
+  if (normalized === "TLY") return TLY_PORTFOY;
+  return null;
 }
