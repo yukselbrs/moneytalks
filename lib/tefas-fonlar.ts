@@ -148,6 +148,10 @@ function addMonths(date: Date, months: number) {
   return copy;
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function previousBusinessDay(date: Date) {
   let cursor = addDays(date, -1);
   while (cursor.getDay() === 0 || cursor.getDay() === 6) {
@@ -374,12 +378,7 @@ function pickRowsByDate(rows: TefasFundGeneral[], target: Date, mode: "before" |
   return picked;
 }
 
-async function fetchAnchorRows(target: Date, mode: "before" | "after") {
-  const start = mode === "before" ? addDays(target, -4) : target;
-  const end = mode === "before" ? target : addDays(target, 3);
-  const rows = await fetchTefasGeneralRange(start, end);
-  return pickRowsByDate(rows, target, mode);
-}
+type AnchorKey = "daily" | "week" | "month" | "quarter" | "half" | "ytd" | "year";
 
 export async function fetchHistoricalReturnFallbacks(currentDate: string | null, currentRows: TefasFundGeneral[]) {
   if (!currentDate || currentRows.length === 0) return new Map<string, HistoricalReturnFallback>();
@@ -391,21 +390,69 @@ export async function fetchHistoricalReturnFallbacks(currentDate: string | null,
   });
 
   const firstDayOfYear = new Date(end.getFullYear(), 0, 1, 12);
-  const anchorRequests: Array<[Date, "before" | "after"]> = [
-    [end, "before"],
-    [addDays(end, -7), "after"],
-    [addMonths(end, -1), "after"],
-    [addMonths(end, -3), "after"],
-    [addMonths(end, -6), "after"],
-    [firstDayOfYear, "after"],
-    [addMonths(end, -12), "after"],
+  const weekTarget = addDays(end, -7);
+  const monthTarget = addMonths(end, -1);
+  const quarterTarget = addMonths(end, -3);
+  const halfTarget = addMonths(end, -6);
+  const yearTarget = addMonths(end, -12);
+
+  const anchorGroups: Array<{
+    start: Date;
+    end: Date;
+    picks: Array<{ key: AnchorKey; target: Date; mode: "before" | "after" }>;
+  }> = [
+    {
+      start: weekTarget,
+      end,
+      picks: [
+        { key: "daily", target: end, mode: "before" },
+        { key: "week", target: weekTarget, mode: "after" },
+      ],
+    },
+    {
+      start: monthTarget,
+      end: addDays(monthTarget, 3),
+      picks: [{ key: "month", target: monthTarget, mode: "after" }],
+    },
+    {
+      start: quarterTarget,
+      end: addDays(quarterTarget, 3),
+      picks: [{ key: "quarter", target: quarterTarget, mode: "after" }],
+    },
+    {
+      start: firstDayOfYear < halfTarget ? firstDayOfYear : halfTarget,
+      end: addDays(firstDayOfYear > halfTarget ? firstDayOfYear : halfTarget, 3),
+      picks: [
+        { key: "half", target: halfTarget, mode: "after" },
+        { key: "ytd", target: firstDayOfYear, mode: "after" },
+      ],
+    },
+    {
+      start: yearTarget,
+      end: addDays(yearTarget, 4),
+      picks: [{ key: "year", target: yearTarget, mode: "after" }],
+    },
   ];
-  const anchors: Array<Map<string, TefasFundGeneral>> = [];
-  for (const [target, mode] of anchorRequests) {
-    anchors.push(await fetchAnchorRows(target, mode).catch(() => new Map<string, TefasFundGeneral>()));
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const anchors = new Map<AnchorKey, Map<string, TefasFundGeneral>>();
+
+  for (const group of anchorGroups) {
+    try {
+      const rows = await fetchTefasGeneralRange(group.start, group.end);
+      group.picks.forEach((pick) => {
+        anchors.set(pick.key, pickRowsByDate(rows, pick.target, pick.mode));
+      });
+    } catch {
+      group.picks.forEach((pick) => anchors.set(pick.key, new Map<string, TefasFundGeneral>()));
+    }
+    await sleep(1200);
   }
-  const [daily, week, month, quarter, half, ytd, year] = anchors;
+  const daily = anchors.get("daily") ?? new Map<string, TefasFundGeneral>();
+  const week = anchors.get("week") ?? new Map<string, TefasFundGeneral>();
+  const month = anchors.get("month") ?? new Map<string, TefasFundGeneral>();
+  const quarter = anchors.get("quarter") ?? new Map<string, TefasFundGeneral>();
+  const half = anchors.get("half") ?? new Map<string, TefasFundGeneral>();
+  const ytd = anchors.get("ytd") ?? new Map<string, TefasFundGeneral>();
+  const year = anchors.get("year") ?? new Map<string, TefasFundGeneral>();
 
   const result = new Map<string, HistoricalReturnFallback>();
   currentMap.forEach((current, kod) => {
@@ -496,13 +543,15 @@ export function mergeTefasSnapshot(
 
 export async function fetchLiveTefasSnapshot() {
   const general = await fetchLatestTefasGeneral(10).catch(() => ({ date: null, rows: [] as TefasFundGeneral[] }));
-  const [returns, management, sizeRows, dailyRows, historicalReturns] = await Promise.all([
+  const [returns, management, sizeRows, dailyRows] = await Promise.all([
     fetchTefasReturns(),
     fetchTefasManagementFees().catch(() => [] as TefasFundManagement[]),
     fetchTefasSizeRows().catch(() => [] as TefasFundSize[]),
     fetchTefasDailyReturns().catch(() => [] as TefasFundReturn[]),
-    fetchHistoricalReturnFallbacks(general.date, general.rows).catch(() => new Map<string, HistoricalReturnFallback>()),
   ]);
+  await sleep(800);
+  const historicalReturns = await fetchHistoricalReturnFallbacks(general.date, general.rows)
+    .catch(() => new Map<string, HistoricalReturnFallback>());
   return mergeTefasSnapshot(general.rows, returns, management, sizeRows, dailyRows, historicalReturns);
 }
 
