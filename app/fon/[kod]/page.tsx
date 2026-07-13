@@ -81,6 +81,8 @@ const RANGE_OPTIONS = [
   { key: "1y", label: "1Y" },
 ];
 
+type DetailTab = "ozet" | "portfoy" | "genel" | "gecmis";
+
 function compactCurrency(value: number | null) {
   if (value === null || !Number.isFinite(value)) return "—";
   if (value >= 1_000_000_000) return `${formatNumber(value / 1_000_000_000, { maximumFractionDigits: 2 })} Mr ₺`;
@@ -109,6 +111,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
   const kod = kodParam.toLocaleUpperCase("tr-TR");
   const router = useRouter();
   const [range, setRange] = useState("1mo");
+  const [activeTab, setActiveTab] = useState<DetailTab>("ozet");
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -153,7 +156,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
           .fd-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin-top: 18px; }
           .fd-metric { background: rgba(255,255,255,0.024); border: 1px solid rgba(148,163,184,0.09); border-radius: 11px; padding: 12px 13px; min-height: 70px; }
           .fd-tabs { display: flex; gap: 8px; margin: 18px 0; overflow-x: auto; padding-bottom: 2px; }
-          .fd-tab { border: 1px solid rgba(148,163,184,0.12); background: rgba(255,255,255,0.035); color: #94A3B8; border-radius: 10px; padding: 9px 13px; font-size: 12px; font-weight: 750; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+          .fd-tab { border: 1px solid rgba(148,163,184,0.12); background: rgba(255,255,255,0.035); color: #94A3B8; border-radius: 10px; padding: 9px 13px; font-size: 12px; font-weight: 750; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; cursor: pointer; font-family: inherit; }
           .fd-tab-active { color: #CCFBF1; border-color: rgba(20,184,166,0.35); background: rgba(20,184,166,0.09); }
           .fd-panel { padding: 18px; }
           .fd-info-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 11px 0; border-bottom: 1px solid rgba(148,163,184,0.07); }
@@ -242,98 +245,100 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
           {fon && (
             <>
               <div className="fd-tabs">
-                <span className="fd-tab fd-tab-active"><LineChart size={15} /> Özet</span>
-                {portfoy && <span className="fd-tab"><PieChart size={15} /> Portföy</span>}
-                <span className="fd-tab"><FileText size={15} /> Genel Bilgiler</span>
-                <span className="fd-tab"><Database size={15} /> Geçmiş Veriler</span>
+                <button type="button" onClick={() => setActiveTab("ozet")} className={`fd-tab ${activeTab === "ozet" ? "fd-tab-active" : ""}`}><LineChart size={15} /> Özet</button>
+                {portfoy && <button type="button" onClick={() => setActiveTab("portfoy")} className={`fd-tab ${activeTab === "portfoy" ? "fd-tab-active" : ""}`}><PieChart size={15} /> Portföy</button>}
+                <button type="button" onClick={() => setActiveTab("genel")} className={`fd-tab ${activeTab === "genel" ? "fd-tab-active" : ""}`}><FileText size={15} /> Genel Bilgiler</button>
+                <button type="button" onClick={() => setActiveTab("gecmis")} className={`fd-tab ${activeTab === "gecmis" ? "fd-tab-active" : ""}`}><Database size={15} /> Geçmiş Veriler</button>
               </div>
 
-              <section className="fd-grid">
-                <div className="fd-card fd-panel">
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 15, flexWrap: "wrap" }}>
-                    <div>
-                      <h2 style={{ color: "#E2E8F0", fontSize: 15, margin: 0, fontWeight: 820 }}>Fiyat Grafiği</h2>
-                      <p style={{ color: "#64748B", fontSize: 12, margin: "5px 0 0" }}>{rangeReturn !== null ? `Seçili dönem getirisi ${formatPercent(rangeReturn)}` : "Seçili dönem"}</p>
+              {activeTab === "ozet" && (
+                <section className="fd-grid">
+                  <div className="fd-card fd-panel">
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 15, flexWrap: "wrap" }}>
+                      <div>
+                        <h2 style={{ color: "#E2E8F0", fontSize: 15, margin: 0, fontWeight: 820 }}>Fiyat Grafiği</h2>
+                        <p style={{ color: "#64748B", fontSize: 12, margin: "5px 0 0" }}>{rangeReturn !== null ? `Seçili dönem getirisi ${formatPercent(rangeReturn)}` : "Seçili dönem"}</p>
+                      </div>
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        {RANGE_OPTIONS.map((item) => (
+                          <button key={item.key} onClick={() => setRange(item.key)} className={`fd-range ${range === item.key ? "fd-range-active" : ""}`}>
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                      {RANGE_OPTIONS.map((item) => (
-                        <button key={item.key} onClick={() => setRange(item.key)} className={`fd-range ${range === item.key ? "fd-range-active" : ""}`}>
-                          {item.label}
-                        </button>
+                    <div style={{ width: "100%", height: 340 }}>
+                      {history.length > 0 ? (
+                        <ResponsiveContainer>
+                          <AreaChart data={history} margin={{ top: 12, right: 8, left: 0, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="fonPriceFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#10B981" stopOpacity={0.26} />
+                                <stop offset="100%" stopColor="#10B981" stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid stroke="rgba(148,163,184,0.08)" vertical={false} />
+                            <XAxis dataKey="tarih" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
+                            <YAxis tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} domain={["dataMin", "dataMax"]} width={64} tickFormatter={(v) => formatNumber(Number(v), { maximumFractionDigits: 3 })} />
+                            <Tooltip
+                              contentStyle={{ background: "#111827", border: "1px solid rgba(20,184,166,0.22)", borderRadius: 10, color: "#E2E8F0" }}
+                              labelStyle={{ color: "#94A3B8" }}
+                              formatter={(value) => [formatCurrency(Number(value), { minimumFractionDigits: 4, maximumFractionDigits: 6 }), "Fiyat"]}
+                            />
+                            <Area type="monotone" dataKey="fiyat" stroke="#10B981" strokeWidth={2.5} fill="url(#fonPriceFill)" dot={false} activeDot={{ r: 4, fill: "#10B981" }} />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div style={{ height: "100%", border: "1px dashed rgba(148,163,184,0.16)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>
+                          Grafik verisi geçici olarak alınamadı
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <aside style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                    <div className="fd-card fd-panel">
+                      <h2 style={{ color: "#94A3B8", fontSize: 13, letterSpacing: "0.11em", textTransform: "uppercase", margin: "0 0 14px", fontWeight: 850 }}>Getiri Bilgileri</h2>
+                      {[
+                        ["1H", data?.returns?.["1h"]],
+                        ["1A", fon.getiri_1a],
+                        ["3A", fon.getiri_3a],
+                        ["6A", fon.getiri_6a],
+                        ["YBB", fon.getiri_yb],
+                        ["1Y", fon.getiri_1y],
+                      ].map(([label, value]) => {
+                        const num = typeof value === "number" ? value : null;
+                        return (
+                          <div key={label as string} className="fd-info-row">
+                            <span style={{ color: "#64748B", fontSize: 13 }}>{label}</span>
+                            <span style={{ color: num === null ? "#64748B" : num >= 0 ? "#10B981" : "#EF4444", fontSize: 14, fontWeight: 820 }}>{formatPercent(num)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="fd-card fd-panel">
+                      <h2 style={{ color: "#94A3B8", fontSize: 13, letterSpacing: "0.11em", textTransform: "uppercase", margin: "0 0 14px", fontWeight: 850 }}>Genel Bilgiler</h2>
+                      {[
+                        ["Fon Kodu", fon.kod],
+                        ["Kategori", fon.kategori ?? "—"],
+                        ["Risk Değeri", riskText(fon.risk_degeri)],
+                        ["Tedavüldeki Pay", formatQuantity(fon.tedavuldeki_pay)],
+                        ["Toplam Gider Oranı", formatPercent(fon.toplam_gider_orani)],
+                        ["Son Veri", history[history.length - 1]?.tarih ?? fon.veri_tarihi ?? "—"],
+                      ].map(([label, value]) => (
+                        <div key={label} className="fd-info-row">
+                          <span style={{ color: "#64748B", fontSize: 13 }}>{label}</span>
+                          <span style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 780, textAlign: "right", maxWidth: 210, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value}</span>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                  <div style={{ width: "100%", height: 340 }}>
-                    {history.length > 0 ? (
-                      <ResponsiveContainer>
-                        <AreaChart data={history} margin={{ top: 12, right: 8, left: 0, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="fonPriceFill" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#10B981" stopOpacity={0.26} />
-                              <stop offset="100%" stopColor="#10B981" stopOpacity={0.02} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid stroke="rgba(148,163,184,0.08)" vertical={false} />
-                          <XAxis dataKey="tarih" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} minTickGap={24} />
-                          <YAxis tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} domain={["dataMin", "dataMax"]} width={64} tickFormatter={(v) => formatNumber(Number(v), { maximumFractionDigits: 3 })} />
-                          <Tooltip
-                            contentStyle={{ background: "#111827", border: "1px solid rgba(20,184,166,0.22)", borderRadius: 10, color: "#E2E8F0" }}
-                            labelStyle={{ color: "#94A3B8" }}
-                            formatter={(value) => [formatCurrency(Number(value), { minimumFractionDigits: 4, maximumFractionDigits: 6 }), "Fiyat"]}
-                          />
-                          <Area type="monotone" dataKey="fiyat" stroke="#10B981" strokeWidth={2.5} fill="url(#fonPriceFill)" dot={false} activeDot={{ r: 4, fill: "#10B981" }} />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <div style={{ height: "100%", border: "1px dashed rgba(148,163,184,0.16)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>
-                        Grafik verisi geçici olarak alınamadı
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  </aside>
+                </section>
+              )}
 
-                <aside style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                  <div className="fd-card fd-panel">
-                    <h2 style={{ color: "#94A3B8", fontSize: 13, letterSpacing: "0.11em", textTransform: "uppercase", margin: "0 0 14px", fontWeight: 850 }}>Getiri Bilgileri</h2>
-                    {[
-                      ["1H", data?.returns?.["1h"]],
-                      ["1A", fon.getiri_1a],
-                      ["3A", fon.getiri_3a],
-                      ["6A", fon.getiri_6a],
-                      ["YBB", fon.getiri_yb],
-                      ["1Y", fon.getiri_1y],
-                    ].map(([label, value]) => {
-                      const num = typeof value === "number" ? value : null;
-                      return (
-                        <div key={label as string} className="fd-info-row">
-                          <span style={{ color: "#64748B", fontSize: 13 }}>{label}</span>
-                          <span style={{ color: num === null ? "#64748B" : num >= 0 ? "#10B981" : "#EF4444", fontSize: 14, fontWeight: 820 }}>{formatPercent(num)}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="fd-card fd-panel">
-                    <h2 style={{ color: "#94A3B8", fontSize: 13, letterSpacing: "0.11em", textTransform: "uppercase", margin: "0 0 14px", fontWeight: 850 }}>Genel Bilgiler</h2>
-                    {[
-                      ["Fon Kodu", fon.kod],
-                      ["Kategori", fon.kategori ?? "—"],
-                      ["Risk Değeri", riskText(fon.risk_degeri)],
-                      ["Tedavüldeki Pay", formatQuantity(fon.tedavuldeki_pay)],
-                      ["Toplam Gider Oranı", formatPercent(fon.toplam_gider_orani)],
-                      ["Son Veri", history[history.length - 1]?.tarih ?? fon.veri_tarihi ?? "—"],
-                    ].map(([label, value]) => (
-                      <div key={label} className="fd-info-row">
-                        <span style={{ color: "#64748B", fontSize: 13 }}>{label}</span>
-                        <span style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 780, textAlign: "right", maxWidth: 210, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </aside>
-              </section>
-
-              {portfoy && (
-                <section className="fd-card fd-panel" style={{ marginTop: 18 }}>
+              {activeTab === "portfoy" && portfoy && (
+                <section className="fd-card fd-panel">
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>
                     <div>
                       <h2 style={{ color: "#E2E8F0", fontSize: 16, margin: 0, fontWeight: 850 }}>Portföy Dağılımı</h2>
@@ -386,6 +391,41 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
                       ))}
                     </div>
                   </div>
+                </section>
+              )}
+
+              {activeTab === "genel" && (
+                <section className="fd-card fd-panel">
+                  <h2 style={{ color: "#E2E8F0", fontSize: 16, margin: "0 0 12px", fontWeight: 850 }}>Genel Bilgiler</h2>
+                  {[
+                    ["Fon Kodu", fon.kod],
+                    ["Fon Adı", fon.unvan],
+                    ["Kategori", fon.kategori ?? "—"],
+                    ["Risk Değeri", riskText(fon.risk_degeri)],
+                    ["Fon Değeri", compactCurrency(fon.portfoy_buyukluk)],
+                    ["Yatırımcı Sayısı", formatQuantity(fon.kisi_sayisi)],
+                    ["Tedavüldeki Pay", formatQuantity(fon.tedavuldeki_pay)],
+                    ["Yıllık Yönetim Ücreti", formatPercent(fon.yonetim_ucreti_yillik)],
+                    ["Toplam Gider Oranı", formatPercent(fon.toplam_gider_orani)],
+                    ["Son Veri", history[history.length - 1]?.tarih ?? fon.veri_tarihi ?? "—"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="fd-info-row">
+                      <span style={{ color: "#64748B", fontSize: 13 }}>{label}</span>
+                      <span style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 780, textAlign: "right", maxWidth: 680 }}>{value}</span>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {activeTab === "gecmis" && (
+                <section className="fd-card fd-panel">
+                  <h2 style={{ color: "#E2E8F0", fontSize: 16, margin: "0 0 12px", fontWeight: 850 }}>Geçmiş Veriler</h2>
+                  {history.slice(-20).reverse().map((point) => (
+                    <div key={`${point.tarih}-${point.fiyat}`} className="fd-info-row">
+                      <span style={{ color: "#94A3B8", fontSize: 13 }}>{point.tarih}</span>
+                      <span style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 800 }}>{formatCurrency(point.fiyat, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}</span>
+                    </div>
+                  ))}
                 </section>
               )}
             </>
