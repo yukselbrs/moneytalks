@@ -80,6 +80,12 @@ const FON_SIRALAMA_OPTIONS = [
   { key: "ucret", label: "Yıllık Yönetim Ücreti" },
 ];
 
+const FON_TEFAS_FILTERS = [
+  { key: "acik", label: "TEFAS açık" },
+  { key: "kapali", label: "TEFAS kapalı" },
+  { key: "tumu", label: "Tümü" },
+] as const;
+
 const TABLO_BASLIKLARI = [
   { label: "#", align: "left" },
   { label: "HİSSE", align: "left" },
@@ -116,6 +122,8 @@ function HisselerContent() {
   const pageParam = parseInt(searchParams.get("page") || "1", 10);
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const q = searchParams.get("q") || "";
+  const tefasParam = searchParams.get("tefas");
+  const tefasFilter = varlik === "fon" && (tefasParam === "kapali" || tefasParam === "tumu") ? tefasParam : "acik";
 
   const [gorunum] = useState<"tablo" | "isi">("tablo");
   const [arama, setArama] = useState(q);
@@ -174,6 +182,7 @@ function HisselerContent() {
     const params = new URLSearchParams({ sort, page: String(page) });
     if (sortDir) params.set("dir", sortDir);
     if (q) params.set("q", q);
+    if (varlik === "fon") params.set("tefas", tefasFilter);
     const endpoint = varlik === "fon" ? "/api/fonlar" : "/api/hisseler";
     fetch(`${endpoint}?${params.toString()}`, { signal: controller.signal, cache: varlik === "fon" ? "no-store" : "default" })
       .then(r => r.json())
@@ -191,7 +200,7 @@ function HisselerContent() {
       ignore = true;
       controller.abort();
     };
-  }, [sort, sortDir, page, q, varlik]);
+  }, [sort, sortDir, page, q, varlik, tefasFilter]);
 
   // Isı haritası verisi — bir kez çek, cache'le
   useEffect(() => {
@@ -303,6 +312,10 @@ function HisselerContent() {
           .sort-btn-inactive { background: rgba(148,163,184,0.04); border: 1px solid rgba(148,163,184,0.1); color: #94A3B8; }
           .sort-btn-inactive:hover { background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.3); color: #DBEAFE; transform: translateY(-1px); }
           .sort-btn-active { background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(99,102,241,0.14)); border: 1px solid rgba(59,130,246,0.5); color: #DBEAFE; font-weight: 700; box-shadow: 0 4px 16px -4px rgba(59,130,246,0.45), inset 0 1px 0 rgba(255,255,255,0.06); }
+          .tefas-filter { display: inline-flex; align-items: center; gap: 4px; padding: 4px; border-radius: 10px; background: rgba(15,23,42,0.72); border: 1px solid rgba(20,184,166,0.16); }
+          .tefas-filter-btn { height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: #64748B; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.18s ease; }
+          .tefas-filter-btn:hover { color: #CCFBF1; background: rgba(20,184,166,0.07); }
+          .tefas-filter-btn-active { color: #CCFBF1; background: linear-gradient(135deg, rgba(20,184,166,0.18), rgba(59,130,246,0.12)); border-color: rgba(20,184,166,0.34); box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
           .hisse-arama:focus-within { border-color: rgba(59,130,246,0.45) !important; background: rgba(59,130,246,0.06) !important; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
           .hisse-mobile-returns { display: none; }
           .pg-btn { padding: 8px 12px; border-radius: 8px; background: rgba(148,163,184,0.05); border: 1px solid rgba(148,163,184,0.12); color: #94A3B8; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s ease; }
@@ -377,6 +390,21 @@ function HisselerContent() {
                   {s.label}
                 </button>
               ))}
+              {varlik === "fon" && (
+                <div className="tefas-filter" aria-label="TEFAS durum filtresi">
+                  {FON_TEFAS_FILTERS.map((filter) => (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      onClick={() => updateParams({ tefas: filter.key === "acik" ? null : filter.key, page: "1" })}
+                      className={`tefas-filter-btn ${tefasFilter === filter.key ? "tefas-filter-btn-active" : ""}`}
+                      aria-pressed={tefasFilter === filter.key}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               {gorunum === "isi" && (
                 <span style={{ fontSize: 12, color: "#475569" }}>Alfabetik sıralı · Renk: günlük değişim</span>
               )}

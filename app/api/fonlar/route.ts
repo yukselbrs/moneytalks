@@ -125,6 +125,8 @@ async function getRows(forceLive: boolean) {
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const sort = sp.get("sort") || "alfabetik";
+  const tefasParam = sp.get("tefas");
+  const tefasFilter = tefasParam === "kapali" || tefasParam === "tumu" ? tefasParam : "acik";
   const dirParam = sp.get("dir");
   const explicitDir = dirParam === "asc" || dirParam === "desc" ? dirParam : null;
   const pageParam = parseInt(sp.get("page") || "1", 10);
@@ -135,7 +137,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const rows = (await getRows(forceLive))
-      .filter((row) => row.tefas_durum !== false)
+      .filter((row) => {
+        if (tefasFilter === "tumu") return true;
+        if (tefasFilter === "kapali") return row.tefas_durum === false;
+        return row.tefas_durum !== false;
+      })
       .filter((row) => {
         if (!q) return true;
         return row.kod.toLocaleUpperCase("tr-TR").startsWith(q)
