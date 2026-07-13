@@ -72,6 +72,24 @@ type FonPortfoy = {
   }>;
 };
 
+type FonTahmin = {
+  kod: string;
+  tahminiGetiri: number | null;
+  kapsamOrani: number;
+  toplamPortfoyOrani: number;
+  hesaplananPozisyonSayisi: number;
+  guncellemeZamani: string;
+  pozisyonlar: Array<{
+    kod: string;
+    ad: string;
+    tur: string;
+    oran: number;
+    fiyat: number | null;
+    degisimYuzde: number | null;
+    katkiPuan: number | null;
+  }>;
+};
+
 const RANGE_OPTIONS = [
   { key: "1wk", label: "1H" },
   { key: "1mo", label: "1A" },
@@ -98,6 +116,13 @@ function riskText(risk: number | null) {
   return `Düşük (${risk})`;
 }
 
+function formatTime(value: string | null | undefined) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+}
+
 function FundAvatar({ kod }: { kod: string }) {
   return (
     <div style={{ width: 58, height: 58, borderRadius: 16, background: "linear-gradient(135deg, rgba(20,184,166,0.24), rgba(59,130,246,0.18))", border: "1px solid rgba(20,184,166,0.32)", color: "#CCFBF1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 850, letterSpacing: "-0.4px", flexShrink: 0 }}>
@@ -113,6 +138,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
   const [range, setRange] = useState("1mo");
   const [activeTab, setActiveTab] = useState<DetailTab>("ozet");
   const [data, setData] = useState<ApiResponse | null>(null);
+  const [tahmin, setTahmin] = useState<FonTahmin | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchFon = useCallback((nextRange: string, signal?: AbortSignal) => {
@@ -137,6 +163,29 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
     queueMicrotask(() => fetchFon(range, controller.signal));
     return () => controller.abort();
   }, [fetchFon, range]);
+
+  useEffect(() => {
+    if (!data?.portfoy) return;
+
+    let cancelled = false;
+    const fetchTahmin = () => {
+      fetch(`/api/fon-tahmin/${kod}`, { cache: "no-store" })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d: FonTahmin | null) => {
+          if (!cancelled) setTahmin(d);
+        })
+        .catch(() => {
+          if (!cancelled) setTahmin(null);
+        });
+    };
+
+    fetchTahmin();
+    const interval = window.setInterval(fetchTahmin, 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [kod, data?.portfoy]);
 
   const fon = data?.fon;
   const portfoy = data?.portfoy ?? null;
@@ -170,10 +219,12 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
           .fd-allocation-fill { height: 100%; border-radius: 999px; }
           .fd-position-row { display: grid; grid-template-columns: minmax(0,1.2fr) auto auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(148,163,184,0.07); }
           .fd-position-row:last-child { border-bottom: 0; }
+          .fd-estimate-grid { display: grid; grid-template-columns: minmax(0,0.9fr) minmax(0,1.1fr); gap: 12px; margin-bottom: 18px; }
           @media (max-width: 900px) {
             .fon-detail-main { padding: 18px 12px 32px; }
             .fd-grid { grid-template-columns: 1fr; }
             .fd-portfolio-grid { grid-template-columns: 1fr; }
+            .fd-estimate-grid { grid-template-columns: 1fr; }
             .fd-position-row { grid-template-columns: minmax(0,1fr) auto; }
             .fd-position-value { display: none; }
             .fd-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -349,6 +400,51 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
                       <div style={{ color: "#F8FAFC", fontSize: 18, fontWeight: 850, marginTop: 4 }}>{compactCurrency(portfoy.toplamDeger)}</div>
                     </div>
                   </div>
+
+                  <div className="fd-estimate-grid">
+                    <div style={{ border: "1px solid rgba(20,184,166,0.18)", background: "rgba(20,184,166,0.07)", borderRadius: 12, padding: 14 }}>
+                      <div style={{ color: "#94A3B8", fontSize: 11, fontWeight: 850, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Bugünkü Tahmini Etki</div>
+                      <div style={{ color: (tahmin?.tahminiGetiri ?? 0) >= 0 ? "#10B981" : "#EF4444", fontSize: 28, lineHeight: 1, fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>
+                        {formatPercent(tahmin?.tahminiGetiri ?? null, { signDisplay: "always" })}
+                      </div>
+                      <div style={{ color: "#64748B", fontSize: 12, marginTop: 9 }}>
+                        BIST hisseleriyle hesaplandı · {formatTime(tahmin?.guncellemeZamani)}
+                      </div>
+                    </div>
+                    <div style={{ border: "1px solid rgba(148,163,184,0.10)", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: 14 }}>
+                      <div style={{ color: "#94A3B8", fontSize: 11, fontWeight: 850, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Hesaplanan Kapsam</div>
+                      <div style={{ color: "#E2E8F0", fontSize: 18, fontWeight: 850 }}>
+                        {formatPercent(tahmin?.kapsamOrani ?? null)} portföy ağırlığı
+                      </div>
+                      <div style={{ color: "#64748B", fontSize: 12, marginTop: 9 }}>
+                        Fon içi fonlar ve nakit benzeri kalemler gün içi tahmine dahil değil.
+                      </div>
+                    </div>
+                  </div>
+
+                  {tahmin?.pozisyonlar && tahmin.pozisyonlar.length > 0 && (
+                    <div style={{ marginBottom: 18 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.1fr) auto auto auto", gap: 14, color: "#64748B", fontSize: 11, fontWeight: 850, letterSpacing: "0.08em", textTransform: "uppercase", paddingBottom: 8, borderBottom: "1px solid rgba(148,163,184,0.11)" }}>
+                        <span>Gün İçi Katkı</span>
+                        <span style={{ textAlign: "right" }}>Ağırlık</span>
+                        <span style={{ textAlign: "right" }}>Gün %</span>
+                        <span style={{ textAlign: "right" }}>Etki</span>
+                      </div>
+                      {tahmin.pozisyonlar.map((item) => (
+                        <div key={`tahmin-${item.kod}`} className="fd-position-row" style={{ gridTemplateColumns: "minmax(0,1.1fr) auto auto auto" }}>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                              <span style={{ color: "#CCFBF1", background: "rgba(20,184,166,0.10)", border: "1px solid rgba(20,184,166,0.24)", borderRadius: 8, padding: "4px 7px", fontSize: 12, fontWeight: 850 }}>{item.kod}</span>
+                              <span style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 760, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.ad}</span>
+                            </div>
+                          </div>
+                          <span style={{ color: "#94A3B8", fontSize: 13, fontWeight: 800, textAlign: "right" }}>{formatPercent(item.oran)}</span>
+                          <span style={{ color: (item.degisimYuzde ?? 0) >= 0 ? "#10B981" : "#EF4444", fontSize: 13, fontWeight: 840, textAlign: "right" }}>{formatPercent(item.degisimYuzde, { signDisplay: "always" })}</span>
+                          <span style={{ color: (item.katkiPuan ?? 0) >= 0 ? "#10B981" : "#EF4444", fontSize: 13, fontWeight: 860, textAlign: "right" }}>{formatPercent(item.katkiPuan, { signDisplay: "always" })}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="fd-portfolio-grid">
                     <div className="fd-allocation">
