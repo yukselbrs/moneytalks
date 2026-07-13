@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import AppShell from "@/components/AppShell";
 import { formatCurrency, formatNumber, formatPercent, formatQuantity } from "@/lib/formatters";
-import { ArrowLeft, Database, FileText, LineChart, Shield, Star, Users, Wallet } from "lucide-react";
+import { ArrowLeft, Database, FileText, LineChart, PieChart, Shield, Star, Users, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Fon = {
@@ -50,6 +50,26 @@ type ApiResponse = {
   history: HistoryPoint[];
   returns: Record<string, number | null>;
   range: string;
+  portfoy: FonPortfoy | null;
+};
+
+type FonPortfoy = {
+  kod: string;
+  donem: string;
+  yayinTarihi: string;
+  toplamDeger: number;
+  dagilim: Array<{
+    ad: string;
+    oran: number;
+    renk: string;
+  }>;
+  pozisyonlar: Array<{
+    kod: string;
+    ad: string;
+    tur: string;
+    oran: number;
+    deger: number;
+  }>;
 };
 
 const RANGE_OPTIONS = [
@@ -116,6 +136,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
   }, [fetchFon, range]);
 
   const fon = data?.fon;
+  const portfoy = data?.portfoy ?? null;
   const history = data?.history ?? [];
   const pozitif = (fon?.gunluk_getiri ?? 0) >= 0;
   const rangeReturn = data?.returns?.[range === "1wk" ? "1h" : range === "1mo" ? "1a" : range === "3mo" ? "3a" : range === "6mo" ? "6a" : range === "ytd" ? "ybb" : "1y"] ?? null;
@@ -139,9 +160,19 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
           .fd-info-row:last-child { border-bottom: 0; }
           .fd-range { border: 1px solid rgba(148,163,184,0.11); background: rgba(255,255,255,0.035); color: #94A3B8; border-radius: 9px; padding: 7px 10px; font-size: 12px; font-weight: 800; cursor: pointer; }
           .fd-range-active { color: #CCFBF1; background: rgba(20,184,166,0.10); border-color: rgba(20,184,166,0.35); }
+          .fd-portfolio-grid { display: grid; grid-template-columns: minmax(0,0.85fr) minmax(0,1.15fr); gap: 18px; }
+          .fd-allocation { display: grid; gap: 13px; }
+          .fd-allocation-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+          .fd-allocation-track { height: 8px; border-radius: 999px; background: rgba(148,163,184,0.12); overflow: hidden; }
+          .fd-allocation-fill { height: 100%; border-radius: 999px; }
+          .fd-position-row { display: grid; grid-template-columns: minmax(0,1.2fr) auto auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(148,163,184,0.07); }
+          .fd-position-row:last-child { border-bottom: 0; }
           @media (max-width: 900px) {
             .fon-detail-main { padding: 18px 12px 32px; }
             .fd-grid { grid-template-columns: 1fr; }
+            .fd-portfolio-grid { grid-template-columns: 1fr; }
+            .fd-position-row { grid-template-columns: minmax(0,1fr) auto; }
+            .fd-position-value { display: none; }
             .fd-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
             .fd-header { padding: 17px 15px; }
           }
@@ -212,6 +243,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
             <>
               <div className="fd-tabs">
                 <span className="fd-tab fd-tab-active"><LineChart size={15} /> Özet</span>
+                {portfoy && <span className="fd-tab"><PieChart size={15} /> Portföy</span>}
                 <span className="fd-tab"><FileText size={15} /> Genel Bilgiler</span>
                 <span className="fd-tab"><Database size={15} /> Geçmiş Veriler</span>
               </div>
@@ -299,6 +331,63 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
                   </div>
                 </aside>
               </section>
+
+              {portfoy && (
+                <section className="fd-card fd-panel" style={{ marginTop: 18 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>
+                    <div>
+                      <h2 style={{ color: "#E2E8F0", fontSize: 16, margin: 0, fontWeight: 850 }}>Portföy Dağılımı</h2>
+                      <p style={{ color: "#64748B", fontSize: 12, margin: "6px 0 0" }}>Son açıklanan portföy · {portfoy.donem}</p>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ color: "#94A3B8", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>Toplam Değer</div>
+                      <div style={{ color: "#F8FAFC", fontSize: 18, fontWeight: 850, marginTop: 4 }}>{compactCurrency(portfoy.toplamDeger)}</div>
+                    </div>
+                  </div>
+
+                  <div className="fd-portfolio-grid">
+                    <div className="fd-allocation">
+                      {portfoy.dagilim.map((item) => {
+                        const isNegative = item.oran < 0;
+                        return (
+                          <div key={item.ad}>
+                            <div className="fd-allocation-head">
+                              <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 760 }}>{item.ad}</span>
+                              <span style={{ color: isNegative ? "#F87171" : "#E2E8F0", fontSize: 13, fontWeight: 840, fontVariantNumeric: "tabular-nums" }}>
+                                {formatPercent(item.oran)}
+                              </span>
+                            </div>
+                            <div className="fd-allocation-track">
+                              <div className="fd-allocation-fill" style={{ width: `${Math.min(Math.abs(item.oran), 100)}%`, background: item.renk, opacity: isNegative ? 0.66 : 0.9 }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div>
+                      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.2fr) auto auto", gap: 14, color: "#64748B", fontSize: 11, fontWeight: 850, letterSpacing: "0.08em", textTransform: "uppercase", paddingBottom: 8, borderBottom: "1px solid rgba(148,163,184,0.11)" }}>
+                        <span>Pozisyon</span>
+                        <span style={{ textAlign: "right" }}>Pay</span>
+                        <span className="fd-position-value" style={{ textAlign: "right" }}>Değer</span>
+                      </div>
+                      {portfoy.pozisyonlar.map((item) => (
+                        <div key={`${item.tur}-${item.kod}`} className="fd-position-row">
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                              <span style={{ color: "#CCFBF1", background: "rgba(20,184,166,0.10)", border: "1px solid rgba(20,184,166,0.24)", borderRadius: 8, padding: "4px 7px", fontSize: 12, fontWeight: 850 }}>{item.kod}</span>
+                              <span style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 760, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.ad}</span>
+                            </div>
+                            <div style={{ color: "#64748B", fontSize: 12, marginTop: 5 }}>{item.tur}</div>
+                          </div>
+                          <span style={{ color: "#10B981", fontSize: 14, fontWeight: 850, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{formatPercent(item.oran)}</span>
+                          <span className="fd-position-value" style={{ color: "#94A3B8", fontSize: 13, fontWeight: 780, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{compactCurrency(item.deger)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
             </>
           )}
         </main>

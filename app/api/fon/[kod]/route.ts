@@ -5,6 +5,7 @@ import {
   type FonHistoryPoint,
   type FonSnapshotRow,
 } from "@/lib/tefas-fonlar";
+import { getFonPortfoy } from "@/lib/fon-portfoy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -204,6 +205,7 @@ export async function GET(
       rawHistoryCount: history.length,
       returns,
       range,
+      portfoy: getFonPortfoy(kod),
     });
     response.headers.set("Cache-Control", "no-store");
     return response;
