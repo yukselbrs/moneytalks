@@ -119,3 +119,61 @@ Rakip kıyasının tabanı (13 Temmuz 2026 araştırması): **Fintables** Evo'yu
 | B.12 | **Fon kaşifi** (yeni, Kaan) | Liste + detay + günlük snapshot cron'u canlı | Fintables Fon ₺149/ay; TEFAS ham | C.4'te büyütme planı. Kısa vadede: fon detayına kategori-medyanı gider oranı kıyası (tek sorgu) + "yüksek gider" nötr etiketi |
 
 Öncelik önerisi (Bölüm B içinden): **B.8a (A.1 fix) > B.4b (A.2 fix) > B.1a (makro şeffaflık) > B.9b (sektör chip) > B.7 (karne web görünümü)** — ilk ikisi bug, sonraki üçü mevcut veriyle saf UI/mantık işi.
+
+---
+
+## BÖLÜM C — Radikal Beyin Fırtınası (ana odak)
+
+Beş fikir, öncelik sırasıyla. Ortak zemin: MKK'ya göre pay senedi yatırımcısı **6.819.248** (3 Temmuz 2026, [borsagundem](https://www.borsagundem.com.tr/mkk-pay-senedi-yatirimci-sayisi-6-milyon-819-bine-ulasti)) — Haziran'a göre +400 bin; kitle büyümeye devam ediyor. "AI özet" artık masa bahsi (Midas ücretsiz, Fintables Evo, Robinhood Cortex); savunulabilir alan **kişiselleştirilmiş, olay-tetiklemeli, kaynak-şeffaf anlatım** — Track 1'in kurduğu boru hattının üstü.
+
+### C.1 ⭐ "Akşam Raporu" — kişisel gün sonu portföy atıf özeti
+
+- **Ne:** Her işlem günü kapanıştan sonra (18:30) portföy+izleme listesine özel tek kart: "Portföyün bugün %-2,1 (≈-8.400₺). Bunun yaklaşık yarısı endeks düşüşü (XU100 %-1,6); THYAO'daki ekstra düşüş şu KAP bildirimiyle zamansal örtüşüyor [link]; USD/TRY etkisi sınırlı." İn-app bildirim + isteğe bağlı e-posta; her cümlenin kaynağı tıklanabilir.
+- **Neden şimdi (veri):** Robinhood **Cortex Digests** tam bu ürünle Gold aboneliğini yıllık +%76 büyüttü ve 1M+ kullanıcıya ulaştı ([robinhood](https://robinhood.com/us/en/newsroom/robinhood-presents-yes-no-event/), [investmentnews](https://www.investmentnews.com/transformation/robinhood-brings-ai-powered-cortex-to-rias-on-tradepmr/266861)) — model kanıtlı. Türkiye'de karşılığı yok: Midas Rehberi geneldir ve yalnız Midas müşterisine; Fintables Evo pull-based (soru sormalısın). Bizim farkımız push + broker-bağımsız + kaynak linki.
+- **Altyapı bağlantısı (~%70 hazır):** atıf sinyalleri `/api/neden` + endeks/sektör verisi (GÖREV 11-12), portföy değer-ağırlıklı hesaplar `haftalik-karne` route'unda, teşhis dili kalıpları kap-explainer notlarında, gönderim idempotency deseni `karne_gonderim`'de. Eksik: günlük cron + kart şablonu + (isteğe bağlı) 2-3 cümlelik Claude harmanı — bildirim başına değil **kullanıcı başına günlük tek** üretim; 1.000 aktif kullanıcıda ≈ günde 1.000 kısa çağrı, cache'lenemez ama kısa (maliyet tavanı ~₺1-2K/ay, Plus'a kota ile bağlanır).
+- **Efor:** 1–1,5 hafta net (takvimde 2-3 hafta).
+- **Etki:** Günlük geri-gelme ritüeli (retention'ın en zayıf halkası) + Plus'ın çapa özelliği ("kişisel akşam raporu" tek başına ₺129/ay gerekçesi) + her kart sonundaki "arkadaşına gönder" ile organik yayılım.
+- **Kapattığı boşluk:** Strateji raporu Boşluk 2'nin (atıf) kişiselleştirilmiş hali; Boşluk 3'ün (karne) günlük frekansa inmesi.
+
+### C.2 "Halka Arz Tercümanı" — izahname AI özeti + katılım rehberi
+
+- **Ne:** Her yeni halka arz için otomatik sayfa: (1) şirket ne iş yapıyor (tek paragraf), (2) arz koşulları (fiyat, lot, tarih — tablo), (3) izahname risk faktörlerinin sade Türkçe özeti (kaynak sayfa numaralı), (4) arz sonrası "ilk gün ne oldu" güncellemesi. Al/katıl önerisi asla yok — "izahnamede şirket şu riskleri sayıyor" teşhis dili.
+- **Neden şimdi (veri):** Yalnız 2026 2. çeyrekte **16 halka arz, 13,28 milyon katılım, 26,1 milyar TL** ([borsamatik](https://www.borsamatik.com.tr/261-milyar-tl-halka-arz-geliri-elde-edildi-haber-179588), [kulisborsa](https://www.kulisborsa.com/ikinci-ceyrekte-halka-arzlar-261-milyar-tl-kaynak-sagladi)) — Türkiye'nin en kitlesel perakende yatırım olayı ve tam hedef persona (ilk kez yatırım yapan). Mevcut kaynaklar (halkarz.com vb.) takvim/lot listesi veriyor; **izahnameyi anlatan yok**. Her arz, "X halka arz ne zaman / değer mi" tipi yüzbinlerce aramalık sezonluk SEO dalgası.
+- **Altyapı bağlantısı (~%60 hazır):** KAP boru hattı (bildirim tipleri arasında izahname/sirküler CA/DUY tipleriyle geliyor), kap-ozet.ts'e tek yeni tip şablonu, SEO sayfa şablonu GÖREV 10'dan kopyalanır, takvim sayfasına arz satırı. İzahname PDF'i için `downloadAttachment` endpoint'i biliniyor (uzun PDF → bölümlü özet: yalnız "risk faktörleri" bölümü işlenir, maliyet sınırlı).
+- **Efor:** 1 hafta pilot (takvim + özet sayfası); PDF risk-bölümü özeti +3-4 gün.
+- **Etki:** Sezonluk viral edinim motoru — her arz dönemi yeni kullanıcı zirvesi; SEO envanterine yüksek-niyetli sayfa türü. Monetizasyon değil edinim oynar.
+- **Kapattığı boşluk:** Strateji raporu Boşluk 5'in halka arz yarısı (fon yarısını Kaan açtı) — raporda Faz 4'e ertelenmişti, KAP boru hattı kurulunca efor 3'te 1'e düştü.
+
+### C.3 "Temettü & Vergi Rehberi" — kimsenin girmediği alan
+
+- **Ne:** Portföye özel temettü takvimi (KAP `temettu` tipli bildirimlerden), brüt→net stopaj hesabı, yıl sonunda "beyan eşiği taraması": "2026'da net X₺ temettü aldın; GVK 22/2 istisnası sonrası kalan tutar beyan eşiğinin altında/üstünde görünüyor — kesin durum için mali müşavire danış." Kesinlikle vergi tavsiyesi değil; mevzuat linkli bilgilendirme + hesaplayıcı.
+- **Neden şimdi (veri):** Temettü stopajı %10'a güncellendi (22.12.2024 CB Kararı), yarı istisna + ikinci dilim beyan eşiği kombinasyonu bireysel yatırımcı için fiilen anlaşılmaz ([istanbulmalimusavirlik](https://www.istanbulmalimusavirlik.net/borsa-mevduat-yatirim-fonlari-vergi-rehberi-2026/), [kpmgvergi](https://kpmgvergi.com/blog/borsada-islem-goren-hisse-temettuleri-gelir-idaresi-nin-takibinde/1349) — GİB'in temettüleri takibe aldığı haberi farkındalığı büyüttü); 27 Mart 2026'da serbest fonlara %14,5 stopaj kararı vergi gündemini ısıttı. **Fintables, Midas, Matriks, İdeal — hiçbirinde vergi katmanı yok.** "Temettü vergisi hesaplama" araması her Şubat-Mart zirve yapan, sahipsiz bir SEO alanı.
+- **Altyapı bağlantısı (~%55 hazır):** `portfoy` tablosu + KAP sınıflandırıcının `temettu` tipi + `caEventStatus` endpoint'i (hak kullanım tarihleri) + karne e-posta altyapısı. Eksik: stopaj/istisna hesap motoru (saf, deterministik kod — LLM yok) + yıllık özet raporu.
+- **Efor:** 1,5–2 hafta (hesap motoru + takvim UI + yıl sonu raporu). Hukuki metin gözden geçirmesi şart (bilgilendirme çerçevesi).
+- **Etki:** Kategoriye "ciddi araç" sinyali veren benzersiz özellik; Şubat-Mart beyan sezonunda edinim; temettü yatırımcısı (uzun vadeli, düşük churn) segmentini kilitler. Yıllık plan satışına doğal gerekçe ("vergi yılın tamamını kapsar").
+- **Kapattığı boşluk:** Hiçbir strateji dokümanında olmayan, rakipsiz açı — "borsayı anlatan platform"un vergiye uzanması.
+
+### C.4 Fon Karnesi — Kaan'ın kaşifinin anlatım katmanı
+
+- **Ne:** (1) Fon detayına kategori kıyası: "gider oranı %1,65 — kategori medyanı %1,2'nin üstünde; 1Y getiri kategori ortalamasının X puan altında/üstünde" (nötr, teşhis dili); (2) portföye fon pozisyonu ekleme (kod+adet) → haftalık karneye fon satırı; (3) "hisse mi fon mu" eğitim sayfası değil — aynı sektöre maruz kalmanın iki yolu karşılaştırması.
+- **Neden şimdi (veri):** Fon yatırımcısı **5,89 milyon**, toplam büyüklük ~10 trilyon ₺ ve rekor kırıyor ([bigpara](https://bigpara.hurriyet.com.tr/haberler/ekonomi-haberleri/yatirim-fonlarinda-rekor-uzerine-rekor_ID1462560/)); Fintables fon analizini ₺149/ay'a ayrı paket olarak satıyor — ödeme istekliliği kanıtlı. Kaan'ın explorer'ı (12 Temmuz) ham veriyi getirdi; anlatım katmanı (bizim farkımız) henüz yok. TEFAS verisi elimizde günlük snapshot olarak duruyor.
+- **Altyapı bağlantısı (~%65 hazır):** `fon_snapshots` dolu ve günlük cron'lu; kategori medyanı tek SQL; karne cron'u genişletilebilir. Eksik: portföyde fon tipi pozisyon (şema: `portfoy`'a `tur` kolonu veya ayrı tablo — supabase-schema ajanına), kıyas UI'ı.
+- **Efor:** 3–5 gün (kıyas + karne satırı); portföy-fon entegrasyonu +1 hafta.
+- **Etki:** Fintables'ın ₺149'luk ürününün çekirdeğini Plus'a katmak → paket değer algısı; fon yatırımcısı segmenti (hisseden daha muhafazakâr, karne ritüeline daha yatkın).
+- **Kapattığı boşluk:** Boşluk 5'in fon yarısının anlatım katmanı; Kaan'ın hamlesiyle ürün bütünlüğü.
+
+### C.5 "Bilanço Günü Tercümanı" — FR bildiriminden dakikalar içinde karne kartı
+
+- **Ne:** `finansal_rapor` tipli KAP bildirimi düşünce: satış, net kâr, marj değişimini çıkar (çeyreklik + yıllık kıyas), sade Türkçe "karne günü" kartı üret, hisseyi izleyenlere anında bildir. "Beklentinin altı/üstü" deme (konsensüs verimiz yok) — "geçen yılın aynı çeyreğine göre net kâr %X" nesnel kıyas dili.
+- **Neden şimdi (veri):** 2Ç 2026 bilanço sezonu **Temmuz sonunda başlıyor** — yılın en yoğun trafik dalgası kapıda. Fintables bilançoyu tablo olarak anında verir ama anlatmaz; Midas Rehberi genel özet. Strateji raporu bunu Faz 4'e koymuştu; KAP sınıflandırıcı + özet boru hattı kurulduğu için giriş maliyeti düştü.
+- **Altyapı bağlantısı (~%50 hazır):** sınıflandırıcı FR'yi ayırıyor; `disclosureDetail.flatData` FR'lerde özet finansal kalemler taşıyabiliyor (demo veride doğrulanmalı — data-pipeline ajanına ilk iş); tam tablo gerekiyorsa `downloadAttachment` + sınırlı parse (ilk 100 likit hisse pilotu). Özet şablonu kap-ozet.ts'e yeni tip.
+- **Efor:** 2 hafta pilot (100 hisse, yalnız gelir tablosu 3 kalemi). Tam normalizasyon bilinçli olarak kapsam dışı (Fintables'ın hendeğine girmiyoruz — sadece anlatıyoruz).
+- **Etki:** Bilanço haftalarında izleme-bildirim döngüsünün en güçlü hali; "karne günü" kavramı markalaşabilir. Sezon Ağustos'ta — pilot yetişirse gerçek trafik testi.
+- **Kapattığı boşluk:** Boşluk 1'in en derin katmanı (strateji raporu 4.2'de skor 17 ile "bilanço dönemi AI özeti").
+
+### Bilinçli girilmeyen radikal yönler (değerlendirildi, elendi)
+
+- **Sosyal/copy-trading** (eToro modeli): moderasyon + SPK riski strateji raporundaki gerekçelerle güncelliğini koruyor; Robinhood'un sosyal platform verisi bile regülasyonu bizden hafif bir pazarda. Girilmiyor.
+- **AI ajan portföyleri** (eToro "Agent Portfolios"): Türkiye'de III-37.1 kapsamında lisanssız savunulamaz — kategorik hayır.
+- **VİOP/opsiyon eğitimi:** Midas VİOP'u açtı, eğitim boşluğu gerçek; ama persona'mız (yeni başlayan) için kaldıraçlı ürüne köprü kurmak güven konumlandırmasıyla çelişiyor. İzlemede.
+- **Yabancı yatırımcı için İngilizce KAP özeti:** boru hattına çeviri katmanı eklemek ucuz; ama dağıtım kanalımız yok ve persona dışı. Backlog'a not (B2B API'nin — strateji raporu 4.3 — bir müşteri segmenti olabilir).
