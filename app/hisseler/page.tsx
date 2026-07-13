@@ -80,6 +80,13 @@ const FON_SIRALAMA_OPTIONS = [
   { key: "ucret", label: "Yıllık Yönetim Ücreti" },
 ];
 
+const FON_KAPALI_SIRALAMA_OPTIONS = [
+  { key: "alfabetik", label: "A-Z", short: "A-Z" },
+  { key: "buyukluk", label: "Büyüklük" },
+  { key: "kisi", label: "Yatırımcı Sayısı" },
+  { key: "ucret", label: "Yıllık Yönetim Ücreti" },
+];
+
 const FON_TEFAS_FILTERS = [
   { key: "acik", label: "TEFAS açık" },
   { key: "kapali", label: "TEFAS kapalı" },
@@ -109,6 +116,16 @@ const FON_TABLO_BASLIKLARI = [
   { label: "6A %", sort: "6mo", align: "right" },
   { label: "1Y %", sort: "1y", align: "right" },
   { label: "RİSK", sort: "risk", align: "right" },
+];
+
+const FON_KAPALI_TABLO_BASLIKLARI = [
+  { label: "#", align: "left" },
+  { label: "FON", align: "left" },
+  { label: "FİYAT", align: "right" },
+  { label: "BÜYÜKLÜK", sort: "buyukluk", align: "right" },
+  { label: "YATIRIMCI SAYISI", sort: "kisi", align: "right" },
+  { label: "YILLIK YÖN. ÜCRETİ", sort: "ucret", align: "right" },
+  { label: "DURUM", align: "right" },
 ];
 
 function HisselerContent() {
@@ -216,7 +233,8 @@ function HisselerContent() {
   const toplam = data?.total || 0;
   const pageSize = data?.pageSize || 25;
   const toplamSayfa = Math.max(1, Math.ceil(toplam / pageSize));
-  const siralamaOptions = varlik === "fon" ? FON_SIRALAMA_OPTIONS : SIRALAMA_OPTIONS;
+  const fonKapali = varlik === "fon" && tefasFilter === "kapali";
+  const siralamaOptions = fonKapali ? FON_KAPALI_SIRALAMA_OPTIONS : varlik === "fon" ? FON_SIRALAMA_OPTIONS : SIRALAMA_OPTIONS;
   const aktifSiralama = siralamaOptions.find((s) => s.key === sort);
   const aktifSiralamaMetni = aktifSiralama
     ? `${aktifSiralama.label}${sortDir ? ` ${sortDir === "desc" ? "azalan" : "artan"}` : ""}`
@@ -229,9 +247,11 @@ function HisselerContent() {
     : sort === "ucret"
       ? { label: "YILLIK YÖN. ÜCRETİ", sort: "ucret", align: "right" }
       : { label: "BÜYÜKLÜK", sort: "buyukluk", align: "right" };
-  const tabloBasliklari = varlik === "fon" ? [...FON_TABLO_BASLIKLARI, fonSonKolon] : TABLO_BASLIKLARI;
+  const tabloBasliklari = varlik === "fon" ? (fonKapali ? FON_KAPALI_TABLO_BASLIKLARI : [...FON_TABLO_BASLIKLARI, fonSonKolon]) : TABLO_BASLIKLARI;
   const tabloGrid = varlik === "fon"
-    ? "36px minmax(170px,1fr) 82px 64px 70px 70px 70px 70px 48px 116px"
+    ? fonKapali
+      ? "36px minmax(260px,1fr) 110px 128px 126px 128px 82px"
+      : "36px minmax(170px,1fr) 82px 64px 70px 70px 70px 70px 48px 116px"
     : "44px 1fr 100px 84px 92px 120px 76px 76px 76px 76px";
 
   const formatHacim = (v: number | null) => {
@@ -362,7 +382,9 @@ function HisselerContent() {
               </h1>
               {varlik === "fon" && (
                 <p style={{ fontSize: 13, color: "#64748B", margin: "8px 0 0", lineHeight: 1.5 }}>
-                  TEFAS yatırım fonlarını getiri, risk, büyüklük ve yatırımcı sayısına göre takip edin.
+                  {fonKapali
+                    ? "TEFAS kapalı fonlarda yayınlanan fiyat, büyüklük ve yatırımcı sayısı verilerini takip edin."
+                    : "TEFAS yatırım fonlarını getiri, risk, büyüklük ve yatırımcı sayısına göre takip edin."}
                 </p>
               )}
             </div>
@@ -572,6 +594,52 @@ function HisselerContent() {
             {!yukleniyor && varlik === "fon" && fonItems.map((fon, i) => {
               const globalNo = (page - 1) * pageSize + i + 1;
               const riskRenk = fon.risk_degeri === null ? "#475569" : fon.risk_degeri >= 6 ? "#EF4444" : fon.risk_degeri >= 4 ? "#F59E0B" : "#10B981";
+              if (fonKapali) {
+                return (
+                  <div key={fon.kod} className="fon-row" onClick={() => router.push(`/fon/${fon.kod}`)}
+                    style={{ display: "grid", gridTemplateColumns: tabloGrid, gap: 6, padding: "12px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", alignItems: "center", background: "transparent", cursor: "pointer" }}>
+                    <span className="col-no" style={{ fontSize: 11, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "linear-gradient(135deg, rgba(20,184,166,0.18), rgba(59,130,246,0.1))", border: "1px solid rgba(20,184,166,0.22)", display: "flex", alignItems: "center", justifyContent: "center", color: "#99F6E4", fontSize: 10, fontWeight: 800, flexShrink: 0 }}>
+                        {fon.kod.slice(0, 2)}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9", margin: 0, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{fon.kod}</p>
+                        <p style={{ fontSize: 10.5, color: "#94A3B8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1, lineHeight: 1.2 }}>{fon.unvan}</p>
+                        {fon.kategori && <p style={{ fontSize: 10, color: "#14B8A6", margin: "2px 0 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.2 }}>{fon.kategori}</p>}
+                      </div>
+                    </div>
+                    <p className="col-fiyat" style={{ fontSize: 12, fontWeight: 650, color: "#F1F5F9", textAlign: "right", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+                      {fon.fiyat ? `${fon.fiyat} ₺` : <span style={{ color: "#64748B", fontSize: 10.5, fontWeight: 500 }}>Veri yok</span>}
+                    </p>
+                    <p className="col-fon-extra" style={{ fontSize: 12, fontWeight: 650, textAlign: "right", margin: 0, color: "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>
+                      {formatBuyukluk(fon.portfoy_buyukluk)}
+                    </p>
+                    <p className="col-fon-extra" style={{ fontSize: 12, fontWeight: 650, textAlign: "right", margin: 0, color: "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>
+                      {formatKisi(fon.kisi_sayisi)}
+                    </p>
+                    <p className="col-fon-extra" style={{ fontSize: 12, fontWeight: 650, textAlign: "right", margin: 0, color: "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>
+                      {formatUcret(fon.yonetim_ucreti_yillik)}
+                    </p>
+                    <p className="col-fon-extra" style={{ textAlign: "right", margin: 0 }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 58, height: 24, padding: "0 9px", borderRadius: 999, background: "rgba(148,163,184,0.06)", border: "1px solid rgba(148,163,184,0.12)", color: "#94A3B8", fontSize: 10.5, fontWeight: 750 }}>
+                        Kapalı
+                      </span>
+                    </p>
+                    <div className="hisse-mobile-returns">
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(20,184,166,0.08)", border: "1px solid rgba(20,184,166,0.18)", fontSize: 12, color: "#CCFBF1", whiteSpace: "nowrap", fontWeight: 600 }}>
+                        Büyüklük <span style={{ color: "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{formatBuyukluk(fon.portfoy_buyukluk)}</span>
+                      </span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#94A3B8", whiteSpace: "nowrap" }}>
+                        Yatırımcı sayısı {formatKisi(fon.kisi_sayisi)}
+                      </span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 7px", borderRadius: 999, background: "rgba(255,255,255,0.025)", border: "1px solid rgba(148,163,184,0.08)", fontSize: 12, color: "#94A3B8", whiteSpace: "nowrap" }}>
+                        Yıllık yönetim ücreti {formatUcret(fon.yonetim_ucreti_yillik)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <div key={fon.kod} className="fon-row" onClick={() => router.push(`/fon/${fon.kod}`)}
                   style={{ display: "grid", gridTemplateColumns: tabloGrid, gap: 6, padding: "11px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", alignItems: "center", background: "transparent", cursor: "pointer" }}>
