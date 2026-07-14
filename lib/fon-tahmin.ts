@@ -126,15 +126,16 @@ async function pricePosition(position: FonPortfoyPozisyon): Promise<FonTahminPoz
   } else if (fiyatlama === "sabit") {
     result = { fiyat: null, degisimYuzde: dailyReturnFromAnnual(position.yillikGetiriTahmini) };
   }
+  const oran = position.tahminOrani ?? position.oran;
 
   return {
     kod: position.kod,
     ad: position.ad,
     tur: position.tur,
-    oran: position.oran,
+    oran,
     fiyat: result.fiyat,
     degisimYuzde: result.degisimYuzde,
-    katkiPuan: result.degisimYuzde === null ? null : (position.oran / 100) * result.degisimYuzde,
+    katkiPuan: result.degisimYuzde === null ? null : (oran / 100) * result.degisimYuzde,
     fiyatlama,
   };
 }
@@ -187,7 +188,7 @@ export async function calculateFonGunIciTahmin(kod: string): Promise<FonGunIciTa
     tahminSapma,
     kalibrasyonPuan,
     kapsamOrani: calculated.reduce((sum, position) => sum + position.oran, 0),
-    toplamPortfoyOrani: pricedPositions.reduce((sum, position) => sum + position.oran, 0),
+    toplamPortfoyOrani: pricedPositions.reduce((sum, position) => sum + (position.tahminOrani ?? position.oran), 0),
     hesaplananPozisyonSayisi: calculated.length,
     pozisyonlar,
     guncellemeZamani: new Date().toISOString(),

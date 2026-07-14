@@ -10,6 +10,7 @@ export type FonPortfoyPozisyon = {
   tur: string;
   oran: number;
   deger: number;
+  tahminOrani?: number;
   fiyatlama?: "hisse" | "tefas" | "gefas" | "sabit";
   fiyatlamaKodu?: string;
   yillikGetiriTahmini?: number;
@@ -42,6 +43,7 @@ const DFI_PORTFOY: FonPortfoy = {
       ad: "Işıklar Enerji ve Yapı Holding A.Ş.",
       tur: "Hisse Senedi",
       oran: 64.78,
+      tahminOrani: 62.310869,
       deger: 12_429_913_392,
     },
     {
@@ -49,6 +51,7 @@ const DFI_PORTFOY: FonPortfoy = {
       ad: "Atlas Portföy Dördüncü Serbest Fon",
       tur: "Katılma Belgesi",
       oran: 36,
+      tahminOrani: 32.768848,
       deger: 6_908_678_616.19,
       fiyatlama: "tefas",
     },
@@ -57,6 +60,7 @@ const DFI_PORTFOY: FonPortfoy = {
       ad: "Işık Plastik Sanayi ve Dış Ticaret Pazarlama A.Ş.",
       tur: "Hisse Senedi",
       oran: 4.93,
+      tahminOrani: 4.74209,
       deger: 945_243_348.42,
     },
     {
@@ -64,6 +68,7 @@ const DFI_PORTFOY: FonPortfoy = {
       ad: "LDR Turizm A.Ş.",
       tur: "Hisse Senedi",
       oran: 0.34,
+      tahminOrani: 0.327041,
       deger: 65_120_000,
     },
     {
@@ -71,8 +76,36 @@ const DFI_PORTFOY: FonPortfoy = {
       ad: "Atlas Portföy Kısa Vadeli Serbest Fon",
       tur: "Katılma Belgesi",
       oran: 0.21,
+      tahminOrani: 0.191152,
       deger: 40_000_000.02,
       fiyatlama: "tefas",
+    },
+    {
+      kod: "DFI-VDL",
+      ad: "Vadeli Mevduat TL",
+      tur: "Sabit Getirili",
+      oran: 3.35,
+      deger: 637_781_459.08,
+      fiyatlama: "sabit",
+      yillikGetiriTahmini: 43,
+    },
+    {
+      kod: "DFI-DTR",
+      ad: "Devlet Tahvili Repo",
+      tur: "Sabit Getirili",
+      oran: -2.54,
+      deger: -483_571_613.75,
+      fiyatlama: "sabit",
+      yillikGetiriTahmini: 43,
+    },
+    {
+      kod: "DFI-TPP",
+      ad: "Takasbank Para Piyasası",
+      tur: "Sabit Getirili",
+      oran: -1.15,
+      deger: -218_939_903.86,
+      fiyatlama: "sabit",
+      yillikGetiriTahmini: 43,
     },
   ],
 };
