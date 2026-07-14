@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { hataYakala } from "@/lib/hata-yakala";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
@@ -36,13 +37,18 @@ export async function GET(req: NextRequest) {
     .select("*, profiles(email)")
     .eq("durum", "aktif");
 
-  if (error || !alarmlar?.length) return NextResponse.json({ checked: 0 });
+  if (error) {
+    hataYakala("alarm-cron:liste", error);
+    return NextResponse.json({ checked: 0, hata: 1 });
+  }
+  if (!alarmlar?.length) return NextResponse.json({ checked: 0, hata: 0 });
 
   const tickerler = [...new Set(alarmlar.map((a: { ticker: string }) => a.ticker))];
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://parakonusur.com";
   const fiyatlar = await fetchFiyatlar(appUrl, tickerler);
 
   let tetiklenen = 0;
+  let hata = 0;
 
   for (const alarm of alarmlar) {
     const fiyatBilgi = fiyatlar[alarm.ticker];
@@ -98,7 +104,8 @@ export async function GET(req: NextRequest) {
           }
         }
       } catch (e) {
-        console.error(`RSI alarm hatasi (${alarm.ticker}):`, e);
+        hataYakala("alarm-cron:rsi", e, { ticker: alarm.ticker });
+        hata++;
       }
     }
 
@@ -125,6 +132,7 @@ export async function GET(req: NextRequest) {
 
       const email = (alarm.profiles as { email?: string })?.email;
       if (email && process.env.RESEND_API_KEY) {
+        try {
         await getResend().emails.send({
           from: "ParaKonuşur <hello@parakonusur.com>",
           to: email,
@@ -135,9 +143,13 @@ export async function GET(req: NextRequest) {
             <a href="https://parakonusur.com/hisse/${alarm.ticker}" style="background:#3B82F6;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Hisseyi İncele →</a>
           </div>`,
         });
+        } catch (e) {
+          hataYakala("alarm-cron:eposta", e, { ticker: alarm.ticker });
+          hata++;
+        }
       }
     }
   }
 
-  return NextResponse.json({ checked: alarmlar.length, tetiklenen });
+  return NextResponse.json({ checked: alarmlar.length, tetiklenen, hata });
 }

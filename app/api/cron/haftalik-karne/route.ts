@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { hataYakala } from "@/lib/hata-yakala";
 import bistCompanies from "@/data/bist-companies.json";
 
 export const maxDuration = 60;
@@ -247,7 +248,8 @@ export async function GET(req: NextRequest) {
     .select("user_id, ticker, adet")
     .gt("adet", 0);
 
-  if (!portfoyRows?.length) return NextResponse.json({ kullanici: 0, gonderilen: 0 });
+  let hata = 0;
+  if (!portfoyRows?.length) return NextResponse.json({ kullanici: 0, gonderilen: 0, hata });
 
   const kullaniciPozisyonlari = new Map<string, PortfoyRow[]>();
   for (const row of portfoyRows as PortfoyRow[]) {
@@ -339,7 +341,8 @@ export async function GET(req: NextRequest) {
           html: karneEpostaHtml(karne),
         });
       } catch (e) {
-        console.error(`Karne eposta hatasi (${userId}):`, e);
+        hataYakala("karne-cron:eposta", e, { userId });
+        hata++;
       }
     }
 
@@ -348,5 +351,5 @@ export async function GET(req: NextRequest) {
 
   if (dryRun) return NextResponse.json({ dry: true, hafta, kullanici: tumKullanicilar.length, batch: bekleyenler.length, ornekler: dryOrnekler });
 
-  return NextResponse.json({ kullanici: tumKullanicilar.length, gonderilen, kalan: tumKullanicilar.length - gonderilmisSet.size - bekleyenler.length });
+  return NextResponse.json({ kullanici: tumKullanicilar.length, gonderilen, kalan: tumKullanicilar.length - gonderilmisSet.size - bekleyenler.length, hata });
 }

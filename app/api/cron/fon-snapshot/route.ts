@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { hataYakala } from "@/lib/hata-yakala";
 import {
   type TefasFundGeneral,
   type TefasFundManagement,
@@ -78,10 +79,12 @@ export async function GET(req: NextRequest) {
       sizes: sizeRows.length,
       daily: dailyRows.length,
       duration_ms: Date.now() - start,
+      hata: 0,
     });
   } catch (error) {
+    hataYakala("fon-cron:genel", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Fon snapshot güncellenemedi" },
+      { error: error instanceof Error ? error.message : "Fon snapshot güncellenemedi", hata: 1 },
       { status: 500 }
     );
   }

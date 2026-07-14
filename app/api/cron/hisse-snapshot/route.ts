@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { hataYakala } from "@/lib/hata-yakala";
 import { fetchMarketQuote } from "@/lib/market-pricing";
 
 export const runtime = "nodejs";
@@ -133,18 +134,25 @@ export async function GET(req: NextRequest) {
       results.map((r) => ({ ...r, updated_at: new Date().toISOString() }))
     );
     if (error) {
+      hataYakala("snapshot-cron:upsert", error);
       return NextResponse.json(
-        { error: error.message, partial_saved: 0 },
+        { error: error.message, partial_saved: 0, hata: 1 },
         { status: 500 }
       );
     }
   }
 
+  const basarisiz = BIST_HISSELER.length - results.length;
+  // Tekil ticker fetch'leri zaman zaman bos doner (Yahoo dalgalanmasi) — %10'u asarsa sistemik sorun say.
+  const hata = basarisiz > BIST_HISSELER.length * 0.1 ? 1 : 0;
+  if (hata) hataYakala("snapshot-cron:kapsama", new Error(`${basarisiz} hisse cekilemedi`), { basarisiz });
+
   return NextResponse.json({
     success: true,
     total: BIST_HISSELER.length,
     saved: results.length,
-    failed: BIST_HISSELER.length - results.length,
+    failed: basarisiz,
     duration_ms: Date.now() - start,
+    hata,
   });
 }

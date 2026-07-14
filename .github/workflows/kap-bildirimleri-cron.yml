@@ -1,4 +1,4 @@
-name: KAP Bildirimleri Cron Job
+name: KAP Bildirimleri Cron
 
 on:
   schedule:
@@ -6,18 +6,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-kap-bildirimleri:
+  kap-bildirimleri:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: KAP bildirim kontrolü
+      - name: KAP bildirim dongusu
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" \
+          body=$(curl -s -w "\n%{http_code}" \
             -X GET "https://www.parakonusur.com/api/cron/kap-bildirimleri" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            --max-time 60)
-          echo "HTTP Status: $response"
-          if [ "$response" != "200" ]; then
-            echo "Hata: $response"
+            --max-time 90)
+          status=$(echo "$body" | tail -n1)
+          json=$(echo "$body" | sed '$d')
+          echo "HTTP Status: $status"
+          echo "Yanit: $json"
+          if [ "$status" != "200" ]; then
+            echo "HTTP hatasi: $status"
+            exit 1
+          fi
+          if echo "$json" | grep -qE '"hata":\s*[1-9]'; then
+            echo "Cron yaniti hata bildirdi (hata sayaci > 0)"
             exit 1
           fi

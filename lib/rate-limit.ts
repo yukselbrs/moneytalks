@@ -1,38 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
+import { fixedWindowHit, type PencereKaydi } from "@/lib/fixed-window";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-type FallbackEntry = { count: number; windowStart: number };
-
 const g = globalThis as typeof globalThis & {
-  rateLimitFallback?: Map<string, FallbackEntry>;
+  rateLimitFallback?: Map<string, PencereKaydi>;
 };
 if (!g.rateLimitFallback) g.rateLimitFallback = new Map();
 
-const FALLBACK_MAX_KEYS = 5000;
-
 function fallbackHit(key: string, windowSeconds: number, max: number): boolean {
-  const map = g.rateLimitFallback!;
-  const now = Date.now();
-  const windowStart = Math.floor(now / (windowSeconds * 1000)) * windowSeconds * 1000;
-  const entry = map.get(key);
-
-  if (!entry || entry.windowStart !== windowStart) {
-    if (map.size >= FALLBACK_MAX_KEYS) {
-      for (const [k, v] of map) {
-        if (v.windowStart !== windowStart) map.delete(k);
-        if (map.size < FALLBACK_MAX_KEYS) break;
-      }
-    }
-    map.set(key, { count: 1, windowStart });
-    return true;
-  }
-
-  entry.count++;
-  return entry.count <= max;
+  return fixedWindowHit(g.rateLimitFallback!, key, windowSeconds, max);
 }
 
 export type RateLimitSonuc = { allowed: boolean; degraded: boolean };

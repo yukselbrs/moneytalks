@@ -1,19 +1,19 @@
-name: Haftalik Karne Cron
+name: Fon Snapshot Cron
 
 on:
   schedule:
-    - cron: '5 17,18,19 * * 0'
+    - cron: '30 19 * * *'
   workflow_dispatch:
 
 jobs:
-  haftalik-karne:
+  fon-snapshot:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Karne gonderimi
+      - name: TEFAS fon snapshot
         run: |
           body=$(curl -s -w "\n%{http_code}" \
-            -X GET "https://www.parakonusur.com/api/cron/haftalik-karne" \
+            -X GET "https://www.parakonusur.com/api/cron/fon-snapshot" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             --max-time 90)
           status=$(echo "$body" | tail -n1)

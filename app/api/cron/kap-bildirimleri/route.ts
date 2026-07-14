@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { hataYakala } from "@/lib/hata-yakala";
 import { siniflandir, ozetUret, baglamMetni, type KapDetay } from "@/lib/kap-ozet";
 
 export const maxDuration = 60;
@@ -43,14 +44,20 @@ async function fetchSonIndex(guncelIndex: number): Promise<number> {
   return Math.max(guncelIndex - 30, 0);
 }
 
-async function fetchYeniBildirimler(sonIndex: number, guncelIndex: number): Promise<DisclosureListItem[]> {
-  if (!guncelIndex || guncelIndex <= sonIndex) return [];
+async function fetchYeniBildirimler(sonIndex: number, guncelIndex: number): Promise<{ liste: DisclosureListItem[]; hata: boolean }> {
+  if (!guncelIndex || guncelIndex <= sonIndex) return { liste: [], hata: false };
 
   const listRes = await fetch(`${KAP_API_URL}/disclosures?disclosureIndex=${sonIndex}`, { headers: HEADERS, cache: "no-store" });
-  if (!listRes.ok) return [];
+  if (!listRes.ok) {
+    hataYakala("kap-cron:disclosures", new Error(`KAP liste yaniti ${listRes.status}`), { sonIndex, guncelIndex });
+    return { liste: [], hata: true };
+  }
   const list = await listRes.json();
-  if (!Array.isArray(list)) return [];
-  return list;
+  if (!Array.isArray(list)) {
+    hataYakala("kap-cron:disclosures", new Error("KAP liste yaniti dizi degil"), { sonIndex });
+    return { liste: [], hata: true };
+  }
+  return { liste: list, hata: false };
 }
 
 async function fetchDetay(disclosureIndex: string): Promise<KapDetay | null> {
@@ -265,9 +272,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  let hata = 0;
   const guncelIndex = await fetchGuncelIndex();
+  if (!guncelIndex) {
+    hataYakala("kap-cron:lastIndex", new Error("lastDisclosureIndex alinamadi"));
+    hata++;
+  }
   const sonIndex = await fetchSonIndex(guncelIndex);
-  const yeniListe = await fetchYeniBildirimler(sonIndex, guncelIndex);
+  const { liste: yeniListe, hata: listeHata } = await fetchYeniBildirimler(sonIndex, guncelIndex);
+  if (listeHata) hata++;
 
   let yeniBildirim = 0;
   if (yeniListe.length) {
@@ -277,7 +290,11 @@ export async function GET(req: NextRequest) {
   }
 
   const ozetlenen = await ozetleriUret();
+  const { count: ozetHatasi } = await supabase
+    .from("kap_bildirimleri")
+    .select("id", { count: "exact", head: true })
+    .eq("durum", "hata");
   const epostaGonderilen = await bildirimGonder();
 
-  return NextResponse.json({ yeniBildirim, ozetlenen, epostaGonderilen });
+  return NextResponse.json({ yeniBildirim, ozetlenen, epostaGonderilen, hata: hata + (ozetHatasi ?? 0) });
 }

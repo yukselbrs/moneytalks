@@ -10,17 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Hisse snapshot güncelle
+      - name: Snapshot guncelle
         run: |
-          response=$(curl -s -w "\n%{http_code}" \
+          body=$(curl -s -w "\n%{http_code}" \
             -X GET "https://www.parakonusur.com/api/cron/hisse-snapshot" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             --max-time 90)
-          body=$(echo "$response" | head -n -1)
-          code=$(echo "$response" | tail -n 1)
-          echo "Status: $code"
-          echo "Body: $body"
-          if [ "$code" != "200" ]; then
-            echo "Hata: $code"
+          status=$(echo "$body" | tail -n1)
+          json=$(echo "$body" | sed '$d')
+          echo "HTTP Status: $status"
+          echo "Yanit: $json"
+          if [ "$status" != "200" ]; then
+            echo "HTTP hatasi: $status"
+            exit 1
+          fi
+          if echo "$json" | grep -qE '"hata":\s*[1-9]'; then
+            echo "Cron yaniti hata bildirdi (hata sayaci > 0)"
             exit 1
           fi
