@@ -406,16 +406,12 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
 
                   <div className="fd-estimate-grid">
                     <div style={{ border: "1px solid rgba(20,184,166,0.18)", background: "rgba(20,184,166,0.07)", borderRadius: 12, padding: 14 }}>
-                      <div style={{ color: "#94A3B8", fontSize: 11, fontWeight: 850, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>
-                        {tahmin?.aciklananGetiri !== null && tahmin?.aciklananGetiri !== undefined ? "Son Açıklanan Getiri" : "Bugünkü Tahmini Etki"}
-                      </div>
-                      <div style={{ color: ((tahmin?.aciklananGetiri ?? tahmin?.tahminiGetiri) ?? 0) >= 0 ? "#10B981" : "#EF4444", fontSize: 28, lineHeight: 1, fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>
-                        {formatPercent(tahmin?.aciklananGetiri ?? tahmin?.tahminiGetiri ?? null, { signDisplay: "always" })}
+                      <div style={{ color: "#94A3B8", fontSize: 11, fontWeight: 850, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Bugünkü Tahmini Etki</div>
+                      <div style={{ color: (tahmin?.tahminiGetiri ?? 0) >= 0 ? "#10B981" : "#EF4444", fontSize: 28, lineHeight: 1, fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>
+                        {formatPercent(tahmin?.tahminiGetiri ?? null, { signDisplay: "always" })}
                       </div>
                       <div style={{ color: "#64748B", fontSize: 12, marginTop: 9 }}>
-                        {tahmin?.aciklananGetiri !== null && tahmin?.aciklananGetiri !== undefined
-                          ? `Model tahmini: ${formatPercent(tahmin.tahminiGetiri, { signDisplay: "always" })} · ${tahmin.aciklananTarih ?? "Son veri"}`
-                          : `Canlı piyasa ve fon fiyatlarıyla hesaplandı · ${formatTime(tahmin?.guncellemeZamani)}`}
+                        Canlı piyasa ve fon fiyatlarıyla hesaplandı · {formatTime(tahmin?.guncellemeZamani)}
                       </div>
                     </div>
                     <div style={{ border: "1px solid rgba(148,163,184,0.10)", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: 14 }}>
