@@ -10,6 +10,9 @@ export type FonPortfoyPozisyon = {
   tur: string;
   oran: number;
   deger: number;
+  fiyatlama?: "hisse" | "tefas" | "gefas" | "sabit";
+  fiyatlamaKodu?: string;
+  yillikGetiriTahmini?: number;
 };
 
 export type FonPortfoy = {
@@ -47,6 +50,7 @@ const DFI_PORTFOY: FonPortfoy = {
       tur: "Katılma Belgesi",
       oran: 36,
       deger: 6_908_678_616.19,
+      fiyatlama: "tefas",
     },
     {
       kod: "ISKPL",
@@ -68,6 +72,7 @@ const DFI_PORTFOY: FonPortfoy = {
       tur: "Katılma Belgesi",
       oran: 0.21,
       deger: 40_000_000.02,
+      fiyatlama: "tefas",
     },
   ],
 };
@@ -204,6 +209,16 @@ const TLY_PORTFOY: FonPortfoy = {
       tur: "Yatırım Fonu",
       oran: 11.91,
       deger: 24_190_479_986.86,
+      fiyatlama: "gefas",
+      fiyatlamaKodu: "TRYTALP00036",
+    },
+    {
+      kod: "HMV",
+      ad: "Hedef Portföy HMV Fonu",
+      tur: "Yatırım Fonu",
+      oran: 1.27,
+      deger: 2_579_780_520.06,
+      fiyatlama: "tefas",
     },
     {
       kod: "T3B",
@@ -211,6 +226,43 @@ const TLY_PORTFOY: FonPortfoy = {
       tur: "Yatırım Fonu",
       oran: 0.02,
       deger: 47_181_952.15,
+      fiyatlama: "tefas",
+    },
+    {
+      kod: "TLY-REPO",
+      ad: "Repo-Trepo",
+      tur: "Sabit Getirili",
+      oran: 14.29,
+      deger: 29_026_118_839.06,
+      fiyatlama: "sabit",
+      yillikGetiriTahmini: 43,
+    },
+    {
+      kod: "TLY-FB",
+      ad: "Finansman Bonosu",
+      tur: "Sabit Getirili",
+      oran: 2.46,
+      deger: 4_996_798_624.5,
+      fiyatlama: "sabit",
+      yillikGetiriTahmini: 47.4,
+    },
+    {
+      kod: "TLY-TEM",
+      ad: "Teminat",
+      tur: "Sabit Getirili",
+      oran: 0.73,
+      deger: 1_482_789_835.73,
+      fiyatlama: "sabit",
+      yillikGetiriTahmini: 43,
+    },
+    {
+      kod: "TLY-KS",
+      ad: "Kira Sertifikaları",
+      tur: "Sabit Getirili",
+      oran: 0.08,
+      deger: 162_497_516.24,
+      fiyatlama: "sabit",
+      yillikGetiriTahmini: 48,
     },
   ],
 };

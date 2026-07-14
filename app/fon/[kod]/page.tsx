@@ -408,7 +408,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
                         {formatPercent(tahmin?.tahminiGetiri ?? null, { signDisplay: "always" })}
                       </div>
                       <div style={{ color: "#64748B", fontSize: 12, marginTop: 9 }}>
-                        BIST hisseleriyle hesaplandı · {formatTime(tahmin?.guncellemeZamani)}
+                        Canlı piyasa ve fon fiyatlarıyla hesaplandı · {formatTime(tahmin?.guncellemeZamani)}
                       </div>
                     </div>
                     <div style={{ border: "1px solid rgba(148,163,184,0.10)", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: 14 }}>
@@ -417,7 +417,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
                         {formatPercent(tahmin?.kapsamOrani ?? null)} portföy ağırlığı
                       </div>
                       <div style={{ color: "#64748B", fontSize: 12, marginTop: 9 }}>
-                        Fon içi fonlar ve nakit benzeri kalemler gün içi tahmine dahil değil.
+                        Hisse, fon ve sabit getirili kalemler tahmine dahil.
                       </div>
                     </div>
                   </div>
