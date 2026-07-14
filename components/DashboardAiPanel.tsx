@@ -6,6 +6,7 @@ type AiPanel = {
   skor: number;
   teknikSkor?: number;
   makroSkor?: number;
+  makroKatki?: number;
   seviye: string;
   yorum: string;
   guven: string;
@@ -135,6 +136,11 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
                   {aiPanel.makroSkor !== undefined ? (
                     <span style={{ fontSize: 10, color: makroRenk(aiPanel.makroSkor), border: `1px solid ${makroRenk(aiPanel.makroSkor)}30`, background: `${makroRenk(aiPanel.makroSkor)}12`, borderRadius: 999, padding: "3px 7px", fontWeight: 700 }}>
                       Makro {aiPanel.makroSkor}/100 risk
+                    </span>
+                  ) : null}
+                  {typeof aiPanel.makroKatki === "number" && aiPanel.makroKatki >= 2 ? (
+                    <span style={{ fontSize: 10, color: "#94A3B8", borderRadius: 999, padding: "3px 2px", fontWeight: 500 }}>
+                      Makro ortam bileşik skoru −{aiPanel.makroKatki} puan etkiledi
                     </span>
                   ) : null}
                 </div>

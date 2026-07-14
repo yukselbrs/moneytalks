@@ -328,7 +328,12 @@ export async function GET(req: NextRequest) {
 
     const macroRisk = await getMacroRiskSnapshot().catch(() => null);
     const macroRiskSkor = macroRisk?.score ?? 0;
-    const macroRiskAgirlik = macroRiskSkor >= 35 ? (isEndeks ? 0.28 : 0.14) : 0;
+    // Harman: taban (Math.max) yerine kademeli agirlik — hisseler arasi ayrisma korunur,
+    // makro ortam skoru yukari cekmeye devam eder ama tek basina belirlemez.
+    const macroRiskAgirlik = macroRiskSkor >= 85 ? (isEndeks ? 0.34 : 0.24)
+      : macroRiskSkor >= 65 ? (isEndeks ? 0.30 : 0.19)
+      : macroRiskSkor >= 35 ? (isEndeks ? 0.28 : 0.14)
+      : 0;
 
     // === BILESIK SKOR ===
     const skorBilesenleri = [
@@ -337,11 +342,10 @@ export async function GET(req: NextRequest) {
     ];
 
     const toplamAgirlik = skorBilesenleri.reduce((acc, b) => acc + b.agirlik, 0);
-    const hamSkor = toplamAgirlik > 0
+    const toplamSkor = toplamAgirlik > 0
       ? skorBilesenleri.reduce((acc, b) => acc + b.risk * b.agirlik, 0) / toplamAgirlik
       : 50;
-    const makroTaban = macroRiskSkor >= 85 ? (isEndeks ? 58 : 52) : macroRiskSkor >= 65 ? (isEndeks ? 48 : 43) : 0;
-    const toplamSkor = Math.max(hamSkor, makroTaban);
+    const makroKatki = Math.round(toplamSkor - teknikRiskSkor);
 
     // Genişletilmiş bantlar — skorun ortaya yığılması önlenir
     const seviye = toplamSkor >= 65 ? "Yuksek" : toplamSkor >= 50 ? "OrtaUstu" : toplamSkor >= 35 ? "Orta" : toplamSkor >= 20 ? "Dusuk" : "CokDusuk";
@@ -360,6 +364,7 @@ export async function GET(req: NextRequest) {
       piyasaDegeri,
       teknikSkor: Math.round(100 - teknikRiskSkor),
       teknikRiskSkor: Math.round(teknikRiskSkor),
+      makroKatki,
       makroRisk: macroRisk ? {
         skor: macroRisk.score,
         seviye: macroRisk.levelTR,

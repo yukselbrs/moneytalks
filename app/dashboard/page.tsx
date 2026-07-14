@@ -33,15 +33,13 @@ const AUTH_TIMEOUT_MS = 7000;
 const BIST_HISSELER = TUM_BIST_HISSELER.map(h => ({ ticker: h.ticker, name: toTitleCase(h.ad), domain: h.domain }));
 const POPULAR = BIST_HISSELER.filter(h => POPULAR_TICKERS.includes(h.ticker));
 
-function aiPanelSkoruHesapla(risk: { skor?: number; teknikSkor?: number; makroRisk?: { skor?: number } }) {
+function aiPanelSkoruHesapla(risk: { skor?: number; teknikSkor?: number; makroKatki?: number; makroRisk?: { skor?: number } }) {
   const teknikSkor = typeof risk.teknikSkor === "number" ? risk.teknikSkor : risk.skor ? Math.round(100 - risk.skor) : 50;
   const makroSkor = risk.makroRisk?.skor ?? 0;
-  const bilesikSkor = makroSkor >= 85
-    ? Math.min(teknikSkor, 44)
-    : makroSkor >= 65
-      ? Math.min(teknikSkor, 54)
-      : teknikSkor;
-  return { bilesikSkor, teknikSkor, makroSkor };
+  // Bilesik skor API'de harmanlaniyor (kademeli makro agirlik); client tekrar cap uygulamaz.
+  const bilesikSkor = typeof risk.skor === "number" ? Math.round(100 - risk.skor) : teknikSkor;
+  const makroKatki = typeof risk.makroKatki === "number" ? risk.makroKatki : Math.max(0, teknikSkor - bilesikSkor);
+  return { bilesikSkor, teknikSkor, makroSkor, makroKatki };
 }
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
@@ -91,7 +89,7 @@ export default function DashboardPage() {
   };
   const chart = useChartPanel();
   const { grafikTicker, grafikTickerLabel, initialGrafikLoadedRef, fetchBuyukGrafik } = chart;
-  const [aiPanel, setAiPanel] = useState<{skor: number; teknikSkor?: number; makroSkor?: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
+  const [aiPanel, setAiPanel] = useState<{skor: number; teknikSkor?: number; makroSkor?: number; makroKatki?: number; seviye: string; yorum: string; guven: string; yukleniyor: boolean} | null>(null);
 
   const fetchAiPanel = useCallback(async (ticker?: string) => {
     const t = (ticker || grafikTicker).replace(".IS","").replace("=X","");
@@ -113,7 +111,7 @@ export default function DashboardPage() {
       ]);
       const risk = await riskRes.json();
       const yorumJson = await yorumRes.json();
-      const { bilesikSkor, teknikSkor, makroSkor } = aiPanelSkoruHesapla(risk);
+      const { bilesikSkor, teknikSkor, makroSkor, makroKatki } = aiPanelSkoruHesapla(risk);
       let skor = bilesikSkor;
       const analizMetin: string = yorumJson.analiz || "";
       const temizMetin = analizMetin.replace(/[#*]/g, "").trim();
@@ -143,7 +141,7 @@ export default function DashboardPage() {
       // Veri güvenilirliği: 45+ gün veri -> Güvenilir, 25-44 -> Kısmi, <25 -> Yetersiz
       const veriSayisi: number = typeof risk.veriSayisi === "number" ? risk.veriSayisi : 0;
       const guven = veriSayisi >= 45 ? "Güvenilir" : veriSayisi >= 25 ? "Kısmi" : "Yetersiz";
-      setAiPanel({ skor, teknikSkor, makroSkor, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
+      setAiPanel({ skor, teknikSkor, makroSkor, makroKatki, seviye: risk.seviyeTR || "Orta", yorum, guven, yukleniyor: false });
     } catch {
       setAiPanel({ skor: 50, seviye: "Orta", yorum: "Analiz alınamadı.", guven: "Yetersiz", yukleniyor: false });
     }

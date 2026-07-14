@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Dev gostergesi mobilde alt navigasyonla cakisiyordu (Faz 3 A.6) — yalniz dev ortamini etkiler.
+  devIndicators: { position: "bottom-right" },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "www.google.com" },

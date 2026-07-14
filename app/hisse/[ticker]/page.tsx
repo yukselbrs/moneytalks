@@ -4,6 +4,8 @@ import { useState, use, useCallback, useEffect, type ComponentProps } from "reac
 import dynamic from "next/dynamic";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
+import { useSession } from "@/hooks/useSession";
+import Toast from "@/components/ui/Toast";
 import StockLogo from "@/components/StockLogo";
 import { Sparkles, Star, Building2, TrendingUp, Target, AlertTriangle, Activity } from "lucide-react";
 import { formatCurrency, formatPercent, formatQuantity } from "@/lib/formatters";
@@ -68,6 +70,8 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const [grafikRange, setGrafikRange] = useState("1d");
   const [getiriler, setGetiriler] = useState<Record<string, string | null>>({});
   const [izlemede, setIzlemede] = useState(false);
+  const [izlemeHata, setIzlemeHata] = useState<string | null>(null);
+  const { session } = useSession();
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, maliyet: number}[]>([]);
   const [fundamentals, setFundamentals] = useState<{pe: string, pb: string} | null>(null);
   const [riskVeri, setRiskVeri] = useState<{ skor: number; seviyeTR: string } | null>(null);
@@ -84,28 +88,35 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   }, [ticker]);
 
   useEffect(() => {
+    if (!session) { setIzlemede(false); return; }
     let canceled = false;
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session || canceled) return;
-      const { data } = await supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
-      if (!canceled && data) setIzlemede(true);
-    });
+    supabase.from("watchlist").select("ticker").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle()
+      .then(({ data }) => { if (!canceled) setIzlemede(Boolean(data)); });
     return () => { canceled = true; };
-  }, [ticker]);
+  }, [session, ticker]);
 
   async function toggleIzleme() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      setIzlemeHata("İzleme listesi için giriş yapmalısın.");
+      return;
+    }
+    const eklemeIslemi = !izlemede;
     try {
       if (izlemede) {
         const { error } = await supabase.from("watchlist").delete().eq("user_id", session.user.id).eq("ticker", ticker);
-        if (!error) setIzlemede(false);
+        if (error) throw error;
+        setIzlemede(false);
       } else {
         const { error } = await supabase.from("watchlist").insert({ user_id: session.user.id, ticker });
-        if (!error) setIzlemede(true);
+        if (error) throw error;
+        setIzlemede(true);
       }
+      setIzlemeHata(null);
     } catch (err) {
       console.error("Izleme guncelleme hatasi:", err);
+      setIzlemeHata(eklemeIslemi
+        ? `${ticker} izleme listesine eklenemedi — yıldıza tekrar dokunarak dene.`
+        : `${ticker} izleme listesinden çıkarılamadı — yıldıza tekrar dokunarak dene.`);
     }
   }
   const fetchGrafik = useCallback((range: string, signal?: AbortSignal) => {
@@ -145,20 +156,6 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       void fetchVeri(controller.signal);
       fetchGrafik("1d", controller.signal);
     });
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session || canceled) return;
-      const { data } = await supabase.from("analizler").select("analiz,created_at").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle();
-      if (canceled) return;
-      if (data?.analiz) {
-        setAnaliz(data.analiz);
-        if (data.created_at) setAnalizTarih(new Date(data.created_at));
-      }
-    });
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session || canceled) return;
-      const { data } = await supabase.from("portfoy").select("ticker,adet,maliyet").eq("user_id", session.user.id);
-      if (!canceled && data) setPortfoy(data);
-    });
     const interval = setInterval(() => { void fetchVeri(controller.signal); }, 15000);
     return () => {
       canceled = true;
@@ -166,6 +163,22 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       clearInterval(interval);
     };
   }, [fetchGrafik, fetchVeri, ticker]);
+
+  useEffect(() => {
+    if (!session) return;
+    let canceled = false;
+    supabase.from("analizler").select("analiz,created_at").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle()
+      .then(({ data }) => {
+        if (canceled) return;
+        if (data?.analiz) {
+          setAnaliz(data.analiz);
+          if (data.created_at) setAnalizTarih(new Date(data.created_at));
+        }
+      });
+    supabase.from("portfoy").select("ticker,adet,maliyet").eq("user_id", session.user.id)
+      .then(({ data }) => { if (!canceled && data) setPortfoy(data); });
+    return () => { canceled = true; };
+  }, [session, ticker]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -267,6 +280,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   return (
     <AppShell>
+    {izlemeHata && <Toast message={izlemeHata} ton="error" onClose={() => setIzlemeHata(null)} />}
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
 
 

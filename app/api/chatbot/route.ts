@@ -62,6 +62,7 @@ const RAKIP_KAYNAK_IFADELERI = [
 
 function cevabiTemizle(rawReply: string) {
   const temiz = rawReply
+    .replace(/^[ \t]*\*{3,}[ \t]*$/gm, "")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/\s+$/g, "")
     .trim();
@@ -2690,9 +2691,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Çok fazla istek. 1 dakika bekleyin." }, { status: 429 });
   }
 
-  const { messages, ticker, portfoy } = await req.json();
-  const chatMessages = (messages ?? []) as ChatMessage[];
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Geçersiz istek gövdesi." }, { status: 400 });
+  }
+  const { messages, ticker, portfoy } = body as { messages?: unknown; ticker?: string; portfoy?: unknown };
+  const chatMessages = (Array.isArray(messages) ? messages : []) as ChatMessage[];
   const sonMesaj = sonKullaniciMesaji(chatMessages);
+  if (!sonMesaj.trim()) {
+    return NextResponse.json({ error: "Mesaj boş. En az bir kullanıcı mesajı gönderin." }, { status: 400 });
+  }
   const mesajTickerlari = tickerAdaylari(sonMesaj, ticker);
   const aktifTicker = ticker || mesajTickerlari[0];
   const intent = niyetSiniflandir(sonMesaj, aktifTicker);
