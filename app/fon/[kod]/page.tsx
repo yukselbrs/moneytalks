@@ -75,9 +75,11 @@ type FonPortfoy = {
 type FonTahmin = {
   kod: string;
   tahminiGetiri: number | null;
+  hamTahmin: number | null;
   aciklananGetiri: number | null;
   aciklananTarih: string | null;
   tahminSapma: number | null;
+  kalibrasyonPuan: number | null;
   kapsamOrani: number;
   toplamPortfoyOrani: number;
   hesaplananPozisyonSayisi: number;
@@ -411,7 +413,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
                         {formatPercent(tahmin?.tahminiGetiri ?? null, { signDisplay: "always" })}
                       </div>
                       <div style={{ color: "#64748B", fontSize: 12, marginTop: 9 }}>
-                        Canlı piyasa ve fon fiyatlarıyla hesaplandı · {formatTime(tahmin?.guncellemeZamani)}
+                        Canlı piyasa, fon fiyatları ve NAV kalibrasyonuyla hesaplandı · {formatTime(tahmin?.guncellemeZamani)}
                       </div>
                     </div>
                     <div style={{ border: "1px solid rgba(148,163,184,0.10)", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: 14 }}>

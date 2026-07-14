@@ -16,9 +16,11 @@ export type FonTahminPozisyon = {
 export type FonGunIciTahmin = {
   kod: string;
   tahminiGetiri: number | null;
+  hamTahmin: number | null;
   aciklananGetiri: number | null;
   aciklananTarih: string | null;
   tahminSapma: number | null;
+  kalibrasyonPuan: number | null;
   kapsamOrani: number;
   toplamPortfoyOrani: number;
   hesaplananPozisyonSayisi: number;
@@ -163,19 +165,27 @@ export async function calculateFonGunIciTahmin(kod: string): Promise<FonGunIciTa
   ]);
 
   const calculated = pozisyonlar.filter((position) => position.katkiPuan !== null);
-  const tahminiGetiri = calculated.length > 0
+  const hamTahmin = calculated.length > 0
     ? calculated.reduce((sum, position) => sum + (position.katkiPuan ?? 0), 0)
     : null;
-  const tahminSapma = tahminiGetiri !== null && published.getiri !== null
-    ? tahminiGetiri - published.getiri
+  const kalibrasyonPuan = hamTahmin !== null && published.getiri !== null
+    ? published.getiri - hamTahmin
+    : null;
+  const tahminiGetiri = hamTahmin !== null
+    ? hamTahmin + (kalibrasyonPuan ?? 0)
+    : null;
+  const tahminSapma = hamTahmin !== null && published.getiri !== null
+    ? hamTahmin - published.getiri
     : null;
 
   return {
     kod: portfoy.kod,
     tahminiGetiri,
+    hamTahmin,
     aciklananGetiri: published.getiri,
     aciklananTarih: published.tarih,
     tahminSapma,
+    kalibrasyonPuan,
     kapsamOrani: calculated.reduce((sum, position) => sum + position.oran, 0),
     toplamPortfoyOrani: pricedPositions.reduce((sum, position) => sum + position.oran, 0),
     hesaplananPozisyonSayisi: calculated.length,
