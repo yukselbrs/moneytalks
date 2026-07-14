@@ -17,8 +17,10 @@ export function formatNumber(
 
 export function formatCurrency(value: NumericValue, options: Intl.NumberFormatOptions = {}) {
   if (!isFiniteNumber(value)) return "—";
+  const minimumFractionDigits = options.minimumFractionDigits
+    ?? Math.min(2, options.maximumFractionDigits ?? 2);
   return `${formatNumber(value, {
-    minimumFractionDigits: 2,
+    minimumFractionDigits,
     maximumFractionDigits: 2,
     ...options,
   })} ₺`;
