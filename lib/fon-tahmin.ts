@@ -16,6 +16,9 @@ export type FonTahminPozisyon = {
 export type FonGunIciTahmin = {
   kod: string;
   tahminiGetiri: number | null;
+  aciklananGetiri: number | null;
+  aciklananTarih: string | null;
+  tahminSapma: number | null;
   kapsamOrani: number;
   toplamPortfoyOrani: number;
   hesaplananPozisyonSayisi: number;
@@ -134,21 +137,45 @@ async function pricePosition(position: FonPortfoyPozisyon): Promise<FonTahminPoz
   };
 }
 
+async function fetchPublishedFundReturn(kod: string): Promise<{ getiri: number | null; tarih: string | null }> {
+  try {
+    const rows = await fetchTefasFundHistory(kod, "1wk");
+    const latest = rows[rows.length - 1];
+    const previous = rows.length > 1 ? rows[rows.length - 2] : null;
+    if (!latest || !previous) return { getiri: null, tarih: latest?.tarih ?? null };
+    return {
+      getiri: percentChange(latest.fiyat, previous.fiyat),
+      tarih: latest.tarih,
+    };
+  } catch {
+    return { getiri: null, tarih: null };
+  }
+}
+
 export async function calculateFonGunIciTahmin(kod: string): Promise<FonGunIciTahmin | null> {
   const portfoy = getFonPortfoy(kod);
   if (!portfoy) return null;
 
   const pricedPositions = portfoy.pozisyonlar.filter((position) => pricingMode(position) !== null);
-  const pozisyonlar = await Promise.all(pricedPositions.map(pricePosition));
+  const [pozisyonlar, published] = await Promise.all([
+    Promise.all(pricedPositions.map(pricePosition)),
+    fetchPublishedFundReturn(portfoy.kod),
+  ]);
 
   const calculated = pozisyonlar.filter((position) => position.katkiPuan !== null);
   const tahminiGetiri = calculated.length > 0
     ? calculated.reduce((sum, position) => sum + (position.katkiPuan ?? 0), 0)
     : null;
+  const tahminSapma = tahminiGetiri !== null && published.getiri !== null
+    ? tahminiGetiri - published.getiri
+    : null;
 
   return {
     kod: portfoy.kod,
     tahminiGetiri,
+    aciklananGetiri: published.getiri,
+    aciklananTarih: published.tarih,
+    tahminSapma,
     kapsamOrani: calculated.reduce((sum, position) => sum + position.oran, 0),
     toplamPortfoyOrani: pricedPositions.reduce((sum, position) => sum + position.oran, 0),
     hesaplananPozisyonSayisi: calculated.length,
