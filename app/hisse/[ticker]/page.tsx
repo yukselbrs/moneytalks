@@ -74,7 +74,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   const { session } = useSession();
   const [portfoy, setPortfoy] = useState<{ticker: string, adet: number, maliyet: number}[]>([]);
   const [fundamentals, setFundamentals] = useState<{pe: string, pb: string} | null>(null);
-  const [riskVeri, setRiskVeri] = useState<{ skor: number; seviyeTR: string } | null>(null);
+  const [riskVeri, setRiskVeri] = useState<{ skor: number; seviyeTR: string; nedenler: string[]; makroKatki: number } | null>(null);
 
   useEffect(() => {
     document.title = `${ticker} Analizi | ParaKonusur — BIST Yapay Zeka`;
@@ -135,12 +135,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 
   const fetchVeri = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch("/api/analiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker, veriOnly: true }),
-        signal,
-      });
+      const res = await fetch(`/api/hisse-ozet?ticker=${ticker}`, { signal });
       const data = await res.json();
       if (data.veri) setVeri(data.veri);
     } catch {
@@ -188,7 +183,15 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       .then(r => r.json())
       .then(d => {
         if (canceled) return;
-        if (d.skor !== undefined) setRiskVeri({ skor: Math.round(d.skor), seviyeTR: d.seviyeTR || "" });
+        if (d.skor !== undefined) {
+          type Bilesen = { ad: string; deger: string; risk: number; agirlik: number };
+          const nedenler = ((d.bilesenler || []) as Bilesen[])
+            .filter(b => b.agirlik > 0)
+            .sort((a, b) => b.risk * b.agirlik - a.risk * a.agirlik)
+            .slice(0, 3)
+            .map(b => `${b.ad}: ${b.deger}`);
+          setRiskVeri({ skor: Math.round(d.skor), seviyeTR: d.seviyeTR || "", nedenler, makroKatki: typeof d.makroKatki === "number" ? d.makroKatki : 0 });
+        }
         if (d.bilesenler) {
           const pe = d.bilesenler.find((f: {ad: string}) => f.ad === "F/K Orani");
           const pb = d.bilesenler.find((f: {ad: string}) => f.ad === "PD/DD Orani");
@@ -467,6 +470,16 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                     <div style={{ fontSize: 11, color: "#475569", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 3 }}>Risk Skoru</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: riskColor.color }}>{riskVeri.seviyeTR}</div>
                     <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>100 üzerinden · düşük = daha az riskli</div>
+                    {riskVeri.nedenler.length > 0 && (
+                      <details style={{ marginTop: 6 }}>
+                        <summary style={{ fontSize: 11, color: "#64748B", cursor: "pointer", listStyle: "none", userSelect: "none" }}>Neden bu skor? ⌄</summary>
+                        <div style={{ fontSize: 11, color: "#94A3B8", lineHeight: 1.7, marginTop: 4 }}>
+                          Skora en çok katkı veren bileşenler: {riskVeri.nedenler.join(" · ")}.
+                          {riskVeri.makroKatki >= 2 ? ` Makro ortam skoru +${riskVeri.makroKatki} puan yükseltti.` : ""}
+                          {" "}Skor bir risk ölçüsüdür, getiri tahmini değildir.
+                        </div>
+                      </details>
+                    )}
                   </div>
                   <Activity size={20} color={riskColor.color} style={{ opacity: 0.4, flexShrink: 0 }} />
                 </div>

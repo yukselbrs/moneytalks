@@ -745,3 +745,7 @@ FOR SELECT TO authenticated USING (auth.uid() = user_id);
 -- Yeni tablo; mevcut semaya dokunulmadi, veri kaybi riski yok. FK child'i yok,
 -- paylasimli fonksiyon/trigger kullanmiyor -> tek DROP yeterli. auth.users FK
 -- ON DELETE CASCADE oldugu icin kullanici silinince satirlar otomatik gider.
+
+-- FAZ4 GOREV 18: karne_gonderim.ozet — onceki hafta karsilastirmasi (delta) icin
+-- son gonderilen karnenin sayisal ozeti saklanir (riskSkor, haftalikGetiri, toplamDeger).
+ALTER TABLE public.karne_gonderim ADD COLUMN IF NOT EXISTS ozet JSONB;

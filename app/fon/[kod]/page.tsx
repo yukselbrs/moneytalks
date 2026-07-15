@@ -51,6 +51,7 @@ type ApiResponse = {
   returns: Record<string, number | null>;
   range: string;
   portfoy: FonPortfoy | null;
+  kategoriKiyas?: { fonSayisi: number; medyanGiderOrani: number | null; medyanGetiri1y: number | null } | null;
 };
 
 type FonPortfoy = {
@@ -388,6 +389,18 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
                           <span style={{ color: "#E2E8F0", fontSize: 13, fontWeight: 780, textAlign: "right", maxWidth: 210, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value}</span>
                         </div>
                       ))}
+                      {data?.kategoriKiyas && (
+                        <p style={{ color: "#64748B", fontSize: 12, lineHeight: 1.6, margin: "12px 0 0", borderTop: "1px solid rgba(148,163,184,0.12)", paddingTop: 10 }}>
+                          Kategori kıyası ({data.kategoriKiyas.fonSayisi} fon):
+                          {data.kategoriKiyas.medyanGiderOrani !== null && (
+                            <> gider oranı medyanı {formatPercent(data.kategoriKiyas.medyanGiderOrani)}{Number(fon.toplam_gider_orani) > data.kategoriKiyas.medyanGiderOrani ? " — bu fonun gideri medyanın üstünde" : Number(fon.toplam_gider_orani) > 0 ? " — bu fonun gideri medyanın altında" : ""}.</>
+                          )}
+                          {data.kategoriKiyas.medyanGetiri1y !== null && (
+                            <> 1Y getiri medyanı {formatPercent(data.kategoriKiyas.medyanGetiri1y)}.</>
+                          )}
+                          {" "}Kıyas bilgilendirme amaçlıdır; yatırım tavsiyesi değildir.
+                        </p>
+                      )}
                     </div>
                   </aside>
                 </section>

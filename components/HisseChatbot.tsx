@@ -2,10 +2,20 @@
 
 import { useState, useRef, useEffect } from "react";
 
+interface AlarmTaslak {
+  ticker: string;
+  tip: string;
+  kosul: string;
+  hedef_deger?: number | null;
+  hedef_yuzde?: number | null;
+  ozet?: string;
+}
+
 interface Mesaj {
   role: "user" | "assistant";
   proLink?: boolean;
   content: string;
+  alarmTaslak?: AlarmTaslak | null;
 }
 
 interface HisseVeri {
@@ -38,6 +48,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
   ]);
   const [input, setInput] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
+  const [durumMetni, setDurumMetni] = useState<string | null>(null);
   const [limitDoldu, setLimitDoldu] = useState(false);
   const altRef = useRef<HTMLDivElement>(null);
 
@@ -112,10 +123,22 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           try {
-            const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; kalanHak?: number | null; pro?: boolean };
-            if (ev.type === "delta" && ev.text) { toplam += ev.text; upsertSon(toplam); }
+            const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; kalanHak?: number | null; pro?: boolean; alarmTaslak?: AlarmTaslak | null };
+            if (ev.type === "status" && ev.text) { setDurumMetni(ev.text); }
+            else if (ev.type === "delta" && ev.text) { setDurumMetni(null); toplam += ev.text; upsertSon(toplam); }
             else if (ev.type === "replace" && ev.text) { toplam = ev.text; upsertSon(toplam); }
-            else if (ev.type === "done" && typeof ev.kalanHak === "number") { kalanHak = ev.kalanHak; }
+            else if (ev.type === "done") {
+              if (typeof ev.kalanHak === "number") kalanHak = ev.kalanHak;
+              if (ev.alarmTaslak?.ticker) {
+                const taslak = ev.alarmTaslak;
+                setMesajlar(prev => {
+                  const next = [...prev];
+                  const son = next[next.length - 1];
+                  if (son?.role === "assistant") next[next.length - 1] = { ...son, alarmTaslak: taslak };
+                  return next;
+                });
+              }
+            }
             // Pro kullanıcılarda kalanHak=null gelir, ek metin eklenmez
           } catch { /* parse skip */ }
         }
@@ -135,7 +158,39 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
     } catch {
       setMesajlar(prev => [...prev, { role: "assistant", content: "Bir hata oluştu, tekrar dene." }]);
     }
+    setDurumMetni(null);
     setYukleniyor(false);
+  }
+
+  async function kurAlarm(taslak: AlarmTaslak, mesajIndex: number) {
+    const guncelle = (icerik: string, taslakSil: boolean) => setMesajlar(prev => {
+      const next = [...prev];
+      const m = next[mesajIndex];
+      if (m) next[mesajIndex] = { ...m, content: m.content + icerik, alarmTaslak: taslakSil ? null : m.alarmTaslak };
+      return next;
+    });
+    try {
+      const { data: { session } } = await (await import("@/components/lib/supabase")).supabase.auth.getSession();
+      if (!session) { guncelle("\n\nAlarm için giriş yapmalısın.", false); return; }
+      const res = await fetch("/api/alarmlar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          ticker: taslak.ticker,
+          tip: taslak.tip || "fiyat_seviye",
+          kosul: taslak.kosul || "yukari",
+          hedef_deger: taslak.hedef_deger ?? undefined,
+          hedef_yuzde: taslak.hedef_yuzde ?? undefined,
+        }),
+      });
+      if (res.ok) guncelle("\n\n✓ Alarm kuruldu — Alarmlar sayfasından yönetebilirsin.", true);
+      else {
+        const j = await res.json().catch(() => null) as { error?: string } | null;
+        guncelle(`\n\nAlarm kurulamadı: ${j?.error || "bilinmeyen hata"}.`, false);
+      }
+    } catch {
+      guncelle("\n\nAlarm kurulamadı, tekrar dene.", false);
+    }
   }
 
   return (
@@ -265,13 +320,20 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
                       ⚡ Pro'ya Yükselt
                     </a>
                   )}
+                  {m.alarmTaslak && (
+                    <button
+                      onClick={() => kurAlarm(m.alarmTaslak!, i)}
+                      style={{ display: "block", width: "100%", marginTop: 8, padding: "6px 12px", background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#60A5FA", cursor: "pointer", textAlign: "center" }}>
+                      🔔 Bu alarmı kur{m.alarmTaslak.hedef_deger ? ` (${m.alarmTaslak.ticker} · ${m.alarmTaslak.hedef_deger} ₺)` : ""}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
             {yukleniyor && (
               <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                <div style={{ padding: "8px 14px", borderRadius: "12px 12px 12px 2px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", fontSize: 18, color: "#475569" }}>
-                  ···
+                <div style={{ padding: "8px 14px", borderRadius: "12px 12px 12px 2px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", fontSize: durumMetni ? 11 : 18, color: durumMetni ? "#94A3B8" : "#475569" }}>
+                  {durumMetni ?? "···"}
                 </div>
               </div>
             )}

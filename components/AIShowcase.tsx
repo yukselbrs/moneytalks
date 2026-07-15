@@ -17,11 +17,7 @@ export default function AIShowcase() {
     setVeri(null);
     setDone(false);
     try {
-      const res = await fetch("/api/analiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker: t, veriOnly: true }),
-      });
+      const res = await fetch(`/api/hisse-ozet?ticker=${t}`);
       const data = await res.json();
       if (data.veri) setVeri(data.veri);
       setTicker(t);

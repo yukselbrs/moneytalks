@@ -2733,7 +2733,6 @@ KURAL: Veri gerektiren sorularda önce ilgili aracı çağır, aldığın gerçe
 YÜZDE KURALI: Tool çıktısında yüzdeler percentage point mantığındadır; 0.61 değeri +%0,61 anlamına gelir. Yüzdeyi tekrar 100 ile çarpma. Formatlı yüzde stringi varsa onu aynen kullan.
 ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
 
-  // Phase 1: Tool-calling (non-streaming, data gathering)
   type ApiMsgContent =
     | string
     | Anthropic.Messages.ContentBlock[]
@@ -2746,49 +2745,64 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
   let outputTokensTotal = 0;
   const MAX_TOOL_ROUNDS = 4;
 
-  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const toolResp = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 512,
-      system: systemPrompt,
-      tools: PAKO_TOOLS,
-      messages: currentMessages as Anthropic.Messages.MessageParam[],
-    });
+  const TOOL_DURUM_METNI: Record<string, string> = {
+    get_hisse_fiyat: "Fiyat verisi çekiliyor…",
+    get_teknik_analiz: "Teknik göstergeler hesaplanıyor…",
+    get_kap_haberler: "KAP bildirimleri taranıyor…",
+    get_genel_piyasa: "Piyasa geneli okunuyor…",
+    get_portfoy: "Portföyün inceleniyor…",
+    search_hisse: "Hisse aranıyor…",
+  };
 
-    inputTokensTotal += toolResp.usage?.input_tokens ?? 0;
-    outputTokensTotal += toolResp.usage?.output_tokens ?? 0;
-
-    const toolBlocks = toolResp.content.filter(
-      (b): b is Anthropic.Messages.ToolUseBlock => b.type === "tool_use"
-    );
-    if (toolBlocks.length === 0) break;
-
-    currentMessages = [...currentMessages, { role: "assistant", content: toolResp.content }];
-
-    const toolResults: Anthropic.Messages.ToolResultBlockParam[] = await Promise.all(
-      toolBlocks.map(async block => ({
-        type: "tool_result" as const,
-        tool_use_id: block.id,
-        content: JSON.stringify(
-          await toolExecute(
-            block.name,
-            block.input as ToolInput,
-            portfoy as PortfoyPromptItem[] | undefined,
-          )
-        ),
-      }))
-    );
-
-    currentMessages = [...currentMessages, { role: "user", content: toolResults }];
-  }
-
-  // Phase 2: Stream final response
+  // Tool dongusu stream'in ICINDE kosuyor (Faz 4 B.4): kullanici 20+ sn sessizlik yerine
+  // her araç çağrısında "status" event'i goruyor; client bunlari gecici satir olarak basar.
   const encoder = new TextEncoder();
   const readableStream = new ReadableStream({
     async start(controller) {
       const send = (data: object) => {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       };
+
+      for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+        const toolResp = await anthropic.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 512,
+          system: systemPrompt,
+          tools: PAKO_TOOLS,
+          messages: currentMessages as Anthropic.Messages.MessageParam[],
+        });
+
+        inputTokensTotal += toolResp.usage?.input_tokens ?? 0;
+        outputTokensTotal += toolResp.usage?.output_tokens ?? 0;
+
+        const toolBlocks = toolResp.content.filter(
+          (b): b is Anthropic.Messages.ToolUseBlock => b.type === "tool_use"
+        );
+        if (toolBlocks.length === 0) break;
+
+        for (const block of toolBlocks) {
+          send({ type: "status", text: TOOL_DURUM_METNI[block.name] ?? "Veri toplanıyor…" });
+        }
+
+        currentMessages = [...currentMessages, { role: "assistant", content: toolResp.content }];
+
+        const toolResults: Anthropic.Messages.ToolResultBlockParam[] = await Promise.all(
+          toolBlocks.map(async block => ({
+            type: "tool_result" as const,
+            tool_use_id: block.id,
+            content: JSON.stringify(
+              await toolExecute(
+                block.name,
+                block.input as ToolInput,
+                portfoy as PortfoyPromptItem[] | undefined,
+              )
+            ),
+          }))
+        );
+
+        currentMessages = [...currentMessages, { role: "user", content: toolResults }];
+      }
+      send({ type: "status", text: "Yanıt hazırlanıyor…" });
 
       let fullText = "";
       try {

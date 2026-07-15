@@ -5,11 +5,15 @@ import StockLogo from "@/components/StockLogo";
 import { formatPercent } from "@/lib/formatters";
 
 type NedenKap = { index: number; tipEtiket: string; ozet: string | null };
+type NedenSektor = { ad: string; ortalama: number | null };
 
 type NedenData = {
   endeksDegisim: number | null;
-  hisseler: Record<string, { kap: NedenKap | null }>;
+  hisseler: Record<string, { kap: NedenKap | null; sektor?: NedenSektor | null }>;
 };
+
+// Hisse hareketi endeksin bu katindan buyukse "Endeks yonlu" acilamasi yanliş atif olur (Faz 3 A.8).
+const ENDEKS_ORAN_ESIGI = 2.5;
 
 type DashboardHisse = {
   ticker: string;
@@ -132,7 +136,14 @@ export default function DashboardMarketFocus({
           const moverTab = piyasaOdagiTab === "yukselenler" || piyasaOdagiTab === "dusenler";
           const kap = moverTab ? neden?.hisseler[s.ticker]?.kap ?? null : null;
           const endeks = neden?.endeksDegisim ?? null;
-          const endeksYonlu = moverTab && !kap && endeks !== null && Math.abs(endeks) >= 1 && (endeks >= 0) === s.yukselis;
+          const hisseDegisim = Number(s.degisim);
+          const endeksYonlu = moverTab && !kap && endeks !== null && Math.abs(endeks) >= 1
+            && (endeks >= 0) === s.yukselis
+            && Math.abs(hisseDegisim) <= Math.abs(endeks) * ENDEKS_ORAN_ESIGI;
+          const sektor = moverTab && !kap ? neden?.hisseler[s.ticker]?.sektor ?? null : null;
+          const sektorYonlu = !endeksYonlu && sektor?.ortalama != null && Math.abs(sektor.ortalama) >= 1
+            && (sektor.ortalama >= 0) === s.yukselis
+            && Math.abs(hisseDegisim) <= Math.abs(sektor.ortalama) * ENDEKS_ORAN_ESIGI;
           return (
             <div key={s.ticker} onClick={() => goToHisse(s.ticker)}
               style={{ display: "grid", gridTemplateColumns: "44px 1fr auto auto 40px", alignItems: "center", gap: 12, padding: "11px 16px", borderBottom: i < liste.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", transition: "background 0.12s" }}
@@ -153,9 +164,16 @@ export default function DashboardMarketFocus({
                   )}
                   {endeksYonlu && (
                     <span
-                      title={`XU100 bugün ${formatPercent(endeks!, { symbolPosition: "prefix" })} — hareket endeksle aynı yönde; hisseye özgü bir gelişme göstermez.`}
+                      title={`XU100 bugün ${formatPercent(endeks!, { symbolPosition: "prefix" })} — hareket endeksle aynı yönde ve benzer ölçekte; hisseye özgü bir gelişme göstermez.`}
                       style={{ fontSize: 11, fontWeight: 600, color: "#64748B", background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.25)", borderRadius: 20, padding: "4px 10px", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
                       Endeks yönlü
+                    </span>
+                  )}
+                  {sektorYonlu && (
+                    <span
+                      title={`${sektor!.ad} sektörü bugün ortalama ${formatPercent(sektor!.ortalama!, { symbolPosition: "prefix" })} — hareket sektörle aynı yönde ve benzer ölçekte; kesin neden göstermez.`}
+                      style={{ fontSize: 11, fontWeight: 600, color: "#7DD3FC", background: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.22)", borderRadius: 20, padding: "4px 10px", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
+                      Sektör yönlü
                     </span>
                   )}
                 </div>

@@ -199,6 +199,22 @@ export async function GET(
     const returns = returnsFromHistory(fon, history);
     const chartHistory = chartHistoryForRange(fon, history, range, returns);
 
+    // Kategori kiyasi (Faz 4 B.12): ayni kategorideki fonlarin medyan gider orani ve 1Y getirisi.
+    const medyan = (dizi: number[]): number | null => {
+      if (dizi.length < 5) return null;
+      const s = [...dizi].sort((a, b) => a - b);
+      const orta = Math.floor(s.length / 2);
+      return s.length % 2 ? s[orta] : (s[orta - 1] + s[orta]) / 2;
+    };
+    const kategoriFonlari = fon.kategori
+      ? snapshotRows.filter(r => r.kategori === fon.kategori)
+      : [];
+    const kategoriKiyas = kategoriFonlari.length >= 5 ? {
+      fonSayisi: kategoriFonlari.length,
+      medyanGiderOrani: medyan(kategoriFonlari.map(r => Number(r.toplam_gider_orani)).filter(v => Number.isFinite(v) && v > 0)),
+      medyanGetiri1y: medyan(kategoriFonlari.map(r => Number(r.getiri_1y)).filter(v => Number.isFinite(v))),
+    } : null;
+
     const response = NextResponse.json({
       fon,
       history: chartHistory,
@@ -206,6 +222,7 @@ export async function GET(
       returns,
       range,
       portfoy: getFonPortfoy(kod),
+      kategoriKiyas,
     });
     response.headers.set("Cache-Control", "no-store");
     return response;

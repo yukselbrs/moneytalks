@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import bistCompanies from "@/data/bist-companies.json";
+import { karneHesapla, fetchEndeksHaftalik, fetchRiskOzetleri, haftaBaslangici, isoHaftaNo, EGITIM_ICERIKLERI, KAP_OLAY_LIMIT, type Karne, type KapOlay, type PortfoyRow, type SnapshotRow } from "@/lib/karne";
 
 export const maxDuration = 60;
 
@@ -11,163 +11,6 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 const USER_BATCH = 10;
-const RISK_FETCH_CAP = 25;
-const KAP_OLAY_LIMIT = 3;
-
-type PortfoyRow = { user_id: string; ticker: string; adet: number };
-type SnapshotRow = { ticker: string; fiyat: number | null; getiri_1h: number | null };
-type RiskOzet = { skor: number; beta: number | null };
-type KapOlay = { disclosure_index: number; tickerlar: string[]; bildirim_tipi: string; ozet_tek_cumle: string | null; baslik: string | null };
-
-type SektorPay = { sektor: string; yuzde: number };
-
-type Karne = {
-  toplamDeger: number;
-  haftalikGetiri: number | null;
-  endeksHaftalik: number | null;
-  sektorler: SektorPay[];
-  sektorSayisi: number;
-  riskSkor: number | null;
-  beta: number | null;
-  riskKapsamYuzde: number;
-  kapOlaylar: KapOlay[];
-};
-
-const SEKTOR_MAP: Record<string, string | null> = Object.fromEntries(
-  (bistCompanies as { ticker: string; sektor?: string | null }[]).map(c => [c.ticker, c.sektor ?? null])
-);
-
-const EGITIM_ICERIKLERI = [
-  { baslik: "Beta nedir?", metin: "Beta, bir hissenin endekse göre ne kadar oynak olduğunu ölçer. 1'in üzeri endeksten sert, altı endeksten yumuşak hareket eğilimi anlamına gelir." },
-  { baslik: "Çeşitlendirme ne işe yarar?", metin: "Farklı sektörlere yayılan bir portföyde tek bir sektöre özgü olumsuz gelişmenin toplam portföye etkisi sınırlı kalır. Konsantrasyon arttıkça o sektörün dalgalanması portföyün dalgalanması haline gelir." },
-  { baslik: "Bedelsiz sermaye artırımı", metin: "Şirket iç kaynaklarından sermayesini artırır ve pay sayısı çoğalır; fiyat mekanik olarak aynı oranda düşer. Toplam piyasa değeri bu işlemle değişmez." },
-  { baslik: "RSI göstergesi", metin: "RSI, son dönem yükseliş ve düşüşlerin gücünü 0-100 arasında özetler. 70 üzeri genellikle 'aşırı alım', 30 altı 'aşırı satım' bölgesi olarak adlandırılır — tek başına yön garantisi vermez." },
-  { baslik: "Likidite riski", metin: "Düşük işlem hacimli hisselerde alış-satış farkı açılabilir ve büyük emirler fiyatı oynatabilir. Pozisyondan çıkmak istediğinde karşı taraf bulmak zorlaşabilir." },
-  { baslik: "F/K oranı", metin: "Fiyat/Kazanç oranı, hissenin fiyatının yıllık kârının kaç katı olduğunu gösterir. Sektörler arası F/K karşılaştırması yanıltıcı olabilir; aynı sektör içinde daha anlamlıdır." },
-  { baslik: "Volatilite", metin: "Volatilite, fiyatın ortalama etrafında ne kadar salındığının ölçüsüdür. Yüksek volatilite hem yukarı hem aşağı yönde daha geniş hareket aralığı demektir." },
-  { baslik: "Temettü verimi", metin: "Temettü verimi, yıllık nakit temettünün hisse fiyatına oranıdır. Temettü ödemesi sonrası fiyat genellikle ödeme tutarı kadar düzeltilir." },
-];
-
-function haftaBaslangici(): string {
-  const trNow = new Date(Date.now() + 3 * 60 * 60 * 1000);
-  const gun = trNow.getUTCDay();
-  const pazartesiOffset = gun === 0 ? 6 : gun - 1;
-  const pazartesi = new Date(trNow);
-  pazartesi.setUTCDate(trNow.getUTCDate() - pazartesiOffset);
-  return pazartesi.toISOString().slice(0, 10);
-}
-
-function isoHaftaNo(): number {
-  const now = new Date();
-  const baslangic = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
-  return Math.floor((now.getTime() - baslangic.getTime()) / (7 * 24 * 60 * 60 * 1000));
-}
-
-async function fetchEndeksHaftalik(): Promise<number | null> {
-  try {
-    const res = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/XU100.IS?interval=1d&range=1mo", {
-      cache: "no-store",
-      headers: { "User-Agent": "Mozilla/5.0" },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const closes: (number | null)[] = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];
-    const gecerli = closes.filter((c): c is number => c !== null && c > 0);
-    if (gecerli.length < 6) return null;
-    const son = gecerli[gecerli.length - 1];
-    const haftaOnce = gecerli[gecerli.length - 6];
-    return ((son - haftaOnce) / haftaOnce) * 100;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchRiskOzetleri(appUrl: string, tickers: string[]): Promise<Record<string, RiskOzet>> {
-  const sonuc: Record<string, RiskOzet> = {};
-  const hedefler = tickers.slice(0, RISK_FETCH_CAP);
-
-  for (let i = 0; i < hedefler.length; i += 5) {
-    const chunk = hedefler.slice(i, i + 5);
-    await Promise.all(chunk.map(async ticker => {
-      try {
-        const res = await fetch(`${appUrl}/api/risk?ticker=${ticker}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (typeof data?.skor !== "number") return;
-        sonuc[ticker] = { skor: data.skor, beta: typeof data?.meta?.beta === "number" ? data.meta.beta : null };
-      } catch {
-        return;
-      }
-    }));
-  }
-
-  return sonuc;
-}
-
-function karneHesapla(
-  pozisyonlar: PortfoyRow[],
-  snapshots: Record<string, SnapshotRow>,
-  riskler: Record<string, RiskOzet>,
-  endeksHaftalik: number | null,
-  kapOlaylarTumu: KapOlay[]
-): Karne | null {
-  type Degerli = { ticker: string; deger: number; getiri1h: number | null };
-  const degerli: Degerli[] = [];
-
-  for (const p of pozisyonlar) {
-    const snap = snapshots[p.ticker];
-    if (!snap?.fiyat || snap.fiyat <= 0 || !p.adet || p.adet <= 0) continue;
-    degerli.push({ ticker: p.ticker, deger: p.adet * snap.fiyat, getiri1h: snap.getiri_1h });
-  }
-
-  const toplamDeger = degerli.reduce((acc, d) => acc + d.deger, 0);
-  if (!degerli.length || toplamDeger <= 0) return null;
-
-  const getirili = degerli.filter(d => d.getiri1h !== null);
-  const getiriliDeger = getirili.reduce((acc, d) => acc + d.deger, 0);
-  const haftalikGetiri = getiriliDeger > 0
-    ? getirili.reduce((acc, d) => acc + d.getiri1h! * d.deger, 0) / getiriliDeger
-    : null;
-
-  const sektorDegerleri = new Map<string, number>();
-  for (const d of degerli) {
-    const sektor = SEKTOR_MAP[d.ticker] || "Diğer";
-    sektorDegerleri.set(sektor, (sektorDegerleri.get(sektor) || 0) + d.deger);
-  }
-  const sektorler = [...sektorDegerleri.entries()]
-    .map(([sektor, deger]) => ({ sektor, yuzde: (deger / toplamDeger) * 100 }))
-    .sort((a, b) => b.yuzde - a.yuzde)
-    .slice(0, 3);
-
-  const riskli = degerli.filter(d => riskler[d.ticker]);
-  const riskliDeger = riskli.reduce((acc, d) => acc + d.deger, 0);
-  const riskKapsamYuzde = (riskliDeger / toplamDeger) * 100;
-  const riskSkor = riskliDeger > 0
-    ? riskli.reduce((acc, d) => acc + riskler[d.ticker].skor * d.deger, 0) / riskliDeger
-    : null;
-  const betali = riskli.filter(d => riskler[d.ticker].beta !== null);
-  const betaliDeger = betali.reduce((acc, d) => acc + d.deger, 0);
-  const beta = betaliDeger > 0
-    ? betali.reduce((acc, d) => acc + riskler[d.ticker].beta! * d.deger, 0) / betaliDeger
-    : null;
-
-  const tickerSet = new Set(degerli.map(d => d.ticker));
-  const kapOlaylar = kapOlaylarTumu
-    .filter(o => o.tickerlar.some(t => tickerSet.has(t)))
-    .slice(0, KAP_OLAY_LIMIT);
-
-  return {
-    toplamDeger,
-    haftalikGetiri,
-    endeksHaftalik,
-    sektorler,
-    sektorSayisi: sektorDegerleri.size,
-    riskSkor,
-    beta,
-    riskKapsamYuzde,
-    kapOlaylar,
-  };
-}
 
 function kacisHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -178,7 +21,12 @@ function yuzdeFmt(deger: number): string {
   return `${isaret}%${deger.toFixed(2).replace(".", ",")}`;
 }
 
-function karneEpostaHtml(karne: Karne): string {
+type KarneOzet = { riskSkor: number | null; haftalikGetiri: number | null; toplamDeger: number };
+
+function karneEpostaHtml(karne: Karne, onceki: KarneOzet | null = null): string {
+  const riskDelta = onceki?.riskSkor != null && karne.riskSkor !== null && Math.round(karne.riskSkor) !== onceki.riskSkor
+    ? `<p style="color:#94A3B8;font-size:13px;">Risk skorun gecen haftaya gore ${onceki.riskSkor} -> ${Math.round(karne.riskSkor)}. Bu bir risk olcusudur, getiri tahmini degildir.</p>`
+    : "";
   const egitim = EGITIM_ICERIKLERI[isoHaftaNo() % EGITIM_ICERIKLERI.length];
   const enBuyukSektor = karne.sektorler[0];
 
@@ -225,6 +73,7 @@ function karneEpostaHtml(karne: Karne): string {
     <p style="color:#CBD5E1;font-size:13px;line-height:1.6;">${konsantrasyonSatiri}</p>
     <h3 style="color:#F1F5F9;font-size:15px;margin:24px 0 8px;">Risk profilin</h3>
     <p style="color:#CBD5E1;font-size:13px;line-height:1.6;">${riskSatiri}</p>
+    ${riskDelta}
     ${kapBolumu}
     <h3 style="color:#F1F5F9;font-size:15px;margin:24px 0 8px;">Haftanın kavramı: ${kacisHtml(egitim.baslik)}</h3>
     <p style="color:#CBD5E1;font-size:13px;line-height:1.6;">${kacisHtml(egitim.metin)}</p>
@@ -302,6 +151,17 @@ export async function GET(req: NextRequest) {
   const { data: profiller } = await supabase.from("profiles").select("id, email").in("id", bekleyenler);
   const emailMap = new Map((profiller || []).map((p: { id: string; email: string | null }) => [p.id, p.email]));
 
+  const { data: oncekiler } = await supabase
+    .from("karne_gonderim")
+    .select("user_id, hafta_baslangic, ozet")
+    .in("user_id", bekleyenler)
+    .lt("hafta_baslangic", hafta)
+    .order("hafta_baslangic", { ascending: false });
+  const oncekiOzetMap = new Map<string, KarneOzet | null>();
+  for (const o of (oncekiler || []) as { user_id: string; ozet: KarneOzet | null }[]) {
+    if (!oncekiOzetMap.has(o.user_id)) oncekiOzetMap.set(o.user_id, o.ozet);
+  }
+
   let gonderilen = 0;
   const dryOrnekler: Record<string, Karne | null> = {};
 
@@ -315,9 +175,14 @@ export async function GET(req: NextRequest) {
 
     if (!karne) continue;
 
+    const yeniOzet: KarneOzet = {
+      riskSkor: karne.riskSkor === null ? null : Math.round(karne.riskSkor),
+      haftalikGetiri: karne.haftalikGetiri,
+      toplamDeger: karne.toplamDeger,
+    };
     const { data: claimed } = await supabase
       .from("karne_gonderim")
-      .insert({ user_id: userId, hafta_baslangic: hafta })
+      .insert({ user_id: userId, hafta_baslangic: hafta, ozet: yeniOzet })
       .select("id");
     if (!claimed?.length) continue;
 
@@ -338,7 +203,7 @@ export async function GET(req: NextRequest) {
           from: "ParaKonuşur <hello@parakonusur.com>",
           to: email,
           subject: "📊 Haftalık Portföy Karnen",
-          html: karneEpostaHtml(karne),
+          html: karneEpostaHtml(karne, oncekiOzetMap.get(userId) ?? null),
         });
       } catch (e) {
         hataYakala("karne-cron:eposta", e, { userId });

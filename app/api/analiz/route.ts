@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { BIST_HISSELER } from "@/lib/bist-hisseler";
-import { fetchMarketQuote } from "@/lib/market-pricing";
+import { getHisseVerisi } from "@/lib/hisse-veri";
 import { normalizeTicker } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
 import { rateLimitHit } from "@/lib/rate-limit";
@@ -14,49 +13,6 @@ const supabaseAuth = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-function titleCaseTr(value: string) {
-  return value
-    .toLocaleLowerCase("tr-TR")
-    .split(" ")
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1))
-    .join(" ");
-}
-
-function displayCompanyName(raw: string) {
-  return titleCaseTr(raw)
-    .replace(/\s+T\.a\.ş\.$/i, "")
-    .replace(/\s+T\.a\.o\.$/i, "")
-    .replace(/\s+A\.ş\.$/i, "")
-    .replace(/\s+A\.o\.$/i, "")
-    .replace(/\s+Anonim Şirketi$/i, "")
-    .replace(/\s+Anonim Ortaklığı$/i, "")
-    .trim();
-}
-
-async function getHisseVerisi(ticker: string) {
-  try {
-    const quote = await fetchMarketQuote(ticker, { cache: "no-store" });
-    if (!quote) return null;
-    const localCompany = BIST_HISSELER.find((h) => h.ticker === ticker);
-    const companyName = localCompany?.fullName || localCompany?.ad || ticker;
-    return {
-      fiyat: quote.fiyat,
-      oncekiKapanis: quote.oncekiKapanis,
-      degisimYuzde: quote.degisimYuzde,
-      hacim: quote.hacim ?? 0,
-      yillikYuksek: quote.yillikYuksek,
-      yillikDusuk: quote.yillikDusuk,
-      gunlukYuksek: quote.gunlukYuksek,
-      gunlukDusuk: quote.gunlukDusuk,
-      sirketAdi: displayCompanyName(companyName),
-      domain: localCompany?.domain,
-    };
-  } catch {
-    return null;
-  }
-}
 
 const RATE_LIMIT = 10;
 const RATE_WINDOW_SANIYE = 3600;
