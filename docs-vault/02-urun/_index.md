@@ -11,6 +11,9 @@ Yeni bir özellik veya endpoint yazmadan **önce** ilgili spec buraya yazılır.
 - Fiyatlandırma / paket tanımları
 - SPK uyumlu dil kuralları (özellik bazında)
 
+## Spec'ler
+- [[kiymetli-madenler-plan]] — Kıymetli madenler modülü uygulama planı (15 Tem 2026, ONAY BEKLİYOR)
+
 ## İlgili
 - Strateji ve öncelik sırası için → [[01-strateji]]
 - Alınan mimari kararlar için → [[03-kararlar]]

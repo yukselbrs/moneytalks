@@ -23,6 +23,7 @@ Her karar tek dosya:
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
 ### Analiz / bağlam
+- [[hisse-sistemi-mimarisi]] — hisse sisteminin uçtan uca haritası (maden modülü tabanı, 15 Tem)
 - [[handoff-v9-fark-analizi]] — v9 (4 Mayıs) ↔ 4 Temmuz kod farkı (arşiv)
 - [[kap-tercumani-supabase-semasi]] — KAP Tercümanı 3 tablosu, RLS ve idempotency
 - [[vault-bakim-2026-07]] — Faz 3 vault bakımı kaydı (13 Temmuz)
