@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LS } from "@/lib/storage-keys";
 
-type PiyasaKey = "xu100" | "xu030" | "usd" | "eur";
+type PiyasaKey = "xu100" | "xu030" | "usd" | "eur" | "gram";
 type PiyasaYon = "up" | "down";
 
 type PiyasaItem = {
@@ -28,6 +28,7 @@ const EMPTY_PIYASA: Record<PiyasaKey, PiyasaItem> = {
   eur: { value: "-", change: "-" },
   xu100: { value: "-", change: "-" },
   xu030: { value: "-", change: "-" },
+  gram: { value: "-", change: "-" },
 };
 
 function parsePiyasaDeger(value: string) {
@@ -52,7 +53,7 @@ export function useDashboardMarket(enabled = true) {
   const [topMovers, setTopMovers] = useState<TopMovers | null>(null);
   const [error, setError] = useState<string | null>(null);
   const piyasaRef = useRef(piyasa);
-  const flashTimeoutRef = useRef<Record<PiyasaKey, ReturnType<typeof setTimeout> | null>>({ xu100: null, xu030: null, usd: null, eur: null });
+  const flashTimeoutRef = useRef<Record<PiyasaKey, ReturnType<typeof setTimeout> | null>>({ xu100: null, xu030: null, usd: null, eur: null, gram: null });
 
   useEffect(() => {
     if (!enabled) return;

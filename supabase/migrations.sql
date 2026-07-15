@@ -776,3 +776,35 @@ CREATE INDEX IF NOT EXISTS aksam_raporu_gonderim_user_gun_idx
 ALTER TABLE public.portfoy ADD COLUMN IF NOT EXISTS tur TEXT NOT NULL DEFAULT 'hisse';
 ALTER TABLE public.portfoy DROP CONSTRAINT IF EXISTS portfoy_tur_check;
 ALTER TABLE public.portfoy ADD CONSTRAINT portfoy_tur_check CHECK (tur IN ('hisse', 'fon'));
+
+-- ============================================================
+-- MADEN v1: maden_snapshots — kiymetli maden fiyat cache'i
+-- Kaynak: Yahoo futures (USD/ons) + USDTRY ile gram TL turetme.
+-- hisse_snapshots deseni: herkes SELECT, yazma yalniz service role (cron).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.maden_snapshots (
+  kod TEXT PRIMARY KEY,
+  ad TEXT NOT NULL,
+  birim TEXT NOT NULL,
+  para_birimi TEXT NOT NULL,
+  fiyat NUMERIC,
+  degisim_yuzde NUMERIC,
+  gunluk_yuksek NUMERIC,
+  gunluk_dusuk NUMERIC,
+  getiri_1h NUMERIC,
+  getiri_1a NUMERIC,
+  getiri_3a NUMERIC,
+  getiri_1y NUMERIC,
+  kaynak TEXT,
+  usdtry_kur NUMERIC,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.maden_snapshots ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS maden_snapshots_select_all ON public.maden_snapshots;
+CREATE POLICY maden_snapshots_select_all ON public.maden_snapshots
+  FOR SELECT TO anon, authenticated USING (true);
+
+-- portfoy.tur uc varlik sinifina genisler (fon UI'si ve maden UI'si ayri iste baglanacak)
+ALTER TABLE public.portfoy DROP CONSTRAINT IF EXISTS portfoy_tur_check;
+ALTER TABLE public.portfoy ADD CONSTRAINT portfoy_tur_check CHECK (tur IN ('hisse', 'fon', 'maden'));

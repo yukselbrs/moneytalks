@@ -22,6 +22,9 @@ Her karar tek dosya:
 ### Aktif kısıtlar
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
+### Uygulama kayıtları
+- [[maden-v1-uygulama]] — Kıymetli madenler v1 (15 Tem 2026)
+
 ### Analiz / bağlam
 - [[hisse-sistemi-mimarisi]] — hisse sisteminin uçtan uca haritası (maden modülü tabanı, 15 Tem)
 - [[handoff-v9-fark-analizi]] — v9 (4 Mayıs) ↔ 4 Temmuz kod farkı (arşiv)

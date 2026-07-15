@@ -1,6 +1,6 @@
 "use client";
 
-type PiyasaKey = "xu100" | "xu030" | "usd" | "eur";
+type PiyasaKey = "xu100" | "xu030" | "usd" | "eur" | "gram";
 type PiyasaYon = "up" | "down";
 
 type PiyasaItem = {
@@ -41,6 +41,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
           { key: "xu030" as const, label: "XU030", val: piyasa.xu030.value, change: piyasa.xu030.change, up: !piyasa.xu030.change.startsWith("%-") && piyasa.xu030.change !== "-", gecikme: true },
           { key: "usd" as const, label: "USD/TRY", val: piyasa.usd.value, change: piyasa.usd.change, up: !piyasa.usd.change.startsWith("%-") && piyasa.usd.change !== "-" },
           { key: "eur" as const, label: "EUR/TRY", val: piyasa.eur.value, change: piyasa.eur.change, up: !piyasa.eur.change.startsWith("%-") && piyasa.eur.change !== "-" },
+          { key: "gram" as const, label: "GRAM ALTIN", val: piyasa.gram?.value ?? "-", change: piyasa.gram?.change ?? "-", up: !(piyasa.gram?.change ?? "-").startsWith("%-") && (piyasa.gram?.change ?? "-") !== "-", gecikme: true },
         ].map((e) => {
           const color = e.up ? "#10B981" : "#EF4444";
           const cardFlash = flash[e.key];

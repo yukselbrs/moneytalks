@@ -1,0 +1,7 @@
+[
+  { "kod": "gram-altin", "ad": "Gram Altın", "birim": "gram", "paraBirimi": "TRY", "yahooSembol": "GC=F", "turet": "gram" },
+  { "kod": "ons-altin", "ad": "Ons Altın", "birim": "ons", "paraBirimi": "USD", "yahooSembol": "GC=F", "turet": "ons" },
+  { "kod": "gram-gumus", "ad": "Gram Gümüş", "birim": "gram", "paraBirimi": "TRY", "yahooSembol": "SI=F", "turet": "gram" },
+  { "kod": "ons-gumus", "ad": "Ons Gümüş", "birim": "ons", "paraBirimi": "USD", "yahooSembol": "SI=F", "turet": "ons" },
+  { "kod": "ons-platin", "ad": "Ons Platin", "birim": "ons", "paraBirimi": "USD", "yahooSembol": "PL=F", "turet": "ons" }
+]

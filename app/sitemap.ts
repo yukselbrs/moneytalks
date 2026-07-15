@@ -1,8 +1,25 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import bistHisseler from "@/data/bist-companies.json";
+import { MADENLER } from "@/lib/maden-pricing";
 
 type BistEntry = { ticker: string };
+
+async function fonUrls(base: string): Promise<MetadataRoute.Sitemap> {
+  try {
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    const { data, error } = await supabase.from("fon_snapshots").select("kod").limit(2000);
+    if (error || !data) return [];
+    return data.map(f => ({
+      url: `${base}/fon/${f.kod}`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.6,
+    }));
+  } catch {
+    return [];
+  }
+}
 
 async function kapBildirimUrls(base: string): Promise<MetadataRoute.Sitemap> {
   try {
@@ -31,6 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: base, priority: 1.0 },
     { url: `${base}/dashboard`, priority: 0.9 },
     { url: `${base}/hisseler`, priority: 0.9 },
+    { url: `${base}/maden`, priority: 0.9 },
     { url: `${base}/kap`, priority: 0.9 },
     { url: `${base}/analizler`, priority: 0.8 },
     { url: `${base}/portfoy`, priority: 0.8 },
@@ -60,7 +78,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const kap = await kapBildirimUrls(base);
+  const madenler: MetadataRoute.Sitemap = MADENLER.map(m => ({
+    url: `${base}/maden/${m.kod}`,
+    lastModified: new Date(),
+    changeFrequency: "daily" as const,
+    priority: 0.8,
+  }));
 
-  return [...statik, ...hisseler, ...kap];
+  const [kap, fonlar] = await Promise.all([kapBildirimUrls(base), fonUrls(base)]);
+
+  return [...statik, ...hisseler, ...madenler, ...fonlar, ...kap];
 }

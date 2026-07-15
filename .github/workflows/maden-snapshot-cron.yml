@@ -1,0 +1,30 @@
+name: Maden Snapshot Cron
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  maden-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Kiymetli maden snapshot
+        run: |
+          body=$(curl -s -w "\n%{http_code}" \
+            -X GET "https://www.parakonusur.com/api/cron/maden-snapshot" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 90)
+          status=$(echo "$body" | tail -n1)
+          json=$(echo "$body" | sed '$d')
+          echo "HTTP Status: $status"
+          echo "Yanit: $json"
+          if [ "$status" != "200" ]; then
+            echo "HTTP hatasi: $status"
+            exit 1
+          fi
+          if echo "$json" | grep -qE '"hata":\s*[1-9]'; then
+            echo "Cron yaniti hata bildirdi (hata sayaci > 0)"
+            exit 1
+          fi
