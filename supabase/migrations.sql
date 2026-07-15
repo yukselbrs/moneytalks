@@ -749,3 +749,30 @@ FOR SELECT TO authenticated USING (auth.uid() = user_id);
 -- FAZ4 GOREV 18: karne_gonderim.ozet — onceki hafta karsilastirmasi (delta) icin
 -- son gonderilen karnenin sayisal ozeti saklanir (riskSkor, haftalikGetiri, toplamDeger).
 ALTER TABLE public.karne_gonderim ADD COLUMN IF NOT EXISTS ozet JSONB;
+
+-- ============================================================
+-- FAZ4 GOREV 20: Aksam Raporu gonderim kaydi (gunluk idempotency)
+-- Her kullaniciya islem gunu basina EN FAZLA BIR aksam raporu.
+-- kap_bildirim_gonderim / karne_gonderim insert-then-check deseniyle ayni.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.aksam_raporu_gonderim (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  gun DATE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT aksam_raporu_gonderim_unique UNIQUE (user_id, gun)
+);
+
+ALTER TABLE public.aksam_raporu_gonderim ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS aksam_raporu_select_own ON public.aksam_raporu_gonderim;
+CREATE POLICY aksam_raporu_select_own ON public.aksam_raporu_gonderim
+  FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS aksam_raporu_gonderim_user_gun_idx
+  ON public.aksam_raporu_gonderim (user_id, gun DESC);
+
+-- FAZ4 GOREV 21 (C.4 hazirlik): portfoy.tur — hisse/fon pozisyon ayrimi.
+-- UI ve karne fon satiri sonraki oturumda; kolon geriye uyumlu (default hisse).
+ALTER TABLE public.portfoy ADD COLUMN IF NOT EXISTS tur TEXT NOT NULL DEFAULT 'hisse';
+ALTER TABLE public.portfoy DROP CONSTRAINT IF EXISTS portfoy_tur_check;
+ALTER TABLE public.portfoy ADD CONSTRAINT portfoy_tur_check CHECK (tur IN ('hisse', 'fon'));

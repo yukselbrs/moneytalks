@@ -65,3 +65,7 @@ Amaç: Portföy Haftalık Karnesi e-postası idempotency. Cron `app/api/cron/haf
 
 ## Auth pattern (referans)
 - Client: `getSession()` → Bearer token. API: `getUser(token)`. Service role key asla client-side.
+
+## portfoy.tur kolonu (2026-07-15, Faz 4)
+- `tur TEXT NOT NULL DEFAULT 'hisse' CHECK (tur IN ('hisse','fon'))` — fon pozisyonlari ayni tabloda (`ticker`=fon kodu, `maliyet`=pay fiyati). Ayri tablo ACILMADI: tek portfoy gorunumu + mevcut own_all RLS yeniden kullanilir. Yeni tur eklerken CHECK'i DROP/ADD blogunda guncelle (idempotent desen).
+- `aksam_raporu_gonderim (user_id, gun) UNIQUE` — gunluk rapor idempotency; karne_gonderim deseninin birebir kopyasi.
