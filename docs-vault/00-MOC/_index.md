@@ -12,7 +12,8 @@ Vault'un giriş noktası. Tüm klasörlere ve önemli notlara buradan bağlantı
 
 ## Güncel giriş noktaları
 - **Son denetim + yol haritası:** [[2026-07-tam-audit]] (13 Temmuz 2026 — Faz 3: fonksiyonel bulgular, özellik yükseltmeleri, 5 yeni fikir; Faz 4 onay bekliyor)
-- **Son durum / handoff:** [[parakonusur_handoff_v10]] (6 Temmuz 2026 — Track 1 tamamlandı, production'da)
+- **Son durum / handoff:** [[parakonusur_handoff_v12]] (15 Temmuz 2026 — Faz 4 Dalga 1-4 tamamlandı)
+- Önceki: [[parakonusur_handoff_v10]] (Track 1)
 - **Faz 1 analizi:** [[2026-07-analiz-raporu]] (pazar, rakip, UX, teknik, finansal kalite)
 - **Ürün fikirleri:** [[brainstorm-2026-07]] (5 fikir; güncellenmiş hali tam-audit Bölüm C)
 - **Track 1 kararları:** [[03-kararlar]] içinde `track1-gorev*` notları
