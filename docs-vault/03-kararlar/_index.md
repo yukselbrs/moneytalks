@@ -19,6 +19,9 @@ Her karar tek dosya:
 
 ## Kayıtlı kararlar
 
+### Aktif kısıtlar
+- ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
+
 ### Analiz / bağlam
 - [[handoff-v9-fark-analizi]] — v9 (4 Mayıs) ↔ 4 Temmuz kod farkı (arşiv)
 - [[kap-tercumani-supabase-semasi]] — KAP Tercümanı 3 tablosu, RLS ve idempotency

@@ -4,6 +4,8 @@
 **Önceki:** [[parakonusur_handoff_v10]] (Track 1) · Faz 3 denetimi: [[2026-07-tam-audit]]
 **Durum:** Faz 4 Dalga 1-4 tamamlandı (`fable-faz4` → main); Dalga 5 + web push bilinçli ertelendi.
 
+> ⛔ **DONDURULMUŞ — alarm cron ve alarmlarla ilgili HER ŞEY ikinci bir emre kadar ertelendi** (15 Temmuz 2026, kullanıcı direktifi). `app/api/cron/alarmlar`, `alarm-cron.yml`, alarm tetikleme/bildirim/UX — dokunma, yeni özellik önerme. Bkz. [[faz4-alarm-cron-donduruldu]].
+
 ---
 
 ## TL;DR
