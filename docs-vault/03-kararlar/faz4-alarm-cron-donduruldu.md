@@ -1,4 +1,6 @@
-# Alarm Cron ve İlgili İşler — DONDURULDU
+# Alarm Cron ve İlgili İşler — DONDURULDU (16 Tem: KALKTI)
+
+> ✅ **GÜNCELLEME 16 Temmuz 2026:** Kullanıcı "alarm cron çalışmıyor tespit edip çöz" diyerek dondurmayı KALDIRDI. Teşhis+fix: [[alarm-cron-fix-2026-07-16]]. Bu not artık tarihsel.
 
 **Tarih:** 15 Temmuz 2026 · **Durum:** Aktif kısıt (ikinci bir emre kadar)
 

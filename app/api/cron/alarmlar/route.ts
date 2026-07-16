@@ -32,9 +32,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // NOT: embedded join (profiles(email)) production'da FK olmadigi icin PGRST200 veriyordu;
+  // e-posta ayri sorguyla cekiliyor (karne/aksam-raporu cron'lariyla ayni desen).
   const { data: alarmlar, error } = await supabase
     .from("alarmlar")
-    .select("*, profiles(email)")
+    .select("*")
     .eq("durum", "aktif");
 
   if (error) {
@@ -42,6 +44,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ checked: 0, hata: 1 });
   }
   if (!alarmlar?.length) return NextResponse.json({ checked: 0, hata: 0 });
+
+  const kullaniciIdleri = [...new Set(alarmlar.map((a: { user_id: string }) => a.user_id))];
+  const { data: profiller } = await supabase.from("profiles").select("id, email").in("id", kullaniciIdleri);
+  const emailMap = new Map((profiller || []).map((p: { id: string; email: string | null }) => [p.id, p.email]));
 
   const tickerler = [...new Set(alarmlar.map((a: { ticker: string }) => a.ticker))];
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://parakonusur.com";
@@ -130,7 +136,7 @@ export async function GET(req: NextRequest) {
         okundu: false,
       });
 
-      const email = (alarm.profiles as { email?: string })?.email;
+      const email = emailMap.get(alarm.user_id);
       if (email && process.env.RESEND_API_KEY) {
         try {
         await getResend().emails.send({
