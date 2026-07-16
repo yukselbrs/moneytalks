@@ -1,9 +1,11 @@
 import madenlerJson from "@/data/madenler.json";
 import { gunlukGetiriler, ortalama, stdDev, rsiHesapla, periyodikGetiri } from "@/lib/risk-hesaplari";
 
-// Kiymetli maden fiyatlama cekirdegi (Faz: maden v1).
+// Kiymetli maden fiyatlama cekirdegi.
 // Kaynak: Yahoo futures (GC=F, SI=F, PL=F) USD/ons + USDTRY=X ile gram TL turetme.
 // gram = ons / 31.1035 (troy ons). Fiziki TR piyasasindan sapabilir — UI'da "spot/turetilmis" etiketi zorunlu.
+// ONEMLI: Metal (COMEX) ve kur (FX) serileri FARKLI islem gunlerine sahip (252 vs 261 bar);
+// bu yuzden kur, tarih (timestamp) bazinda hizalanir — kuyruk-slice ile DEGIL (getiri kaymasi olurdu).
 
 export const TROY_ONS_GRAM = 31.1035;
 
@@ -37,8 +39,8 @@ export type MadenSnapshot = {
 };
 
 type YahooChart = {
-  meta: { regularMarketPrice?: number; chartPreviousClose?: number; previousClose?: number; regularMarketDayHigh?: number; regularMarketDayLow?: number };
-  timestamp?: number[];
+  meta: { regularMarketPrice?: number; regularMarketDayHigh?: number; regularMarketDayLow?: number };
+  timestamp: number[];
   closes: (number | null)[];
 };
 
@@ -49,64 +51,76 @@ async function fetchChart(sembol: string, range: string, interval: string): Prom
     if (!res.ok) return null;
     const result = (await res.json())?.chart?.result?.[0];
     if (!result?.meta) return null;
-    return {
-      meta: result.meta,
-      timestamp: result.timestamp || [],
-      closes: result.indicators?.quote?.[0]?.close || [],
-    };
+    return { meta: result.meta, timestamp: result.timestamp || [], closes: result.indicators?.quote?.[0]?.close || [] };
   } catch {
     return null;
   }
 }
 
-function sonGecerli(closes: (number | null)[]): number[] {
-  return closes.filter((c): c is number => c !== null && c > 0);
+// Her metal timestamp'i icin, o tarihte veya oncesindeki son gecerli kur kapanisi.
+function kurAt(metalTs: number, kurTs: number[], kurCloses: (number | null)[]): number | null {
+  let bulunan: number | null = null;
+  for (let j = 0; j < kurTs.length; j++) {
+    if (kurTs[j] > metalTs) break;
+    if (kurCloses[j] !== null && kurCloses[j]! > 0) bulunan = kurCloses[j];
+  }
+  return bulunan;
 }
 
-// Tum madenlerin guncel snapshot'larini tek seferde uretir (cron kullanir).
+// Metal ons serisini, tarih-hizali kur ile TL gram serisine cevirir (null bar'lari atlar).
+function tlSeriHizala(metal: YahooChart, kur: YahooChart): number[] {
+  const seri: number[] = [];
+  for (let i = 0; i < metal.timestamp.length; i++) {
+    const mc = metal.closes[i];
+    if (mc === null || mc === undefined || mc <= 0) continue;
+    const k = kurAt(metal.timestamp[i], kur.timestamp, kur.closes);
+    if (!k) continue;
+    seri.push((mc / TROY_ONS_GRAM) * k);
+  }
+  return seri;
+}
+
+function onsSeri(metal: YahooChart): number[] {
+  return metal.closes.filter((c): c is number => c !== null && c > 0);
+}
+
 export async function madenSnapshotlariUret(): Promise<{ satirlar: MadenSnapshot[]; hata: number }> {
   let hata = 0;
   const semboller = [...new Set(MADENLER.map(m => m.yahooSembol))];
-  const [kurChart, ...madenChartlar] = await Promise.all([
+  const [kurChart, ...metalChartlar] = await Promise.all([
     fetchChart("USDTRY=X", "1y", "1d"),
     ...semboller.map(s => fetchChart(s, "1y", "1d")),
   ]);
-  const chartMap = new Map(semboller.map((s, i) => [s, madenChartlar[i]]));
-
-  const kur = kurChart?.meta.regularMarketPrice ?? null;
-  const kurKapanislar = kurChart ? sonGecerli(kurChart.closes) : [];
-  if (!kur) hata++;
+  const chartMap = new Map(semboller.map((s, i) => [s, metalChartlar[i]]));
+  const kurNow = kurChart?.meta.regularMarketPrice ?? null;
+  if (!kurNow) hata++;
 
   const satirlar: MadenSnapshot[] = [];
   for (const m of MADENLER) {
     const chart = chartMap.get(m.yahooSembol);
     if (!chart?.meta.regularMarketPrice) { hata++; continue; }
-    const onsFiyat = chart.meta.regularMarketPrice;
-    const prev = chart.meta.chartPreviousClose ?? chart.meta.previousClose ?? null;
-    const kapanislar = sonGecerli(chart.closes);
+    const onsNow = chart.meta.regularMarketPrice;
 
-    const gramla = (v: number | null): number | null => {
-      if (v === null) return null;
-      if (m.turet === "ons") return v;
-      if (!kur) return null;
-      return (v / TROY_ONS_GRAM) * kur;
+    const gramla = (ons: number | null): number | null => {
+      if (ons === null) return null;
+      if (m.turet === "ons") return ons;
+      return kurNow ? (ons / TROY_ONS_GRAM) * kurNow : null;
     };
 
-    // Getiri: ons serisinden hesaplanir; gram enstrumanlarda kur serisiyle carpilmis TL serisi kullanilir
-    // (ayni uzunlukta kuyruk hizalama — gun bazinda kaba ama tutarli).
-    let seri = kapanislar;
-    if (m.turet === "gram" && kurKapanislar.length) {
-      const n = Math.min(kapanislar.length, kurKapanislar.length);
-      seri = kapanislar.slice(-n).map((v, i) => (v / TROY_ONS_GRAM) * kurKapanislar[kurKapanislar.length - n + i]);
-    }
+    // Seri: gram enstrumanda tarih-hizali TL, ons enstrumanda USD.
+    const seri = m.turet === "gram" && kurChart ? tlSeriHizala(chart, kurChart) : onsSeri(chart);
+    const current = gramla(onsNow);
+    // Gunluk degisim: serinin son gecerli kapanisi vs current (canli). chartPreviousClose 1y'de yanlis (1 yil oncesi).
+    const oncekiKapanis = seri.length >= 2 ? seri[seri.length - 2] : null;
+    const degisim = oncekiKapanis && current ? ((current - oncekiKapanis) / oncekiKapanis) * 100 : null;
 
     satirlar.push({
       kod: m.kod,
       ad: m.ad,
       birim: m.birim,
       para_birimi: m.paraBirimi,
-      fiyat: gramla(onsFiyat),
-      degisim_yuzde: prev && onsFiyat ? ((onsFiyat - prev) / prev) * 100 : null, // yuzde ons bazinda; gramda kur etkisi ayrica var, v1 sadelestirmesi
+      fiyat: current,
+      degisim_yuzde: degisim,
       gunluk_yuksek: gramla(chart.meta.regularMarketDayHigh ?? null),
       gunluk_dusuk: gramla(chart.meta.regularMarketDayLow ?? null),
       getiri_1h: periyodikGetiri(seri, 5),
@@ -114,13 +128,13 @@ export async function madenSnapshotlariUret(): Promise<{ satirlar: MadenSnapshot
       getiri_3a: periyodikGetiri(seri, 63),
       getiri_1y: seri.length > 200 ? periyodikGetiri(seri, seri.length - 1) : null,
       kaynak: m.turet === "gram" ? "yahoo-turetilmis" : "yahoo",
-      usdtry_kur: m.turet === "gram" ? kur : null,
+      usdtry_kur: m.turet === "gram" ? kurNow : null,
     });
   }
   return { satirlar, hata };
 }
 
-// Detay sayfasi grafigi: {tarih, fiyat}[] — HisseGrafik bileseninin bekledigi sekil.
+// Detay sayfasi grafigi: {tarih, fiyat}[] — HisseGrafik bileseninin bekledigi sekil (tarih-hizali kur).
 export async function madenGrafik(kod: string, range: string): Promise<{ tarih: string; fiyat: number }[]> {
   const m = MADENLER.find(x => x.kod === kod);
   if (!m) return [];
@@ -130,7 +144,6 @@ export async function madenGrafik(kod: string, range: string): Promise<{ tarih: 
     m.turet === "gram" ? fetchChart("USDTRY=X", range, interval) : Promise.resolve(null),
   ]);
   if (!chart?.timestamp?.length) return [];
-  const kurGuncel = kurChart?.meta.regularMarketPrice ?? null;
 
   const fmt = (t: number) => {
     const d = new Date(t * 1000);
@@ -139,18 +152,17 @@ export async function madenGrafik(kod: string, range: string): Promise<{ tarih: 
     return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });
   };
 
-  const kurCloses = kurChart?.closes || [];
   const points: { tarih: string; fiyat: number }[] = [];
   for (let i = 0; i < chart.timestamp.length; i++) {
     const c = chart.closes[i];
     if (c === null || c === undefined || c <= 0) continue;
     let fiyat = c;
     if (m.turet === "gram") {
-      const kurNokta = (kurCloses[i] ?? null) || kurGuncel;
-      if (!kurNokta) continue;
-      fiyat = (c / TROY_ONS_GRAM) * kurNokta;
+      const k = kurChart ? kurAt(chart.timestamp[i], kurChart.timestamp, kurChart.closes) : null;
+      if (!k) continue;
+      fiyat = (c / TROY_ONS_GRAM) * k;
     }
-    points.push({ tarih: fmt(chart.timestamp[i]), fiyat: parseFloat(fiyat.toFixed(m.turet === "gram" ? 2 : 2)) });
+    points.push({ tarih: fmt(chart.timestamp[i]), fiyat: parseFloat(fiyat.toFixed(2)) });
   }
   return points;
 }
@@ -158,7 +170,7 @@ export async function madenGrafik(kod: string, range: string): Promise<{ tarih: 
 // Oynaklik profili icin 1 yillik ons (USD) kapanis serisi — kur oynakligi karistirilmaz.
 export async function fetchOnsSerisi(yahooSembol: string): Promise<number[]> {
   const chart = await fetchChart(yahooSembol, "1y", "1d");
-  return chart ? sonGecerli(chart.closes) : [];
+  return chart ? onsSeri(chart) : [];
 }
 
 // Detay sayfasi "oynaklik profili" — hisse risk motorunun madene uyan alt kumesi (beta/F-K/hacim YOK).

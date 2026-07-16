@@ -25,3 +25,10 @@
 
 ## Doğrulama (canlı, 15 Tem)
 tsc + 21 test + build yeşil (5 yeni route derlendi). /maden hub 5 kart + boş-durum notu; /maden/gram-altin grafiği gerçek türetilmiş seriyle çizdi (aylık −%4,61); dashboard gram kartı 6.146,16₺/%-0,11; olmayan kod 404.
+
+## v1.1 düzeltmeleri (16 Temmuz 2026)
+- **Günlük değişim bug'ı (kullanıcı bildirdi):** `chartPreviousClose` 1y range'de 1 yıl önceki kapanışı verdiği için günlük değişim +%22 gibi çıkıyordu. Düzeltme: günlük değişim artık serinin son iki kapanışından (`seri[len-2]` vs canlı fiyat). Doğrulandı: Gram Altın +%0,15.
+- **Kur hizalama:** metal (COMEX 252 bar) ve USDTRY (FX 261 bar) farklı işlem günlerine sahip; kuyruk-slice yerine **timestamp bazlı hizalama** (`kurAt`/`tlSeriHizala`) — getiri kayması giderildi. getiri_1a manuel doğrulandı (−1,86% = API).
+- **Hub hisseler tablo yapısına çevrildi:** `/maden` artık client-fetch tablo (Maden | Fiyat | 1G | 1H | 1A | 3A | 1Y), 30 sn poll — ISR staleness ("—") sorunu çözüldü. SEO metadata `app/maden/layout.tsx`'e taşındı.
+- **Nav:** "Madenler" → "Kıymetli Madenler".
+- **NOT:** prod cron eski kodla ortak `maden_snapshots` tablosunu +%20 ile tekrar bozuyordu; bu commit deploy olunca */15 cron doğru değeri yazar.
