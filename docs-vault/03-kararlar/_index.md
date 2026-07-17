@@ -23,6 +23,7 @@ Her karar tek dosya:
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
 ### Uygulama kayıtları
+- [[viop-nedir-uygulama]] — VİOP eğitim hikayesi (aşama 1-2 ✓, 3-6 bekliyor)
 - [[maden-v1-uygulama]] — Kıymetli madenler v1 (15 Tem 2026)
 
 ### Analiz / bağlam
