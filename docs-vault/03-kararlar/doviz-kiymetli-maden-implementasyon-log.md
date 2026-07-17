@@ -17,11 +17,11 @@ Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki *
 - [x] Birincil + ikincil (fallback) kararı ve gerekçesi (K6)
 
 ### FAZ 3 — Şema
-- [ ] `enstruman_snapshots` (ortak döviz+maden) migration
-- [ ] `enstruman_fiyat_gecmisi` (günlük kapanış, 400 gün saklama)
-- [ ] `enstruman_analiz_cache` (AI analiz 15 dk server cache)
-- [ ] `alarmlar.tur` + `portfoy.tur`'a 'doviz' genişletmesi
-- [ ] Migration SQL hazır → Barış SQL Editor'de çalıştıracak (manuel adım!)
+- [x] `enstruman_snapshots` (ortak döviz+maden) migration
+- [x] `enstruman_fiyat_gecmisi` (günlük kapanış, 400 gün saklama)
+- [x] `enstruman_analiz_cache` (AI analiz 15 dk server cache)
+- [x] `alarmlar.tur` + `portfoy.tur`'a 'doviz' genişletmesi
+- [ ] Migration SQL hazır → **Barış SQL Editor'de çalıştıracak (manuel adım — deploy'dan bağımsız, ne kadar erken o kadar iyi)**
 
 ### FAZ 4 — İsimlendirme + sayfa
 - [ ] `data/doviz-ciftleri.json` + ortak fiyatlama lib'i
@@ -116,8 +116,10 @@ Kur fiyatları: <10 → 4 ondalık (EUR/USD 1,0842), <100 → 3, ≥100 → 2 (U
 
 **17 Tem 2026** — Görev başladı. FAZ 1 keşif tamamlandı (bulgular yukarıda), K1-K5 kararları verildi. FAZ 2 canlı API testleri yapıldı: 9 çift Yahoo'da doğru yönde ✓, Stooq elendi (anti-bot), Frankfurter döviz ikincili seçildi (K6). Sıra FAZ 3 şemada.
 
+**18 Tem 2026 (aynı oturum devamı)** — FAZ 3: migration bloğu `supabase/migrations.sql` sonuna eklendi (enstruman_snapshots + fiyat_gecmisi + analiz_cache + alarmlar.tur + portfoy 'doviz'). Lokal ortamda psql/supabase CLI yok, DATABASE_URL yok → **çalıştırma Barış'ın SQL Editor adımı** (maden v1'deki akışın aynısı). Geçiş güvenliği kararı: yeni cron enstruman_snapshots'a yazarken maden kodları için maden_snapshots'a da ÇİFT-YAZAR; liste API'si dual-read yapar (önce yeni tablo, boşsa eski) — böylece migration gecikse bile maden tarafı bayatlamaz/kırılmaz. Çift-yazım + eski tablo DROP'u FAZ 8 borcuna yazıldı.
+
 ---
 
 ## ŞU AN NEREDEYİM
 
-FAZ 1 + FAZ 2 bitti (bulgular ve K1-K6 kararları bu dosyada). Sıradaki iş: FAZ 3 — `supabase/migrations.sql`'e `enstruman_snapshots` + `enstruman_fiyat_gecmisi` + `enstruman_analiz_cache` tabloları, `alarmlar.tur` kolonu ve `portfoy_tur_check`'e 'doviz' eklemesi yazılacak (K5 tasarımı). Migration'ı Barış SQL Editor'de manuel çalıştıracak — kod tarafı dual-read köprüsüyle migration öncesi de kırılmayacak. Henüz kod dosyasına dokunulmadı.
+FAZ 1-3 bitti (K1-K6 kararları + migration SQL hazır; Barış'ın SQL Editor adımı bekliyor ama kod ilerleyebilir). Sıradaki iş: FAZ 4 kod — `data/doviz-ciftleri.json` (9 çift, K2 yönleri), `lib/enstruman-pricing.ts` (maden-pricing.ts'in halefi: 15 enstrüman snapshot + 6A getiri + Frankfurter/query2 fallback + çift-yazım), yeni cron endpoint'i, `/doviz-maden` hub + `/doviz-maden/[kod]` detay, redirect'ler, nav (index 5 label/href — index SABİT). Sonra FAZ 5 ikonlar.

@@ -808,3 +808,67 @@ CREATE POLICY maden_snapshots_select_all ON public.maden_snapshots
 -- portfoy.tur uc varlik sinifina genisler (fon UI'si ve maden UI'si ayri iste baglanacak)
 ALTER TABLE public.portfoy DROP CONSTRAINT IF EXISTS portfoy_tur_check;
 ALTER TABLE public.portfoy ADD CONSTRAINT portfoy_tur_check CHECK (tur IN ('hisse', 'fon', 'maden'));
+
+-- ============================================================
+-- DOVIZ+MADEN v1 (17 Tem 2026): enstruman_snapshots — doviz + kiymetli maden ORTAK fiyat cache'i.
+-- maden_snapshots'in halefi: cron artik buraya yazar, maden_snapshots deprecate (DROP ileride, FAZ 8 borcu).
+-- hisse_snapshots deseni: herkes SELECT, yazma yalniz service role (cron).
+-- KAP/disclosure alanlari bilerek YOK (hisseden fark).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.enstruman_snapshots (
+  kod TEXT PRIMARY KEY,
+  tur TEXT NOT NULL CHECK (tur IN ('doviz', 'maden')),
+  ad TEXT NOT NULL,
+  birim TEXT,
+  para_birimi TEXT NOT NULL,
+  fiyat NUMERIC,
+  degisim_yuzde NUMERIC,
+  gunluk_yuksek NUMERIC,
+  gunluk_dusuk NUMERIC,
+  getiri_1h NUMERIC,
+  getiri_1a NUMERIC,
+  getiri_3a NUMERIC,
+  getiri_6a NUMERIC,
+  getiri_1y NUMERIC,
+  kaynak TEXT,
+  usdtry_kur NUMERIC,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.enstruman_snapshots ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS enstruman_snapshots_select_all ON public.enstruman_snapshots;
+CREATE POLICY enstruman_snapshots_select_all ON public.enstruman_snapshots
+  FOR SELECT TO anon, authenticated USING (true);
+
+-- Gunluk kapanis arsivi: getiri hesaplarinin saglayici-bagimsiz yedegi.
+-- Cron her kosuda bugunun satirini upsert eder, 400 gunden eskiyi siler.
+-- Okuma-yazma yalniz service role (cron ici fallback hesabi) — policy bilerek yok.
+CREATE TABLE IF NOT EXISTS public.enstruman_fiyat_gecmisi (
+  kod TEXT NOT NULL,
+  tarih DATE NOT NULL,
+  fiyat NUMERIC NOT NULL,
+  PRIMARY KEY (kod, tarih)
+);
+
+ALTER TABLE public.enstruman_fiyat_gecmisi ENABLE ROW LEVEL SECURITY;
+
+-- AI analiz server-side cache: ayni enstruman icin 15 dk icinde tek Sonnet cagrisi
+-- (kullanicilar arasi paylasimli). Okuma-yazma yalniz service role — policy bilerek yok.
+CREATE TABLE IF NOT EXISTS public.enstruman_analiz_cache (
+  kod TEXT PRIMARY KEY,
+  analiz TEXT NOT NULL,
+  model TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.enstruman_analiz_cache ENABLE ROW LEVEL SECURITY;
+
+-- Alarm varlik ayrimi: ticker kolonu doviz/maden icin enstruman kodu tasir (usd-try, gram-altin).
+-- Isim portfoy.tur ile ayni tutuldu (ayni deger kumesi); alarmlar.tip alarm CESIDIDIR, karistirma.
+ALTER TABLE public.alarmlar ADD COLUMN IF NOT EXISTS tur TEXT NOT NULL DEFAULT 'hisse';
+ALTER TABLE public.alarmlar DROP CONSTRAINT IF EXISTS alarmlar_tur_check;
+ALTER TABLE public.alarmlar ADD CONSTRAINT alarmlar_tur_check CHECK (tur IN ('hisse', 'doviz', 'maden'));
+
+-- Portfoy doviz pozisyonlarina acilir (FAZ 7.5)
+ALTER TABLE public.portfoy DROP CONSTRAINT IF EXISTS portfoy_tur_check;
+ALTER TABLE public.portfoy ADD CONSTRAINT portfoy_tur_check CHECK (tur IN ('hisse', 'fon', 'maden', 'doviz'));
