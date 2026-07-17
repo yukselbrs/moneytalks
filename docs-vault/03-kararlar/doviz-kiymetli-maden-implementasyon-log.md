@@ -24,7 +24,11 @@ Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki *
 - [ ] Migration SQL hazır → **Barış SQL Editor'de çalıştıracak (manuel adım — deploy'dan bağımsız, ne kadar erken o kadar iyi)**
 
 ### FAZ 4 — İsimlendirme + sayfa
-- [ ] `data/doviz-ciftleri.json` + ortak fiyatlama lib'i
+- [x] `data/doviz-ciftleri.json` (9 çift, K2 yönleri) + `data/madenler.json`'a ons-paladyum
+- [x] `lib/enstruman-pricing.ts` — ortak fiyatlama (15 enstrüman, 6A getiri, query2 host yedeği, Frankfurter döviz fallback'i)
+- [x] `/api/cron/enstruman-snapshot` — çift-yazım köprüsü + fiyat geçmişi arşivi + 400 gün temizlik
+- [x] `/api/doviz-maden` + `/api/doviz-maden/[kod]` (dual-read köprülü)
+- [x] Workflow: maden-snapshot-cron.yml → enstruman-snapshot-cron.yml
 - [ ] `/doviz-maden` hub: kategori filtresi (Tümü/Döviz/Kıymetli Maden) + G/H/1A/3A/6A/1Y kolonları
 - [ ] Mobil: yatay scroll + sticky ilk kolon
 - [ ] `/doviz-maden/[kod]` detay sayfası
@@ -118,8 +122,10 @@ Kur fiyatları: <10 → 4 ondalık (EUR/USD 1,0842), <100 → 3, ≥100 → 2 (U
 
 **18 Tem 2026 (aynı oturum devamı)** — FAZ 3: migration bloğu `supabase/migrations.sql` sonuna eklendi (enstruman_snapshots + fiyat_gecmisi + analiz_cache + alarmlar.tur + portfoy 'doviz'). Lokal ortamda psql/supabase CLI yok, DATABASE_URL yok → **çalıştırma Barış'ın SQL Editor adımı** (maden v1'deki akışın aynısı). Geçiş güvenliği kararı: yeni cron enstruman_snapshots'a yazarken maden kodları için maden_snapshots'a da ÇİFT-YAZAR; liste API'si dual-read yapar (önce yeni tablo, boşsa eski) — böylece migration gecikse bile maden tarafı bayatlamaz/kırılmaz. Çift-yazım + eski tablo DROP'u FAZ 8 borcuna yazıldı.
 
+**18 Tem 2026 (devam)** — FAZ 4 Checkpoint A (backend) bitti: doviz-ciftleri.json + ons-paladyum, lib/enstruman-pricing.ts, cron endpoint (çift-yazım + arşiv), /api/doviz-maden liste+detay (dual-read), workflow yeniden adlandırıldı. tsc temiz. **Geçiş davranışı:** migration çalışana kadar yeni cron `hata:1` döner (enstruman upsert fail, legacy maden yazımı başarılı) → **Actions kırmızı görünür, bu BEKLENEN — Barış migration'ı çalıştırınca yeşile döner.** Eski maden dosyaları (lib/maden-pricing.ts, /api/madenler, /api/maden, /api/cron/maden-snapshot, app/maden/*) henüz SİLİNMEDİ — eski sayfa hâlâ onları kullanıyor; Checkpoint B'de yeni sayfa + redirect ile AYNI commit'te silinecek (her commit deploy edilebilir kuralı).
+
 ---
 
 ## ŞU AN NEREDEYİM
 
-FAZ 1-3 bitti (K1-K6 kararları + migration SQL hazır; Barış'ın SQL Editor adımı bekliyor ama kod ilerleyebilir). Sıradaki iş: FAZ 4 kod — `data/doviz-ciftleri.json` (9 çift, K2 yönleri), `lib/enstruman-pricing.ts` (maden-pricing.ts'in halefi: 15 enstrüman snapshot + 6A getiri + Frankfurter/query2 fallback + çift-yazım), yeni cron endpoint'i, `/doviz-maden` hub + `/doviz-maden/[kod]` detay, redirect'ler, nav (index 5 label/href — index SABİT). Sonra FAZ 5 ikonlar.
+FAZ 1-3 + FAZ 4 backend (Checkpoint A) bitti. Sıradaki iş — FAZ 4/5 Checkpoint B (frontend, tek commit): (1) `components/EnstrumanIkon.tsx` — TR/US/EU/GB/JP bayrak SVG'leri (kendi çizimimiz, lisans riski sıfır — K7) + kompozit çift ikonu + metal külçe ikonları; (2) `app/doviz-maden/page.tsx` hub — kategori filtresi (Tümü/Döviz/Kıymetli Maden), kolonlar Fiyat/1G/1H/1A/3A/6A/1Y, mobilde yatay scroll + sticky ilk kolon (fon tablosunun `overflow-x:auto` pattern'i + `position:sticky;left:0`); (3) `app/doviz-maden/[kod]` detay (maden detayının genişletilmişi); (4) next.config.ts redirect `/maden/:path*` → `/doviz-maden/:path*` permanent; (5) AppShell index 5 label/href (index SABİT, NAV_GROUPS'a dokunma); (6) sitemap güncelle; (7) eski maden dosyalarını sil. Sonra Checkpoint C: FAZ 7 AI analiz (claude-sonnet-5 + server cache); Checkpoint D: FAZ 7.5 alarm+portföy.

@@ -1,4 +1,4 @@
-name: Maden Snapshot Cron
+name: Enstruman Snapshot Cron
 
 on:
   schedule:
@@ -6,14 +6,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  maden-snapshot:
+  enstruman-snapshot:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Kiymetli maden snapshot
+      - name: Doviz + kiymetli maden snapshot
         run: |
           body=$(curl -s -w "\n%{http_code}" \
-            -X GET "https://www.parakonusur.com/api/cron/maden-snapshot" \
+            -X GET "https://www.parakonusur.com/api/cron/enstruman-snapshot" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             --max-time 90)
           status=$(echo "$body" | tail -n1)
