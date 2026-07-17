@@ -49,6 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/dashboard`, priority: 0.9 },
     { url: `${base}/hisseler`, priority: 0.9 },
     { url: `${base}/maden`, priority: 0.9 },
+    { url: `${base}/viop-nedir`, priority: 0.8 },
     { url: `${base}/kap`, priority: 0.9 },
     { url: `${base}/analizler`, priority: 0.8 },
     { url: `${base}/portfoy`, priority: 0.8 },

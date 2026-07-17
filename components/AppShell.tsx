@@ -22,6 +22,7 @@ const NAV_ITEMS = [
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/><line x1="7" y1="3.34" x2="4.22" y2="1.1"/><line x1="17" y1="3.34" x2="19.78" y2="1.1"/></svg>, label: "Alarmlar", href: "/alarmlar" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>, label: "Bildirimler", href: "/bildirimler" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, label: "Pako AI", href: "/yapay-zeka" },
+  { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>, label: "VİOP Nedir?", href: "/viop-nedir" },
 ];
 
 // 0:Dashboard 1:Portföy 2:Analizler 3:Hisseler 4:Fonlar 5:İzleme 6:Haberler 7:Blog 8:Takvim 9:Alarmlar 10:Bildirimler 11:PakoAI
@@ -29,7 +30,7 @@ const NAV_GROUPS: { label?: string; indices: number[] }[] = [
   { indices: [0] },
   { label: "PİYASA", indices: [3, 4, 5, 6] },
   { label: "KİŞİSEL", indices: [1, 2, 9] },
-  { label: "KEŞFET", indices: [8, 7, 10] },
+  { label: "KEŞFET", indices: [8, 7, 13, 10] },
 ];
 
 function isNavActive(pathname: string, currentVarlik: string | null, href: string) {

@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { Sahne, Satir, Sayac, SoruKarti, IlerlemeRayi, IkizKart, useSahneAktif } from "./parcalar";
-import { KaporaHalkaSVG, DireksiyonSVG, TeminatKartSVG } from "./svg";
+import { KaporaHalkaSVG, DireksiyonSVG, TeminatKartSVG, SuBardagiSVG, AsansorSVG, BugdaySVG } from "./svg";
+import dynamic from "next/dynamic";
+
+const Simulasyon = dynamic(() => import("./Simulasyon"), {
+  ssr: false,
+  loading: () => <div className="card-glass" style={{ borderRadius: 12, minHeight: 260, opacity: 0.5 }} />,
+});
 
 // "VIOP Nedir?" — scroll-driven egitim hikayesi.
 // Icerik: docs-vault/02-urun/viop-nedir-icerik-plani.md (11 bolum, birebir).
@@ -161,13 +167,16 @@ function Bolum6() {
   );
 }
 
-// B7-B10: metin tam; set-piece SVG'ler (su bardagi, asansor, bugday) asama 3-4'te eklenecek.
 function Bolum7() {
+  const { ref, aktif } = useSahneAktif();
   return (
+    <div ref={ref as React.RefObject<HTMLDivElement>}>
     <Sahne id="b7" etiket="Bölüm 7 / 11" baslik='Likidasyon değil: "Teminat Tamamlama Çağrısı"' ton="uyari">
       <Satir sira={0}>Teminatın bir alt sınırı var: <strong style={{ color: "#FCD34D" }}>sürdürme teminatı</strong>.</Satir>
-      <Satir sira={1}>Zarar teminatını bu çizginin altına indirirse, aracı kurumdan bir çağrı gelir: <strong style={{ color: "#F1F5F9" }}>teminat tamamlama çağrısı</strong>.</Satir>
-      <Satir sira={2}>İki seçeneğin olur: ek teminat yatırırsın — pozisyon devam eder. Ya da yatırmazsın — pozisyonun kapatılır.</Satir>
+      <Satir sira={1} style={{ display: "flex", justifyContent: "center" }}>
+        <SuBardagiSVG aktif={aktif} />
+      </Satir>
+      <Satir sira={2}>Zarar teminatını bu çizginin altına indirirse, aracı kurumdan bir çağrı gelir: <strong style={{ color: "#F1F5F9" }}>teminat tamamlama çağrısı</strong>. İki seçeneğin olur: ek teminat yatırırsın — pozisyon devam eder. Ya da yatırmazsın — pozisyonun kapatılır.</Satir>
       <Satir sira={3}>
         <UyariKutusu ton="uyari">
           ⚠️ Kripto borsalarındaki ani &quot;likidasyon&quot;dan farkı bu: Borsa İstanbul&apos;da önce <strong>çağrı</strong> vardır.
@@ -181,25 +190,36 @@ function Bolum7() {
         geriBildirim={i => i === 0 ? "Aynen: su seviyesi teminatın; çizginin altına inince ya doldurursun ya bardak boşalır." : "Yeni pozisyon yeni bardak demek olurdu — su eklemek, mevcut teminatı tamamlamaktır."}
       />
     </Sahne>
+    </div>
   );
 }
 
 function Bolum8() {
+  const { ref, aktif } = useSahneAktif();
   return (
+    <div ref={ref as React.RefObject<HTMLDivElement>}>
     <Sahne id="b8" etiket="Bölüm 8 / 11" baslik="Long — yükseliş yönlü pozisyon" ton="kar">
       <Satir sira={0}>Az önce yaptığın şeyin adı: <strong style={{ color: "#10B981" }}>long</strong>.</Satir>
-      <Satir sira={1}>Asansör yukarı: fiyat yükseldikçe pozisyonun değer kazanır.</Satir>
-      <Satir sira={2}>Asansör aşağı inerse aynı mekanizma aleyhine çalışır. (Bölüm 6&apos;yı hatırla.)</Satir>
+      <Satir sira={1} style={{ display: "flex", justifyContent: "center" }}>
+        <AsansorSVG aktif={aktif} yon="long" />
+      </Satir>
+      <Satir sira={2}>Asansör yukarı: fiyat yükseldikçe pozisyonun değer kazanır.</Satir>
+      <Satir sira={3}>Asansör aşağı inerse aynı mekanizma aleyhine çalışır. (Bölüm 6&apos;yı hatırla.)</Satir>
     </Sahne>
+    </div>
   );
 }
 
 function Bolum9() {
+  const { ref, aktif } = useSahneAktif();
   return (
+    <div ref={ref as React.RefObject<HTMLDivElement>}>
     <Sahne id="b9" etiket="Bölüm 9 / 11" baslik="Short — düşüşe pozisyon almak">
       <Satir sira={0}>Şimdi ezber bozan kısım: elinde hiç THYAO olmasa bile &quot;düşecek&quot; görüşüne pozisyon açabilirsin.</Satir>
-      <Satir sira={1}>Buna <strong style={{ color: "#93C5FD" }}>short</strong> denir: pozisyonun düşüş yönündedir.</Satir>
-      <Satir sira={2}>THYAO düşerse bu pozisyon değer kazanır; yükselirse kaybeder.</Satir>
+      <Satir sira={1} style={{ display: "flex", justifyContent: "center" }}>
+        <AsansorSVG aktif={aktif} yon="short" />
+      </Satir>
+      <Satir sira={2}>Buna <strong style={{ color: "#93C5FD" }}>short</strong> denir: pozisyonun düşüş yönündedir. Evet, doğru gördün — fiyat inerken pozisyon rozeti yeşil: THYAO düşerse bu pozisyon değer kazanır; yükselirse kaybeder.</Satir>
       <Satir sira={3}>Nasıl oluyor&apos;un mekaniği bu hikayenin konusu değil — kritik fikir şu: <strong style={{ color: "#F1F5F9" }}>VİOP&apos;ta iki yön de bir pozisyondur.</strong></Satir>
       <SoruKarti sira={4}
         soru="THYAO %2 yükseldi. Short pozisyon ne yaptı?"
@@ -208,17 +228,24 @@ function Bolum9() {
         geriBildirim={i => i === 1 ? "Doğru: short düşüş yönlüydü; fiyat yükselince pozisyon değer kaybetti." : "Ters: short düşüş yönlüdür — fiyat yükselirse pozisyon değer kaybeder."}
       />
     </Sahne>
+    </div>
   );
 }
 
 function Bolum10() {
+  const { ref, aktif } = useSahneAktif();
   return (
+    <div ref={ref as React.RefObject<HTMLDivElement>}>
     <Sahne id="b10" etiket="Bölüm 10 / 11" baslik="VİOP neden var?" ton="kar">
       <Satir sira={0}>Bu piyasa spekülasyon için icat edilmedi.</Satir>
       <Satir sira={1}>Bir buğday çiftçisi düşün: hasat 6 ay sonra. Fiyat o güne kadar düşerse emeği eriyecek.</Satir>
-      <Satir sira={2}>Bugünden &quot;hasatta şu fiyattan satarım&quot; sözleşmesi yapar. Fiyat sabitlenir; sürpriz ortadan kalkar.</Satir>
-      <Satir sira={3}>VİOP&apos;un kökü bu: <strong style={{ color: "#10B981" }}>riskten korunma</strong>. Kaldıraç sonradan gelen bir yan etki — dikkatli kullanılmazsa asıl riskin kendisi.</Satir>
+      <Satir sira={2} style={{ display: "flex", justifyContent: "center" }}>
+        <BugdaySVG aktif={aktif} />
+      </Satir>
+      <Satir sira={3}>Bugünden &quot;hasatta şu fiyattan satarım&quot; sözleşmesi yapar. Fiyat sabitlenir; sürpriz ortadan kalkar.</Satir>
+      <Satir sira={4}>VİOP&apos;un kökü bu: <strong style={{ color: "#10B981" }}>riskten korunma</strong>. Kaldıraç sonradan gelen bir yan etki — dikkatli kullanılmazsa asıl riskin kendisi.</Satir>
     </Sahne>
+    </div>
   );
 }
 
@@ -226,12 +253,7 @@ function Bolum11() {
   return (
     <Sahne id="b11" etiket="Bölüm 11 / 11" baslik="Sıra sende: mini simülasyon">
       <Satir sira={0}>
-        <UyariKutusu>Sanal 100.000 ₺ ile THYAO hissesi, VİOP Long ve VİOP Short&apos;u aynı senaryoda kıyaslayacağın interaktif simülasyon <strong>bu bölümde yayınlanacak</strong> — hazırlanıyor.</UyariKutusu>
-      </Satir>
-      <Satir sira={1}>O gelene kadar: öğrendiklerini gerçek verilerle pekiştirmek için hisse sayfalarındaki risk skorunu ve &quot;Neden bu skor?&quot; açıklamalarını incele.</Satir>
-      <Satir sira={2} style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <Link href="/hisseler" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.35)", color: "#93C5FD", borderRadius: 10, padding: "11px 18px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>Hisseleri keşfet →</Link>
-        <Link href="/maden" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", color: "#FCD34D", borderRadius: 10, padding: "11px 18px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>Kıymetli madenler →</Link>
+        <Simulasyon />
       </Satir>
     </Sahne>
   );
