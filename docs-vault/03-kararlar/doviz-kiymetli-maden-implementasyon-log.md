@@ -47,9 +47,9 @@ Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki *
 - [ ] "15 dk gecikmeli" delay-pill mevcut component ile
 
 ### FAZ 7 — AI Analiz
-- [ ] `/api/doviz-maden/analiz` endpoint (claude-sonnet-5, teknik+temel prompt, SPK disclaimer)
-- [ ] 15 dk server-side cache (enstruman_analiz_cache)
-- [ ] Detay sayfasında "AI Analiz" butonu + loading + sonuç
+- [x] `/api/doviz-maden/analiz` endpoint (claude-sonnet-5 ✓ API'de doğrulandı, teknik+temel prompt, "rakam uydurma" guardrail'i, SPK teşhis dili + zorunlu disclaimer)
+- [x] 15 dk server-side cache (enstruman_analiz_cache; migration öncesi cache'siz ama ÇALIŞIR) + hisse ile ORTAK 10/saat kota (`analiz:` key)
+- [x] Detay sayfasında "AI Analiz" butonu + loading + bölümlü render (oturumsuz akış canlıda doğrulandı: 401 → "giriş yapmanız gerekir")
 
 ### FAZ 7.5 — Alarm + Portföy
 - [ ] AlarmModal'a enstrüman desteği (tur'lu) + alarm cron'unda enstrüman fiyat çözümü

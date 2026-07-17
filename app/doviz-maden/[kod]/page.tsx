@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import type { ComponentProps } from "react";
 import AppShell from "@/components/AppShell";
 import { EnstrumanIkon } from "@/components/EnstrumanIkon";
+import { supabase } from "@/components/lib/supabase";
 import type HisseGrafikType from "@/components/HisseGrafik";
 
 const HisseGrafik = dynamic<ComponentProps<typeof HisseGrafikType>>(() => import("@/components/HisseGrafik"), {
@@ -45,6 +46,34 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
   const [veri, setVeri] = useState<Yanit | null>(null);
   const [range, setRange] = useState("1mo");
   const [hata, setHata] = useState(false);
+  const [aiAnaliz, setAiAnaliz] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiTarih, setAiTarih] = useState<string | null>(null);
+
+  async function handleAnaliz() {
+    setAiLoading(true);
+    setAiAnaliz("");
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setAiAnaliz("Analiz oluşturmak için giriş yapmanız gerekir.");
+      setAiLoading(false);
+      return;
+    }
+    const res = await fetch("/api/doviz-maden/analiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ kod }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setAiAnaliz(data.error || "Analiz alınamadı.");
+      setAiLoading(false);
+      return;
+    }
+    setAiAnaliz(data.analiz);
+    if (data.created_at) setAiTarih(data.created_at);
+    setAiLoading(false);
+  }
 
   useEffect(() => {
     let iptal = false;
@@ -129,6 +158,36 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
                   </p>
                 </div>
               )}
+
+              <div className="card-glass mt-4 rounded-xl p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-slate-200">AI Analiz</h2>
+                    <p className="mt-0.5 text-[11px] text-slate-500">Teknik + temel değerlendirme · claude-sonnet-5 · 15 dk paylaşımlı önbellek</p>
+                  </div>
+                  <button
+                    onClick={handleAnaliz}
+                    disabled={aiLoading}
+                    className="inline-flex h-10 items-center justify-center rounded-[10px] border border-blue-300/20 bg-gradient-to-br from-blue-700 to-blue-500 px-4 text-[13px] font-bold text-slate-50 shadow-[0_12px_28px_rgba(37,99,235,0.20)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {aiLoading ? "Analiz ediliyor..." : "Yapay Zeka ile Analiz Et"}
+                  </button>
+                </div>
+                {aiAnaliz && (
+                  <div className="mt-4 space-y-2">
+                    {aiAnaliz.split("\n").filter(s => s.trim()).map((satir, i) => {
+                      const baslik = satir.match(/^\*\*(.+)\*\*$/);
+                      if (baslik) return <p key={i} className="pt-1 text-[12px] font-bold uppercase tracking-wider text-blue-300">{baslik[1]}</p>;
+                      return <p key={i} className="text-[13px] leading-relaxed text-slate-300">{satir.replace(/\*\*/g, "")}</p>;
+                    })}
+                    {aiTarih && (
+                      <p className="pt-1 text-[10px] text-slate-600">
+                        {new Date(aiTarih).toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })} itibarıyla üretildi.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <p className="mt-6 text-center text-[11px] leading-relaxed text-slate-600">
                 {doviz
