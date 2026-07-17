@@ -23,6 +23,8 @@ export async function GET() {
     ad: e.ad,
     aciklama: e.tur === "doviz" ? e.aciklama : e.birim === "gram" ? "Gram · TL (türetilmiş)" : "Ons · USD (spot)",
     birim: e.tur === "maden" ? e.birim : null,
+    taban: e.tur === "doviz" ? e.taban : null,
+    karsi: e.tur === "doviz" ? e.karsi : null,
     para_birimi: enstrumanParaBirimi(e),
     ...(snapMap.get(e.kod) || {}),
   }));

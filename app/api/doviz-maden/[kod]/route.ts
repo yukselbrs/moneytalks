@@ -33,6 +33,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ kod:
       ad: tanim.ad,
       aciklama: tanim.tur === "doviz" ? tanim.aciklama : null,
       birim: tanim.tur === "maden" ? tanim.birim : null,
+      taban: tanim.tur === "doviz" ? tanim.taban : null,
+      karsi: tanim.tur === "doviz" ? tanim.karsi : null,
       para_birimi: enstrumanParaBirimi(tanim),
       ...(snapshot || {}),
     },

@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import bistHisseler from "@/data/bist-companies.json";
-import { MADENLER } from "@/lib/maden-pricing";
+import { ENSTRUMANLAR } from "@/lib/enstruman-pricing";
 
 type BistEntry = { ticker: string };
 
@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: base, priority: 1.0 },
     { url: `${base}/dashboard`, priority: 0.9 },
     { url: `${base}/hisseler`, priority: 0.9 },
-    { url: `${base}/maden`, priority: 0.9 },
+    { url: `${base}/doviz-maden`, priority: 0.9 },
     { url: `${base}/viop-nedir`, priority: 0.8 },
     { url: `${base}/kap`, priority: 0.9 },
     { url: `${base}/analizler`, priority: 0.8 },
@@ -79,8 +79,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const madenler: MetadataRoute.Sitemap = MADENLER.map(m => ({
-    url: `${base}/maden/${m.kod}`,
+  const enstrumanlar: MetadataRoute.Sitemap = ENSTRUMANLAR.map(e => ({
+    url: `${base}/doviz-maden/${e.kod}`,
     lastModified: new Date(),
     changeFrequency: "daily" as const,
     priority: 0.8,
@@ -88,5 +88,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [kap, fonlar] = await Promise.all([kapBildirimUrls(base), fonUrls(base)]);
 
-  return [...statik, ...hisseler, ...madenler, ...fonlar, ...kap];
+  return [...statik, ...hisseler, ...enstrumanlar, ...fonlar, ...kap];
 }

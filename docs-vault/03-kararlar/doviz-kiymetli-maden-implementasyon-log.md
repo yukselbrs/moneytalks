@@ -29,16 +29,17 @@ Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki *
 - [x] `/api/cron/enstruman-snapshot` — çift-yazım köprüsü + fiyat geçmişi arşivi + 400 gün temizlik
 - [x] `/api/doviz-maden` + `/api/doviz-maden/[kod]` (dual-read köprülü)
 - [x] Workflow: maden-snapshot-cron.yml → enstruman-snapshot-cron.yml
-- [ ] `/doviz-maden` hub: kategori filtresi (Tümü/Döviz/Kıymetli Maden) + G/H/1A/3A/6A/1Y kolonları
-- [ ] Mobil: yatay scroll + sticky ilk kolon
-- [ ] `/doviz-maden/[kod]` detay sayfası
-- [ ] `/maden` → `/doviz-maden` redirect (next.config)
-- [ ] AppShell nav: label "Döviz ve Kıymetli Maden", href güncelle (index 5, index SABİT kalacak)
+- [x] `/doviz-maden` hub: kategori filtresi (Tümü/Döviz/Kıymetli Maden) + G/H/1A/3A/6A/1Y kolonları
+- [x] Mobil: yatay scroll + sticky ilk kolon (canlıda doğrulandı: 864px içerik / 375px ekran, ad kolonu sabit)
+- [x] `/doviz-maden/[kod]` detay sayfası (6A kartı + döviz/maden etiket ayrımı + gecikmeli rozeti)
+- [x] `/maden` → `/doviz-maden` redirect (curl testi: 308, kök + alt yol tek kuralla)
+- [x] AppShell nav: label "Döviz ve Kıymetli Maden", href `/doviz-maden`, banknot ikonu (index 5 SABİT kaldı)
+- [x] Eski dosyalar silindi: app/maden/*, /api/madenler, /api/maden, /api/cron/maden-snapshot, lib/maden-pricing.ts
 
 ### FAZ 5 — İkonlar
-- [ ] Bayrak SVG seti (TR/US/EU/GB/JP) + kompozit çift ikonu component
-- [ ] Metal külçe SVG ikonları (altın/gümüş/platin/paladyum renk varyantı)
-- [ ] Reusable component (tablo + detay + alarm + portföyde aynı ikon)
+- [x] Bayrak SVG seti (TR/US/EU/GB/JP) + kompozit çift ikonu — `components/EnstrumanIkon.tsx`, kendi çizimimiz (K7: lisans/CDN riski sıfır)
+- [x] Metal külçe SVG ikonları (altın/gümüş/platin/paladyum renk varyantı)
+- [x] Reusable component (tablo + detayda kullanılıyor; alarm + portföy Checkpoint D'de aynı bileşeni alacak)
 
 ### FAZ 6 — Cron
 - [ ] Cron endpoint: birincil→ikincil fallback + son bilinen değeri koruma
@@ -128,4 +129,4 @@ Kur fiyatları: <10 → 4 ondalık (EUR/USD 1,0842), <100 → 3, ≥100 → 2 (U
 
 ## ŞU AN NEREDEYİM
 
-FAZ 1-3 + FAZ 4 backend (Checkpoint A) bitti. Sıradaki iş — FAZ 4/5 Checkpoint B (frontend, tek commit): (1) `components/EnstrumanIkon.tsx` — TR/US/EU/GB/JP bayrak SVG'leri (kendi çizimimiz, lisans riski sıfır — K7) + kompozit çift ikonu + metal külçe ikonları; (2) `app/doviz-maden/page.tsx` hub — kategori filtresi (Tümü/Döviz/Kıymetli Maden), kolonlar Fiyat/1G/1H/1A/3A/6A/1Y, mobilde yatay scroll + sticky ilk kolon (fon tablosunun `overflow-x:auto` pattern'i + `position:sticky;left:0`); (3) `app/doviz-maden/[kod]` detay (maden detayının genişletilmişi); (4) next.config.ts redirect `/maden/:path*` → `/doviz-maden/:path*` permanent; (5) AppShell index 5 label/href (index SABİT, NAV_GROUPS'a dokunma); (6) sitemap güncelle; (7) eski maden dosyalarını sil. Sonra Checkpoint C: FAZ 7 AI analiz (claude-sonnet-5 + server cache); Checkpoint D: FAZ 7.5 alarm+portföy.
+FAZ 1-5 bitti (Checkpoint A backend + Checkpoint B frontend). Canlı doğrulananlar: hub tablosu 15 satır (maden fiyatları dual-read'den geliyor, döviz migration+cron bekliyor), kategori filtresi (?kategori=doviz → 9 satır), detay sayfası (gram-altin tam; usd-try grafik+profil canlı, fiyat snapshot bekliyor), redirect 308, mobil sticky kolon, temiz production build (59 sayfa). Cron lokal test: `{saved:0, legacySaved:6, hata:1}` — migration öncesi beklenen davranış. NOT: pane'de bayat sekme yine React effect'leri koşturmadı (viop-nedir'deki bilinen semptom) — taze sekmede her şey çalıştı; gerçek bug değil. Sıradaki iş — Checkpoint C (FAZ 7 AI analiz): `/api/doviz-maden/analiz` endpoint'i (POST, Bearer auth + rateLimitHit 10/saat, model **claude-sonnet-5**, teknik+temel prompt — döviz: faiz farkı/merkez bankası/enflasyon; maden: arz-talep/güvenli liman/dolar endeksi; SPK disclaimer), `enstruman_analiz_cache` ile 15 dk server cache (service role client), detay sayfasına "AI Analiz" butonu + loading + sonuç render (hisse detayındaki buton pattern'i). Sonra Checkpoint D (FAZ 7.5): AlarmModal enstrüman desteği + alarm cron tur ayrımı + portföy döviz/maden ekleme.
