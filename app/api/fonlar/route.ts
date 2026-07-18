@@ -13,6 +13,7 @@ const supabase = createClient(
 
 const SAYFA_BOYUTU = 25;
 const LIVE_CACHE_TTL_MS = 60 * 60 * 1000;
+const SUPABASE_PAGE_SIZE = 1000;
 
 let liveFallbackCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
 
@@ -111,10 +112,21 @@ async function getRows(forceLive: boolean) {
   }
 
   if (!forceLive) {
-    const { data, error } = await supabase
-      .from("fon_snapshots")
-      .select("*");
-    if (!error && data && data.length > 0) return data.map((row) => normalize(row as Partial<FonSnapshotRow>));
+    const rows: FonSnapshotRow[] = [];
+    for (let from = 0; from < 10000; from += SUPABASE_PAGE_SIZE) {
+      const { data, error } = await supabase
+        .from("fon_snapshots")
+        .select("*")
+        .range(from, from + SUPABASE_PAGE_SIZE - 1);
+      if (error) {
+        rows.length = 0;
+        break;
+      }
+      const batch = data ?? [];
+      rows.push(...batch.map((row) => normalize(row as Partial<FonSnapshotRow>)));
+      if (batch.length < SUPABASE_PAGE_SIZE) break;
+    }
+    if (rows.length > 0) return rows;
   }
 
   if (liveFallbackCache && Date.now() - liveFallbackCache.fetchedAt < LIVE_CACHE_TTL_MS) {
