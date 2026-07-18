@@ -12,6 +12,7 @@ Pazar, rakip, veri kaynağı ve regülasyon araştırmaları burada toplanır.
 - [[rakip-analizi]] — Fintables/Midas/Robinhood/eToro güncel durum (13 Tem 2026)
 - [[pazar-verileri]] — MKK yatırımcı sayısı, halka arz, fon pazarı (13 Tem 2026)
 - [[viop-veri-fizibilite]] — VİOP resmi veri kaynağı fizibilitesi (16 Tem 2026)
+- [[kap-ucretsiz-veri-kaynagi]] — KAP bildirimlerini ücretsiz çekme: kap.org.tr site API'si canlı doğrulandı (18 Tem 2026)
 - [[vergi-mevzuati]] — temettü stopajı, GVK 22/2, beyan eşiği, fon stopajı (C.3 tabanı)
 
 ## Kullanım
