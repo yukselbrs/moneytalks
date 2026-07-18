@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { requireUser } from "@/lib/auth";
 import { rateLimitHit } from "@/lib/rate-limit";
-import { enstrumanBul, enstrumanParaBirimi, fetchProfilSerisi, oynaklikProfili } from "@/lib/enstruman-pricing";
+import { enstrumanBul, enstrumanParaBirimi, fetchProfilSerisi, oynaklikProfili, canliSnapshotlar } from "@/lib/enstruman-pricing";
 import type { EnstrumanTanim } from "@/lib/enstruman-pricing";
 
 export const runtime = "nodejs";
@@ -22,7 +22,7 @@ const RATE_WINDOW_SANIYE = 3600;
 type Snapshot = {
   fiyat: number | null; degisim_yuzde: number | null;
   getiri_1h: number | null; getiri_1a: number | null; getiri_3a: number | null;
-  getiri_6a: number | null; getiri_1y: number | null; usdtry_kur: number | null;
+  getiri_6a: number | null; getiri_1y: number | null; getiri_5y: number | null;
 };
 
 function sayi(v: number | null | undefined, hane = 2): string {
@@ -32,39 +32,39 @@ function sayi(v: number | null | undefined, hane = 2): string {
 function veriBlogu(e: EnstrumanTanim, snap: Snapshot | null, profil: { volatilite: number | null; rsi: number | null; momentum1a: number | null }, seri: number[]): string {
   const min1y = seri.length ? Math.min(...seri) : null;
   const max1y = seri.length ? Math.max(...seri) : null;
-  return `Guncel piyasa verisi (${enstrumanParaBirimi(e)} cinsinden, ~15 dk gecikmeli):
+  return `Güncel piyasa verisi (${enstrumanParaBirimi(e)} cinsinden, ~15 dk gecikmeli):
 - Fiyat: ${sayi(snap?.fiyat, 4)}
-- Gunluk degisim: %${sayi(snap?.degisim_yuzde)}
-- Getiriler: 1 hafta %${sayi(snap?.getiri_1h)} | 1 ay %${sayi(snap?.getiri_1a)} | 3 ay %${sayi(snap?.getiri_3a)} | 6 ay %${sayi(snap?.getiri_6a)} | 1 yil %${sayi(snap?.getiri_1y)}
-- 1 yillik aralik: ${sayi(min1y, 4)} - ${sayi(max1y, 4)}
-- RSI(14): ${sayi(profil.rsi, 0)} | Yillik volatilite: %${sayi(profil.volatilite, 1)} | 1 aylik momentum: %${sayi(profil.momentum1a)}`;
+- Günlük değişim: %${sayi(snap?.degisim_yuzde)}
+- Getiriler: 1 hafta %${sayi(snap?.getiri_1h)} | 1 ay %${sayi(snap?.getiri_1a)} | 3 ay %${sayi(snap?.getiri_3a)} | 6 ay %${sayi(snap?.getiri_6a)} | 1 yıl %${sayi(snap?.getiri_1y)} | 5 yıl %${sayi(snap?.getiri_5y)}
+- 1 yıllık aralık: ${sayi(min1y, 4)} - ${sayi(max1y, 4)}
+- RSI(14): ${sayi(profil.rsi, 0)} | Yıllık volatilite: %${sayi(profil.volatilite, 1)} | 1 aylık momentum: %${sayi(profil.momentum1a)}`;
 }
 
 function promptOlustur(e: EnstrumanTanim, veri: string): string {
   const temelCerceve = e.tur === "doviz"
-    ? `TEMEL cercevede su dinamikleri degerlendir: iki para birimi arasindaki faiz orani farklari, merkez bankasi politika durusu, enflasyon farklari ve sermaye akimlari. Guncel politika faizi/enflasyon rakamlarini BILMIYORSUN — rakam uydurma; bu faktorleri mekanizma duzeyinde ve sana verilen fiyat verisinin ima ettigi trendle iliskilendirerek anlat.`
-    : `TEMEL cercevede su dinamikleri degerlendir: arz-talep dengesi, guvenli liman talebi, dolar endeksi (DXY) ile ters iliski, reel faiz ortami ve merkez bankasi rezerv alimlari. Guncel makro rakamlari BILMIYORSUN — rakam uydurma; bu faktorleri mekanizma duzeyinde ve sana verilen fiyat verisinin ima ettigi trendle iliskilendirerek anlat.`;
+    ? `TEMEL çerçevede şu dinamikleri değerlendir: iki para birimi arasındaki faiz oranı farkları, merkez bankası politika duruşu, enflasyon farkları ve sermaye akımları. Güncel politika faizi/enflasyon rakamlarını BİLMİYORSUN — rakam uydurma; bu faktörleri mekanizma düzeyinde ve sana verilen fiyat verisinin ima ettiği trendle ilişkilendirerek anlat.`
+    : `TEMEL çerçevede şu dinamikleri değerlendir: arz-talep dengesi, güvenli liman talebi, dolar endeksi (DXY) ile ters ilişki, reel faiz ortamı ve merkez bankası rezerv alımları. Güncel makro rakamları BİLMİYORSUN — rakam uydurma; bu faktörleri mekanizma düzeyinde ve sana verilen fiyat verisinin ima ettiği trendle ilişkilendirerek anlat.`;
 
   const tanimSatiri = e.tur === "doviz"
-    ? `${e.ad} (${e.aciklama}) doviz kuru`
-    : `${e.ad} (${e.birim} bazli, ${e.paraBirimi} cinsinden) kiymetli maden fiyati`;
+    ? `${e.ad} (${e.aciklama}) döviz kuru`
+    : `${e.ad} (${e.birim} bazlı, ${e.paraBirimi} cinsinden) kıymetli maden fiyatı`;
 
-  return `Sen finansal piyasalar konusunda uzman bir analiz asistanisin. Asagidaki veriyi kullanarak ${tanimSatiri} icin somut ve analitik bir degerlendirme yaz.
+  return `Sen finansal piyasalar konusunda uzman bir analiz asistanısın. Aşağıdaki veriyi kullanarak ${tanimSatiri} için somut ve analitik bir değerlendirme yaz.
 
 ${veri}
 
-Asagidaki formati AYNEN kullan:
+Aşağıdaki formatı AYNEN kullan:
 
-**Teknik Gorunum**
-RSI, momentum, volatilite ve getiri serisini yorumla. 1 yillik aralikta fiyatin nerede durdugunu belirt (aralik uclarini destek/direnc bolgesi olarak anabilirsin).
+**Teknik Görünüm**
+RSI, momentum, volatilite ve getiri serisini yorumla. 1 yıllık aralıkta fiyatın nerede durduğunu belirt (aralık uçlarını destek/direnç bölgesi olarak anabilirsin).
 
 **Temel Dinamikler**
 ${temelCerceve}
 
-**Dikkat Noktalari**
-Veriden okunan riskleri ve izlenmesi gereken esikleri yaz.
+**Dikkat Noktaları**
+Veriden okunan riskleri ve izlenmesi gereken eşikleri yaz.
 
-Kurallar: Somut ol, sana verilen sayilari kullan. Turkce yaz. "Al", "sat", "kesin yukselir/duser" gibi yonlendirme YASAK — teshis dili kullan, eylem onerme. Bilmedigin guncel rakamlari uydurma. Yanitin sonuna su cumleyi aynen ekle: "Bu analiz yatirim tavsiyesi degildir."`;
+Kurallar: Her bölüm en fazla 4-5 cümle olsun. Somut ol, sana verilen sayıları kullan. Türkçe yaz ve Türkçe karakterleri (ç, ğ, ı, ö, ş, ü) doğru kullan. "Al", "sat", "kesin yükselir/düşer" gibi yönlendirme YASAK — teşhis dili kullan, eylem önerme. Bilmediğin güncel rakamları uydurma. Yanıtın sonuna şu cümleyi aynen ekle: "Bu analiz yatırım tavsiyesi değildir."`;
 }
 
 export async function POST(req: NextRequest) {
@@ -99,7 +99,12 @@ export async function POST(req: NextRequest) {
     supabaseAdmin.from("enstruman_snapshots").select("*").eq("kod", kod).maybeSingle(),
     fetchProfilSerisi(kod),
   ]);
+  // Gecis koprusu: snapshot tablosu bos/yoksa canli uretimden (60 sn cache) — model "veri yok" ile calismasin.
   let snapshot = snap as Snapshot | null;
+  if (!snapshot) {
+    const canli = await canliSnapshotlar();
+    snapshot = (canli.get(kod) as Snapshot | undefined) ?? null;
+  }
   if (!snapshot && tanim.tur === "maden") {
     const { data: eski } = await supabaseAdmin.from("maden_snapshots").select("*").eq("kod", kod).maybeSingle();
     snapshot = eski as Snapshot | null;
@@ -107,13 +112,14 @@ export async function POST(req: NextRequest) {
   const profil = oynaklikProfili(seri);
 
   try {
+    // claude-sonnet-5 yanit oncesi thinking blogu uretir ve o da max_tokens'a sayilir;
+    // 1024 cumle ortasinda kesiyordu (stop_reason=max_tokens, canli testle dogrulandi) — 4000 genis pay birakir.
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 1024,
+      max_tokens: 4000,
       messages: [{ role: "user", content: promptOlustur(tanim, veriBlogu(tanim, snapshot, profil, seri)) }],
     });
-    const ilkText = message.content.find(b => b.type === "text");
-    const analiz = ilkText?.type === "text" ? ilkText.text : "";
+    const analiz = message.content.flatMap(b => (b.type === "text" ? [b.text] : [])).join("");
     if (analiz) {
       await supabaseAdmin.from("enstruman_analiz_cache").upsert({ kod, analiz, model: MODEL, created_at: new Date().toISOString() });
     }

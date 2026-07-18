@@ -144,6 +144,14 @@ Ekran görüntüleriyle gelen istekler ve yapılanlar:
 - **Silinen metinler**: AI kartındaki "claude-sonnet-5", oynaklık profili alt notu ("RSI ve momentum..."), bayat-veri amber bandı.
 - **AI Analiz butonu**: prod endpoint token'sız 401 ile ayakta doğrulandı — "çalışmıyor" büyük olasılıkla girişsiz kullanım ya da yutulmuş istisnaydı; handleAnaliz try/catch'e alındı (her hata artık ekranda mesaj gösterir), Sonnet yanıtı `content.find(type==="text")` ile sağlamlaştırıldı. Giriş yapmadan buton "giriş yapmanız gerekir" der — bu davranış bilinçli.
 
+## Revizyon Turu 2 (18 Tem 2026 — AI analiz çıktı kalitesi)
+
+Kullanıcının gördüğü çıktı: ASCII Türkçe ("Guncel", "Gorunum") + cümle ortasında kesilme + "veri sağlanmamış" ifadesi. Üç kök neden, üçü de canlı API testiyle doğrulanıp düzeltildi:
+1. **Kesilme:** claude-sonnet-5 yanıt öncesi thinking bloğu üretiyor ve bu max_tokens'a sayılıyor; 1024'te `stop_reason=max_tokens` ile tam gözlenen yerde kesildi (reprodüksiyon ✓). → max_tokens 4000; ayrıca yanıt metni tek blok varsayımı yerine tüm text blokları birleştirilerek okunuyor.
+2. **ASCII Türkçe:** model, ASCII yazılmış prompt'un imlasını aynen taklit ediyordu ("formatı AYNEN kullan" başlıkları da ASCII'ydi). → prompt tamamen düzgün Türkçe'ye çevrildi + açık talimat eklendi. Test: 2.7k karakterlik çıktı, 269 Türkçe karakter, başlıklar `**Teknik Görünüm**` formatında (UI regex'iyle uyumlu), disclaimer düzgün.
+3. **"Veri sağlanmamış":** analiz endpoint'i canlı-üretim köprüsüne bağlı değildi; migration öncesi snapshot null gidiyordu. → `canliSnapshotlar()` köprüsü analiz endpoint'ine de bağlandı; veri bloğuna 5Y de eklendi.
+Ek: "Her bölüm en fazla 4-5 cümle" sınırı (uzunluk/maliyet dengesi).
+
 ## AÇIK KALANLAR (kod dışı adımlar + bilinçli borçlar)
 
 1. **[BARIŞ — BLOKER] Migration'ı SQL Editor'de çalıştır:** `supabase/migrations.sql` dosyasının "DOVIZ+MADEN v1 (17 Tem 2026)" bloğu (dosya idempotent, tamamını da çalıştırabilirsin). Bu çalışana kadar: döviz fiyatları boş, Actions'ta enstruman-snapshot kırmızı (hata:1 — beklenen), AI analiz cache'siz çalışır, enstrüman alarm/portföy insert'leri `tur` kolonu hatası verir.
