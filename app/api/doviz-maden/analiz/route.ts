@@ -29,14 +29,39 @@ function sayi(v: number | null | undefined, hane = 2): string {
   return v === null || v === undefined ? "veri yok" : v.toFixed(hane);
 }
 
+// Fiyatin bir bant icindeki mekanik konumu: 0 = dip, 100 = tepe. Trend'li enstrumanda 1y bandi yaniltir,
+// bu yuzden hem 1y hem son 1a (~21 bar) bandi verilir; model destek/direnci guncel harekete gore anchor'lar.
+function bandKonum(fiyat: number | null, dip: number | null, tepe: number | null): number | null {
+  if (fiyat === null || dip === null || tepe === null || tepe <= dip) return null;
+  return Math.round(((fiyat - dip) / (tepe - dip)) * 100);
+}
+
+function trendEtiketi(g1y: number | null, g5y: number | null): string {
+  const y = g1y ?? 0;
+  if (Math.abs(y) < 5) return "belirgin bir yönü olmayan, yatay/bant içi";
+  const guc = Math.abs(y) >= 25 ? "güçlü" : "ılımlı";
+  const yon = y > 0 ? "yükseliş" : "düşüş";
+  const cok = (g5y ?? 0) !== 0 && Math.abs(g5y ?? 0) >= 100 ? " (çok yıllık yapısal trend)" : "";
+  return `${guc} ${yon}${cok}`;
+}
+
 function veriBlogu(e: EnstrumanTanim, snap: Snapshot | null, profil: { volatilite: number | null; rsi: number | null; momentum1a: number | null }, seri: number[]): string {
   const min1y = seri.length ? Math.min(...seri) : null;
   const max1y = seri.length ? Math.max(...seri) : null;
+  const son1a = seri.slice(-21);
+  const min1a = son1a.length ? Math.min(...son1a) : null;
+  const max1a = son1a.length ? Math.max(...son1a) : null;
+  const fiyat = snap?.fiyat ?? (seri.length ? seri[seri.length - 1] : null);
+  const konum1y = bandKonum(fiyat, min1y, max1y);
+  const konum1a = bandKonum(fiyat, min1a, max1a);
+  const trend = trendEtiketi(snap?.getiri_1y ?? null, snap?.getiri_5y ?? null);
   return `Güncel piyasa verisi (${enstrumanParaBirimi(e)} cinsinden, ~15 dk gecikmeli):
-- Fiyat: ${sayi(snap?.fiyat, 4)}
+- Fiyat: ${sayi(fiyat, 4)}
 - Günlük değişim: %${sayi(snap?.degisim_yuzde)}
 - Getiriler: 1 hafta %${sayi(snap?.getiri_1h)} | 1 ay %${sayi(snap?.getiri_1a)} | 3 ay %${sayi(snap?.getiri_3a)} | 6 ay %${sayi(snap?.getiri_6a)} | 1 yıl %${sayi(snap?.getiri_1y)} | 5 yıl %${sayi(snap?.getiri_5y)}
-- 1 yıllık aralık: ${sayi(min1y, 4)} - ${sayi(max1y, 4)}
+- Trend niteliği (1y/5y getiriden): ${trend}
+- Son 1 aylık aralık: ${sayi(min1a, 4)} - ${sayi(max1a, 4)}${konum1a !== null ? ` (fiyat bandın %${konum1a} konumunda)` : ""}
+- 1 yıllık aralık: ${sayi(min1y, 4)} - ${sayi(max1y, 4)}${konum1y !== null ? ` (fiyat bandın %${konum1y} konumunda)` : ""}
 - RSI(14): ${sayi(profil.rsi, 0)} | Yıllık volatilite: %${sayi(profil.volatilite, 1)} | 1 aylık momentum: %${sayi(profil.momentum1a)}`;
 }
 
@@ -56,7 +81,7 @@ ${veri}
 Aşağıdaki formatı AYNEN kullan:
 
 **Teknik Görünüm**
-RSI, momentum, volatilite ve getiri serisini yorumla. 1 yıllık aralıkta fiyatın nerede durduğunu belirt (aralık uçlarını destek/direnç bölgesi olarak anabilirsin).
+RSI, momentum, volatilite ve getiri serisini yorumla. ÖNEMLİ — destek/direnç: Enstrüman güçlü bir trend içindeyse (yukarıdaki "Trend niteliği"ne bak), 1 YILLIK aralığın uçlarını mekanik destek/direnç gibi kullanma; o seviyeler trend nedeniyle güncel fiyattan çok uzakta olabilir ve oraya dönmek olağanüstü bir tersine dönüş gerektirir — "X'in altına inerse sıkıntı" gibi, gerçekleşmesi çok düşük olasılıklı eşikleri asıl risk gibi sunma. Destek/direnci öncelikle SON 1 AYLIK aralığa ve fiyatın bu banttaki konumuna göre tanımla. Trendin yönünü ve gücünü açıkça belirt; 1 yıllık uç bir seviyeyi anacaksan onun trende göre ne kadar uzak/gerçekçi olduğunu da söyle.
 
 **Temel Dinamikler**
 ${temelCerceve}

@@ -171,34 +171,39 @@ async function bildirimGonder(): Promise<number> {
   let gonderilen = 0;
 
   for (const bildirim of ozetlenmisler as OzetlenmisBildirim[]) {
-    const { data: izleyenler } = bildirim.tickerlar?.length
-      ? await supabase
-          .from("watchlist")
-          .select("user_id, profiles(email)")
-          .in("ticker", bildirim.tickerlar)
-      : { data: [] };
+    const tickerlar = bildirim.tickerlar ?? [];
+    // Ilgili kullanicilar = hisseyi IZLEYENLER ∪ PORTFOYUNDE TUTANLAR (yalniz hisse pozisyonu).
+    const [izlemeRes, portfoyRes] = tickerlar.length
+      ? await Promise.all([
+          supabase.from("watchlist").select("user_id").in("ticker", tickerlar),
+          supabase.from("portfoy").select("user_id").in("ticker", tickerlar).eq("tur", "hisse"),
+        ])
+      : [{ data: [] as { user_id: string }[] }, { data: [] as { user_id: string }[] }];
 
-    if (!izleyenler?.length) {
+    const kullaniciIdleri = [...new Set([
+      ...((izlemeRes.data as { user_id: string }[] | null) || []).map((r) => r.user_id),
+      ...((portfoyRes.data as { user_id: string }[] | null) || []).map((r) => r.user_id),
+    ])];
+
+    if (!kullaniciIdleri.length) {
       await supabase.from("kap_bildirimleri").update({ durum: "bildirildi" }).eq("id", bildirim.id);
       continue;
     }
 
-    const gorulenKullanicilar = new Set<string>();
+    const { data: profiller } = await supabase.from("profiles").select("id, email").in("id", kullaniciIdleri);
+    const emailMap = new Map(((profiller as { id: string; email: string | null }[] | null) || []).map((p) => [p.id, p.email]));
+    const ticker = bildirim.ticker || tickerlar[0];
 
-    for (const izleyen of izleyenler as { user_id: string; profiles: { email?: string } | null }[]) {
-      if (gorulenKullanicilar.has(izleyen.user_id)) continue;
-      gorulenKullanicilar.add(izleyen.user_id);
-
+    for (const userId of kullaniciIdleri) {
+      // Idempotency: (bildirim_id, user_id) essiz — es zamanli kosum ayni kullaniciya tekrar gonderemez.
       const { data: claimed } = await supabase
         .from("kap_bildirim_gonderim")
-        .insert({ bildirim_id: bildirim.id, user_id: izleyen.user_id })
+        .insert({ bildirim_id: bildirim.id, user_id: userId })
         .select("id");
       if (!claimed?.length) continue;
 
-      const ticker = bildirim.ticker || bildirim.tickerlar[0];
-
       await supabase.from("bildirimler").insert({
-        user_id: izleyen.user_id,
+        user_id: userId,
         baslik: `📰 ${ticker} KAP bildirimi`,
         aciklama: bildirim.ozet_tek_cumle || bildirim.konu || "",
         detay: bildirim.ozet_ne_demek || "",
@@ -207,7 +212,7 @@ async function bildirimGonder(): Promise<number> {
         okundu: false,
       });
 
-      const email = izleyen.profiles?.email;
+      const email = emailMap.get(userId);
       if (email && process.env.RESEND_API_KEY) {
         try {
           await getResend().emails.send({
@@ -217,7 +222,7 @@ async function bildirimGonder(): Promise<number> {
             html: bildirimEpostaHtml(bildirim, ticker),
           });
         } catch (e) {
-          console.error(`KAP eposta hatasi (${izleyen.user_id}):`, e);
+          console.error(`KAP eposta hatasi (${userId}):`, e);
         }
       }
 

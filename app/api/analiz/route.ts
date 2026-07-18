@@ -17,6 +17,27 @@ const supabaseAuth = createClient(
 const RATE_LIMIT = 10;
 const RATE_WINDOW_SANIYE = 3600;
 
+// Sirkete ait son KAP bildirimleri — kap_bildirimleri tablosundan (zaten ozetlenmis + SPK-filtreli).
+async function kapHaberMetni(ticker: string): Promise<string> {
+  try {
+    const { data } = await supabaseAuth
+      .from("kap_bildirimleri")
+      .select("konu, ozet_tek_cumle, kap_zamani")
+      .contains("tickerlar", [ticker])
+      .not("ozet_tek_cumle", "is", null)
+      .order("kap_zamani", { ascending: false })
+      .limit(5);
+    if (!data?.length) return "";
+    const satirlar = data.map((h: { konu: string | null; ozet_tek_cumle: string | null; kap_zamani: string | null }) => {
+      const tarih = h.kap_zamani ? new Date(h.kap_zamani).toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }) : "";
+      return `- ${tarih ? `[${tarih}] ` : ""}${h.ozet_tek_cumle || h.konu}`;
+    });
+    return `\n\nSirkete dair son KAP bildirimleri (guncelden eskiye):\n${satirlar.join("\n")}`;
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(req: NextRequest) {
   let body: { ticker?: unknown; veriOnly?: unknown; kisaYorum?: unknown };
   try {
@@ -52,7 +73,10 @@ export async function POST(req: NextRequest) {
     : "Guncel fiyat verisi alinamadi.";
 
   try {
-    const macroRisk = await getMacroRiskSnapshot().catch(() => null);
+    const [macroRisk, kapMetni] = await Promise.all([
+      getMacroRiskSnapshot().catch(() => null),
+      kapHaberMetni(ticker),
+    ]);
     const makroMetni = macroRisk ? `\n\n${macroRiskPromptBlock(macroRisk)}` : "";
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
@@ -61,12 +85,12 @@ export async function POST(req: NextRequest) {
         {
           role: "user",
           content: body.kisaYorum === true
-            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} icin asagidaki veriyi kullanarak TAM OLARAK 1 cumlelik ozet yaz. Cümle nokta ile bitmeli. Sadece en onemli 1 gozlemi belirt. Fiyat, degisim veya makro risk bilgisini kullan. Turkce yaz. ₺ sembolunu kullan. Yatirim tavsiyesi verme.
+            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} icin asagidaki veriyi kullanarak TAM OLARAK 1 cumlelik ozet yaz. Cümle nokta ile bitmeli. Sadece en onemli 1 gozlemi belirt. Fiyat, degisim, makro risk veya varsa son KAP bildirimi bilgisini kullan. Turkce yaz. ₺ sembolunu kullan. Yatirim tavsiyesi verme.
 
-${veriMetni}${makroMetni}`
+${veriMetni}${makroMetni}${kapMetni}`
             : `Sen bir Turk borsasi uzmanisisin. Asagidaki veriyi kullanarak ${ticker} hissesi icin somut ve analitik bir degerlendirme yap.
 
-${veriMetni}${makroMetni}
+${veriMetni}${makroMetni}${kapMetni}
 
 Asagidaki formati AYNEN kullan:
 
@@ -82,12 +106,12 @@ Buraya yaz.
 **Dikkat Noktalari**
 Buraya yaz.
 
-Kural: Fiyat ve hacim verilerini yorumla. Somut ol. Turkce yaz. Para birimi olarak TRY veya Turkish Lira yazma, sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme.`
+Kural: Fiyat ve hacim verilerini yorumla. Sana KAP bildirimleri verildiyse, ilgili olanlari analize dahil et (ozellikle Piyasa Konumu ve Dikkat Noktalari bolumlerinde) ama abartma, olguyu aktar. Somut ol. Turkce yaz. Para birimi olarak TRY veya Turkish Lira yazma, sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme.`
         }
       ]
     });
 
-    const analiz = message.content[0].type === "text" ? message.content[0].text : "";
+    const analiz = message.content.flatMap(b => (b.type === "text" ? [b.text] : [])).join("");
     return NextResponse.json({ analiz, veri });
   } catch (error) {
     console.error("Anthropic API error:", JSON.stringify(error, null, 2));
