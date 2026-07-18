@@ -112,7 +112,8 @@ export async function POST(req: NextRequest) {
       max_tokens: 1024,
       messages: [{ role: "user", content: promptOlustur(tanim, veriBlogu(tanim, snapshot, profil, seri)) }],
     });
-    const analiz = message.content[0].type === "text" ? message.content[0].text : "";
+    const ilkText = message.content.find(b => b.type === "text");
+    const analiz = ilkText?.type === "text" ? ilkText.text : "";
     if (analiz) {
       await supabaseAdmin.from("enstruman_analiz_cache").upsert({ kod, analiz, model: MODEL, created_at: new Date().toISOString() });
     }

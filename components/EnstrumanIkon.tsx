@@ -98,11 +98,11 @@ export function DovizCiftIkon({ taban, karsi, boyut = 36 }: { taban: string; kar
   );
 }
 
-const MADEN_RENK: Record<string, { koyu: string; acik: string; zemin: string }> = {
-  altin: { koyu: "#B45309", acik: "#FBBF24", zemin: "rgba(245,158,11,0.12)" },
-  gumus: { koyu: "#64748B", acik: "#E2E8F0", zemin: "rgba(148,163,184,0.12)" },
-  platin: { koyu: "#526278", acik: "#B6C6DA", zemin: "rgba(124,141,166,0.14)" },
-  paladyum: { koyu: "#6B655B", acik: "#D6CDBD", zemin: "rgba(168,159,145,0.13)" },
+const MADEN_RENK: Record<string, { koyu: string; acik: string }> = {
+  altin: { koyu: "#B45309", acik: "#FBBF24" },
+  gumus: { koyu: "#64748B", acik: "#E2E8F0" },
+  platin: { koyu: "#526278", acik: "#B6C6DA" },
+  paladyum: { koyu: "#6B655B", acik: "#D6CDBD" },
 };
 
 function madenRenk(kod: string) {
@@ -112,21 +112,30 @@ function madenRenk(kod: string) {
   return MADEN_RENK.paladyum;
 }
 
+// Doviz cifti ikonuyla ayni kompozit dil: sol-ustte kulce karosu, sag-altta fiyat para biriminin bayragi
+// (gram = TL turetilmis -> TR, ons = USD spot -> US).
 export function MadenIkon({ kod, boyut = 36 }: { kod: string; boyut?: number }) {
   const r = madenRenk(kod);
+  const para = kod.startsWith("gram") ? "TRY" : "USD";
+  const bg = Math.round(boyut * 0.66);
   return (
-    <span
-      role="img" aria-label="Külçe"
-      style={{
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        width: boyut, height: boyut, borderRadius: Math.max(6, boyut * 0.25),
-        background: r.zemin, flexShrink: 0,
-      }}
-    >
-      <svg viewBox="0 0 24 24" width={boyut * 0.62} height={boyut * 0.62} aria-hidden="true">
-        <path d="M8.5 5.5 h7 l1.6 4 H6.9 z" fill={r.acik} stroke={r.koyu} strokeWidth="0.9" strokeLinejoin="round" />
-        <path d="M5.5 12.5 h13 l2 5.5 H3.5 z" fill={r.acik} stroke={r.koyu} strokeWidth="0.9" strokeLinejoin="round" />
-      </svg>
+    <span role="img" aria-label="Külçe" style={{ position: "relative", width: boyut, height: boyut, display: "inline-block", flexShrink: 0 }}>
+      <span
+        style={{
+          position: "absolute", top: boyut * 0.06, left: 0,
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          width: bg, height: bg * 0.75, borderRadius: Math.max(2, bg * 0.14),
+          background: "#141E30", border: "1px solid rgba(255,255,255,0.18)", boxSizing: "border-box",
+        }}
+      >
+        <svg viewBox="0 0 24 24" width={bg * 0.66} height={bg * 0.56} aria-hidden="true">
+          <path d="M8.5 4.5 h7 l1.6 4.5 H6.9 z" fill={r.acik} stroke={r.koyu} strokeWidth="0.9" strokeLinejoin="round" />
+          <path d="M5.5 12.5 h13 l2 6 H3.5 z" fill={r.acik} stroke={r.koyu} strokeWidth="0.9" strokeLinejoin="round" />
+        </svg>
+      </span>
+      <span style={{ position: "absolute", bottom: boyut * 0.06, right: 0, filter: "drop-shadow(-2px -2px 3px rgba(2,6,17,0.55))" }}>
+        <Bayrak para={para} genislik={bg} />
+      </span>
     </span>
   );
 }

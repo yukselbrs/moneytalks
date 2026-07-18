@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   if (madenSatirlar.length) {
     const { error: legacyHata } = await supabase.from("maden_snapshots").upsert(
       madenSatirlar.map(s => {
-        const { tur: _tur, getiri_6a: _g6a, ...legacy } = s;
+        const { tur: _tur, getiri_6a: _g6a, getiri_5y: _g5y, ...legacy } = s;
         return { ...legacy, updated_at: simdi };
       })
     );

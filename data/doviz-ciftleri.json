@@ -5,6 +5,7 @@
   { "kod": "gbp-usd", "ad": "GBP/USD", "aciklama": "İngiliz Sterlini / Amerikan Doları", "yahooSembol": "GBPUSD=X", "taban": "GBP", "karsi": "USD" },
   { "kod": "gbp-try", "ad": "GBP/TRY", "aciklama": "İngiliz Sterlini / Türk Lirası", "yahooSembol": "GBPTRY=X", "taban": "GBP", "karsi": "TRY" },
   { "kod": "gbp-eur", "ad": "GBP/EUR", "aciklama": "İngiliz Sterlini / Euro", "yahooSembol": "GBPEUR=X", "taban": "GBP", "karsi": "EUR" },
+  { "kod": "try-jpy", "ad": "TRY/JPY", "aciklama": "Türk Lirası / Japon Yeni", "yahooSembol": "TRYJPY=X", "taban": "TRY", "karsi": "JPY" },
   { "kod": "usd-jpy", "ad": "USD/JPY", "aciklama": "Amerikan Doları / Japon Yeni", "yahooSembol": "USDJPY=X", "taban": "USD", "karsi": "JPY" },
   { "kod": "eur-jpy", "ad": "EUR/JPY", "aciklama": "Euro / Japon Yeni", "yahooSembol": "EURJPY=X", "taban": "EUR", "karsi": "JPY" },
   { "kod": "gbp-jpy", "ad": "GBP/JPY", "aciklama": "İngiliz Sterlini / Japon Yeni", "yahooSembol": "GBPJPY=X", "taban": "GBP", "karsi": "JPY" }

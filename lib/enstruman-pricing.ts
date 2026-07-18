@@ -64,6 +64,7 @@ export type EnstrumanSnapshot = {
   getiri_3a: number | null;
   getiri_6a: number | null;
   getiri_1y: number | null;
+  getiri_5y: number | null;
   kaynak: string;
   usdtry_kur: number | null;
 };
@@ -93,11 +94,11 @@ async function fetchChart(sembol: string, range: string, interval: string): Prom
   return null;
 }
 
-// Yahoo tamamen dusukse doviz icin ECB gunluk referans serisi (1 yil).
+// Yahoo tamamen dusukse doviz icin ECB gunluk referans serisi (5 yil — 5Y getirisi icin).
 async function frankfurterSeri(taban: string, karsi: string): Promise<number[] | null> {
   try {
     const bitis = new Date();
-    const baslangic = new Date(bitis.getTime() - 370 * 24 * 3600 * 1000);
+    const baslangic = new Date(bitis.getTime() - 1860 * 24 * 3600 * 1000);
     const gun = (d: Date) => d.toISOString().slice(0, 10);
     const url = `https://api.frankfurter.dev/v1/${gun(baslangic)}..${gun(bitis)}?base=${taban}&symbols=${karsi}`;
     const res = await fetch(url, { cache: "no-store" });
@@ -138,14 +139,15 @@ function gecerliSeri(chart: YahooChart): number[] {
   return chart.closes.filter((c): c is number => c !== null && c > 0);
 }
 
-// Seriden ortak getiri seti: 1H(5), 1A(21), 3A(63), 6A(126), 1Y(serinin tamami; >200 bar sarti).
+// Seriden ortak getiri seti (5y'lik gunluk seri): 1H(5), 1A(21), 3A(63), 6A(126), 1Y(252), 5Y(serinin tamami; >1000 bar sarti).
 function getiriSeti(seri: number[]) {
   return {
     getiri_1h: periyodikGetiri(seri, 5),
     getiri_1a: periyodikGetiri(seri, 21),
     getiri_3a: periyodikGetiri(seri, 63),
     getiri_6a: periyodikGetiri(seri, 126),
-    getiri_1y: seri.length > 200 ? periyodikGetiri(seri, seri.length - 1) : null,
+    getiri_1y: periyodikGetiri(seri, 252),
+    getiri_5y: seri.length > 1000 ? periyodikGetiri(seri, seri.length - 1) : null,
   };
 }
 
@@ -160,7 +162,7 @@ export async function enstrumanSnapshotlariUret(): Promise<{ satirlar: Enstruman
   let hata = 0;
   const semboller = [...new Set(ENSTRUMANLAR.map(e => e.yahooSembol))];
   const kurSembolIndex = semboller.indexOf("USDTRY=X");
-  const chartlar = await Promise.all(semboller.map(s => fetchChart(s, "1y", "1d")));
+  const chartlar = await Promise.all(semboller.map(s => fetchChart(s, "5y", "1d")));
   const chartMap = new Map(semboller.map((s, i) => [s, chartlar[i]]));
   const kurChart = kurSembolIndex >= 0 ? chartlar[kurSembolIndex] : null;
   const kurNow = kurChart?.meta.regularMarketPrice ?? null;
@@ -273,6 +275,19 @@ export async function fetchProfilSerisi(kod: string): Promise<number[]> {
   if (!e) return [];
   const chart = await fetchChart(e.yahooSembol, "1y", "1d");
   return chart ? gecerliSeri(chart) : [];
+}
+
+// Migration/cron oncesi kopru: snapshot tablosu bos/eksikse fiyatlar dogrudan kaynaktan uretilir.
+// 60 sn module-cache — ayni serverless instance'taki istekler tek uretimi paylasir.
+let canliCache: { zaman: number; map: Map<string, EnstrumanSnapshot> } | null = null;
+const CANLI_CACHE_MS = 60_000;
+
+export async function canliSnapshotlar(): Promise<Map<string, EnstrumanSnapshot>> {
+  if (canliCache && Date.now() - canliCache.zaman < CANLI_CACHE_MS) return canliCache.map;
+  const { satirlar } = await enstrumanSnapshotlariUret();
+  const map = new Map(satirlar.map(s => [s.kod, s]));
+  if (map.size) canliCache = { zaman: Date.now(), map };
+  return map;
 }
 
 // Detay sayfasi "oynaklik profili" — hisse risk motorunun enstrumana uyan alt kumesi (beta/F-K/hacim YOK).

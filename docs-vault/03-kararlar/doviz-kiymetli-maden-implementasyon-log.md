@@ -134,6 +134,16 @@ Kur fiyatları: <10 → 4 ondalık (EUR/USD 1,0842), <100 → 3, ≥100 → 2 (U
 
 ---
 
+## Revizyon Turu 1 (18 Tem 2026 — kullanıcı geri bildirimi)
+
+Ekran görüntüleriyle gelen istekler ve yapılanlar:
+- **Kurlar gelmedi + 6A boş** → kök neden migration'ın beklemesiydi; **canlı-üretim köprüsü** eklendi: `canliSnapshotlar()` (60 sn module cache) — snapshot tablosu boşsa liste/detay API'leri fiyatları doğrudan Yahoo'dan üretir. Artık migration OLMADAN da 16 enstrümanın tüm kolonları dolu (canlıda doğrulandı). Migration yine gerekli (alarm cron fiyatı, analiz cache, alarm/portföy tur insert'leri) ama görüntüleme bloklanmıyor.
+- **TRY/JPY eklendi** (`TRYJPY=X`, 3,3950 — K2'ye uygun >1; JPY çiftlerinde tek istisna olarak zayıf taraf önde değil, TRY tabanda: kullanıcı isteği). Evren 16 enstrümana çıktı.
+- **5Y kolonu eklendi**: fetch range 1y→5y (1301 bar), `getiri_5y` (şemaya idempotent ALTER dahil), hub 9 kolon (min-width 880px), detayda 6. kart. 1Y artık sabit 252 bar. Frankfurter fallback aralığı 5 yıla çıkarıldı.
+- **Maden ikonları kompozit yapıldı**: külçe karosu (sol-üst) + fiyat para biriminin bayrağı (sağ-alt; gram→TR, ons→US) — döviz çifti ikonuyla aynı dil.
+- **Silinen metinler**: AI kartındaki "claude-sonnet-5", oynaklık profili alt notu ("RSI ve momentum..."), bayat-veri amber bandı.
+- **AI Analiz butonu**: prod endpoint token'sız 401 ile ayakta doğrulandı — "çalışmıyor" büyük olasılıkla girişsiz kullanım ya da yutulmuş istisnaydı; handleAnaliz try/catch'e alındı (her hata artık ekranda mesaj gösterir), Sonnet yanıtı `content.find(type==="text")` ile sağlamlaştırıldı. Giriş yapmadan buton "giriş yapmanız gerekir" der — bu davranış bilinçli.
+
 ## AÇIK KALANLAR (kod dışı adımlar + bilinçli borçlar)
 
 1. **[BARIŞ — BLOKER] Migration'ı SQL Editor'de çalıştır:** `supabase/migrations.sql` dosyasının "DOVIZ+MADEN v1 (17 Tem 2026)" bloğu (dosya idempotent, tamamını da çalıştırabilirsin). Bu çalışana kadar: döviz fiyatları boş, Actions'ta enstruman-snapshot kırmızı (hata:1 — beklenen), AI analiz cache'siz çalışır, enstrüman alarm/portföy insert'leri `tur` kolonu hatası verir.

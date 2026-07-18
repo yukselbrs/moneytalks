@@ -10,7 +10,7 @@ type Enstruman = {
   birim: string | null; taban: string | null; karsi: string | null; para_birimi: string;
   fiyat: number | null; degisim_yuzde: number | null;
   getiri_1h: number | null; getiri_1a: number | null; getiri_3a: number | null;
-  getiri_6a: number | null; getiri_1y: number | null;
+  getiri_6a: number | null; getiri_1y: number | null; getiri_5y: number | null;
   kaynak?: string; updated_at?: string;
 };
 
@@ -27,6 +27,7 @@ const GETIRI_KOLONLARI: { key: keyof Enstruman; label: string }[] = [
   { key: "getiri_3a", label: "3A %" },
   { key: "getiri_6a", label: "6A %" },
   { key: "getiri_1y", label: "1Y %" },
+  { key: "getiri_5y", label: "5Y %" },
 ];
 
 const PARA_SEMBOL: Record<string, string> = { TRY: "₺", USD: "$", EUR: "€", JPY: "¥" };
@@ -70,13 +71,6 @@ function DovizMadenContent() {
 
   const filtreli = kategori === "tumu" ? items : items.filter(e => e.tur === kategori);
 
-  // Fallback/kesinti gorunurlugu: en taze snapshot 60 dk'dan eskiyse veri gecikmeli demektir.
-  const enTaze = items.reduce<number>((acc, e) => {
-    const t = e.updated_at ? new Date(e.updated_at).getTime() : 0;
-    return t > acc ? t : acc;
-  }, 0);
-  const bayat = yuklendi && enTaze > 0 && Date.now() - enTaze > 60 * 60 * 1000;
-
   const setKategori = (k: string) => {
     router.replace(k === "tumu" ? "/doviz-maden" : `/doviz-maden?kategori=${k}`);
   };
@@ -86,7 +80,7 @@ function DovizMadenContent() {
       <div className="dot-grid" style={{ background: "#0B1220", minHeight: "100vh", fontFamily: "var(--font-manrope, sans-serif)" }}>
         <style>{`
           .dm-shell { overflow-x: auto; }
-          .dm-head, .dm-row { display: grid; grid-template-columns: 190px 108px 82px 82px 82px 82px 82px 82px; gap: 8px; align-items: center; min-width: 800px; }
+          .dm-head, .dm-row { display: grid; grid-template-columns: 190px 108px 80px 80px 80px 80px 80px 80px 80px; gap: 8px; align-items: center; min-width: 880px; }
           .dm-head { padding: 13px 18px; border-bottom: 1px solid rgba(59,130,246,0.12); background: linear-gradient(180deg, rgba(59,130,246,0.04), rgba(255,255,255,0.005)); }
           .dm-head span { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; }
           .dm-row { padding: 13px 18px; border-bottom: 1px solid rgba(59,130,246,0.05); cursor: pointer; transition: background 0.15s ease, box-shadow 0.15s ease; }
@@ -135,12 +129,6 @@ function DovizMadenContent() {
               </button>
             ))}
           </div>
-
-          {bayat && (
-            <p style={{ fontSize: 12, color: "#FBBF24", background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.22)", borderRadius: 10, padding: "8px 12px", margin: "0 0 14px" }}>
-              Veri kaynağında kesinti olabilir — son bilinen değerler gösteriliyor (gecikmeli).
-            </p>
-          )}
 
           <div className="card-glass dm-shell" style={{ borderRadius: 12, overflow: "hidden" }}>
             <div className="dm-head">

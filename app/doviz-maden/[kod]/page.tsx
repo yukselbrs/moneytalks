@@ -20,7 +20,7 @@ type Enstruman = {
   fiyat: number | null; degisim_yuzde: number | null;
   gunluk_yuksek: number | null; gunluk_dusuk: number | null;
   getiri_1h: number | null; getiri_1a: number | null; getiri_3a: number | null;
-  getiri_6a: number | null; getiri_1y: number | null;
+  getiri_6a: number | null; getiri_1y: number | null; getiri_5y: number | null;
   kaynak?: string; usdtry_kur: number | null; updated_at?: string;
 };
 type Profil = { volatilite: number | null; rsi: number | null; momentum1a: number | null };
@@ -53,26 +53,29 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
   async function handleAnaliz() {
     setAiLoading(true);
     setAiAnaliz("");
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      setAiAnaliz("Analiz oluşturmak için giriş yapmanız gerekir.");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setAiAnaliz("Analiz oluşturmak için giriş yapmanız gerekir.");
+        return;
+      }
+      const res = await fetch("/api/doviz-maden/analiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ kod }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAiAnaliz(data.error || "Analiz alınamadı.");
+        return;
+      }
+      setAiAnaliz(data.analiz || "Analiz şu an kullanılabilir değil, lütfen tekrar deneyin.");
+      if (data.created_at) setAiTarih(data.created_at);
+    } catch {
+      setAiAnaliz("Analiz alınamadı, lütfen tekrar deneyin.");
+    } finally {
       setAiLoading(false);
-      return;
     }
-    const res = await fetch("/api/doviz-maden/analiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ kod }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setAiAnaliz(data.error || "Analiz alınamadı.");
-      setAiLoading(false);
-      return;
-    }
-    setAiAnaliz(data.analiz);
-    if (data.created_at) setAiTarih(data.created_at);
-    setAiLoading(false);
   }
 
   useEffect(() => {
@@ -134,8 +137,8 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
                 <HisseGrafik grafik={veri.grafik} grafikRange={range} setGrafikRange={setRange} fetchGrafik={(r: string) => setRange(r)} grafikDegisim={e.degisim_yuzde} gunlukDusuk={e.gunluk_dusuk} gunlukYuksek={e.gunluk_yuksek} />
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
-                {([["1 Hafta", e.getiri_1h], ["1 Ay", e.getiri_1a], ["3 Ay", e.getiri_3a], ["6 Ay", e.getiri_6a], ["1 Yıl", e.getiri_1y]] as const).map(([l, v]) => (
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-6">
+                {([["1 Hafta", e.getiri_1h], ["1 Ay", e.getiri_1a], ["3 Ay", e.getiri_3a], ["6 Ay", e.getiri_6a], ["1 Yıl", e.getiri_1y], ["5 Yıl", e.getiri_5y]] as const).map(([l, v]) => (
                   <div key={l} className="card-glass rounded-xl p-4">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{l}</p>
                     <p className={`mt-1 text-sm font-bold ${(v ?? 0) < 0 ? "text-red-400" : "text-emerald-400"}`}>{yuzde(v)}</p>
@@ -153,9 +156,6 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
                     <div><p className="text-[10px] uppercase tracking-wider text-slate-500">RSI (14)</p><p className="text-sm font-bold text-slate-200">{veri.profil.rsi !== null ? veri.profil.rsi.toFixed(0) : "—"}</p></div>
                     <div><p className="text-[10px] uppercase tracking-wider text-slate-500">Momentum (1A)</p><p className="text-sm font-bold text-slate-200">{yuzde(veri.profil.momentum1a)}</p></div>
                   </div>
-                  <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-                    {doviz ? "RSI ve momentum kur serisinden hesaplanır" : "RSI ve momentum ons (USD) serisinden hesaplanır"}; tek başına yön garantisi vermez.
-                  </p>
                 </div>
               )}
 
@@ -163,7 +163,7 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className="text-sm font-semibold text-slate-200">AI Analiz</h2>
-                    <p className="mt-0.5 text-[11px] text-slate-500">Teknik + temel değerlendirme · claude-sonnet-5 · 15 dk paylaşımlı önbellek</p>
+                    <p className="mt-0.5 text-[11px] text-slate-500">Teknik + temel değerlendirme · 15 dakikada bir yenilenir</p>
                   </div>
                   <button
                     onClick={handleAnaliz}

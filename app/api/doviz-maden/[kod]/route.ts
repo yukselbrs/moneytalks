@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { enstrumanBul, enstrumanParaBirimi, enstrumanGrafik, oynaklikProfili, fetchProfilSerisi } from "@/lib/enstruman-pricing";
+import { enstrumanBul, enstrumanParaBirimi, enstrumanGrafik, oynaklikProfili, fetchProfilSerisi, canliSnapshotlar } from "@/lib/enstruman-pricing";
 
 export const revalidate = 0;
 
@@ -19,8 +19,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ kod:
     fetchProfilSerisi(kod),
   ]);
 
-  // Gecis koprusu: yeni tablo bossa maden verisi eski tablodan (FAZ 8'de kalkar).
+  // Gecis koprusu: yeni tablo bossa canli uretimden (60 sn cache), o da yoksa maden icin eski tablodan.
   let snapshot = snap;
+  if (!snapshot) {
+    const canli = await canliSnapshotlar();
+    snapshot = canli.get(kod) ?? null;
+  }
   if (!snapshot && tanim.tur === "maden") {
     const { data: eski } = await supabase.from("maden_snapshots").select("*").eq("kod", kod).maybeSingle();
     snapshot = eski;

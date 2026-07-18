@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { ENSTRUMANLAR, enstrumanParaBirimi } from "@/lib/enstruman-pricing";
+import { ENSTRUMANLAR, enstrumanParaBirimi, canliSnapshotlar } from "@/lib/enstruman-pricing";
 
 export const revalidate = 0;
 
@@ -10,10 +10,15 @@ export async function GET() {
   const { data, error } = await supabase.from("enstruman_snapshots").select("*");
   const snapMap = new Map((data || []).map(r => [r.kod as string, r as object]));
 
-  // Gecis koprusu: migration henuz calismadiysa maden verisi eski tablodan okunur (FAZ 8'de kalkar).
+  // Gecis koprusu: migration/cron henuz kosmadiysa fiyatlar dogrudan kaynaktan uretilir (60 sn cache),
+  // o da bos donerse maden verisi eski tablodan okunur. Migration sonrasi ilk yol devrede kalir.
   if (error || !data?.length) {
-    const { data: eski } = await supabase.from("maden_snapshots").select("*");
-    for (const r of eski || []) snapMap.set(r.kod as string, r as object);
+    const canli = await canliSnapshotlar();
+    for (const [kod, s] of canli) snapMap.set(kod, s as object);
+    if (!canli.size) {
+      const { data: eski } = await supabase.from("maden_snapshots").select("*");
+      for (const r of eski || []) snapMap.set(r.kod as string, r as object);
+    }
   }
 
   // Statik evren sirasi korunur; snapshot yoksa satir bos degerlerle doner (tablo kurulmadan da sayfa acilir).

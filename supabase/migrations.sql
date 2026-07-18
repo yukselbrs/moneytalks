@@ -830,10 +830,14 @@ CREATE TABLE IF NOT EXISTS public.enstruman_snapshots (
   getiri_3a NUMERIC,
   getiri_6a NUMERIC,
   getiri_1y NUMERIC,
+  getiri_5y NUMERIC,
   kaynak TEXT,
   usdtry_kur NUMERIC,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Tabloyu onceki surumle olusturmus ortamlar icin (idempotent)
+ALTER TABLE public.enstruman_snapshots ADD COLUMN IF NOT EXISTS getiri_5y NUMERIC;
 
 ALTER TABLE public.enstruman_snapshots ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS enstruman_snapshots_select_all ON public.enstruman_snapshots;
