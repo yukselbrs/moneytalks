@@ -2,9 +2,9 @@ import { hataYakala } from "@/lib/hata-yakala";
 import type { KapDetay } from "@/lib/kap-ozet";
 
 // KAP disclosure kaynak katmani: tek yerden 3 islem (son index, liste, detay).
-// Birincil: MKK VYK (sozlesme/anahtarli). Fallback: kap.org.tr'nin kendi acik JSON API'si (anahtarsiz).
-// KAP_KAYNAK: "vyk" (yalniz VYK) | "kap" (yalniz ucretsiz site) | "auto" (VYK once, hata olursa siteye dus — varsayilan).
-// Site API'si sozlesmesiz oldugundan yalniz yedek: her hata GUVENLE bos/null doner, pipeline kirilmaz.
+// Kaynak: kap.org.tr'nin kendi acik JSON API'si (anahtarsiz, ucretsiz).
+// Eski MKK VYK (apigwdev.mkk.com.tr — demo/dev gateway) 18 Tem 2026'da tamamen kaldirildi.
+// Her hata GUVENLE bos/null doner; pipeline kirilmaz (o tur "yeni bildirim yok" gibi davranir).
 
 export type KapListeOgesi = {
   disclosureIndex: string;
@@ -12,94 +12,24 @@ export type KapListeOgesi = {
   stockCodes?: string | null;
 };
 
-const KAP_KAYNAK = (process.env.KAP_KAYNAK || "auto").toLowerCase();
-const VYK_URL = process.env.KAP_API_URL || "https://apigwdev.mkk.com.tr/api/vyk";
-const VYK_KIMLIK = !!(process.env.KAP_API_KEY && process.env.KAP_API_SECRET);
-const VYK_HEADERS = { Authorization: `Basic ${Buffer.from(`${process.env.KAP_API_KEY}:${process.env.KAP_API_SECRET}`).toString("base64")}` };
-
 const SITE = "https://www.kap.org.tr";
 const SITE_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 const SITE_LISTE_HEADERS = { "User-Agent": SITE_UA, "Content-Type": "application/json", Referer: `${SITE}/tr/bildirim-sorgu` };
-const SITE_LOOKBACK_GUN = 4; // Fallback tarih penceresi: cron 5 dk'da bir kostugundan fazlasiyla yeterli.
-
-function vykBirincil(): boolean {
-  return KAP_KAYNAK !== "kap" && VYK_KIMLIK;
-}
-function siteFallback(): boolean {
-  return KAP_KAYNAK !== "vyk";
-}
-
-// ---- VYK (birincil) ----
-
-async function vykSonIndex(): Promise<number | null> {
-  try {
-    const res = await fetch(`${VYK_URL}/lastDisclosureIndex`, { headers: VYK_HEADERS, cache: "no-store" });
-    if (!res.ok) return null;
-    const { lastDisclosureIndex } = await res.json();
-    const n = parseInt(lastDisclosureIndex, 10);
-    return Number.isNaN(n) ? null : n;
-  } catch {
-    return null;
-  }
-}
-
-async function vykListe(sonIndex: number, ticker?: string): Promise<KapListeOgesi[] | null> {
-  try {
-    const params = new URLSearchParams({ disclosureIndex: String(sonIndex) });
-    if (ticker) {
-      const id = await vykCompanyId(ticker);
-      if (id) params.set("companyId", id);
-    }
-    const res = await fetch(`${VYK_URL}/disclosures?${params}`, { headers: VYK_HEADERS, cache: "no-store" });
-    if (!res.ok) return null;
-    const list = await res.json();
-    return Array.isArray(list) ? list : null;
-  } catch {
-    return null;
-  }
-}
-
-const vykMemberCache: Record<string, string> = {};
-async function vykCompanyId(ticker: string): Promise<string | null> {
-  if (vykMemberCache[ticker]) return vykMemberCache[ticker];
-  try {
-    const res = await fetch(`${VYK_URL}/members`, { headers: VYK_HEADERS, next: { revalidate: 86400 } });
-    if (!res.ok) return null;
-    const data = await res.json();
-    for (const m of Array.isArray(data) ? data : []) {
-      if (m?.stockCode && m?.id) vykMemberCache[m.stockCode] = m.id;
-    }
-    return vykMemberCache[ticker] || null;
-  } catch {
-    return null;
-  }
-}
-
-async function vykDetay(index: string): Promise<KapDetay | null> {
-  try {
-    const res = await fetch(`${VYK_URL}/disclosureDetail/${index}?fileType=data`, { headers: VYK_HEADERS, cache: "no-store" });
-    if (!res.ok) return null;
-    return (await res.json()) as KapDetay;
-  } catch {
-    return null;
-  }
-}
-
-// ---- kap.org.tr acik site API'si (fallback) ----
+const SITE_LOOKBACK_GUN = 4; // Tarih penceresi: cron 5 dk'da bir kostugundan fazlasiyla yeterli.
 
 function siteTarih(offsetGun: number): string {
   const d = new Date(Date.now() + offsetGun * 86400_000);
   return d.toISOString().slice(0, 10);
 }
 
-// Site publishDate "YYYY.MM.DD HH:MM:SS" -> VYK "DD.MM.YYYY HH:MM:SS" (parseKapTarihi bunu bekler).
-function siteZamaniVyk(pd?: string | null): string | undefined {
+// Site publishDate "YYYY.MM.DD HH:MM:SS" -> VYK-uyumlu "DD.MM.YYYY HH:MM:SS" (tuketici parse'i bunu bekler).
+function siteZamaniNormalize(pd?: string | null): string | undefined {
   if (!pd) return undefined;
   const [tarih, saat] = pd.split(" ");
   if (!tarih || !saat) return undefined;
   const p = tarih.split(".");
   if (p.length !== 3) return undefined;
-  // Hem "YYYY.MM.DD" hem "DD.MM.YYYY" gelebilir; yil 4 haneli tarafi bul.
+  // Hem "YYYY.MM.DD" hem "DD.MM.YYYY" gelebilir; 4 haneli tarafi yil kabul et.
   const [a, b, c] = p;
   const [yil, ay, gun] = a.length === 4 ? [a, b, c] : [c, b, a];
   return `${gun}.${ay}.${yil} ${saat}`;
@@ -133,32 +63,15 @@ async function siteByCriteria(): Promise<SiteListeOgesi[] | null> {
       signal: AbortSignal.timeout(15000),
     });
     if (!res.ok) {
-      hataYakala("kap-kaynak:site-liste", new Error(`Site byCriteria ${res.status}`));
+      hataYakala("kap-kaynak:liste", new Error(`byCriteria ${res.status}`));
       return null;
     }
     const list = await res.json();
     return Array.isArray(list) ? list : null;
   } catch (e) {
-    hataYakala("kap-kaynak:site-liste", e);
+    hataYakala("kap-kaynak:liste", e);
     return null;
   }
-}
-
-async function siteSonIndex(): Promise<number | null> {
-  const list = await siteByCriteria();
-  if (!list?.length) return null;
-  return list.reduce((max, x) => (x.disclosureIndex > max ? x.disclosureIndex : max), 0) || null;
-}
-
-async function siteListe(sonIndex: number, ticker?: string): Promise<KapListeOgesi[] | null> {
-  const list = await siteByCriteria();
-  if (!list) return null;
-  const t = ticker?.toUpperCase();
-  return list
-    .filter((x) => x.disclosureIndex > sonIndex)
-    .filter((x) => !t || (x.stockCodes || "").toUpperCase().split(/[,\s]+/).includes(t))
-    .sort((a, b) => a.disclosureIndex - b.disclosureIndex)
-    .map((x) => ({ disclosureIndex: String(x.disclosureIndex), disclosureType: x.disclosureType, stockCodes: x.stockCodes }));
 }
 
 type SiteDetayYanit = Array<{
@@ -166,7 +79,27 @@ type SiteDetayYanit = Array<{
   disclosureBody?: unknown[];
 }>;
 
-async function siteDetay(index: string): Promise<KapDetay | null> {
+// ---- Ortak API ----
+
+export async function kapSonIndex(): Promise<number> {
+  const list = await siteByCriteria();
+  if (!list?.length) return 0;
+  return list.reduce((max, x) => (x.disclosureIndex > max ? x.disclosureIndex : max), 0);
+}
+
+export async function kapListe(opts: { sonIndex: number; ticker?: string }): Promise<{ liste: KapListeOgesi[]; hata: boolean }> {
+  const list = await siteByCriteria();
+  if (!list) return { liste: [], hata: true };
+  const t = opts.ticker?.toUpperCase();
+  const liste = list
+    .filter((x) => x.disclosureIndex > opts.sonIndex)
+    .filter((x) => !t || (x.stockCodes || "").toUpperCase().split(/[,\s]+/).includes(t))
+    .sort((a, b) => a.disclosureIndex - b.disclosureIndex)
+    .map((x) => ({ disclosureIndex: String(x.disclosureIndex), disclosureType: x.disclosureType, stockCodes: x.stockCodes }));
+  return { liste, hata: false };
+}
+
+export async function kapDetay(index: string): Promise<KapDetay | null> {
   try {
     const res = await fetch(`${SITE}/tr/api/notification/attachment-detail/${index}`, {
       headers: { "User-Agent": SITE_UA, Referer: `${SITE}/tr/Bildirim/${index}` },
@@ -190,50 +123,12 @@ async function siteDetay(index: string): Promise<KapDetay | null> {
       summary: { tr: b.summary || undefined },
       disclosureType: b.disclosureType || undefined,
       disclosureClass: b.disclosureClass || undefined,
-      time: siteZamaniVyk(b.publishDate),
+      time: siteZamaniNormalize(b.publishDate),
       link: `${SITE}/tr/Bildirim/${index}`,
       flatData: kok?.disclosureBody ?? null,
     };
   } catch (e) {
-    hataYakala("kap-kaynak:site-detay", e, { index });
+    hataYakala("kap-kaynak:detay", e, { index });
     return null;
   }
-}
-
-// ---- Ortak API (birincil + fallback) ----
-
-export async function kapSonIndex(): Promise<number> {
-  if (vykBirincil()) {
-    const n = await vykSonIndex();
-    if (n !== null) return n;
-  }
-  if (siteFallback()) {
-    const n = await siteSonIndex();
-    if (n !== null) return n;
-  }
-  return 0;
-}
-
-export async function kapListe(opts: { sonIndex: number; ticker?: string }): Promise<{ liste: KapListeOgesi[]; hata: boolean }> {
-  if (vykBirincil()) {
-    const l = await vykListe(opts.sonIndex, opts.ticker);
-    if (l !== null) return { liste: l, hata: false };
-  }
-  if (siteFallback()) {
-    const l = await siteListe(opts.sonIndex, opts.ticker);
-    if (l !== null) return { liste: l, hata: false };
-  }
-  return { liste: [], hata: true };
-}
-
-export async function kapDetay(index: string): Promise<KapDetay | null> {
-  if (vykBirincil()) {
-    const d = await vykDetay(index);
-    if (d) return d;
-  }
-  if (siteFallback()) {
-    const d = await siteDetay(index);
-    if (d) return d;
-  }
-  return null;
 }
