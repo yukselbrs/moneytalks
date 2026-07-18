@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { normalizeTicker } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
+import { enstrumanBul } from "@/lib/enstruman-pricing";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
@@ -29,8 +30,15 @@ export async function POST(req: NextRequest) {
 
   if (!ticker || !tip || !kosul) return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
 
-  const normalizedTicker = normalizeTicker(ticker);
+  // Doviz/maden alarmi: ticker alani enstruman kodu tasir (usd-try, gram-altin) — tur sunucuda turetilir.
+  const enstruman = enstrumanBul(String(ticker).toLocaleLowerCase("tr-TR"));
+  if (enstruman && tip === "gosterge") {
+    return NextResponse.json({ error: "Gösterge alarmı yalnız hisseler için kurulabilir" }, { status: 400 });
+  }
+  const normalizedTicker = enstruman ? enstruman.kod : normalizeTicker(ticker);
   if (!normalizedTicker) return NextResponse.json({ error: "Geçersiz ticker formatı" }, { status: 400 });
+  const gorunenAd = enstruman ? enstruman.ad : normalizedTicker;
+  const paraEki = enstruman ? "" : " ₺";
 
   if (!["fiyat_seviye", "fiyat_yuzde", "yuzde_degisim", "gosterge"].includes(tip)) return NextResponse.json({ error: "Geçersiz alarm tipi" }, { status: 400 });
   if (!["yukari", "asagi"].includes(kosul)) return NextResponse.json({ error: "Geçersiz koşul" }, { status: 400 });
@@ -46,6 +54,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { gosterge_tipi, gosterge_esik } = body;
+  // tur kolonu yalniz enstrumanlarda gonderilir: hisse insert'i migration'dan bagimsiz calisir.
   const { data, error: insertError } = await supabase.from("alarmlar").insert({
     user_id: user.id,
     ticker: normalizedTicker,
@@ -55,19 +64,20 @@ export async function POST(req: NextRequest) {
     hedef_yuzde: ["fiyat_yuzde", "yuzde_degisim"].includes(tip) ? Number(hedef_yuzde) : null,
     gosterge_tipi: tip === "gosterge" ? gosterge_tipi : null,
     gosterge_esik: tip === "gosterge" ? (gosterge_esik ? Number(gosterge_esik) : null) : null,
+    ...(enstruman ? { tur: enstruman.tur } : {}),
   }).select().single();
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
   const kosulMetin = kosul === "yukari" ? "yükselirse" : "düşerse";
   const hedefMetin = tip === "fiyat_seviye"
-    ? `${hedef_deger} ₺ seviyesine ${kosulMetin}`
+    ? `${hedef_deger}${paraEki} seviyesine ${kosulMetin}`
     : `%${hedef_yuzde} oranında ${kosulMetin}`;
 
   try {
     const { error: bildirimError } = await supabase.from("bildirimler").insert({
       user_id: user.id,
-      baslik: `${normalizedTicker} fiyat alarmı oluşturuldu`,
-      aciklama: `${normalizedTicker} fiyatı ${hedefMetin} bildirim alacaksınız.`,
+      baslik: `${gorunenAd} fiyat alarmı oluşturuldu`,
+      aciklama: `${gorunenAd} fiyatı ${hedefMetin} bildirim alacaksınız.`,
       detay: "",
       tip: "uyari",
       ikon: "🔔",
@@ -84,7 +94,7 @@ export async function POST(req: NextRequest) {
       await getResend().emails.send({
         from: "ParaKonuşur <hello@parakonusur.com>",
         to: email,
-        subject: `${normalizedTicker} için fiyat alarmı oluşturuldu`,
+        subject: `${gorunenAd} için fiyat alarmı oluşturuldu`,
         html: `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#0F172A;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
 <center style="width:100%;background:#0F172A;">
@@ -94,10 +104,10 @@ export async function POST(req: NextRequest) {
 </td></tr>
 <tr><td style="padding:8px 40px 40px;">
   <p style="font-size:16px;color:#E2E8F0;margin:0 0 20px;">Merhaba,</p>
-  <p style="font-size:16px;color:#E2E8F0;margin:0 0 20px;"><strong style="color:#3B82F6;">${normalizedTicker}</strong> hissesi için fiyat alarmın oluşturuldu.</p>
+  <p style="font-size:16px;color:#E2E8F0;margin:0 0 20px;"><strong style="color:#3B82F6;">${gorunenAd}</strong> için fiyat alarmın oluşturuldu.</p>
   <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:16px 20px;margin:0 0 24px;">
     <p style="font-size:13px;color:#94A3B8;margin:0 0 6px;">Alarm Koşulu</p>
-    <p style="font-size:18px;font-weight:700;color:#F1F5F9;margin:0;">${normalizedTicker} fiyatı ${hedefMetin}</p>
+    <p style="font-size:18px;font-weight:700;color:#F1F5F9;margin:0;">${gorunenAd} fiyatı ${hedefMetin}</p>
   </div>
   <p style="font-size:14px;color:#CBD5E1;margin:0 0 20px;">Koşul gerçekleştiğinde sana e-posta ile bildireceğiz.</p>
   <p style="font-size:16px;color:#E2E8F0;margin:0;">Sevgiler,<br><span style="color:#60A5FA;">ParaKonuşur Ekibi</span></p>

@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
 import { SEKTOR_MAP } from "@/lib/karne";
+import { ENSTRUMAN_KODLARI } from "@/lib/enstruman-pricing";
 
 // AKSAM RAPORU (Faz 4 C.1, KAP'siz v1): her islem gunu kapanistan sonra portfoy/izleme
 // sahibi kullaniciya kisisel gun sonu ozeti — in-app bildirim + e-posta.
@@ -157,7 +158,9 @@ export async function GET(req: NextRequest) {
     supabase.from("watchlist").select("user_id, ticker"),
   ]);
   const pozisyonMap = new Map<string, PortfoyRow[]>();
+  // Rapor hisse verisiyle calisir; doviz/maden pozisyonlari kapsam disi (bos satir olmasin diye filtrelenir).
   for (const r of (portfoyRes.data || []) as PortfoyRow[]) {
+    if (ENSTRUMAN_KODLARI.has(r.ticker)) continue;
     pozisyonMap.set(r.user_id, [...(pozisyonMap.get(r.user_id) || []), r]);
   }
   const izlemeMap = new Map<string, string[]>();

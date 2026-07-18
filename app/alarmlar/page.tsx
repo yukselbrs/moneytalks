@@ -5,6 +5,8 @@ import AlarmModal from "@/components/AlarmModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { supabase } from "@/components/lib/supabase";
 import StockLogo from "@/components/StockLogo";
+import { EnstrumanIkon } from "@/components/EnstrumanIkon";
+import { ENSTRUMANLAR } from "@/lib/enstruman-pricing";
 import { tickerRenk } from "@/lib/utils";
 
 type AlarmModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "haber" | "bildirim_tercihleri";
@@ -15,6 +17,8 @@ type Alarm = {
   tip: string;
   tipRaw: string;
   hisse: string;
+  tur: "hisse" | "doviz" | "maden";
+  gorunenAd: string;
   sirket: string;
   kosul: string;
   detay: string;
@@ -54,29 +58,49 @@ export default function AlarmlarPage() {
     const res = await fetch("/api/alarmlar", { headers: { authorization: `Bearer ${session.access_token}` } });
     const data = await res.json();
     if (!Array.isArray(data)) return;
-    const mapped: Alarm[] = data.map((a: { id: string; ticker: string; tip: string; kosul: string; hedef_deger: number | null; hedef_yuzde: number | null; durum: string; created_at: string }) => ({
-      id: a.id,
-      tip: a.tip === "fiyat_seviye" || a.tip === "fiyat_yuzde" ? "fiyat" : a.tip === "gosterge" ? "gosterge" : "haber",
-      tipRaw: a.tip,
-      hisse: a.ticker,
-      sirket: "",
-      kosul: a.kosul === "yukari" ? "Yükselirse" : "Düşerse",
-      detay: a.tip === "fiyat_seviye" ? "Fiyat seviyesi" : a.tip === "fiyat_yuzde" ? "Yüzde değişim" : "",
-      hedef: a.hedef_deger !== null && a.hedef_deger !== undefined
-        ? `${a.hedef_deger} ₺`
-        : a.hedef_yuzde !== null && a.hedef_yuzde !== undefined
-          ? `%${a.hedef_yuzde}`
-          : "-",
-      hedefDeger: a.hedef_deger ?? null,
-      guncel: "-",
-      degisim: "",
-      yukselis: true,
-      tarih: new Date(a.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "2-digit" }),
-      durum: a.durum || "aktif",
-    }));
+    const mapped: Alarm[] = data.map((a: { id: string; ticker: string; tur?: string; tip: string; kosul: string; hedef_deger: number | null; hedef_yuzde: number | null; durum: string; created_at: string }) => {
+      const tur = a.tur === "doviz" || a.tur === "maden" ? a.tur : "hisse";
+      return {
+        id: a.id,
+        tip: a.tip === "fiyat_seviye" || a.tip === "fiyat_yuzde" ? "fiyat" : a.tip === "gosterge" ? "gosterge" : "haber",
+        tipRaw: a.tip,
+        hisse: a.ticker,
+        tur,
+        gorunenAd: tur === "hisse" ? a.ticker : ENSTRUMANLAR.find(e => e.kod === a.ticker)?.ad ?? a.ticker,
+        sirket: "",
+        kosul: a.kosul === "yukari" ? "Yükselirse" : "Düşerse",
+        detay: a.tip === "fiyat_seviye" ? "Fiyat seviyesi" : a.tip === "fiyat_yuzde" ? "Yüzde değişim" : "",
+        hedef: a.hedef_deger !== null && a.hedef_deger !== undefined
+          ? `${a.hedef_deger}${tur === "hisse" ? " ₺" : ""}`
+          : a.hedef_yuzde !== null && a.hedef_yuzde !== undefined
+            ? `%${a.hedef_yuzde}`
+            : "-",
+        hedefDeger: a.hedef_deger ?? null,
+        guncel: "-",
+        degisim: "",
+        yukselis: true,
+        tarih: new Date(a.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "2-digit" }),
+        durum: a.durum || "aktif",
+      };
+    });
     setAlarmlar(mapped);
-    const tickers = [...new Set(mapped.map(a => a.hisse))].join(",");
-    if (tickers) fetch(`/api/fiyatlar?extra=${tickers}`).then(r => r.json()).then(d => setFiyatlar(d)).catch(() => {});
+    const hisseTickers = [...new Set(mapped.filter(a => a.tur === "hisse").map(a => a.hisse))].join(",");
+    if (hisseTickers) fetch(`/api/fiyatlar?extra=${hisseTickers}`).then(r => r.json()).then(d => setFiyatlar(prev => ({ ...prev, ...d }))).catch(() => {});
+    if (mapped.some(a => a.tur !== "hisse")) {
+      fetch("/api/doviz-maden", { cache: "no-store" }).then(r => r.json()).then(d => {
+        const ek: Record<string, { fiyat: string; degisim: string; yukselis: boolean }> = {};
+        for (const item of d.items || []) {
+          if (item.fiyat === null || item.fiyat === undefined) continue;
+          const hane = item.tur === "doviz" ? (item.fiyat < 10 ? 4 : item.fiyat < 100 ? 3 : 2) : 2;
+          ek[item.kod] = {
+            fiyat: item.fiyat.toLocaleString("tr-TR", { minimumFractionDigits: hane, maximumFractionDigits: hane }),
+            degisim: String(item.degisim_yuzde ?? 0),
+            yukselis: (item.degisim_yuzde ?? 0) >= 0,
+          };
+        }
+        setFiyatlar(prev => ({ ...prev, ...ek }));
+      }).catch(() => {});
+    }
   }, []);
 
   useEffect(() => {
@@ -140,9 +164,19 @@ export default function AlarmlarPage() {
         onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <StockLogo ticker={a.hisse} size={36} radius={8} color={tickerRenk(a.hisse)} />
+            {a.tur === "hisse" ? (
+              <StockLogo ticker={a.hisse} size={36} radius={8} color={tickerRenk(a.hisse)} />
+            ) : (
+              <EnstrumanIkon
+                tur={a.tur}
+                kod={a.hisse}
+                taban={a.tur === "doviz" ? a.hisse.split("-")[0]?.toUpperCase() : null}
+                karsi={a.tur === "doviz" ? a.hisse.split("-")[1]?.toUpperCase() : null}
+                boyut={36}
+              />
+            )}
             <div>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#E2E8F0", margin: 0 }}>{a.hisse}</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "#E2E8F0", margin: 0 }}>{a.gorunenAd}</p>
               <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>{a.kosul} · {a.detay}</p>
             </div>
           </div>
@@ -166,7 +200,7 @@ export default function AlarmlarPage() {
           <div style={{ textAlign: "right" }}>
             {guncelFiyat ? (
               <p style={{ fontSize: 13, fontWeight: 600, color: guncelFiyat.yukselis ? "#10B981" : "#EF4444", margin: 0 }}>
-                {guncelFiyat.fiyat} ₺ &nbsp;{guncelFiyat.yukselis ? "+" : "-"}%{degisimText}
+                {guncelFiyat.fiyat}{a.tur === "hisse" ? " ₺" : ""} &nbsp;{guncelFiyat.yukselis ? "+" : "-"}%{degisimText}
               </p>
             ) : (
               <p style={{ fontSize: 11, color: "#475569", margin: 0 }}>{a.tarih}</p>

@@ -9,6 +9,11 @@ export interface PortfoyItem {
   ticker: string;
   adet: number;
   maliyet: number;
+  tur?: "hisse" | "fon" | "maden" | "doviz";
+}
+
+export function enstrumanPozisyonMu(item: Pick<PortfoyItem, "tur">): boolean {
+  return item.tur === "doviz" || item.tur === "maden";
 }
 
 export interface FiyatMap {
@@ -37,14 +42,18 @@ export function usePortfolioData() {
   const prevFiyatlarRef = useRef<FiyatMap>({});
 
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
-    const tickers = items.map((p) => p.ticker.trim()).filter(Boolean).join(",");
-    if (!tickers) return {};
+    // Doviz/maden pozisyonlarinin fiyati /api/doviz-maden'den, hisselerinki /api/fiyatlar'dan gelir.
+    const hisseTickers = items.filter((p) => !enstrumanPozisyonMu(p)).map((p) => p.ticker.trim()).filter(Boolean).join(",");
+    const enstrumanVar = items.some(enstrumanPozisyonMu);
+    if (!hisseTickers && !enstrumanVar) return {};
     if (!sessiz) setFiyatlarYenileniyor(true);
     try {
-      const res = await fetch("/api/fiyatlar?extra=" + tickers);
-      const json = await res.json();
       const map: FiyatMap = {};
-      Object.entries(json).forEach(([ticker, val]) => {
+      const [hisseJson, enstrumanJson] = await Promise.all([
+        hisseTickers ? fetch("/api/fiyatlar?extra=" + hisseTickers).then((r) => r.json()) : Promise.resolve({}),
+        enstrumanVar ? fetch("/api/doviz-maden", { cache: "no-store" }).then((r) => r.json()) : Promise.resolve(null),
+      ]);
+      Object.entries(hisseJson).forEach(([ticker, val]) => {
         if (!val) return;
         const v = val as { fiyat?: unknown; degisim?: unknown };
         const fiyat = fiyatDegeriOku(v.fiyat);
@@ -52,6 +61,10 @@ export function usePortfolioData() {
         if (fiyat === null) return;
         map[ticker] = { fiyat, degisim: degisim ?? 0 };
       });
+      for (const item of enstrumanJson?.items || []) {
+        if (typeof item.fiyat !== "number") continue;
+        map[item.kod] = { fiyat: item.fiyat, degisim: typeof item.degisim_yuzde === "number" ? item.degisim_yuzde : 0 };
+      }
       setFiyatlar((prev) => ({ ...prev, ...map }));
       setSonFiyatGuncelleme(new Date());
       return map;
@@ -70,7 +83,7 @@ export function usePortfolioData() {
       if (!session) { router.push("/login"); return; }
       const { data, error } = await supabase
         .from("portfoy")
-        .select("id, ticker, adet, maliyet")
+        .select("id, ticker, adet, maliyet, tur")
         .order("created_at", { ascending: true });
       if (error) { console.error("Portfoy yuklenemedi", error); return; }
       if (!data || data.length === 0) {
@@ -83,8 +96,9 @@ export function usePortfolioData() {
       try {
         const map = await fiyatlariYenile(data, true);
         setPortfoyRiskSkor({ skor: 0, seviye: "", yukleniyor: true });
+        // Portfoy risk skoru hisse risk motorundan gelir; doviz/maden pozisyonlari hesaba KATILMAZ.
         const riskSonuclari = await Promise.all(
-          data.map(async (p: { ticker: string; adet: number; maliyet: number }) => {
+          data.filter((p: PortfoyItem) => !enstrumanPozisyonMu(p)).map(async (p: { ticker: string; adet: number; maliyet: number }) => {
             try {
               const r = await fetch(`/api/risk?ticker=${p.ticker.trim()}`);
               const rj = await r.json();
@@ -94,6 +108,7 @@ export function usePortfolioData() {
             } catch { return { skor: 35, deger: p.adet * p.maliyet }; }
           })
         );
+        if (!riskSonuclari.length) { setPortfoyRiskSkor(null); return; }
         const toplamDeger = riskSonuclari.reduce((a, b) => a + b.deger, 0);
         const agirlikliSkor = toplamDeger > 0
           ? riskSonuclari.reduce((a, b) => a + (b.skor * b.deger / toplamDeger), 0)

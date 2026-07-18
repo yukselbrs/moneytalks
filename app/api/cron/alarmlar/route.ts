@@ -49,9 +49,22 @@ export async function GET(req: NextRequest) {
   const { data: profiller } = await supabase.from("profiles").select("id, email").in("id", kullaniciIdleri);
   const emailMap = new Map((profiller || []).map((p: { id: string; email: string | null }) => [p.id, p.email]));
 
-  const tickerler = [...new Set(alarmlar.map((a: { ticker: string }) => a.ticker))];
+  // Varlik ayrimi: doviz/maden alarmlarinin fiyati enstruman_snapshots'tan, hisselerinki /api/fiyatlar'dan.
+  const enstrumanMi = (a: { tur?: string }) => a.tur === "doviz" || a.tur === "maden";
+  const hisseTickerler = [...new Set(alarmlar.filter(a => !enstrumanMi(a)).map((a: { ticker: string }) => a.ticker))];
+  const enstrumanKodlar = [...new Set(alarmlar.filter(enstrumanMi).map((a: { ticker: string }) => a.ticker))];
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://parakonusur.com";
-  const fiyatlar = await fetchFiyatlar(appUrl, tickerler);
+  const fiyatlar = hisseTickerler.length ? await fetchFiyatlar(appUrl, hisseTickerler) : {};
+  if (enstrumanKodlar.length) {
+    const { data: snaplar } = await supabase
+      .from("enstruman_snapshots")
+      .select("kod, fiyat, degisim_yuzde")
+      .in("kod", enstrumanKodlar);
+    for (const s of snaplar || []) {
+      if (s.fiyat === null) continue;
+      fiyatlar[s.kod] = { fiyat: s.fiyat, degisim: s.degisim_yuzde ?? 0 };
+    }
+  }
 
   let tetiklenen = 0;
   let hata = 0;
@@ -60,10 +73,12 @@ export async function GET(req: NextRequest) {
     const fiyatBilgi = fiyatlar[alarm.ticker];
     if (!fiyatBilgi) continue;
 
-    const guncelFiyat = parseFiyat(fiyatBilgi.fiyat);
+    // Enstruman fiyati sayi olarak gelir; parseFiyat TR-formatli string icindir (sayiya uygulanirsa nokta binlik sanilir).
+    const guncelFiyat = typeof fiyatBilgi.fiyat === "number" ? fiyatBilgi.fiyat : parseFiyat(fiyatBilgi.fiyat);
     const degisimYuzde = parseFloat(String(fiyatBilgi.degisim)); // günlük % değişim
     const kosul = alarm.kosul; // "yukari" | "asagi"
     const tip = alarm.tip;
+    const birim = enstrumanMi(alarm) ? "" : " ₺";
 
     let tetiklendi = false;
     let aciklama = "";
@@ -72,11 +87,11 @@ export async function GET(req: NextRequest) {
       const hedef = alarm.hedef_deger;
       if (kosul === "yukari" && hedef && guncelFiyat >= hedef) {
         tetiklendi = true;
-        aciklama = `${alarm.ticker} fiyatı ${guncelFiyat.toFixed(2)} ₺ — Hedef: ${hedef} ₺ (yukarı kırıldı)`;
+        aciklama = `${alarm.ticker} fiyatı ${guncelFiyat.toFixed(2)}${birim} — Hedef: ${hedef}${birim} (yukarı kırıldı)`;
       }
       if (kosul === "asagi" && hedef && guncelFiyat <= hedef) {
         tetiklendi = true;
-        aciklama = `${alarm.ticker} fiyatı ${guncelFiyat.toFixed(2)} ₺ — Hedef: ${hedef} ₺ (aşağı kırıldı)`;
+        aciklama = `${alarm.ticker} fiyatı ${guncelFiyat.toFixed(2)}${birim} — Hedef: ${hedef}${birim} (aşağı kırıldı)`;
       }
 
     } else if (tip === "fiyat_yuzde" || tip === "yuzde_degisim") {
@@ -92,6 +107,7 @@ export async function GET(req: NextRequest) {
       }
 
     } else if (tip === "gosterge") {
+      if (enstrumanMi(alarm)) continue; // gosterge alarmi hisse'ye ozgu (POST zaten engeller; savunmaci)
       // RSI bazlı gösterge alarmı — /api/risk'ten çek
       try {
         const riskRes = await fetch(`${appUrl}/api/risk?ticker=${alarm.ticker}`);
@@ -146,7 +162,7 @@ export async function GET(req: NextRequest) {
           html: `<div style="font-family:sans-serif;background:#0B1220;color:#F1F5F9;padding:32px;border-radius:12px;max-width:500px;margin:0 auto;">
             <h2 style="color:#3B82F6;">${alarm.ticker} Alarm</h2>
             <p>${aciklama}</p>
-            <a href="https://parakonusur.com/hisse/${alarm.ticker}" style="background:#3B82F6;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Hisseyi İncele →</a>
+            <a href="https://parakonusur.com/${enstrumanMi(alarm) ? `doviz-maden/${alarm.ticker}` : `hisse/${alarm.ticker}`}" style="background:#3B82F6;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">${enstrumanMi(alarm) ? "Enstrümanı" : "Hisseyi"} İncele →</a>
           </div>`,
         });
         } catch (e) {

@@ -2,6 +2,16 @@
 import { useState } from "react";
 import { supabase } from "@/components/lib/supabase";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { ENSTRUMANLAR } from "@/lib/enstruman-pricing";
+
+// Fiyat alarmi hem hisse hem doviz/maden destekler; ticker alani enstruman KODU tasiyabilir (USD-TRY).
+function enstrumanAra(q: string) {
+  return ENSTRUMANLAR.filter(e =>
+    e.kod.toUpperCase().includes(q) ||
+    e.ad.toUpperCase().includes(q) ||
+    (e.tur === "doviz" && e.aciklama.toUpperCase().includes(q))
+  ).slice(0, 3);
+}
 
 type ModalTip = "fiyat_seviye" | "fiyat_yuzde" | "gosterge" | "haber" | "bildirim_tercihleri";
 
@@ -55,8 +65,10 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
   const [hata, setHata] = useState("");
   const [basarili, setBasarili] = useState(false);
 
+  const secilenEnstruman = ENSTRUMANLAR.find(e => e.kod.toUpperCase() === ticker.trim().toUpperCase());
+
   async function handleKaydetFiyat() {
-    if (!ticker.trim()) { setHata("Hisse kodu gerekli"); return; }
+    if (!ticker.trim()) { setHata("Hisse ya da enstrüman kodu gerekli"); return; }
     if (tip === "fiyat_seviye" && !hedefDeger) { setHata("Hedef fiyat gerekli"); return; }
     if (tip === "fiyat_yuzde" && !hedefYuzde) { setHata("Yüzde değeri gerekli"); return; }
     setYukleniyor(true); setHata("");
@@ -154,15 +166,27 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
                 </div>
               </div>
               <div style={{ marginBottom: 14 }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", marginBottom: 6, letterSpacing: "0.07em", textTransform: "uppercase" }}>Hisse Kodu</p>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", marginBottom: 6, letterSpacing: "0.07em", textTransform: "uppercase" }}>Hisse / Döviz / Maden</p>
                 <div style={{ position: "relative" }}>
-                  <input value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="THYAO" autoComplete="off"
+                  <input value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())} placeholder="THYAO ya da USD-TRY" autoComplete="off"
                     style={{ width: "100%", padding: "10px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 8, color: "#F8FAFC", fontSize: 14, fontWeight: 700, outline: "none", boxSizing: "border-box" }} />
                   {ticker.length >= 1 && (() => {
                     const q = ticker.toUpperCase();
-                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6);
-                    return matches.length > 0 ? (
+                    const enstrumanlar = enstrumanAra(q);
+                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6 - enstrumanlar.length);
+                    return matches.length > 0 || enstrumanlar.length > 0 ? (
                       <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 200, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                        {enstrumanlar.map(en => (
+                          <div key={en.kod} onMouseDown={() => setTicker(en.kod.toUpperCase())}
+                            style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{en.ad}</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: en.tur === "doviz" ? "#60A5FA" : "#FBBF24", background: en.tur === "doviz" ? "rgba(59,130,246,0.12)" : "rgba(245,158,11,0.12)", borderRadius: 999, padding: "2px 8px" }}>
+                              {en.tur === "doviz" ? "Döviz" : "Maden"}
+                            </span>
+                          </div>
+                        ))}
                         {matches.map(h => (
                           <div key={h.ticker} onMouseDown={() => setTicker(h.ticker)}
                             style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
@@ -190,7 +214,7 @@ export default function AlarmModal({ onKapat, onEklendi, varsayilanTip = "fiyat_
               </div>
               <div style={{ marginBottom: 20 }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", marginBottom: 6, letterSpacing: "0.07em", textTransform: "uppercase" }}>
-                  {tip === "fiyat_seviye" ? "Hedef Fiyat (₺)" : "Yüzde Değişim (%)"}
+                  {tip === "fiyat_seviye" ? (secilenEnstruman ? `Hedef Fiyat (${secilenEnstruman.ad})` : "Hedef Fiyat (₺)") : "Yüzde Değişim (%)"}
                 </p>
                 <input value={tip === "fiyat_seviye" ? hedefDeger : hedefYuzde}
                   onChange={e => tip === "fiyat_seviye" ? setHedefDeger(e.target.value) : setHedefYuzde(e.target.value)}

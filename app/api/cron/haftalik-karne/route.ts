@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
 import { karneHesapla, fetchEndeksHaftalik, fetchRiskOzetleri, haftaBaslangici, isoHaftaNo, EGITIM_ICERIKLERI, KAP_OLAY_LIMIT, type Karne, type KapOlay, type PortfoyRow, type SnapshotRow } from "@/lib/karne";
+import { ENSTRUMAN_KODLARI } from "@/lib/enstruman-pricing";
 
 export const maxDuration = 60;
 
@@ -92,10 +93,12 @@ export async function GET(req: NextRequest) {
   const dryRun = req.nextUrl.searchParams.get("dry") === "1";
   const hafta = haftaBaslangici();
 
-  const { data: portfoyRows } = await supabase
+  const { data: portfoyRowsHam } = await supabase
     .from("portfoy")
     .select("user_id, ticker, adet")
     .gt("adet", 0);
+  // Karne hisse_snapshots'tan beslenir; doviz/maden pozisyonlari kapsam disi (bos satir olmasin diye filtrelenir).
+  const portfoyRows = (portfoyRowsHam || []).filter(r => !ENSTRUMAN_KODLARI.has(r.ticker));
 
   let hata = 0;
   if (!portfoyRows?.length) return NextResponse.json({ kullanici: 0, gonderilen: 0, hata });

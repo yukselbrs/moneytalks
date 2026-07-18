@@ -8,7 +8,25 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "next/link";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
 import { formatCurrency, formatNumber, formatPercent, formatQuantity, formatSignedCurrency } from "@/lib/formatters";
-import { usePortfolioData, type PortfoyItem } from "@/hooks/usePortfolioData";
+import { usePortfolioData, enstrumanPozisyonMu, type PortfoyItem } from "@/hooks/usePortfolioData";
+import { ENSTRUMANLAR } from "@/lib/enstruman-pricing";
+
+// Portfoye yalniz TL bazli enstrumanlar eklenebilir (K8): USD/EUR cinsi pozisyonlar ₺ toplamlari bozardi.
+const TL_BAZLI_ENSTRUMANLAR = ENSTRUMANLAR.filter(e =>
+  e.tur === "doviz" ? e.karsi === "TRY" : e.birim === "gram"
+);
+
+function pozisyonTanim(ticker: string) {
+  return ENSTRUMANLAR.find(e => e.kod === ticker);
+}
+
+function pozisyonAd(item: Pick<PortfoyItem, "ticker" | "tur">): string {
+  return enstrumanPozisyonMu(item) ? pozisyonTanim(item.ticker)?.ad ?? item.ticker.toUpperCase() : item.ticker;
+}
+
+function pozisyonLink(item: Pick<PortfoyItem, "ticker" | "tur">): string {
+  return enstrumanPozisyonMu(item) ? `/doviz-maden/${item.ticker}` : `/hisse/${item.ticker}`;
+}
 import { usePortfolioGrafik } from "@/hooks/usePortfolioGrafik";
 
 const PASTA_RENKLER = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#EF4444","#06B6D4","#F97316","#EC4899","#84CC16","#14B8A6"];
@@ -209,12 +227,19 @@ export default function PortfoyPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/login"); return; }
+      const girilen = ekleModal.ticker.toUpperCase().replace(/\x00/g, "").trim();
+      const enstruman = ENSTRUMANLAR.find(e => e.kod.toUpperCase() === girilen);
+      if (enstruman && !TL_BAZLI_ENSTRUMANLAR.includes(enstruman)) {
+        setEkleModal((m) => ({ ...m, hata: "Portföye yalnız TL bazlı enstrümanlar eklenebilir: USD-TRY, EUR-TRY, GBP-TRY, GRAM-ALTIN, GRAM-GUMUS.", yukleniyor: false }));
+        return;
+      }
       const { error } = await supabase.from("portfoy").upsert(
         {
           user_id: session.user.id,
-          ticker: ekleModal.ticker.toUpperCase().replace(/\x00/g, "").trim(),
+          ticker: enstruman ? enstruman.kod : girilen,
           adet: parseFloat(ekleModal.adet),
           maliyet: parseFloat(ekleModal.maliyet),
+          ...(enstruman ? { tur: enstruman.tur } : {}),
         },
         { onConflict: "user_id,ticker" }
       );
@@ -339,7 +364,9 @@ export default function PortfoyPage() {
 
   useEffect(() => {
     if (!senaryoAcik || portfoy.length === 0) return;
+    // Beta/senaryo hisse'ye ozgu — doviz/maden pozisyonlari istege dahil edilmez.
     const eksikTickers = portfoy
+      .filter(p => !enstrumanPozisyonMu(p))
       .map(p => p.ticker)
       .filter(ticker => betaVerisi[ticker] === undefined);
     if (eksikTickers.length === 0) return;
@@ -785,7 +812,7 @@ export default function PortfoyPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <Link href={`/hisse/${item.ticker}`} onClick={e => e.stopPropagation()} className="font-bold text-white hover:text-blue-400 text-[15px]">{item.ticker}</Link>
+                          <Link href={pozisyonLink(item)} onClick={e => e.stopPropagation()} className="font-bold text-white hover:text-blue-400 text-[15px]">{pozisyonAd(item)}</Link>
                           {fiyat && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyatDegisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"}{formatPercent(Math.abs(fiyatDegisim), { signDisplay: "never" })}</span>}
                         </div>
                         <p className="mt-0.5 text-xs text-slate-500">
@@ -875,7 +902,7 @@ export default function PortfoyPage() {
                         <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
                           className="flex-1 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition-colors"
                           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>± Lot</button>
-                        <Link href={`/hisse/${item.ticker}`} className="flex-1 py-2 rounded-lg text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors text-center"
+                        <Link href={pozisyonLink(item)} className="flex-1 py-2 rounded-lg text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors text-center"
                           style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)" }}>Analiz →</Link>
                         <button onClick={() => setSilModal({ open: true, ticker: item.ticker })}
                           className="px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors"
@@ -918,7 +945,9 @@ export default function PortfoyPage() {
                     const accentColor = isPos === null ? "rgba(51,65,85,0.8)" : isPos ? "rgba(16,185,129,0.6)" : "rgba(239,68,68,0.6)";
                     const rowBg = isPos === null ? "transparent" : isPos ? "rgba(16,185,129,0.018)" : "rgba(239,68,68,0.018)";
                     const flash = flashTickers[item.ticker];
-                    const sirketAdi = BIST_HISSELER.find(h => h.ticker === item.ticker)?.ad;
+                    const sirketAdi = enstrumanPozisyonMu(item)
+                      ? (() => { const t = pozisyonTanim(item.ticker); return t?.tur === "doviz" ? t.aciklama : t?.birim === "gram" ? "Gram · TL (türetilmiş)" : undefined; })()
+                      : BIST_HISSELER.find(h => h.ticker === item.ticker)?.ad;
                     return (
                       <React.Fragment key={item.id}>
                         <tr
@@ -936,8 +965,8 @@ export default function PortfoyPage() {
                         >
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-2.5">
-                              <Link href={`/hisse/${item.ticker}`} className="font-extrabold text-white hover:text-blue-400 transition-colors text-[15px] leading-none">
-                                {item.ticker}
+                              <Link href={pozisyonLink(item)} className="font-extrabold text-white hover:text-blue-400 transition-colors text-[15px] leading-none">
+                                {pozisyonAd(item)}
                               </Link>
                               {fiyat && (
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyat.degisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>
@@ -985,11 +1014,11 @@ export default function PortfoyPage() {
                           </td>
                           <td className="px-3 py-2.5">
                             <div className="flex items-center gap-0.5 justify-end">
-                              {!risk?.skor && !risk?.yukleniyor && (
+                              {!risk?.skor && !risk?.yukleniyor && !enstrumanPozisyonMu(item) && (
                                 <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">⚡</button>
                               )}
                               <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Lot Ekle/Çıkar" className="p-1.5 rounded text-slate-600 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
-                              <Link href={`/hisse/${item.ticker}`} title="Analiz" className="p-1.5 rounded text-slate-600 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-sm">→</Link>
+                              <Link href={pozisyonLink(item)} title="Analiz" className="p-1.5 rounded text-slate-600 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-sm">→</Link>
                               <button onClick={() => setSilModal({ open: true, ticker: item.ticker })} title="Sil" className="p-1.5 rounded text-slate-700 hover:text-red-400 hover:bg-red-900/20 transition-colors text-xs">✕</button>
                             </div>
                           </td>
@@ -1158,21 +1187,36 @@ export default function PortfoyPage() {
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-white font-semibold text-lg">Hisse Ekle</h2>
+              <h2 className="text-white font-semibold text-lg">Pozisyon Ekle</h2>
               <button onClick={() => setEkleModal((m) => ({ ...m, open: false }))} className="text-slate-400 hover:text-white text-xl leading-none">×</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-slate-400 text-xs mb-1 block">Hisse Kodu</label>
+                <label className="text-slate-400 text-xs mb-1 block">Hisse / Döviz / Maden</label>
                 <div style={{ position: "relative" }}>
-                  <input className={inputCls + " uppercase"} placeholder="THYAO" value={ekleModal.ticker}
+                  <input className={inputCls + " uppercase"} placeholder="THYAO ya da USD-TRY" value={ekleModal.ticker}
                     onChange={(e) => setEkleModal((m) => ({ ...m, ticker: e.target.value.toUpperCase() }))}
                     autoComplete="off" />
                   {ekleModal.ticker.length >= 2 && (() => {
                     const q = ekleModal.ticker.toUpperCase();
-                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6);
-                    return matches.length > 0 ? (
+                    const enstrumanlar = TL_BAZLI_ENSTRUMANLAR.filter(e =>
+                      e.kod.toUpperCase().includes(q) || e.ad.toUpperCase().includes(q) ||
+                      (e.tur === "doviz" && e.aciklama.toUpperCase().includes(q))
+                    ).slice(0, 3);
+                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6 - enstrumanlar.length);
+                    return matches.length > 0 || enstrumanlar.length > 0 ? (
                       <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 100, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                        {enstrumanlar.map(en => (
+                          <div key={en.kod} onMouseDown={() => setEkleModal(m => ({ ...m, ticker: en.kod.toUpperCase() }))}
+                            style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)") }
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{en.ad}</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: en.tur === "doviz" ? "#60A5FA" : "#FBBF24", background: en.tur === "doviz" ? "rgba(59,130,246,0.12)" : "rgba(245,158,11,0.12)", borderRadius: 999, padding: "2px 8px" }}>
+                              {en.tur === "doviz" ? "Döviz" : "Maden"}
+                            </span>
+                          </div>
+                        ))}
                         {matches.map(h => (
                           <div key={h.ticker} onMouseDown={() => setEkleModal(m => ({ ...m, ticker: h.ticker }))}
                             style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(59,130,246,0.06)" }}

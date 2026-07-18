@@ -52,8 +52,13 @@ Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki *
 - [x] Detay sayfasında "AI Analiz" butonu + loading + bölümlü render (oturumsuz akış canlıda doğrulandı: 401 → "giriş yapmanız gerekir")
 
 ### FAZ 7.5 — Alarm + Portföy
-- [ ] AlarmModal'a enstrüman desteği (tur'lu) + alarm cron'unda enstrüman fiyat çözümü
-- [ ] Portföye döviz/maden ekleme + kâr/zarar (adet × güncel − maliyet)
+- [x] AlarmModal birleşik autocomplete (hisse + enstrüman, Döviz/Maden rozetli — canlıda doğrulandı: "USD"→3 çift, "ALTIN"→2 maden+hisseler)
+- [x] `/api/alarmlar` POST: tur sunucuda türetilir, gösterge alarmı enstrümanda reddedilir, bildirim/e-posta metinleri enstrüman-farkındalıklı
+- [x] Alarm cron: tur'a göre fiyat kaynağı (hisse→/api/fiyatlar, enstrüman→enstruman_snapshots), sayı/string parse ayrımı, ₺ eki ve e-posta linki tur'lu
+- [x] Alarmlar sayfası: enstrüman alarmında EnstrumanIkon + görünen ad + /api/doviz-maden fiyat merge
+- [x] Portföy: `usePortfolioData` tur'lu fiyat bölme (enstrüman→/api/doviz-maden), risk skoru yalnız hisselerden, ekleme modalı birleşik autocomplete + tur insert, satır ad/link/⚡ tur'lu
+- [x] **K8:** Portföye yalnız TL bazlı enstrümanlar eklenebilir (usd-try, eur-try, gbp-try, gram-altin, gram-gumus) — USD/EUR cinsi pozisyonlar ₺ toplamlarını bozacağından modal reddeder
+- [x] Karne + akşam raporu cron'ları enstrüman pozisyonlarını filtreler (hisse verisiyle çalışırlar; boş satır riski kapatıldı)
 
 ### FAZ 8 — SEO + Test
 - [ ] sitemap: /doviz-maden + enstrüman detayları; eski /maden URL'leri kaldır
