@@ -105,6 +105,19 @@ function formatRow(row: FonSnapshotRow) {
   };
 }
 
+function hasUsableSnapshot(rows: FonSnapshotRow[]) {
+  if (rows.length < MIN_SNAPSHOT_ROWS) return false;
+  const pricedRows = rows.filter((row) => row.fiyat !== null).length;
+  const returnRows = rows.filter((row) => (
+    row.gunluk_getiri !== null
+    || row.getiri_1a !== null
+    || row.getiri_3a !== null
+    || row.getiri_6a !== null
+    || row.getiri_1y !== null
+  )).length;
+  return pricedRows >= 900 && returnRows >= 900;
+}
+
 async function getRows(forceLive: boolean) {
   if (forceLive) {
     const rows = await fetchLiveTefasSnapshot();
@@ -127,7 +140,7 @@ async function getRows(forceLive: boolean) {
       rows.push(...batch.map((row) => normalize(row as Partial<FonSnapshotRow>)));
       if (batch.length < SUPABASE_PAGE_SIZE) break;
     }
-    if (rows.length >= MIN_SNAPSHOT_ROWS) return rows;
+    if (hasUsableSnapshot(rows)) return rows;
   }
 
   if (liveFallbackCache && Date.now() - liveFallbackCache.fetchedAt < LIVE_CACHE_TTL_MS) {

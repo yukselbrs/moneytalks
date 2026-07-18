@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
@@ -155,10 +155,14 @@ function HisselerContent() {
 
   const [gorunum] = useState<"tablo" | "isi">("tablo");
   const [arama, setArama] = useState(q);
+  const [debouncedArama, setDebouncedArama] = useState(q.trim());
+  const [tefasSecim, setTefasSecim] = useState(tefasFilter);
   const [data, setData] = useState<ApiResponse | null>(null);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [isiData, setIsiData] = useState<IsiHisse[]>([]);
   const [isiYukleniyor, setIsiYukleniyor] = useState(false);
+  const latestRequest = useRef("");
+  const aktifTefasFilter = varlik === "fon" ? tefasSecim : "acik";
 
   useEffect(() => {
     document.title = varlik === "fon"
@@ -188,47 +192,60 @@ function HisselerContent() {
     updateParams({ sort: "alfabetik", dir: null, page: "1" });
   }, [sort, sortDir, updateParams]);
 
+  useEffect(() => {
+    setArama(q);
+    setDebouncedArama(q.trim());
+  }, [q]);
+
+  useEffect(() => {
+    setTefasSecim(tefasFilter);
+  }, [tefasFilter]);
+
   // Arama input → URL (debounced)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (arama !== q) {
-        updateParams({ q: arama || null, page: "1" });
-      }
+      setDebouncedArama(arama.trim());
     }, 300);
     return () => clearTimeout(timer);
-  }, [arama, q, updateParams]);
+  }, [arama]);
+
+  useEffect(() => {
+    if (debouncedArama !== q.trim()) {
+      updateParams({ q: debouncedArama || null, page: "1" });
+    }
+  }, [debouncedArama, q, updateParams]);
 
   // URL değişince data fetch
   useEffect(() => {
     const controller = new AbortController();
     let ignore = false;
 
-    queueMicrotask(() => {
-      setYukleniyor(true);
-      setData(null);
-    });
+    setYukleniyor(true);
+    setData(null);
     const params = new URLSearchParams({ sort, page: String(page) });
     if (sortDir) params.set("dir", sortDir);
-    if (q) params.set("q", q);
-    if (varlik === "fon") params.set("tefas", tefasFilter);
+    if (debouncedArama) params.set("q", debouncedArama);
+    if (varlik === "fon") params.set("tefas", aktifTefasFilter);
     const endpoint = varlik === "fon" ? "/api/fonlar" : "/api/hisseler";
-    fetch(`${endpoint}?${params.toString()}`, { signal: controller.signal, cache: varlik === "fon" ? "no-store" : "default" })
+    const requestUrl = `${endpoint}?${params.toString()}`;
+    latestRequest.current = requestUrl;
+    fetch(requestUrl, { signal: controller.signal, cache: varlik === "fon" ? "no-store" : "default" })
       .then(r => r.json())
       .then((d: ApiResponse) => {
-        if (!ignore) {
+        if (!ignore && latestRequest.current === requestUrl) {
           setData(d);
           setYukleniyor(false);
         }
       })
       .catch((error) => {
-        if (!ignore && error?.name !== "AbortError") setYukleniyor(false);
+        if (!ignore && latestRequest.current === requestUrl && error?.name !== "AbortError") setYukleniyor(false);
       });
 
     return () => {
       ignore = true;
       controller.abort();
     };
-  }, [sort, sortDir, page, q, varlik, tefasFilter]);
+  }, [sort, sortDir, page, debouncedArama, varlik, aktifTefasFilter]);
 
   // Isı haritası verisi — bir kez çek, cache'le
   useEffect(() => {
@@ -244,7 +261,7 @@ function HisselerContent() {
   const toplam = data?.total || 0;
   const pageSize = data?.pageSize || 25;
   const toplamSayfa = Math.max(1, Math.ceil(toplam / pageSize));
-  const fonKapali = varlik === "fon" && tefasFilter === "kapali";
+  const fonKapali = varlik === "fon" && aktifTefasFilter === "kapali";
   const siralamaOptions = fonKapali ? FON_KAPALI_SIRALAMA_OPTIONS : varlik === "fon" ? FON_SIRALAMA_OPTIONS : SIRALAMA_OPTIONS;
   const aktifSiralama = siralamaOptions.find((s) => s.key === sort);
   const aktifSiralamaMetni = aktifSiralama
@@ -448,8 +465,12 @@ function HisselerContent() {
                 <label className="fon-control fon-select-wrap" aria-label="TEFAS durumu">
                   <select
                     className="fon-select"
-                    value={tefasFilter}
-                    onChange={(event) => updateParams({ tefas: event.target.value === "acik" ? null : event.target.value, page: "1" })}
+                    value={aktifTefasFilter}
+                    onChange={(event) => {
+                      const nextFilter = event.target.value;
+                      setTefasSecim(nextFilter);
+                      updateParams({ tefas: nextFilter === "acik" ? null : nextFilter, page: "1" });
+                    }}
                   >
                     {FON_TEFAS_FILTERS.map((filter) => (
                       <option key={filter.key} value={filter.key}>{filter.label}</option>
