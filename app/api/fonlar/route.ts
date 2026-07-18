@@ -14,6 +14,7 @@ const supabase = createClient(
 const SAYFA_BOYUTU = 25;
 const LIVE_CACHE_TTL_MS = 60 * 60 * 1000;
 const SUPABASE_PAGE_SIZE = 1000;
+const MIN_SNAPSHOT_ROWS = 2100;
 
 let liveFallbackCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
 
@@ -126,7 +127,7 @@ async function getRows(forceLive: boolean) {
       rows.push(...batch.map((row) => normalize(row as Partial<FonSnapshotRow>)));
       if (batch.length < SUPABASE_PAGE_SIZE) break;
     }
-    if (rows.length > 0) return rows;
+    if (rows.length >= MIN_SNAPSHOT_ROWS) return rows;
   }
 
   if (liveFallbackCache && Date.now() - liveFallbackCache.fetchedAt < LIVE_CACHE_TTL_MS) {
