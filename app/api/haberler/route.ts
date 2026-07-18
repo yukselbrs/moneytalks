@@ -1,21 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const KAP_API_URL = process.env.KAP_API_URL || "https://apigwdev.mkk.com.tr/api/vyk";
-const KAP_AUTH = Buffer.from(`${process.env.KAP_API_KEY}:${process.env.KAP_API_SECRET}`).toString("base64");
-const HEADERS = { Authorization: `Basic ${KAP_AUTH}` };
-
-const memberCache: Record<string, string> = {};
-
-async function getCompanyId(ticker: string): Promise<string | null> {
-  if (memberCache[ticker]) return memberCache[ticker];
-  const res = await fetch(`${KAP_API_URL}/members`, { headers: HEADERS, next: { revalidate: 86400 } });
-  if (!res.ok) return null;
-  const data = await res.json();
-  for (const m of data) {
-    if (m.stockCode) memberCache[m.stockCode] = m.id;
-  }
-  return memberCache[ticker] || null;
-}
+import { kapSonIndex, kapListe, kapDetay } from "@/lib/kap-kaynak";
 
 function parseDate(timeStr: string): string {
   const [datePart, timePart] = timeStr.split(" ");
@@ -28,41 +12,21 @@ export async function GET(req: NextRequest) {
   const ticker = searchParams.get("ticker")?.toUpperCase();
 
   try {
-    const lastRes = await fetch(`${KAP_API_URL}/lastDisclosureIndex`, { headers: HEADERS, cache: "no-store" });
-    if (!lastRes.ok) return NextResponse.json({ haberler: [] });
-    const { lastDisclosureIndex } = await lastRes.json();
-    const startIndex = Math.max(parseInt(lastDisclosureIndex) - 300, 0);
+    const guncelIndex = await kapSonIndex();
+    if (!guncelIndex) return NextResponse.json({ haberler: [] });
+    const startIndex = Math.max(guncelIndex - 300, 0);
 
-    const params = new URLSearchParams({ disclosureIndex: String(startIndex) });
-    if (ticker) {
-      const companyId = await getCompanyId(ticker);
-      if (companyId) params.set("companyId", companyId);
-    }
-
-    const listRes = await fetch(`${KAP_API_URL}/disclosures?${params}`, { headers: HEADERS, cache: "no-store" });
-    if (!listRes.ok) return NextResponse.json({ haberler: [] });
-    const list = await listRes.json();
-
-    const odaList = (Array.isArray(list) ? list : [])
-      .filter((d: { disclosureType: string }) => d.disclosureType === "ODA")
+    const { liste } = await kapListe({ sonIndex: startIndex, ticker });
+    const odaList = liste
+      .filter((d) => d.disclosureType === "ODA")
       .slice(-10)
       .reverse();
 
-    const detaylar = await Promise.all(
-      odaList.map(async (d: { disclosureIndex: string }) => {
-        try {
-          const r = await fetch(`${KAP_API_URL}/disclosureDetail/${d.disclosureIndex}?fileType=data`, { headers: HEADERS, cache: "no-store" });
-          if (!r.ok) return null;
-          return await r.json();
-        } catch {
-          return null;
-        }
-      })
-    );
+    const detaylar = await Promise.all(odaList.map((d) => kapDetay(d.disclosureIndex)));
 
     const haberler = detaylar
-      .filter(Boolean)
-      .map((d: { disclosureIndex: string; subject: { tr: string }; summary: { tr: string }; senderExchCodes: string[]; time: string; link: string }) => ({
+      .filter((d): d is NonNullable<typeof d> => Boolean(d))
+      .map((d) => ({
         id: d.disclosureIndex,
         baslik: d.summary?.tr || d.subject?.tr || "",
         kaynak: "KAP",

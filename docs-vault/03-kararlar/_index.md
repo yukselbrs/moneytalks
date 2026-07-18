@@ -23,6 +23,7 @@ Her karar tek dosya:
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
 ### Uygulama kayıtları
+- [[kap-ucretsiz-kaynak-uygulama]] — KAP ücretsiz kaynak: lib/kap-kaynak VYK-birincil/ücretsiz-fallback (KOD TAMAM 18 Tem)
 - [[doviz-kiymetli-maden-implementasyon-log]] — Döviz + Kıymetli Maden modülü (KOD TAMAM 18 Tem — migration Barış'ta; resume logu + K1-K8 kararları)
 - [[viop-nedir-uygulama]] — VİOP eğitim hikayesi (TAMAMLANDI 16 Tem — 11 sahne + simülasyon)
 - [[maden-v1-uygulama]] — Kıymetli madenler v1 (15 Tem 2026; /doviz-maden modülüne evrildi, 18 Tem)

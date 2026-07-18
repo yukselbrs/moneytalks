@@ -4,22 +4,14 @@ import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
 import { siniflandir, ozetUret, baglamMetni, type KapDetay } from "@/lib/kap-ozet";
+import { kapSonIndex, kapListe, kapDetay, type KapListeOgesi } from "@/lib/kap-kaynak";
 
 export const maxDuration = 60;
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
-const KAP_API_URL = process.env.KAP_API_URL || "https://apigwdev.mkk.com.tr/api/vyk";
-const KAP_AUTH = Buffer.from(`${process.env.KAP_API_KEY}:${process.env.KAP_API_SECRET}`).toString("base64");
-const HEADERS = { Authorization: `Basic ${KAP_AUTH}` };
-
 const OZET_BATCH_LIMIT = 5;
-
-type DisclosureListItem = {
-  disclosureIndex: string;
-  disclosureType: string;
-};
 
 function parseKapTarihi(timeStr?: string): string | null {
   if (!timeStr) return null;
@@ -31,49 +23,20 @@ function parseKapTarihi(timeStr?: string): string | null {
   return iso.toISOString();
 }
 
-async function fetchGuncelIndex(): Promise<number> {
-  const lastRes = await fetch(`${KAP_API_URL}/lastDisclosureIndex`, { headers: HEADERS, cache: "no-store" });
-  if (!lastRes.ok) return 0;
-  const { lastDisclosureIndex } = await lastRes.json();
-  return parseInt(lastDisclosureIndex, 10) || 0;
-}
-
 async function fetchSonIndex(guncelIndex: number): Promise<number> {
   const { data } = await supabase.from("kap_cursor").select("son_index").eq("id", 1).maybeSingle();
   if (data?.son_index !== undefined && data.son_index !== null) return Number(data.son_index);
   return Math.max(guncelIndex - 30, 0);
 }
 
-async function fetchYeniBildirimler(sonIndex: number, guncelIndex: number): Promise<{ liste: DisclosureListItem[]; hata: boolean }> {
+async function fetchYeniBildirimler(sonIndex: number, guncelIndex: number): Promise<{ liste: KapListeOgesi[]; hata: boolean }> {
   if (!guncelIndex || guncelIndex <= sonIndex) return { liste: [], hata: false };
-
-  const listRes = await fetch(`${KAP_API_URL}/disclosures?disclosureIndex=${sonIndex}`, { headers: HEADERS, cache: "no-store" });
-  if (!listRes.ok) {
-    hataYakala("kap-cron:disclosures", new Error(`KAP liste yaniti ${listRes.status}`), { sonIndex, guncelIndex });
-    return { liste: [], hata: true };
-  }
-  const list = await listRes.json();
-  if (!Array.isArray(list)) {
-    hataYakala("kap-cron:disclosures", new Error("KAP liste yaniti dizi degil"), { sonIndex });
-    return { liste: [], hata: true };
-  }
-  return { liste: list, hata: false };
-}
-
-async function fetchDetay(disclosureIndex: string): Promise<KapDetay | null> {
-  try {
-    const res = await fetch(`${KAP_API_URL}/disclosureDetail/${disclosureIndex}?fileType=data`, { headers: HEADERS, cache: "no-store" });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (e) {
-    console.error(`KAP detay hatasi (${disclosureIndex}):`, e);
-    return null;
-  }
+  return kapListe({ sonIndex });
 }
 
 type KaydetSonucu = { enYuksekIndex: number; kaydedilen: number };
 
-async function bildirimleriKaydet(items: DisclosureListItem[]): Promise<KaydetSonucu> {
+async function bildirimleriKaydet(items: KapListeOgesi[]): Promise<KaydetSonucu> {
   let enYuksekIndex = 0;
   let kaydedilen = 0;
 
@@ -82,7 +45,7 @@ async function bildirimleriKaydet(items: DisclosureListItem[]): Promise<KaydetSo
     if (!Number.isNaN(index) && index > enYuksekIndex) enYuksekIndex = index;
     if (item.disclosureType === "FON") continue;
 
-    const detay = await fetchDetay(item.disclosureIndex);
+    const detay = await kapDetay(item.disclosureIndex);
     if (!detay) continue;
     if (!detay.senderExchCodes?.length) continue;
 
@@ -273,7 +236,7 @@ export async function GET(req: NextRequest) {
   }
 
   let hata = 0;
-  const guncelIndex = await fetchGuncelIndex();
+  const guncelIndex = await kapSonIndex();
   if (!guncelIndex) {
     hataYakala("kap-cron:lastIndex", new Error("lastDisclosureIndex alinamadi"));
     hata++;

@@ -5,6 +5,7 @@ import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { requireUser } from "@/lib/auth";
 import { rateLimitHit } from "@/lib/rate-limit";
 import { getMacroRiskSnapshot } from "@/lib/macro-risk";
+import { kapSonIndex, kapListe, kapDetay } from "@/lib/kap-kaynak";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -20,9 +21,6 @@ const supabaseAdmin = createClient(
 
 const RATE_LIMIT = 20;           // max istek / pencere
 const RATE_WINDOW_SANIYE = 60;   // 1 dakika
-const KAP_API_URL = process.env.KAP_API_URL || "https://apigwdev.mkk.com.tr/api/vyk";
-const KAP_AUTH = Buffer.from(`${process.env.KAP_API_KEY}:${process.env.KAP_API_SECRET}`).toString("base64");
-const KAP_HEADERS = { Authorization: `Basic ${KAP_AUTH}` };
 const HISSE_AD_ESLESMELERI = BIST_HISSELER.map((h) => ({
   ticker: h.ticker,
   ad: hisseAdiNormalize(h.ad),
@@ -462,7 +460,6 @@ const TICKER_STOPWORDS = new Set([
   "DD",
 ]);
 
-const kapMemberCache: Record<string, string> = {};
 
 function hisseAdiNormalize(text: string) {
   return text
@@ -500,22 +497,6 @@ function sirketAdindanTickerAdaylari(text: string) {
     })
     .map((h) => h.ticker)
     .slice(0, 4);
-}
-
-async function kapCompanyId(ticker: string): Promise<string | null> {
-  if (kapMemberCache[ticker]) return kapMemberCache[ticker];
-
-  try {
-    const res = await fetch(`${KAP_API_URL}/members`, { headers: KAP_HEADERS, next: { revalidate: 86400 } });
-    if (!res.ok) return null;
-    const data = await res.json();
-    for (const member of Array.isArray(data) ? data : []) {
-      if (member?.stockCode && member?.id) kapMemberCache[member.stockCode] = member.id;
-    }
-    return kapMemberCache[ticker] || null;
-  } catch {
-    return null;
-  }
 }
 
 function kapTarihParse(timeStr?: string): string | undefined {
@@ -628,43 +609,21 @@ function kapHaberOlustur(d: Record<string, unknown>): KapHaber | null {
 
 async function kapHaberleriCek(ticker?: string): Promise<KapHaber[]> {
   try {
-    const lastRes = await fetch(`${KAP_API_URL}/lastDisclosureIndex`, { headers: KAP_HEADERS, cache: "no-store" });
-    if (!lastRes.ok) return [];
-    const { lastDisclosureIndex } = await lastRes.json();
-    const startIndex = Math.max(parseInt(lastDisclosureIndex) - 250, 0);
-    const params = new URLSearchParams({ disclosureIndex: String(startIndex) });
+    const guncelIndex = await kapSonIndex();
+    if (!guncelIndex) return [];
+    const startIndex = Math.max(guncelIndex - 250, 0);
 
-    if (ticker) {
-      const companyId = await kapCompanyId(ticker);
-      if (companyId) params.set("companyId", companyId);
-    }
-
-    const listRes = await fetch(`${KAP_API_URL}/disclosures?${params}`, { headers: KAP_HEADERS, cache: "no-store" });
-    if (!listRes.ok) return [];
-    const list = await listRes.json();
-    const odaList = (Array.isArray(list) ? list : [])
-      .filter((d) => d?.disclosureType === "ODA")
+    const { liste } = await kapListe({ sonIndex: startIndex, ticker });
+    const odaList = liste
+      .filter((d) => d.disclosureType === "ODA")
       .slice(-5)
       .reverse();
 
-    const detaylar = await Promise.all(
-      odaList.map(async (d) => {
-        try {
-          const res = await fetch(`${KAP_API_URL}/disclosureDetail/${d.disclosureIndex}?fileType=data`, {
-            headers: KAP_HEADERS,
-            cache: "no-store",
-          });
-          if (!res.ok) return null;
-          return await res.json();
-        } catch {
-          return null;
-        }
-      })
-    );
+    const detaylar = await Promise.all(odaList.map((d) => kapDetay(d.disclosureIndex)));
 
     return detaylar
       .filter(Boolean)
-      .map((d) => kapHaberOlustur(d as Record<string, unknown>))
+      .map((d) => kapHaberOlustur(d as unknown as Record<string, unknown>))
       .filter((h): h is KapHaber => Boolean(h));
   } catch {
     return [];

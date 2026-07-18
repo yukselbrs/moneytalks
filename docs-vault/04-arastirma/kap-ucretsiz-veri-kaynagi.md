@@ -35,7 +35,7 @@ Test sonucu: HTTP 200 — disclosureBasic (şirket, stockCode, tarih, tip) + iç
 - **Matriks, Foreks vb. vendor:** lisanslı-ücretli.
 - **Topluluk projeleri** ([pykap](https://github.com/cemsinano/pykap), [kap-notifier](https://github.com/cahitihac/kap-notifier), [trailingedge endpoint notları](https://github.com/caganco/trailingedge/blob/master/docs/KAP_ENDPOINT_NOTES.md)): hepsi zaten yukarıdaki site API'sini sarıyor — ayrı bir kaynak değil, doğrulama referansı.
 
-## Olası sonraki adım (onay gerektirir)
-`lib/kap` fetch katmanına VYK ↔ site-API fallback köprüsü: VYK 401/5xx verirse liste+detay site API'sinden çekilir (alan eşlemesi birebir yakın, disclosureIndex ortak). KAP cron'ları GitHub secret sorunu yaşadığı dönemde de bu yedek işe yarar.
+## Uygulandı → [[kap-ucretsiz-kaynak-uygulama]] (18 Tem 2026)
+`lib/kap-kaynak.ts` kaynak katmanı kuruldu: VYK birincil + site-API fallback, `KAP_KAYNAK` env anahtarıyla (auto/kap/vyk). cron + haberler + chatbot bu modüle bağlandı. Ücretsiz yol gerçek uygulama koduyla doğrulandı.
 
 İlgili: [[kap-tercumani-supabase-semasi]] · [[viop-veri-fizibilite]]
