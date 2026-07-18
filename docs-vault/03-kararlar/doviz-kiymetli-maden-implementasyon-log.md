@@ -1,6 +1,6 @@
 # Döviz + Kıymetli Maden Modülü — İmplementasyon Logu
 
-**Durum:** DEVAM EDİYOR · Başlangıç: 17 Tem 2026
+**Durum:** KOD TAMAMLANDI (18 Tem 2026) — migration + prod doğrulaması bekliyor (bkz. AÇIK KALANLAR) · Başlangıç: 17 Tem 2026
 Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını okur.
 
 ## TODO
@@ -42,9 +42,9 @@ Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki *
 - [x] Reusable component (tablo + detayda kullanılıyor; alarm + portföy Checkpoint D'de aynı bileşeni alacak)
 
 ### FAZ 6 — Cron
-- [ ] Cron endpoint: birincil→ikincil fallback + son bilinen değeri koruma
-- [ ] GitHub Actions workflow (*/15)
-- [ ] "15 dk gecikmeli" delay-pill mevcut component ile
+- [x] Cron endpoint: birincil→ikincil fallback (Yahoo query1→query2→Frankfurter) + son bilinen değeri koruma (upsert per-kod; başarısız enstrüman eskisini ezmez) + hata loglama (hataYakala, sessiz yutma yok)
+- [x] GitHub Actions workflow (*/15) — maden-snapshot-cron.yml → enstruman-snapshot-cron.yml
+- [x] "15 dk gecikmeli" delay-pill hub'da + bayat veri (>60 dk) amber uyarı bandı + detayda "gecikmeli" rozeti
 
 ### FAZ 7 — AI Analiz
 - [x] `/api/doviz-maden/analiz` endpoint (claude-sonnet-5 ✓ API'de doğrulandı, teknik+temel prompt, "rakam uydurma" guardrail'i, SPK teşhis dili + zorunlu disclaimer)
@@ -61,11 +61,11 @@ Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki *
 - [x] Karne + akşam raporu cron'ları enstrüman pozisyonlarını filtreler (hisse verisiyle çalışırlar; boş satır riski kapatıldı)
 
 ### FAZ 8 — SEO + Test
-- [ ] sitemap: /doviz-maden + enstrüman detayları; eski /maden URL'leri kaldır
-- [ ] Meta tag'ler yeni isimlendirmeyle
-- [ ] 9 çift + madenler uçtan uca doğrulama (fiyat yönü >1, kolonlar, ikon, AI, alarm, portföy)
-- [ ] Mobil sticky kolon testi + redirect testi
-- [ ] Log kapanışı ("TAMAMLANDI" + açık borçlar)
+- [x] sitemap: /doviz-maden + 15 enstrüman detayı; eski /maden URL'leri kaldırıldı
+- [x] Meta tag'ler yeni isimlendirmeyle (hub + detay generateMetadata + JSON-LD: döviz ExchangeRateSpecification, maden Product)
+- [x] 9 çiftin fiyat yönü >1 canlı doğrulandı (FAZ 2 testi); UI akışları lokalde doğrulandı — **tam 15-enstrüman prod doğrulaması migration sonrası ilk cron'a bağlı (aşağıda AÇIK KALANLAR)**
+- [x] Mobil sticky kolon testi (864/345px, ad sabit) + redirect testi (308, kök+alt yol)
+- [x] Log kapanışı ("KOD TAMAMLANDI" + açık borçlar aşağıda)
 
 ---
 
@@ -128,10 +128,23 @@ Kur fiyatları: <10 → 4 ondalık (EUR/USD 1,0842), <100 → 3, ≥100 → 2 (U
 
 **18 Tem 2026 (aynı oturum devamı)** — FAZ 3: migration bloğu `supabase/migrations.sql` sonuna eklendi (enstruman_snapshots + fiyat_gecmisi + analiz_cache + alarmlar.tur + portfoy 'doviz'). Lokal ortamda psql/supabase CLI yok, DATABASE_URL yok → **çalıştırma Barış'ın SQL Editor adımı** (maden v1'deki akışın aynısı). Geçiş güvenliği kararı: yeni cron enstruman_snapshots'a yazarken maden kodları için maden_snapshots'a da ÇİFT-YAZAR; liste API'si dual-read yapar (önce yeni tablo, boşsa eski) — böylece migration gecikse bile maden tarafı bayatlamaz/kırılmaz. Çift-yazım + eski tablo DROP'u FAZ 8 borcuna yazıldı.
 
-**18 Tem 2026 (devam)** — FAZ 4 Checkpoint A (backend) bitti: doviz-ciftleri.json + ons-paladyum, lib/enstruman-pricing.ts, cron endpoint (çift-yazım + arşiv), /api/doviz-maden liste+detay (dual-read), workflow yeniden adlandırıldı. tsc temiz. **Geçiş davranışı:** migration çalışana kadar yeni cron `hata:1` döner (enstruman upsert fail, legacy maden yazımı başarılı) → **Actions kırmızı görünür, bu BEKLENEN — Barış migration'ı çalıştırınca yeşile döner.** Eski maden dosyaları (lib/maden-pricing.ts, /api/madenler, /api/maden, /api/cron/maden-snapshot, app/maden/*) henüz SİLİNMEDİ — eski sayfa hâlâ onları kullanıyor; Checkpoint B'de yeni sayfa + redirect ile AYNI commit'te silinecek (her commit deploy edilebilir kuralı).
+**18 Tem 2026 (devam)** — FAZ 4 Checkpoint A (backend) bitti: doviz-ciftleri.json + ons-paladyum, lib/enstruman-pricing.ts, cron endpoint (çift-yazım + arşiv), /api/doviz-maden liste+detay (dual-read), workflow yeniden adlandırıldı. tsc temiz. **Geçiş davranışı:** migration çalışana kadar yeni cron `hata:1` döner (enstruman upsert fail, legacy maden yazımı başarılı) → **Actions kırmızı görünür, bu BEKLENEN — Barış migration'ı çalıştırınca yeşile döner.**
+
+**18 Tem 2026 (devam 2)** — Checkpoint B (frontend): hub + detay + ikonlar + redirect + nav + sitemap; eski maden dosyaları silindi. Canlı doğrulama: 15 satır tablo, kategori filtresi, gram-altin/usd-try detayları, 308 redirect, mobil sticky (864/345px). Checkpoint C (FAZ 7): AI analiz endpoint'i + buton; `claude-sonnet-5` model adı gerçek API çağrısıyla doğrulandı; 401/400 akışları + oturumsuz buton mesajı canlıda test edildi. Checkpoint D (FAZ 7.5): alarm zinciri (API tur türetme → cron tur'lu fiyat → modal birleşik autocomplete → alarmlar sayfası ikon+fiyat) + portföy (hook tur'lu fiyat bölme, K8 TL-bazlı kısıtı, modal autocomplete, satır tur'lu ad/link, risk/senaryo/karne/rapor hisse-only filtreleri). Autocomplete canlıda doğrulandı ("USD"→3 çift rozetli, "ALTIN"→2 maden+hisseler). Final: build temiz (5 yeni route), vitest 21/21. Not: dev server açıkken `rm -rf .next` YAPMA — Turbopack cache'i gidince server FATAL çöküyor (bir kez yaşandı, yeniden başlatıldı).
+
+---
+
+## AÇIK KALANLAR (kod dışı adımlar + bilinçli borçlar)
+
+1. **[BARIŞ — BLOKER] Migration'ı SQL Editor'de çalıştır:** `supabase/migrations.sql` dosyasının "DOVIZ+MADEN v1 (17 Tem 2026)" bloğu (dosya idempotent, tamamını da çalıştırabilirsin). Bu çalışana kadar: döviz fiyatları boş, Actions'ta enstruman-snapshot kırmızı (hata:1 — beklenen), AI analiz cache'siz çalışır, enstrüman alarm/portföy insert'leri `tur` kolonu hatası verir.
+2. **Migration sonrası doğrulama (ilk cron'dan sonra, ben ya da Barış):** 15 enstrümanın fiyat/kolonlarının dolduğu, bir döviz alarmı + bir gram-altin portföy pozisyonunun uçtan uca çalıştığı, AI analizin cache'lendiği (ikinci istek `cached:true`) kontrol edilmeli.
+3. **Cloudflare Purge Everything** (deploy sonrası, Barış).
+4. Borç: `maden_snapshots` çift-yazımı + dual-read köprüleri + eski tablonun DROP'u — migration + 1 hafta sorunsuz koşu sonrası kaldırılacak.
+5. Borç: karne/akşam raporu enstrüman pozisyonlarını kapsamıyor (bilinçli filtre); istenirse ayrı iş.
+6. Borç: GitHub↔Vercel CRON_SECRET uyuşmazlığı sürüyorsa (16 Tem notu) TÜM cron'lar 401'lidir — Barış'ın secret güncellemesi hâlâ bekliyorsa önce o.
 
 ---
 
 ## ŞU AN NEREDEYİM
 
-FAZ 1-5 bitti (Checkpoint A backend + Checkpoint B frontend). Canlı doğrulananlar: hub tablosu 15 satır (maden fiyatları dual-read'den geliyor, döviz migration+cron bekliyor), kategori filtresi (?kategori=doviz → 9 satır), detay sayfası (gram-altin tam; usd-try grafik+profil canlı, fiyat snapshot bekliyor), redirect 308, mobil sticky kolon, temiz production build (59 sayfa). Cron lokal test: `{saved:0, legacySaved:6, hata:1}` — migration öncesi beklenen davranış. NOT: pane'de bayat sekme yine React effect'leri koşturmadı (viop-nedir'deki bilinen semptom) — taze sekmede her şey çalıştı; gerçek bug değil. Sıradaki iş — Checkpoint C (FAZ 7 AI analiz): `/api/doviz-maden/analiz` endpoint'i (POST, Bearer auth + rateLimitHit 10/saat, model **claude-sonnet-5**, teknik+temel prompt — döviz: faiz farkı/merkez bankası/enflasyon; maden: arz-talep/güvenli liman/dolar endeksi; SPK disclaimer), `enstruman_analiz_cache` ile 15 dk server cache (service role client), detay sayfasına "AI Analiz" butonu + loading + sonuç render (hisse detayındaki buton pattern'i). Sonra Checkpoint D (FAZ 7.5): AlarmModal enstrüman desteği + alarm cron tur ayrımı + portföy döviz/maden ekleme.
+**KOD TAMAMLANDI (18 Tem 2026)** — FAZ 0-8'in kod tarafı bitti, `main`'e push edildi. Görevin kapanması iki manuel adıma bakıyor: (1) Barış'ın SQL Editor migration'ı, (2) migration sonrası prod doğrulaması (yukarıdaki AÇIK KALANLAR 2). Bir sonraki oturum "continue" derse: önce AÇIK KALANLAR'ı kontrol et — migration çalıştıysa prod doğrulamasını yap ve 4. maddedeki köprü temizliğini planla; çalışmadıysa kullanıcıya hatırlat, kod işi YOK.
