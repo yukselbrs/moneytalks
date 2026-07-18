@@ -26,4 +26,7 @@
 1. **ANTHROPIC_API_KEY kredisi bitti.** Sitedeki TÜM AI özellikleri (hisse/döviz analizi, chatbot, KAP özetleme) şu an çalışmıyor olabilir. Plans & Billing'den kredi yüklenmeli — bu yapılmadan ne yeni haber enjeksiyonu ne döviz analizi görünür.
 2. **KAP pipeline'ı tabloyu doldurmamış** (0 satır). Muhtemelen cron'lar CRON_SECRET uyuşmazlığından 401 alıyor (bkz. [[alarm-cron-fix-2026-07-16]], [[track1-gorev2-cron-secret-rotasyonu]]). GitHub Actions secret'ı Vercel'deki `CRON_SECRET` ile eşitlenmeli. Eşitlenince cron KAP'ı ücretsiz kaynaktan çekip özetler (kredi de gerekir) → hem haberler zenginleşir hem portföy/izleme mailleri gider.
 
-İlgili: [[kap-ucretsiz-kaynak-uygulama]] · [[doviz-kiymetli-maden-implementasyon-log]] · [[track1-gorev11-neden-karti]]
+## 19 Tem — Test Turu Sonuçları (bkz. [[test-turu-19-temmuz-2026]])
+Yukarıdaki iki engel **kısmen çözülmüş**: ANTHROPIC_API_KEY kredisi aktif ✓, CRON_SECRET rotasyonu başarılı ✓ (enstruman-snapshot-cron kanıtlı çalışıyor). Ama `kap_bildirimleri` hâlâ 0 satır — sebep artık secret değil, ayrıntı için [[test-turu-19-temmuz-2026]]'a bak. **Özellik 2 (döviz tutarlılığı) gerçek API ile doğrulandı ve mükemmel çalışıyor.**
+
+İlgili: [[kap-ucretsiz-kaynak-uygulama]] · [[doviz-kiymetli-maden-implementasyon-log]] · [[track1-gorev11-neden-karti]] · [[test-turu-19-temmuz-2026]]

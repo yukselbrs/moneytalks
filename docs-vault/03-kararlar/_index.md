@@ -23,6 +23,7 @@ Her karar tek dosya:
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
 ### Uygulama kayıtları
+- [[test-turu-19-temmuz-2026]] — Production doğrulama turu: döviz+maden ✅, KAP haberler ✅, döviz tutarlılık ✅ canlı test; kap_bildirimleri hâlâ 0 satır (açık bulgu)
 - [[ai-analiz-haber-tutarlilik-portfoy-mail]] — AI analizine KAP haberi + döviz analiz tutarlılığı + portföy KAP maili (19 Tem; AI kredi + cron secret engelli)
 - [[kap-ucretsiz-kaynak-uygulama]] — KAP ücretsiz kaynak: tek kaynak kap.org.tr (VYK/demo kaldırıldı, 19 Tem)
 - [[doviz-kiymetli-maden-implementasyon-log]] — Döviz + Kıymetli Maden modülü (KOD TAMAM 18 Tem — migration Barış'ta; resume logu + K1-K8 kararları)
