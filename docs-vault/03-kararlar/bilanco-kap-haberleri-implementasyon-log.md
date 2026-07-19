@@ -34,10 +34,11 @@ Resume protokolünün tek kaynağı. Yeni oturum önce en alttaki **ŞU AN NERED
 - [x] KAP haberleri: mevcut kap-bildirimleri cron'u zaten yakalıyor
 
 ### FAZ 6 — Hisse sayfası UI
-- [ ] Bilanço bölümü: özet kartlar + genişletilebilir tablo + trend grafik
-- [ ] KAP haberleri bölümü: sayfa altı kronolojik basit liste + pagination
-- [ ] "Son bildirim: [tarih]" güncellik etiketi (15dk-gecikme ile karıştırma)
-- [ ] Mobil okunabilirlik (sticky/yatay scroll)
+- [x] `HisseBilanco.tsx`: 6 özet kart + genişletilebilir tam tablo + `MiniBar` 4-çeyrek SVG trend + rasyo kartları; veri yoksa kendini gizler
+- [x] `HisseKapHaberleri.tsx`: sayfa altı kronolojik liste (`/api/haberler?ticker=` reuse), KAP linki, "daha fazla göster"
+- [x] "Son bildirim: [tarih]" etiketi (fiyat 15dk-gecikmesinden ayrı)
+- [x] Mobil grid (6→3→2 kolon), kompakt TL (Tn/Mr/Mn)
+- [x] Hisse sayfasına bağlandı (risk sonrası, chatbot öncesi); dev doğrulama: KAP render ✓ (EKGYO 2 bildirim), Bilanço graceful-hide ✓ (tablo migration bekliyor)
 
 ### FAZ 7 — AI analiz entegrasyonu
 - [ ] Prompt'a rasyo-bazlı bilanço özeti (ham kalem değil)

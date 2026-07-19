@@ -18,6 +18,8 @@ const HisseGrafik = dynamic<ComponentProps<typeof HisseGrafikType>>(() => import
 });
 
 const HisseChatbot = dynamic(() => import("@/components/HisseChatbot"), { ssr: false });
+const HisseBilanco = dynamic(() => import("@/components/HisseBilanco"), { ssr: false });
+const HisseKapHaberleri = dynamic(() => import("@/components/HisseKapHaberleri"), { ssr: false });
 
 interface HisseVeri {
   fiyat: number;
@@ -525,6 +527,9 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
             </>
           );
         })()}
+
+        <HisseBilanco ticker={ticker} />
+        <HisseKapHaberleri ticker={ticker} />
       </main>
     </div>
       <HisseChatbot ticker={ticker} veri={veri} analiz={analiz} portfoy={portfoy} />
