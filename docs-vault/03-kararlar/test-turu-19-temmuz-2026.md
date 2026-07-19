@@ -27,22 +27,21 @@ Bu oturumda (18-19 Tem) uygulanan tüm özellikler production'da test edildi. A�
 - `/api/analiz` ve `/api/doviz-maden/analiz` — auth'suz istekte doğru `401 {"error":"Giriş gerekli"}` (çökme yok).
 - Tarayıcıda buton tıklaması (oturumsuz) → kullanıcı dostu "Analiz oluşturmak için giriş yapmanız gerekir." mesajı, sessiz hata yok.
 
-## ⚠️ Çözülmemiş bulgu: `kap_bildirimleri` hâlâ 0 satır
+## ✅ ÇÖZÜLDÜ: `kap_bildirimleri` 0 satır → FUNCTION_INVOCATION_TIMEOUT (504)
 
-Bu, hem **Özellik 1** (hisse analizine haber enjeksiyonu) hem **Özellik 3**'ü (portföy KAP maili) etkiliyor — enjekte edilecek/mail gidecek veri yok.
+**Kök neden (GitHub Actions logu ile kesinleşti):** Cron `HTTP 504 / FUNCTION_INVOCATION_TIMEOUT` alıyordu. `bildirimleriKaydet` yeni bildirimlerin detayını **seri** (`for...of` + `await kapDetay`) çekiyordu. Cursor 7 Tem seed'inden beri `son_index=0`'da takılı olduğu için her koşu **4 günlük tüm pencereyi** (~568 bildirim!) baştan işlemeye çalışıyor → ~80s (test edildi) → Vercel fonksiyon süre limiti aşılıyor → fonksiyon ölüyor → cursor hiç ilerlemiyor → kalıcı kısır döngü. `/api/haberler` çalışıyordu çünkü yalnız 10 öğeyi **paralel** çekiyor (cron'un aksine).
 
-**Elenen teoriler** (kanıtla):
-- ~~CRON_SECRET yanlış~~ → çürütüldü, enstruman-snapshot-cron aynı secret'la çalışıyor.
-- ~~KAP kaynağı Vercel IP'sinden erişilemiyor (WAF)~~ → çürütüldü, `/api/haberler` (aynı Vercel, aynı kod, aynı IP havuzu) canlı veri döndürüyor.
-- ~~`kap_cursor` satırı yok / cursor hiç yazılamıyor~~ → çürütüldü: service-role sorgusuyla satır VAR (`id:1, son_index:0`), ilk yer seed'den (7 Tem) beri hiç ilerlememiş — bu bir SEMPTOM, kök neden değil (cursor sadece kaydedilen>0 olduğunda ilerler).
-- Workflow dosyası (`kap-bildirimleri-cron.yml`) yapısal olarak `enstruman-snapshot-cron.yml` ile birebir aynı — config hatası yok.
+**İki elenen teori** (kanıtla): CRON_SECRET (enstruman cron aynı secret'la çalışıyor) ve WAF/IP engeli (haberler canlı veri veriyor) — ikisi de değildi.
 
-**Kalan olası nedenler (doğrulanamadı — log erişimim yok):**
-1. Cron'un `for...of` döngüsünde ~29 bildirim için **sıralı** (concurrent değil) `kapDetay()` çağrısı, Next.js `maxDuration=60` sınırını aşıyor olabilir (haberler route'u yalnız 10 öğeyi **paralel** çekiyor — cron'un sıralı deseni çok daha yavaş).
-2. WAF, kısa sürede çok sayıda ardışık istek görünce (tek cron çalıştırmasında ~29 detay çağrısı) rate-limit'e girip sonraki istekleri sessizce reddediyor olabilir (haberler'in 10 paralel isteği bu eşiğin altında kalıyor olabilir).
-3. Bilinmeyen bir runtime hatası yalnız cron route'unda (haberler'de yok).
+**Fix** (`app/api/cron/kap-bildirimleri/route.ts`, commit sonrası):
+1. **Batch + sınırlı-eşzamanlı detay çekimi:** `KAYIT_BATCH=24` (koşu başına en fazla), `DETAY_ESZAMAN=8` paralel. Test: 24 detay paralel(8) = **0.5s** (seri 568 = 80s'e karşı). `esZamanliIsle()` helper'ı.
+2. **Özetleme paralelleştirildi:** `OZET_ESZAMAN=2` (5 seri AI çağrısı da limite yaklaşıyordu).
+3. **Cursor her koşuda ilerler:** dilimdeki her öğe (FON/detay-yok dahil) cursor'ı geçirir → atlama yok, kalıcı ilerleme.
+4. **`son_index=0` = başlatılmamış kabul edilir** → güncele yakın başlatılır (`guncelIndex-30`). Yoksa 4 günlük ~568 backfill + eski KAP haberleri için bayat mail spam'i olurdu. Gerçek index'ler ~1.6M, asla 0 olmaz.
 
-**Somut sonraki adım (benim erişemediğim):** GitHub → Actions → "KAP Bildirimleri Cron" → son çalıştırmaların loguna bak (`echo "Yanit: $json"` satırı gerçek JSON yanıtını basıyor — `hata` sayacı ve `yeniBildirim` değerini gösterir). O log gerçek hatayı netleştirir; paylaşırsan kod tarafında kesin düzeltme yaparım.
+**Beklenen sonuç:** deploy sonrası ilk scheduled koşuda (`*/15`) cursor güncele atlar, ~20-30 yeni bildirim işlenir, tablo dolmaya başlar; Özellik 1 (haber enjeksiyonu) ve 3 (portföy maili) veri kazanır. Her koşu ~0.5s detay + 5 özet + mail = güvenli <60s.
+
+**Doğrulama:** tsc + build temiz; seri-vs-paralel zamanlama canlı kap.org.tr'ye karşı ölçüldü (568 bildirim/4gün → seri 80s ❌, paralel-24 0.5s ✅). Canlı cron testi yapılmadı (prod DB yazar + gerçek mail gönderir — scheduled koşuya bırakıldı).
 
 ## ❌ Test edilemeyen (erişim kısıtı)
 - Gerçek kullanıcı oturumuyla uçtan uca AI analiz üretimi (giriş bilgim yok).

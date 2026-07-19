@@ -11,7 +11,21 @@ export const maxDuration = 60;
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
+// Timeout korumasi (onceki FUNCTION_INVOCATION_TIMEOUT/504 kok nedeni: seri detay cekimi).
+const KAYIT_BATCH = 24;      // her kosuda en fazla bu kadar bildirim islenir; kalan sonraki kosuya
+const DETAY_ESZAMAN = 8;     // ayni anda en fazla bu kadar detay cagrisi (WAF nezaketi)
 const OZET_BATCH_LIMIT = 5;
+const OZET_ESZAMAN = 2;      // ayni anda en fazla bu kadar AI ozet cagrisi
+
+// Sinirli-eszamanli map: items'i eszaman'lik gruplar halinde paralel isler.
+async function esZamanliIsle<T, R>(items: T[], eszaman: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const sonuclar: R[] = [];
+  for (let i = 0; i < items.length; i += eszaman) {
+    const grup = await Promise.all(items.slice(i, i + eszaman).map(fn));
+    sonuclar.push(...grup);
+  }
+  return sonuclar;
+}
 
 function parseKapTarihi(timeStr?: string): string | null {
   if (!timeStr) return null;
@@ -25,7 +39,10 @@ function parseKapTarihi(timeStr?: string): string | null {
 
 async function fetchSonIndex(guncelIndex: number): Promise<number> {
   const { data } = await supabase.from("kap_cursor").select("son_index").eq("id", 1).maybeSingle();
-  if (data?.son_index !== undefined && data.son_index !== null) return Number(data.son_index);
+  const kayitli = data?.son_index;
+  // son_index=0 = baslatilmamis (seed) kabul edilir: gercek index'ler ~1.6M, asla 0 olmaz.
+  // Bu durumda guncele yakin baslat — yoksa 4 gunluk (~500) yigin backfill + eski mail spam'i olur.
+  if (kayitli !== undefined && kayitli !== null && Number(kayitli) > 0) return Number(kayitli);
   return Math.max(guncelIndex - 30, 0);
 }
 
@@ -37,17 +54,23 @@ async function fetchYeniBildirimler(sonIndex: number, guncelIndex: number): Prom
 type KaydetSonucu = { enYuksekIndex: number; kaydedilen: number };
 
 async function bildirimleriKaydet(items: KapListeOgesi[]): Promise<KaydetSonucu> {
+  // items artan index sirali. Timeout'a karsi yalniz ilk KAYIT_BATCH islenir; cursor bu dilimin
+  // sonuna ilerler, kalan (daha yuksek index) sonraki kosuda cekilir — atlama olmaz.
+  const dilim = items.slice(0, KAYIT_BATCH);
   let enYuksekIndex = 0;
   let kaydedilen = 0;
 
-  for (const item of items) {
+  // Detaylari sinirli-eszamanli cek (seri cekim 504'e sebep oluyordu).
+  const detaylar = await esZamanliIsle(dilim, DETAY_ESZAMAN, async (item) => {
     const index = parseInt(item.disclosureIndex, 10);
-    if (!Number.isNaN(index) && index > enYuksekIndex) enYuksekIndex = index;
-    if (item.disclosureType === "FON") continue;
+    if (item.disclosureType === "FON") return { item, index, detay: null as KapDetay | null };
+    return { item, index, detay: await kapDetay(item.disclosureIndex) };
+  });
 
-    const detay = await kapDetay(item.disclosureIndex);
-    if (!detay) continue;
-    if (!detay.senderExchCodes?.length) continue;
+  for (const { item, index, detay } of detaylar) {
+    // Cursor dilimdeki HER ogeyi gecer (FON/detay-yok dahil) — yoksa kalici takilma olur.
+    if (!Number.isNaN(index) && index > enYuksekIndex) enYuksekIndex = index;
+    if (!detay || !detay.senderExchCodes?.length) continue;
 
     const tip = siniflandir(detay);
     const kapZamani = parseKapTarihi(detay.time);
@@ -104,9 +127,8 @@ async function ozetleriUret(): Promise<number> {
 
   if (!bekleyenler?.length) return 0;
 
-  let ozetlenen = 0;
-
-  for (const bildirim of bekleyenler as BekleyenOzet[]) {
+  // Ozetleme sinirli-eszamanli (seri 5 AI cagrisi timeout'a yaklasiyordu).
+  const sonuclar = await esZamanliIsle(bekleyenler as BekleyenOzet[], OZET_ESZAMAN, async (bildirim) => {
     try {
       const { ozetTekCumle, ozetNeDemek } = await ozetUret(bildirim.ham_detay, bildirim.bildirim_tipi as Parameters<typeof ozetUret>[1]);
       await supabase
@@ -118,14 +140,15 @@ async function ozetleriUret(): Promise<number> {
           durum: "ozetlendi",
         })
         .eq("id", bildirim.id);
-      ozetlenen++;
+      return true;
     } catch (e) {
       console.error(`KAP ozet hatasi (${bildirim.disclosure_index}):`, e);
       await supabase.from("kap_bildirimleri").update({ durum: "hata" }).eq("id", bildirim.id);
+      return false;
     }
-  }
+  });
 
-  return ozetlenen;
+  return sonuclar.filter(Boolean).length;
 }
 
 type OzetlenmisBildirim = {
