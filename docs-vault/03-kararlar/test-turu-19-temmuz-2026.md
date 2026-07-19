@@ -43,6 +43,15 @@ Bu oturumda (18-19 Tem) uygulanan tüm özellikler production'da test edildi. A�
 
 **Doğrulama:** tsc + build temiz; seri-vs-paralel zamanlama canlı kap.org.tr'ye karşı ölçüldü (568 bildirim/4gün → seri 80s ❌, paralel-24 0.5s ✅). Canlı cron testi yapılmadı (prod DB yazar + gerçek mail gönderir — scheduled koşuya bırakıldı).
 
+### İkinci tur (19 Tem, deploy sonrası gerçek çalıştırma logu — commit e48d235)
+Timeout fix çalıştı: run #126 `HTTP 200, 43s, {"yeniBildirim":0,"ozetlenen":5,"epostaGonderilen":2,"hata":1}`. Tablo doldu: **347 satır** (0'dan!), **39 tam işlenip maillendi**, 308 özet bekliyor, 1 hata (TUN). Ama iki yeni sorun çıktı:
+
+1. **Workflow kalıcı kırmızı** — GET handler `hata`'ya kümülatif `durum='hata'` satır sayısını (TUN, "Faaliyet Yetki Belgesi", özetlenemeyen) ekliyordu. Tek bir kalıcı-hatalı bildirim workflow'u sonsuza dek `exit 1` yapıyordu, pipeline sağlıklı olsa bile. **Fix:** `hata` artık yalnız OPERASYONEL (KAP erişilemedi/liste çekilemedi) hataları; özetlenemeyen sayısı ayrı `ozetlenemeyenToplam` gözlemlenebilirlik alanı (workflow'u kırmaz).
+
+2. **Bayat mail riski** — ilk doldurmada `son_index=0` jump'ı (ilk koşuda guncelIndex geçici düşük geldiğinden) tam tutmamış; 5 günlük (~300) backfill birikti (14-19 Tem). Özetlenince eski haberler için izleyen/portföy kullanıcılarına bayat mail giderdi. **Fix:** özetleme + bildirim **en yeniden sıralı** (taze haber önce, backfill kuyruk sonuna); mail/bildirim yalnız **son 36 saatteki** (`MAIL_TAZELIK_SAAT`) bildirimlere — eski backfill özetlenip tabloya girer (haber-enjeksiyonu özelliği için iyi) ama mail göndermez ("haber geldiğinde" = taze haber intent'i).
+
+**Beklenen sonuç:** sıradaki scheduled koşuda workflow YEŞİL (hata=0), taze bildirimler maillenir, 300'lük backfill sessizce özetlenir. tsc+build temiz.
+
 ## ❌ Test edilemeyen (erişim kısıtı)
 - Gerçek kullanıcı oturumuyla uçtan uca AI analiz üretimi (giriş bilgim yok).
 - Portföy KAP maili gönderimi (KAP tablosu boş olduğu için tetiklenecek veri yok).
