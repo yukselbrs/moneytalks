@@ -389,7 +389,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
 	            <span className="hisse-analiz-btn-short">{loading ? "Analiz..." : "AI Analiz"}</span>
 	          </button>
 	          {analiz && <p className="hisse-analysis-note">Analiz yaptıktan 2 saat sonra yenilenebilir.</p>}
-	          {analiz && <p className="hisse-analysis-note" style={{ marginTop: 4, lineHeight: 1.6, textAlign: "right", maxWidth: 280 }}>Bu analiz teknik göstergeler, fiyat ve hacim verilerini kapsar. Temel analiz, bilanço ve KAP haberleri dahil değildir. Yatırım tavsiyesi değildir.</p>}
+	          {analiz && <p className="hisse-analysis-note" style={{ marginTop: 4, lineHeight: 1.6, textAlign: "right", maxWidth: 280 }}>Bu analiz teknik göstergeleri (fiyat, hacim), temel bilanço rasyolarını ve varsa son KAP bildirimlerini kapsar. Yatırım tavsiyesi değildir.</p>}
           </div>
 
         </div>

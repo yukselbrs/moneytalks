@@ -41,15 +41,16 @@ Resume protokolünün tek kaynağı. Yeni oturum önce en alttaki **ŞU AN NERED
 - [x] Hisse sayfasına bağlandı (risk sonrası, chatbot öncesi); dev doğrulama: KAP render ✓ (EKGYO 2 bildirim), Bilanço graceful-hide ✓ (tablo migration bekliyor)
 
 ### FAZ 7 — AI analiz entegrasyonu
-- [ ] Prompt'a rasyo-bazlı bilanço özeti (ham kalem değil)
-- [ ] KAP haber özeti context (opsiyonel, zaten kısmen eklendi)
-- [ ] Teknik+temel ayrımı net + disclaimer güncelle (satır 390 "bilanço dahil değildir" artık yanlış olacak)
+- [x] `/api/analiz`'e `bilancoMetni()` — rasyo-bazlı özet (F/K, PD/DD, ROE, ROA, borç/özkaynak + çeyreklik net kâr/hasılat trend yönü), ham kalem değil
+- [x] "Finansal Durum" bölümü temel analizi rasyolara dayandırıyor; teknik+temel ayrımı net
+- [x] KAP haber context zaten enjekte (önceki oturum)
+- [x] Disclaimer güncellendi (satır 392: artık "teknik + bilanço rasyoları + KAP" kapsar)
 
 ### FAZ 8 — Test + kapanış
-- [ ] Banka+sanayi+holding hisselerinde doğrulama
-- [ ] Özdeşlik sağlaması örneklerde tutuyor mu
-- [ ] Mobil test
-- [ ] Log "TAMAMLANDI" + açık riskler
+- [x] Veri kaynağı 3 sektörde doğrulandı (THYAO havayolu, AKBNK banka, KCHOL holding) — özdeşlik tuttu
+- [x] Özdeşlik sağlaması `lib/bilanco`'da otomatik (hata logu)
+- [x] UI mobil grid + KAP render + graceful-hide doğrulandı
+- [ ] **Migration sonrası** tam bilanço görseli + AI temel analiz çıktısı (Barış SQL adımına bağlı)
 
 ---
 
@@ -110,6 +111,12 @@ Rasyolar TradingView'dan HAZIR geliyor (F/K, PD/DD, ROE, ROA, borç/özkaynak) �
 
 ---
 
+**20 Tem (devam)** — FAZ 6 UI (HisseBilanco + HisseKapHaberleri, sayfaya bağlı, dev doğrulandı) + FAZ 7 AI (bilancoMetni rasyo özeti prompt'a, disclaimer güncel). tsc + build temiz, push edildi.
+
+---
+
 ## ŞU AN NEREDEYİM
 
-FAZ 1-5 bitti (araştırma + şema + veri katmanı + cron, hepsi push). Kaynak TradingView Scanner; `lib/bilanco.ts` batch çekiyor, özdeşlik sağlaması var. Migration Barış'ın SQL Editor adımını bekliyor (yukarıda). Sıradaki iş: **FAZ 6 UI** — `app/hisse/[ticker]/page.tsx`'e risk skorundan sonra Bilanço bölümü (özet kartlar: toplam varlık/özkaynak/net kâr/F-K/PD-DD + genişletilebilir tam tablo + `ceyrek_seri`'den 4-çeyrek trend grafik [HisseGrafik reuse] + "Son bildirim" etiketi) ve chatbot'tan önce KAP Haberleri bölümü (`/api/haberler?ticker=` reuse, kronolojik liste, "daha fazla göster"). Mobil sticky/scroll. Sonra FAZ 7: `/api/analiz` prompt'una rasyo-bazlı bilanço özeti + satır 390 disclaimer güncelle ("bilanço dahil değildir" artık yanlış). Veri API'si: `/api/bilanco/[ticker]` (GET, snapshot döner).
+**KOD TAMAMLANDI (20 Tem 2026)** — FAZ 1-8'in kod tarafı bitti, `main`'e push edildi. Zincir: TradingView Scanner (`lib/bilanco`, batch + özdeşlik sağlaması) → günlük cron → `bilanco_snapshots` → `/api/bilanco/[ticker]` → `HisseBilanco` (özet kart + tablo + 4Ç mini bar) + `HisseKapHaberleri` (`/api/haberler?ticker=` reuse) → `/api/analiz` rasyo-bazlı temel analiz. 
+
+Görevin kapanması **tek manuel adıma** bakıyor — **Barış'ın SQL Editor migration'ı** (`supabase/migrations.sql` "BILANCO v1" bloğu). Bu çalışmadan: cron `bilanco_snapshots`'a yazamaz (500), hisse sayfası Bilanço bölümü gizli kalır (graceful), AI temel analiz bacağı boş döner. Migration + cron manuel tetiklemesi (Actions → Bilanco Snapshot Cron → Run) sonrası: bir sonraki oturum tam bilanço görselini + AI temel analiz çıktısını 3 sektörde (banka dahil) doğrulamalı. KAP haberleri bölümü migration'dan BAĞIMSIZ, zaten çalışıyor.

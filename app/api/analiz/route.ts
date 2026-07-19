@@ -38,6 +38,33 @@ async function kapHaberMetni(ticker: string): Promise<string> {
   }
 }
 
+// Bilanco RASYO OZETI (ham kalem degil) — bilanco_snapshots'tan. Son rasyolar + 4-ceyrek net kar/hasilat trendi.
+async function bilancoMetni(ticker: string): Promise<string> {
+  try {
+    const { data: b } = await supabaseAuth.from("bilanco_snapshots").select("*").eq("ticker", ticker).maybeSingle();
+    if (!b) return "";
+    const o = (v: number | null, s = 2) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(s) : "veri yok");
+    const yon = (seri: (number | null)[] | undefined) => {
+      const g = (seri || []).filter((x): x is number => typeof x === "number");
+      if (g.length < 2) return null;
+      const yeni = g[0], eski = g[g.length - 1];
+      if (eski === 0) return null;
+      const d = ((yeni - eski) / Math.abs(eski)) * 100;
+      return `son ${g.length} ceyrekte ${d >= 0 ? "artis" : "azalis"} (%${Math.abs(d).toFixed(0)})`;
+    };
+    const seri = b.ceyrek_seri as { net_kar?: (number | null)[]; hasilat?: (number | null)[] } | null;
+    const netKarYon = yon(seri?.net_kar);
+    const hasilatYon = yon(seri?.hasilat);
+    return `\n\nSirketin temel/bilanco verileri (son finansal rapor, rasyo bazli):
+- F/K: ${o(b.fk)} | PD/DD: ${o(b.pddd)} | Ozkaynak karliligi ROE: %${o(b.roe, 1)} | Aktif karliligi ROA: %${o(b.roa, 1)} | Borc/Ozkaynak: ${o(b.borc_ozkaynak)}
+- Hisse basi kar (12 ay): ${o(b.hbk)}
+- Ceyreklik trend: net kar ${netKarYon ?? "veri yok"}; hasilat ${hasilatYon ?? "veri yok"}
+Bu rasyolari SIRKETIN kendi tarihine ve makul sektor beklentisine gore yorumla; kesin "ucuz/pahali" hukmu verme, gozlem/teshis dili kullan.`;
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(req: NextRequest) {
   let body: { ticker?: unknown; veriOnly?: unknown; kisaYorum?: unknown };
   try {
@@ -73,9 +100,10 @@ export async function POST(req: NextRequest) {
     : "Guncel fiyat verisi alinamadi.";
 
   try {
-    const [macroRisk, kapMetni] = await Promise.all([
+    const [macroRisk, kapMetni, bilancoBlok] = await Promise.all([
       getMacroRiskSnapshot().catch(() => null),
       kapHaberMetni(ticker),
+      bilancoMetni(ticker),
     ]);
     const makroMetni = macroRisk ? `\n\n${macroRiskPromptBlock(macroRisk)}` : "";
     const message = await client.messages.create({
@@ -85,12 +113,12 @@ export async function POST(req: NextRequest) {
         {
           role: "user",
           content: body.kisaYorum === true
-            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} icin asagidaki veriyi kullanarak TAM OLARAK 1 cumlelik ozet yaz. Cümle nokta ile bitmeli. Sadece en onemli 1 gozlemi belirt. Fiyat, degisim, makro risk veya varsa son KAP bildirimi bilgisini kullan. Turkce yaz. ₺ sembolunu kullan. Yatirim tavsiyesi verme.
+            ? `Sen bir Turk borsasi uzmanisisin. ${ticker} icin asagidaki veriyi kullanarak TAM OLARAK 1 cumlelik ozet yaz. Cümle nokta ile bitmeli. Sadece en onemli 1 gozlemi belirt. Fiyat, degisim, makro risk, temel rasyo veya varsa son KAP bildirimi bilgisini kullan. Turkce yaz. ₺ sembolunu kullan. Yatirim tavsiyesi verme.
 
-${veriMetni}${makroMetni}${kapMetni}`
-            : `Sen bir Turk borsasi uzmanisisin. Asagidaki veriyi kullanarak ${ticker} hissesi icin somut ve analitik bir degerlendirme yap.
+${veriMetni}${makroMetni}${bilancoBlok}${kapMetni}`
+            : `Sen bir Turk borsasi uzmanisisin. Asagidaki veriyi kullanarak ${ticker} hissesi icin somut ve analitik bir degerlendirme yap. Analiz hem TEKNIK (fiyat/hacim) hem TEMEL (bilanco rasyolari) bacagini kapsar.
 
-${veriMetni}${makroMetni}${kapMetni}
+${veriMetni}${makroMetni}${bilancoBlok}${kapMetni}
 
 Asagidaki formati AYNEN kullan:
 
@@ -98,7 +126,7 @@ Asagidaki formati AYNEN kullan:
 Buraya yaz.
 
 **Finansal Durum**
-Buraya yaz.
+Sana bilanco/temel veri (F/K, PD/DD, ROE, ROA, borc/ozkaynak, ceyreklik kar-hasilat trendi) verildiyse burada YORUMLA — rasyolari sirketin kendi trendine gore degerlendir, kesin "ucuz/pahali" hukmu verme.
 
 **Piyasa Konumu**
 Buraya yaz.
@@ -106,7 +134,7 @@ Buraya yaz.
 **Dikkat Noktalari**
 Buraya yaz.
 
-Kural: Fiyat ve hacim verilerini yorumla. Sana KAP bildirimleri verildiyse, ilgili olanlari analize dahil et (ozellikle Piyasa Konumu ve Dikkat Noktalari bolumlerinde) ama abartma, olguyu aktar. Somut ol. Turkce yaz. Para birimi olarak TRY veya Turkish Lira yazma, sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme.`
+Kural: Fiyat ve hacim verilerini yorumla. Bilanco rasyolari verildiyse Finansal Durum'da temel analizi bunlara dayandir. KAP bildirimleri verildiyse ilgili olanlari (ozellikle Piyasa Konumu ve Dikkat Noktalari'nda) dahil et ama abartma, olguyu aktar. Somut ol. Turkce yaz. Para birimi olarak TRY veya Turkish Lira yazma, sadece ₺ sembolunu kullan. Yatirim tavsiyesi verme.`
         }
       ]
     });
