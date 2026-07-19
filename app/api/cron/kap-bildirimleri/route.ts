@@ -16,6 +16,9 @@ const KAYIT_BATCH = 24;      // her kosuda en fazla bu kadar bildirim islenir; k
 const DETAY_ESZAMAN = 8;     // ayni anda en fazla bu kadar detay cagrisi (WAF nezaketi)
 const OZET_BATCH_LIMIT = 5;
 const OZET_ESZAMAN = 2;      // ayni anda en fazla bu kadar AI ozet cagrisi
+// Mail/bildirim yalniz son bu kadar saatteki bildirimler icin. Eski backfill (ilk doldurmada 5 gunluk
+// yigin) ozetlenip tabloya girer ama BAYAT mail spam'i gondermez — "haber geldiginde" = taze haber.
+const MAIL_TAZELIK_SAAT = 36;
 
 // Sinirli-eszamanli map: items'i eszaman'lik gruplar halinde paralel isler.
 async function esZamanliIsle<T, R>(items: T[], eszaman: number, fn: (item: T) => Promise<R>): Promise<R[]> {
@@ -122,7 +125,7 @@ async function ozetleriUret(): Promise<number> {
     .from("kap_bildirimleri")
     .select("id, disclosure_index, ticker, bildirim_tipi, ham_detay")
     .eq("durum", "yeni")
-    .order("kap_zamani", { ascending: true })
+    .order("kap_zamani", { ascending: false }) // en yeni once: taze haber gecikmesin, backfill sona kalsin
     .limit(OZET_BATCH_LIMIT);
 
   if (!bekleyenler?.length) return 0;
@@ -159,6 +162,7 @@ type OzetlenmisBildirim = {
   kap_link: string | null;
   ozet_tek_cumle: string | null;
   ozet_ne_demek: string | null;
+  kap_zamani: string | null;
 };
 
 function kacisHtml(value: string): string {
@@ -182,18 +186,27 @@ function bildirimEpostaHtml(bildirim: OzetlenmisBildirim, ticker: string): strin
 }
 
 async function bildirimGonder(): Promise<number> {
+  // En yeniden: taze haber once bildirilsin; eski backfill kuyrugun sonuna kalir.
   const { data: ozetlenmisler } = await supabase
     .from("kap_bildirimleri")
-    .select("id, ticker, tickerlar, konu, kap_link, ozet_tek_cumle, ozet_ne_demek")
+    .select("id, ticker, tickerlar, konu, kap_link, ozet_tek_cumle, ozet_ne_demek, kap_zamani")
     .eq("durum", "ozetlendi")
-    .order("kap_zamani", { ascending: true })
+    .order("kap_zamani", { ascending: false })
     .limit(OZET_BATCH_LIMIT);
 
   if (!ozetlenmisler?.length) return 0;
 
+  const tazelikSiniri = Date.now() - MAIL_TAZELIK_SAAT * 3600_000;
   let gonderilen = 0;
 
   for (const bildirim of ozetlenmisler as OzetlenmisBildirim[]) {
+    // Bayat backfill: ozetlenmis olarak kalir ama mail/bildirim gonderilmez, "bildirildi" isaretlenir.
+    const zaman = bildirim.kap_zamani ? new Date(bildirim.kap_zamani).getTime() : 0;
+    if (zaman && zaman < tazelikSiniri) {
+      await supabase.from("kap_bildirimleri").update({ durum: "bildirildi" }).eq("id", bildirim.id);
+      continue;
+    }
+
     const tickerlar = bildirim.tickerlar ?? [];
     // Ilgili kullanicilar = hisseyi IZLEYENLER ∪ PORTFOYUNDE TUTANLAR (yalniz hisse pozisyonu).
     const [izlemeRes, portfoyRes] = tickerlar.length
@@ -281,11 +294,14 @@ export async function GET(req: NextRequest) {
   }
 
   const ozetlenen = await ozetleriUret();
-  const { count: ozetHatasi } = await supabase
+  // Ozetlenemeyen (SPK filtresine takilan / bozuk) bildirim sayisi: GOZLEMLENEBILIRLIK amaclidir,
+  // workflow'u KIRMAZ. Aksi halde tek bir kalici 'hata' satiri cron'u sonsuza dek 401/exit-1 yapardi.
+  const { count: ozetlenemeyenToplam } = await supabase
     .from("kap_bildirimleri")
     .select("id", { count: "exact", head: true })
     .eq("durum", "hata");
   const epostaGonderilen = await bildirimGonder();
 
-  return NextResponse.json({ yeniBildirim, ozetlenen, epostaGonderilen, hata: hata + (ozetHatasi ?? 0) });
+  // hata = yalniz OPERASYONEL hatalar (KAP erisilemedi / liste cekilemedi). Workflow bunu kontrol eder.
+  return NextResponse.json({ yeniBildirim, ozetlenen, epostaGonderilen, ozetlenemeyenToplam: ozetlenemeyenToplam ?? 0, hata });
 }
