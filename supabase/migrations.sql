@@ -876,3 +876,44 @@ ALTER TABLE public.alarmlar ADD CONSTRAINT alarmlar_tur_check CHECK (tur IN ('hi
 -- Portfoy doviz pozisyonlarina acilir (FAZ 7.5)
 ALTER TABLE public.portfoy DROP CONSTRAINT IF EXISTS portfoy_tur_check;
 ALTER TABLE public.portfoy ADD CONSTRAINT portfoy_tur_check CHECK (tur IN ('hisse', 'fon', 'maden', 'doviz'));
+
+-- ============================================================
+-- BILANCO v1 (19 Tem 2026): bilanco_snapshots — hisse temel/finansal tablo cache'i.
+-- Kaynak: TradingView Scanner (scanner.tradingview.com/turkey/scan, lisanssiz).
+-- Son ceyrek TAM bilanco (scalar) + 4-ceyrek trend (ceyrek_seri JSONB, yalniz _fq_h olan kalemler).
+-- hisse_snapshots deseni: herkes SELECT, yazma yalniz service role (cron).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.bilanco_snapshots (
+  ticker TEXT PRIMARY KEY,
+  -- Son ceyrek TAM kalemler (scalar; TradingView _fq)
+  donen_varlik NUMERIC,
+  duran_varlik NUMERIC,
+  toplam_varlik NUMERIC,
+  kv_yukumluluk NUMERIC,        -- kisa vadeli yukumlulukler
+  uv_yukumluluk NUMERIC,        -- uzun vadeli yukumlulukler
+  toplam_yukumluluk NUMERIC,
+  ozkaynak NUMERIC,
+  hasilat NUMERIC,              -- ttm
+  brut_kar NUMERIC,             -- ttm
+  faaliyet_kari NUMERIC,        -- ttm
+  favok NUMERIC,                -- ttm (ebitda)
+  net_kar NUMERIC,              -- ttm
+  -- Rasyolar (TradingView'dan hazir, son)
+  fk NUMERIC,                   -- fiyat/kazanc (price_earnings_ttm)
+  pddd NUMERIC,                 -- piyasa deg/defter deg (price_book_ratio)
+  roe NUMERIC,                  -- ozkaynak karliligi
+  roa NUMERIC,                  -- aktif karliligi
+  borc_ozkaynak NUMERIC,        -- debt_to_equity
+  hbk NUMERIC,                  -- hisse basi kar (eps ttm)
+  -- 4-ceyrek trend: { donem:[...], toplam_varlik:[...], hasilat:[...], brut_kar:[...], net_kar:[...], favok:[...], toplam_borc:[...] }
+  -- en yeni once; yalniz TradingView _fq_h array'i olan kalemler.
+  ceyrek_seri JSONB,
+  son_bildirim_tarihi DATE,     -- en son finansal raporun aciklanma tarihi (best-effort)
+  kaynak TEXT DEFAULT 'tradingview',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.bilanco_snapshots ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS bilanco_snapshots_select_all ON public.bilanco_snapshots;
+CREATE POLICY bilanco_snapshots_select_all ON public.bilanco_snapshots
+  FOR SELECT TO anon, authenticated USING (true);

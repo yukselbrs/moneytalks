@@ -23,14 +23,15 @@ Resume protokolünün tek kaynağı. Yeni oturum önce en alttaki **ŞU AN NERED
 - [ ] Hisse sayfası için endpoint/pagination tasarımı (FAZ 6'da)
 
 ### FAZ 4 — Şema
-- [ ] `bilanco_snapshots` tablosu (ticker + çeyrek serisi + kalemler)
-- [ ] Rasyo: runtime hesap mı kolon mu kararı
-- [ ] Migration yaz + Barış SQL Editor'de çalıştırsın
+- [x] `bilanco_snapshots` tablosu (ticker PK + scalar kalemler + rasyolar + `ceyrek_seri` JSONB)
+- [x] Rasyo: TradingView'dan hazır → kolon (K5)
+- [ ] Migration **Barış SQL Editor'de çalıştıracak** (manuel adım — kod dual-read yok, bu şart)
 
 ### FAZ 5 — Cron
-- [ ] Bilanço günlük kontrol cron'u (yeni açıklama → çek, son 4 çeyrek güncel)
-- [ ] Muhasebe özdeşliği sağlaması + hata logu
-- [ ] KAP haberleri: mevcut kap-bildirimleri cron'u zaten yakalıyor
+- [x] `lib/bilanco.ts` — batch TradingView fetch + parse + muhasebe özdeşliği sağlaması (hata logu, sessiz yutma yok)
+- [x] `/api/cron/bilanco-snapshot` (606 hisse, 100'lük chunk) + `/api/bilanco/[ticker]` okuma
+- [x] `.github/workflows/bilanco-snapshot-cron.yml` (günlük 06:00 UTC)
+- [x] KAP haberleri: mevcut kap-bildirimleri cron'u zaten yakalıyor
 
 ### FAZ 6 — Hisse sayfası UI
 - [ ] Bilanço bölümü: özet kartlar + genişletilebilir tablo + trend grafik
@@ -99,6 +100,15 @@ Rasyolar TradingView'dan HAZIR geliyor (F/K, PD/DD, ROE, ROA, borç/özkaynak) �
 
 ---
 
+**19 Tem (devam)** — FAZ 4 şema (`bilanco_snapshots` migration eklendi) + FAZ 5 backend: `lib/bilanco.ts` (batch TradingView + özdeşlik sağlaması, 3 hissede test edildi banka dahil ✓), cron + okuma API + günlük workflow. tsc + build temiz.
+
+---
+
+## AÇIK ADIM (Barış)
+**Migration'ı SQL Editor'de çalıştır:** `supabase/migrations.sql` "BILANCO v1" bloğu (idempotent). Bu olmadan cron `bilanco_snapshots` yazamaz (500 döner), hisse sayfası bilanço bölümü boş kalır. Migration sonrası cron'u manuel tetikleyip (Actions → Bilanco Snapshot Cron → Run) tabloyu doldurabilirsin.
+
+---
+
 ## ŞU AN NEREDEYİM
 
-FAZ 1-3 (keşif + veri kaynağı araştırması) bitti; K1-K5 kararları bu dosyada. Kaynak = **TradingView Scanner** (lisanssız, zaten entegre): son çeyrek tam bilanço + `_fq_h` ile 4-çeyrek trend (varlık/hasılat/brüt kâr/net kâr/FAVÖK/borç). KAP haberleri altyapısı zaten hazır (`/api/haberler?ticker=`). Sıradaki iş: **FAZ 4 şema** — `bilanco_snapshots` tablosu (ticker PK + son-çeyrek tam kalemler + 4-çeyrek history JSON'ları + rasyolar + kaynak_zamani/donem etiketi), migration yaz (Barış SQL Editor'de çalıştıracak). Sonra FAZ 5 cron (günlük TradingView çekimi + özdeşlik sağlaması), FAZ 6 UI (özet kart + tablo + trend grafik + KAP liste), FAZ 7 AI (rasyo özeti prompt'a + disclaimer güncelle). Henüz hiçbir kod dosyasına dokunulmadı.
+FAZ 1-5 bitti (araştırma + şema + veri katmanı + cron, hepsi push). Kaynak TradingView Scanner; `lib/bilanco.ts` batch çekiyor, özdeşlik sağlaması var. Migration Barış'ın SQL Editor adımını bekliyor (yukarıda). Sıradaki iş: **FAZ 6 UI** — `app/hisse/[ticker]/page.tsx`'e risk skorundan sonra Bilanço bölümü (özet kartlar: toplam varlık/özkaynak/net kâr/F-K/PD-DD + genişletilebilir tam tablo + `ceyrek_seri`'den 4-çeyrek trend grafik [HisseGrafik reuse] + "Son bildirim" etiketi) ve chatbot'tan önce KAP Haberleri bölümü (`/api/haberler?ticker=` reuse, kronolojik liste, "daha fazla göster"). Mobil sticky/scroll. Sonra FAZ 7: `/api/analiz` prompt'una rasyo-bazlı bilanço özeti + satır 390 disclaimer güncelle ("bilanço dahil değildir" artık yanlış). Veri API'si: `/api/bilanco/[ticker]` (GET, snapshot döner).
