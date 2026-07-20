@@ -39,7 +39,8 @@ const HISTORY_KOLONLAR = [
 ] as const;
 
 const TUM_KOLONLAR = [...SCALAR_KOLONLAR, ...HISTORY_KOLONLAR];
-const CEYREK_SAYISI = 4;
+// 8 ceyrek saklanir: yil-uzeri (index 0 vs 4) karsilastirma + 5-ceyrek detay gorunumu icin.
+const CEYREK_SAYISI = 8;
 
 export type BilancoSnapshot = {
   ticker: string;
