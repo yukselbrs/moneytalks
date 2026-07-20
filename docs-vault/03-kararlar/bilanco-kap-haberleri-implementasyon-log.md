@@ -115,6 +115,18 @@ Rasyolar TradingView'dan HAZIR geliyor (F/K, PD/DD, ROE, ROA, borç/özkaynak) �
 
 ---
 
+## Revizyon 1 (20 Tem 2026 — format değişikliği: İş Yatırım "Özet Finansallar")
+
+Kullanıcı, tek-kart+tablo düzeni yerine İş Yatırım'ın **iki-kart** formatını istedi (Özet Gelir Tablosu + Özet Bilanço yan yana, iki dönem + % değişim, Bin ₺).
+- `HisseBilanco.tsx` yeniden yazıldı: iki `KartTablo`. Gelir Tablosu **YoY** (idx0 vs idx4 — geçen yıl aynı çeyrek), Bilanço **önceki çeyrek** (idx0 vs idx1). Geçmişi olmayan kalemler (özkaynak, yükümlülük) "—".
+- `CEYREK_SAYISI` 4→8 (YoY için idx4 erişimi).
+- **Okuma API canlı fallback genişletildi:** tablo satırı yoksa VEYA eski kısa-format (`ceyrek_seri`<5 çeyrek) ise TradingView'dan canlı çeker. Böylece deploy sonrası cron'u beklemeden 8 çeyrek gelir; cron 8 yazınca tablo devralır.
+- **Doğrulama (production build, port 3100):** AKBNK render metni referans resimle birebir — Net Dönem Kârı 19.151.711/13.734.126=%39, Hasılat 211.936.074/186.262.995=%14, Özkaynak 302.574.628, Toplam Varlık 3.643.975.000. Banka Brüt Kâr/FAVÖK (null) doğru gizlendi.
+- **Teşhis (önemli):** Barış migration + bilanço cron'unu zaten çalıştırmış (`bilanco_snapshots` 598 satır, ama deploy'daki eski CEYREK_SAYISI=4 koduyla → 4 çeyrek). Bu yüzden tablo bayat; canlı fallback bunu otomatik telafi ediyor. **Barış deploy sonrası bilanço cron'unu bir kez yeniden çalıştırırsa** tablo 8-çeyreğe güncellenir ve hızlı tablo-okuması devreye girer (o zamana kadar hisse başına 1 canlı TradingView çağrısı — kabul edilebilir geçici maliyet).
+- **Ortam notu:** bu oturumda `preview_stop` alttaki `next dev` sürecini öldürmüyordu; kalıntı süreçler eski derlenmiş modülü servis edip saatlerce yanıltıcı sonuç verdi. Teşhis: `ps aux | grep next-server` → `kill -9`. Gelecekte dev doğrulamasında bunu kontrol et.
+
+---
+
 ## ŞU AN NEREDEYİM
 
 **KOD TAMAMLANDI (20 Tem 2026)** — FAZ 1-8'in kod tarafı bitti, `main`'e push edildi. Zincir: TradingView Scanner (`lib/bilanco`, batch + özdeşlik sağlaması) → günlük cron → `bilanco_snapshots` → `/api/bilanco/[ticker]` → `HisseBilanco` (özet kart + tablo + 4Ç mini bar) + `HisseKapHaberleri` (`/api/haberler?ticker=` reuse) → `/api/analiz` rasyo-bazlı temel analiz. 
