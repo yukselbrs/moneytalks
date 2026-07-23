@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -146,17 +146,34 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
   const [data, setData] = useState<ApiResponse | null>(null);
   const [tahmin, setTahmin] = useState<FonTahmin | null>(null);
   const [loading, setLoading] = useState(true);
+  const latestRequest = useRef("");
+  const responseCache = useRef<Map<string, ApiResponse>>(new Map());
 
   const fetchFon = useCallback((nextRange: string, signal?: AbortSignal) => {
+    const requestUrl = `/api/fon/${kod}?range=${nextRange}`;
+    latestRequest.current = requestUrl;
+    const cached = responseCache.current.get(requestUrl);
+    if (cached) {
+      setData(cached);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
-    fetch(`/api/fon/${kod}?range=${nextRange}`, { signal, cache: "no-store" })
-      .then((r) => r.json())
+    fetch(requestUrl, { signal, cache: "no-store" })
+      .then(async (r) => {
+        const payload = await r.json();
+        if (!r.ok) throw new Error(payload?.error || "Fon detayı alınamadı");
+        return payload;
+      })
       .then((d: ApiResponse) => {
+        if (latestRequest.current !== requestUrl || d.range !== nextRange) return;
+        responseCache.current.set(requestUrl, d);
         setData(d);
         setLoading(false);
       })
       .catch((error) => {
-        if (error?.name !== "AbortError") setLoading(false);
+        if (latestRequest.current === requestUrl && error?.name !== "AbortError") setLoading(false);
       });
   }, [kod]);
 
@@ -166,7 +183,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
 
   useEffect(() => {
     const controller = new AbortController();
-    queueMicrotask(() => fetchFon(range, controller.signal));
+    fetchFon(range, controller.signal);
     return () => controller.abort();
   }, [fetchFon, range]);
 

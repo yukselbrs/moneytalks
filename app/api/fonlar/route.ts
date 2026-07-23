@@ -13,6 +13,7 @@ const supabase = createClient(
 
 const SAYFA_BOYUTU = 25;
 const LIVE_CACHE_TTL_MS = 60 * 60 * 1000;
+const ROWS_CACHE_TTL_MS = 5 * 60 * 1000;
 const SUPABASE_PAGE_SIZE = 1000;
 // Snapshot'in EKSIK/yarim yazilmadigini dogrulamak icin taban satir sayisi. TEFAS fon evreni
 // zamanla degisir (kapali fonlar cikar); 2100 fazla katiydi (evren 2035'e inince tum istekler
@@ -21,6 +22,8 @@ const SUPABASE_PAGE_SIZE = 1000;
 const MIN_SNAPSHOT_ROWS = 1500;
 
 let liveFallbackCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
+let rowsCache: { rows: FonSnapshotRow[]; fetchedAt: number; forceLive: boolean } | null = null;
+let rowsPromise: Promise<FonSnapshotRow[]> | null = null;
 
 const fetchCachedLiveTefasSnapshot = unstable_cache(
   async () => fetchLiveTefasSnapshot(),
@@ -123,6 +126,25 @@ function hasUsableSnapshot(rows: FonSnapshotRow[]) {
 }
 
 async function getRows(forceLive: boolean) {
+  if (rowsCache && rowsCache.forceLive === forceLive && Date.now() - rowsCache.fetchedAt < ROWS_CACHE_TTL_MS) {
+    return rowsCache.rows;
+  }
+
+  if (!forceLive && rowsPromise) return rowsPromise;
+
+  rowsPromise = loadRows(forceLive)
+    .then((rows) => {
+      rowsCache = { rows, fetchedAt: Date.now(), forceLive };
+      return rows;
+    })
+    .finally(() => {
+      rowsPromise = null;
+    });
+
+  return rowsPromise;
+}
+
+async function loadRows(forceLive: boolean) {
   if (forceLive) {
     const rows = await fetchLiveTefasSnapshot();
     liveFallbackCache = { rows, fetchedAt: Date.now() };

@@ -162,6 +162,7 @@ function HisselerContent() {
   const [isiData, setIsiData] = useState<IsiHisse[]>([]);
   const [isiYukleniyor, setIsiYukleniyor] = useState(false);
   const latestRequest = useRef("");
+  const responseCache = useRef<Map<string, ApiResponse>>(new Map());
   const aktifTefasFilter = varlik === "fon" ? tefasSecim : "acik";
 
   useEffect(() => {
@@ -229,16 +230,34 @@ function HisselerContent() {
     const endpoint = varlik === "fon" ? "/api/fonlar" : "/api/hisseler";
     const requestUrl = `${endpoint}?${params.toString()}`;
     latestRequest.current = requestUrl;
+    const cached = responseCache.current.get(requestUrl);
+    if (cached) {
+      setData(cached);
+      setYukleniyor(false);
+      return () => {
+        ignore = true;
+        controller.abort();
+      };
+    }
+
     fetch(requestUrl, { signal: controller.signal, cache: varlik === "fon" ? "no-store" : "default" })
-      .then(r => r.json())
+      .then(async (r) => {
+        const payload = await r.json();
+        if (!r.ok) throw new Error(payload?.error || "Veri alınamadı");
+        return payload;
+      })
       .then((d: ApiResponse) => {
         if (!ignore && latestRequest.current === requestUrl) {
+          responseCache.current.set(requestUrl, d);
           setData(d);
           setYukleniyor(false);
         }
       })
       .catch((error) => {
-        if (!ignore && latestRequest.current === requestUrl && error?.name !== "AbortError") setYukleniyor(false);
+        if (!ignore && latestRequest.current === requestUrl && error?.name !== "AbortError") {
+          setData({ items: [], total: 0, page, pageSize: 25 });
+          setYukleniyor(false);
+        }
       });
 
     return () => {

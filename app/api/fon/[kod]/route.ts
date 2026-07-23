@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
-const HISTORY_CACHE_VERSION = "v4";
+const HISTORY_CACHE_VERSION = "v7";
 let snapshotCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
 let snapshotPromise: Promise<FonSnapshotRow[]> | null = null;
 const historyCache = new Map<string, { rows: FonHistoryPoint[]; fetchedAt: number }>();
@@ -149,7 +149,7 @@ function chartHistoryForRange(fon: FonSnapshotRow, history: FonHistoryPoint[], r
   const points = [...history];
   const last = points[points.length - 1];
 
-  if (anchorPrice !== null && (points.length < 35 || range !== "1mo")) {
+  if (anchorPrice !== null && points.length < 2) {
     points.unshift({
       tarih: rangeLabel(range),
       tarih_iso: "",

@@ -1,5 +1,7 @@
 const TEFAS_ROOT = "https://www.tefas.gov.tr";
 const PAGE_SIZE = 30000;
+const FUND_HISTORY_CHUNK_DAYS = 24;
+const FUND_HISTORY_RETRY_CHUNK_DAYS = 9;
 
 type TefasResponse<T> = {
   errorCode?: string | null;
@@ -146,6 +148,10 @@ function addMonths(date: Date, months: number) {
   const copy = new Date(date);
   copy.setMonth(copy.getMonth() + months);
   return copy;
+}
+
+function minDate(a: Date, b: Date) {
+  return a < b ? a : b;
 }
 
 function sleep(ms: number) {
@@ -309,16 +315,26 @@ async function fetchFundGeneralRowsChunked(kod: string, startDate: Date, endDate
   const rows: TefasFundGeneral[] = [];
   let cursorEnd = new Date(endDate);
   while (cursorEnd >= startDate) {
-    const chunkStart = addDays(cursorEnd, -30);
+    const chunkStart = addDays(cursorEnd, -FUND_HISTORY_CHUNK_DAYS);
     const boundedStart = chunkStart < startDate ? startDate : chunkStart;
     try {
       rows.push(...await fetchFundGeneralRows(kod, boundedStart, cursorEnd));
     } catch {
-      // TEFAS bazen tek araligi reddediyor; diger parcalari kacirmayalim.
+      let retryStart = new Date(boundedStart);
+      while (retryStart <= cursorEnd) {
+        const retryEnd = minDate(addDays(retryStart, FUND_HISTORY_RETRY_CHUNK_DAYS), cursorEnd);
+        try {
+          rows.push(...await fetchFundGeneralRows(kod, retryStart, retryEnd));
+        } catch {
+          // TEFAS bazen ara parcayi da reddediyor; kalan parcalari kacirmayalim.
+        }
+        retryStart = addDays(retryEnd, 1);
+        if (retryStart <= cursorEnd) await sleep(650);
+      }
     }
     cursorEnd = addDays(boundedStart, -1);
     if (cursorEnd >= startDate) {
-      await new Promise((resolve) => setTimeout(resolve, 420));
+      await sleep(700);
     }
   }
   return rows;
