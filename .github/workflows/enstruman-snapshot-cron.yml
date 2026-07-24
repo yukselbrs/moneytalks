@@ -2,7 +2,7 @@ name: Enstruman Snapshot Cron
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '8-53/15 * * * *'
   workflow_dispatch:
 
 jobs:

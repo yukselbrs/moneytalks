@@ -2,7 +2,7 @@ name: Alarm Cron Job
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '4-49/15 * * * *'
   workflow_dispatch:
 
 jobs:
