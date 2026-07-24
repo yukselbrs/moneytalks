@@ -26,10 +26,10 @@ Görev tanımı (kullanıcı, 24 Tem 2026): (1) sitedeki hisse listesi denetleni
 - [x] Düzeltmeler + kalıcılık testi (yetim 3 satır silindi; dispatch koşusu deployed kodla 614 yazdı; offset kadansı sonraki oturumda ölçülecek)
 
 ### FAZ 3 — Halka arz veri kaynağı araştırması
-- [ ] Kaynak adayları: SPK bülten, KAP halka arz duyuruları, BIST yeni kotasyon, aracı kurum sayfaları (≥2-3 karşılaştır)
-- [ ] Birincil + yedek kaynak seçimi ve gerekçesi
-- [ ] Takip edilecek alan listesi (tarih, fiyat/aralık, dağıtım, pay, aracı kurum, kod, pazar, arz şekli, fon kullanımı, tahsisat, dağıtım tahminleri, finansal özet, fiyat istikrarı, lock-up, açıklık oranı, iskonto, büyüklük, başvuru yerleri, şirket özeti)
-- [ ] Alan bazında yapısal-çekilebilir vs manuel ayrımı
+- [x] 4 kaynak adayı canlı yoklandı (KAP, SPK, Ahlatcı, halkaarz.info; BIST duyurular sayfası curl'e kapalı — timeout)
+- [x] Birincil + yedek seçimi ve gerekçesi (aşağıda)
+- [x] Alan listesi çıkarıldı (kullanıcı prompt'undaki liste esas)
+- [x] Yapısal vs manuel ayrımı (aşağıdaki matris)
 
 ### FAZ 4 — Şema
 - [ ] `halka_arzlar` tablosu (tüm alanlar + status lifecycle: talep_toplaniyor → arz_tamamlandi → islem_goruyor)
@@ -89,6 +89,25 @@ Diğerleri güncel: [[cok-varlik-portfoy-izleme-entegrasyon]] (24 Tem, watchlist
 - **Kalıcılık kanıtı:** `gh workflow run hisse-snapshot` → success → tablo 614 satır, yeni 8'in hepsi fiyatla yazıldı (BETAE 90.25 %+9.99 … SSAAT 41.98 %+4.48). Deploy edilmiş kod evreni otomatik alıyor; tekrar bozulma vektörü yok.
 - Silent-fail yok; temettü/takvim modülleri canlı doğrulandı (TCMB faiz 23 Tem etkinliği, TAVHL 1.8₺ 21 Tem temettüsü).
 
+**24 Tem 2026 — FAZ 3 (kaynak araştırması, karar K-HA1):**
+
+**Yoklanan kaynaklar ve bulgular:**
+1. **KAP bildirim akışı** (mevcut `kap_bildirimleri` pipeline'ımız): Halka arz olayları **konsorsiyum aracı kurumunun KAP hesabından** yayınlanıyor (ticker=INFO/GLB/DZY/TERA gibi aracı kodu; şirket adı başlıkta). Canlı doğrulama: son 10 günde 6 "halka arz" konulu bildirim yakalanmış — Metgün Enerji (sonuçlar), Albayrak Hazır Beton (fiyat tespit raporu), Masfen Enerji (izahname), ŞA-RA Enerji (satış duyurusu). Evre sinyalleri (izahname→fiyat tespit→sonuçlar) net ayrışıyor; resmi belge linkleri (`kap_link`, ek PDF) hazır. Yapısal alan (fiyat, tarih) başlık/PDF içinde — regex/manuel gerekir.
+2. **SPK "İlk Halka Arz Başvurusu" tablosu** (spk.gov.tr/istatistikler/basvurular/ilk-halka-arz-basvurusu): tek HTML tablo, 129 şirket + başvuru tarihi. Erken boru hattı ("başvurdu" aşaması); fiyat/tarih yok. Kolay parse.
+3. **Ahlatcı Yatırım /halka-arz** (aracı kurum kamu duyuru sayfası): Liste kartları (kod, ad, durum "Aktif", fiyat, talep tarihleri, büyüklük) + detay sayfası **etiketli info-grid** (Halka Arz Fiyatı 35,00₺, Dağıtım Yöntemi "Eşit Dağıtım", İskonto %20, Borsa Kodu KARCL, Halka Açıklık %15,42...). En yapısal alan kaynağı; UA ile erişim sorunsuz.
+4. **halkaarz.info/halka-arz-takvimi/2026**: JSON-LD `ItemList` ile 27 IPO + detay URL'leri. Çapraz doğrulama için ideal (makine-okur format).
+- BIST duyurular sayfası curl'e yanıt vermedi (WAF/JS) — kotasyon sinyali zaten FAZ 1 sync'inden geliyor, gerek yok.
+- **HalkArz.com hiç çekilmedi** (kullanıcı kısıtı: yalnız görsel/IA referansı).
+
+**KARAR K-HA1 — kaynak mimarisi:**
+- **Tespit + evre birincil: KAP** (resmi, ücretsiz, zaten 15dk'da bir çekiyoruz). `konu/baslik ilike '%halka arz%'` + şirket adı çıkarımı → yeni kayıt + evre güncelleme tetikleyicisi.
+- **Yapısal alan birincil: Ahlatcı /halka-arz** (etiket→değer grid parse). **Yedek: halkaarz.info JSON-LD** (çapraz doğrulama + Ahlatcı'da olmayan arzlar).
+- **Erken boru hattı (opsiyonel gösterim): SPK başvuru tablosu.**
+- **islem_goruyor geçiş sinyali: Yahoo fiyat akışı + sync-bist-companies** (FAZ 1 kanıtı: yeni kotasyon SA+KAP'ta beliriyor, Yahoo anında fiyat veriyor). "Ticker Yahoo'dan fiyat almaya başladı" = kesin işlem sinyali.
+- Gerekçe: tek kaynak yok — KAP resmi ama alan-fakir (PDF'ler), aracı sayfası alan-zengin ama gayriresmî; ikisinin birleşimi hem güvenilir hem otomatik. 
+
+**Alan matrisi (yapısal ✓ / manuel ✗):** kod ✓, şirket adı ✓, durum ✓, halka arz fiyatı ✓, talep tarihleri ✓, büyüklük ✓, dağıtım yöntemi ✓, iskonto ✓, halka açıklık oranı ✓, pazar ~ (detayda varsa ✓), aracı kurum(lar) ~ (KAP bildirimi yayıncısından + detay), pay miktarı ~ ; **manuel/nullable v1:** fonun kullanım yeri ✗, tahsisat grupları ✗, katılım-bazlı dağıtım tahminleri ✗, son 3 dönem finansal özet ✗, fiyat istikrarı ✗, lock-up ✗, başvuru yerleri ✗, şirket özeti ✗ (hepsi izahname PDF'inde — v1'de nullable kolon + UI'da "—"; ileride KAP ek-indir PDF + AI özetiyle doldurulabilir, açık iş).
+
 ## ŞU AN NEREDEYİM
 
-**24 Tem 2026 — FAZ 0+1+2 bitti; FAZ 3'e geçiliyor.** Evren 614 (8 yeni, prod'da doğrulandı: hem API hem snapshot cron yazımı), veri altyapısı denetlendi ve sağlıklı; tek yapısal not GH cron throttling (offset mitigasyonu uygulandı, kadans sonraki oturumda ölçülecek). KARCL işlem görmeye başlayınca evrene `sync-bist-companies.mjs` ile girecek; FAZ 6 lifecycle bunu otomatikleştirecek. Sıradaki iş: **FAZ 3 halka arz veri kaynağı araştırması** (SPK bülten / KAP duyuru / BIST kotasyon duyuruları / aracı kurum sayfaları; ≥2-3 karşılaştır, birincil+yedek seç; alan listesinin yapısal-mı-manuel-mi ayrımı). Dikkat: izleme çok-varlık hâlâ `watchlist.tur` migration'ını bekliyor (Barış).
+**24 Tem 2026 — FAZ 0-3 bitti; FAZ 4'e (şema) geçiliyor.** Kaynak mimarisi K-HA1 ile karara bağlandı: tespit+evre=KAP, yapısal alan=Ahlatcı (+halkaarz.info yedek), işlem sinyali=Yahoo/sync. Aktif vaka listesi hazır: KARCL (talep 22-24 Tem, bugün bitiyor), ALBTN Albayrak Hazır Beton (fiyat tespit 22 Tem yayınlandı), Masfen Enerji (izahname 20 Tem), Metgün Enerji (sonuçlanmış), ŞA-RA Enerji. Sıradaki iş: **FAZ 4 `halka_arzlar` tablosu** — status lifecycle (talep_toplaniyor→arz_tamamlandi→islem_goruyor), K-HA1 alan matrisi (yapısallar + nullable manueller), idempotent migration `supabase/migrations.sql`'e (Barış çalıştırır). Dikkat: izleme çok-varlık hâlâ `watchlist.tur` migration'ını bekliyor (Barış) — halka arz migration'ıyla AYNI oturumda çalıştırılabilir.
