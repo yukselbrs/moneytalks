@@ -917,3 +917,14 @@ ALTER TABLE public.bilanco_snapshots ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS bilanco_snapshots_select_all ON public.bilanco_snapshots;
 CREATE POLICY bilanco_snapshots_select_all ON public.bilanco_snapshots
   FOR SELECT TO anon, authenticated USING (true);
+
+-- ============================================================
+-- IZLEME COK-VARLIK (20 Tem 2026): watchlist artik hisse + fon + doviz + maden.
+-- tur kolonu + (user_id, ticker, tur) essiz -> ayni kod farkli varlik sinifinda cakismaz.
+-- ============================================================
+ALTER TABLE public.watchlist ADD COLUMN IF NOT EXISTS tur TEXT NOT NULL DEFAULT 'hisse';
+ALTER TABLE public.watchlist DROP CONSTRAINT IF EXISTS watchlist_tur_check;
+ALTER TABLE public.watchlist ADD CONSTRAINT watchlist_tur_check CHECK (tur IN ('hisse', 'fon', 'doviz', 'maden'));
+-- Eski essiz (user_id, ticker) -> (user_id, ticker, tur)
+DROP INDEX IF EXISTS watchlist_user_ticker_unique_idx;
+CREATE UNIQUE INDEX IF NOT EXISTS watchlist_user_ticker_tur_unique_idx ON public.watchlist (user_id, ticker, tur);
