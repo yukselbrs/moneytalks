@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import React, { useEffect, useState, Suspense } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/components/lib/supabase";
@@ -39,17 +39,20 @@ function isNavActive(pathname: string, currentVarlik: string | null, href: strin
   return pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 }
 
-function navVarlikForHref(href: string) {
-  if (href === "/hisseler?varlik=fon") return "fon";
-  if (href === "/hisseler") return null;
-  return undefined;
+// useSearchParams'i Suspense sinirinda izole eder (aksi halde Suspense'siz sayfalarda prerender kirilir).
+// Query degisimine reaktif tepki verip aktif sekmeyi (varlik) yukari bildirir; kendisi bir sey render etmez.
+function VarlikSync({ onVarlik }: { onVarlik: (v: string | null) => void }) {
+  const sp = useSearchParams();
+  const varlik = sp.get("varlik");
+  useEffect(() => { onVarlik(varlik); }, [varlik, onVarlik]);
+  return null;
 }
 
-function MoreMenu({ navItems, pathname, currentVarlik, setCurrentVarlik, handleLogout }: {
+
+function MoreMenu({ navItems, pathname, currentVarlik, handleLogout }: {
   navItems: { icon: React.ReactNode; label: string; href: string }[];
   pathname: string;
   currentVarlik: string | null;
-  setCurrentVarlik: React.Dispatch<React.SetStateAction<string | null>>;
   handleLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -80,11 +83,7 @@ function MoreMenu({ navItems, pathname, currentVarlik, setCurrentVarlik, handleL
             {extraItems.map(item => {
               const isActive = isNavActive(pathname, currentVarlik, item.href);
               return (
-                <Link key={item.label} href={item.href} onClick={() => {
-                  const nextVarlik = navVarlikForHref(item.href);
-                  if (nextVarlik !== undefined) setCurrentVarlik(nextVarlik);
-                  setOpen(false);
-                }} style={{
+                <Link key={item.label} href={item.href} onClick={() => setOpen(false)} style={{
                   display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10,
                   textDecoration: "none", color: isActive ? "#fff" : "#64748B",
                   background: isActive ? "rgba(59,130,246,0.15)" : "transparent",
@@ -132,6 +131,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(() =>
     typeof window !== "undefined" ? localStorage.getItem(LS.SB_COLLAPSED) === "1" : false
   );
+  // Aktif sekme (hisse/fon) query param'a gore. VarlikSync (Suspense-sarmali) useSearchParams ile
+  // query DEGISIMINE tepki verir -> /hisseler?varlik=fon -> /hisseler gecisinde Fonlar sekmesi
+  // Hisseler sayfasinda aktif kalmaz. (Eski [pathname] effect query-only degisimi kaciriyordu.)
   const [currentVarlik, setCurrentVarlik] = useState<string | null>(null);
   const [tip, setTip] = useState<{ text: string; y: number } | null>(null);
   const [xu100, setXu100] = useState<{ value: string; change: string } | null>(null);
@@ -164,13 +166,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     fetch("/api/xu").then(r => r.json()).then(d => { if (d.xu100) setXu100(d.xu100); }).catch(() => {});
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    queueMicrotask(() => {
-      setCurrentVarlik(new URLSearchParams(window.location.search).get("varlik"));
-    });
-  }, [pathname]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -210,6 +205,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#060C18", fontFamily: "var(--font-manrope, sans-serif)" }}>
+      <Suspense fallback={null}><VarlikSync onVarlik={setCurrentVarlik} /></Suspense>
       <style>{`
         .sb-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border-radius: 10px; cursor: pointer; text-decoration: none; transition: background 0.15s; font-size: 14px; font-weight: 500; }
         .sb-item:hover { background: rgba(255,255,255,0.05); }
@@ -313,10 +309,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   <Link
                     key={item.label}
                     href={item.href}
-                    onClick={() => {
-                      const nextVarlik = navVarlikForHref(item.href);
-                      if (nextVarlik !== undefined) setCurrentVarlik(nextVarlik);
-                    }}
                     className="sb-nav-item"
                     aria-label={item.label}
                     onMouseEnter={collapsed ? e => showTip(e, item.label) : undefined}
@@ -505,7 +497,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {[
           { href: "/dashboard", label: "Dashboard", icon: navItems[0].icon },
           { href: "/hisseler", label: "Hisseler", icon: navItems[3].icon },
-          { href: "/izleme", label: "İzleme", icon: navItems[5].icon },
+          { href: "/izleme", label: "İzleme", icon: navItems[6].icon },
           { href: "/portfoy", label: "Portföy", icon: navItems[1].icon },
         ].map((item) => {
           const isActive = isNavActive(pathname, currentVarlik, item.href);
@@ -515,9 +507,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               textDecoration: "none", padding: "6px 12px", borderRadius: 8, flex: 1,
               color: isActive ? "#3B82F6" : "#475569",
               borderBottom: isActive ? "2px solid #3B82F6" : "2px solid transparent",
-            }} onClick={() => {
-              const nextVarlik = navVarlikForHref(item.href);
-              if (nextVarlik !== undefined) setCurrentVarlik(nextVarlik);
             }}>
               <span style={{ color: isActive ? "#3B82F6" : "#475569" }}>{item.icon}</span>
               <span style={{ fontSize: 9, fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
@@ -537,7 +526,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span style={{ fontSize: 9, fontWeight: pathname === "/profile" ? 700 : 500 }}>Profil</span>
         </Link>
         {/* Daha Fazla */}
-        <MoreMenu navItems={navItems} pathname={pathname} currentVarlik={currentVarlik} setCurrentVarlik={setCurrentVarlik} handleLogout={handleLogout} />
+        <MoreMenu navItems={navItems} pathname={pathname} currentVarlik={currentVarlik} handleLogout={handleLogout} />
       </nav>
     </div>
   );
