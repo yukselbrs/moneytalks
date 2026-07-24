@@ -12,12 +12,12 @@ Görev tanımı (kullanıcı, 24 Tem 2026): (1) sitedeki hisse listesi denetleni
 - [x] Geçmiş log taraması + senkronizasyon (aşağıdaki bölüm)
 
 ### FAZ 1 — Hisse listesi denetimi
-- [ ] Sitedeki mevcut hisse dökümü (kaynak dosyalar + adet + kod listesi)
-- [ ] Resmi kaynaktan güncel BIST kotasyon listesi (KAP şirketler / BIST — Yahoo'ya güvenme)
-- [ ] İki listeyi karşılaştır: eksikler + artık işlem görmeyenler (Nisan-Mayıs 2026 sonrası arzlara dikkat, KARCL dahil)
-- [ ] Eksikleri mevcut ekleme akışına uygun ekle (şema + veri + sayfa)
-- [ ] Her eklemede fiyat + (varsa) bilanço/KAP verisi doğrulaması
-- [ ] Bulgular bu dosyaya
+- [x] Sitedeki mevcut hisse dökümü (tek kaynak `data/bist-companies.json` 606; `lib/bist-hisseler.ts` ondan türer; `hisse_snapshots` 606)
+- [x] Resmi kaynaktan güncel liste (KAP `bist-sirketler` flight-data: 791 üye; StockAnalysis çapraz: 615)
+- [x] Karşılaştırma: bayat kayıt 0 (iki yönde de), eksik 8 yeni kotasyon
+- [x] 8 eksik eklendi (sync + sektör + coverage pipeline'ıyla)
+- [x] Doğrulama: canlı fiyat 3/3 örnek ✓, /hisse/BETAE 200 ✓, /api/hisseler listesinde ✓, AKBNK bilanço 8Ç regresyonsuz ✓
+- [x] Bulgular aşağıda
 
 ### FAZ 2 — Genel veri güncellik denetimi
 - [ ] Tüm cron'ların son çalışma zamanları (Actions + tablo updated_at)
@@ -79,6 +79,8 @@ Diğerleri güncel: [[cok-varlik-portfoy-izleme-entegrasyon]] (24 Tem, watchlist
 
 **24 Tem 2026 — FAZ 0:** Bu log kuruldu; geçmiş log senkronu yukarıdaki tabloyla tamamlandı (3 log + 1 memory güncellendi). Prod sağlık ölçümleri (senkron sırasında): KAP son bildirim 23 Tem 22:18 ✓, fonlar 1040 kayıt ✓, hisseler 606 kayıt ✓, döviz-maden 16/16 ✓, bilanço 8 çeyrek ✓.
 
+**24 Tem 2026 — FAZ 1 (`f9bb05c`):** Denetim salt-okur scriptle yapıldı (scratchpad `audit-bist.mjs`): KAP `bist-sirketler` (791 üye — dikkat: bu liste TÜM KAP üyelerini içerir; faktoring/varlık kiralama/tahvil ihraççıları pay senedi DEĞİL, ham fark 185 yanıltıcı) + StockAnalysis (615, pay listesi sürücüsü) vs site (606). Sonuç: **bayat kayıt 0, eksik 8**: BETAE, EKDMR, EKIM, GOLDA, ISVEA, ORZAX, SOHOE, SSAAT (hepsi hem SA hem KAP'ta doğrulandı; ilk işlem tarihleri 22 May–16 Tem 2026 — tam kullanıcının işaret ettiği pencere). **KARCL bilinçli eklenmedi**: Kardemir Çelik talep toplama 22-24 Tem (bugün son gün), henüz işlem görmüyor → hisse evrenine değil Halka Arz Takvimi'ne (FAZ 4-7 canlı test vakası). Ekleme akışı: `sync-bist-companies.mjs` yamalandı (mevcut JSON'daki `sektor`/`domain`/`priceAvailable` artık merge ile korunuyor — eskiden sync sektörleri SİLERDİ; ayrıca yeni/çıkan raporu basıyor) → sync (614) → `add-sektor.mjs` (8'e TradingView sektörü) → `check-bist-price-coverage.mjs` (**614/614 Yahoo kapsamı — TRMET dahil; tarihi "KOZAA eksik 606/607" bulgusu kapandı**). Yan bulgu: `kapMemberOid` alanı KAP tarafında artık boş geliyor ama kod hiçbir yerde kullanmıyor (körelmiş alan, dert değil). Yan fix: `HisseBilanco` tüm satırlar boşsa bölümü tamamen gizliyor (yeni kotasyonda TradingView finansalı yok → boş "Özet Finansallar" başlığı kalıyordu). Deploy sonrası `*/5` snapshot cron'u 8 yeniyi otomatik dolduracak (kod değişikliği gerekmez); o ana kadar liste canlı-fiyat merge'üyle zaten gösteriyor (BETAE 90,25 doğrulandı).
+
 ## ŞU AN NEREDEYİM
 
-**24 Tem 2026 — FAZ 0 bitti, FAZ 1'e geçiliyor.** 500 nav fix push'landı (`d130055`), geçmiş loglar senkron, prod cron altyapısı sağlıklı (401 dönemi kapandı). Sıradaki iş: FAZ 1 — sitedeki hisse evreni dökümü (`data/bist-companies.json` 607 + `lib/bist-hisseler.ts` + `hisse_snapshots` 606 tutarlılığı) çıkarılacak, KAP/BIST resmi listesiyle karşılaştırılacak, Nisan-Mayıs 2026 sonrası yeni kotasyonlar (KARCL vb.) tespit edilip eklenecek. Dikkat: izleme çok-varlık hâlâ `watchlist.tur` migration'ını bekliyor (Barış) — bu görevden bağımsız ama hatırlatılmalı.
+**24 Tem 2026 — FAZ 0 + FAZ 1 bitti (`f9bb05c` push'landı), FAZ 2'ye geçiliyor.** Hisse evreni 614'e çıktı (8 yeni kotasyon), bayat kayıt yok, Yahoo kapsamı 614/614. KARCL işlem görmeye başlayınca (muhtemelen önümüzdeki hafta) evrene girecek — FAZ 6 lifecycle bunu otomatikleştirecek; o güne kadar manuel `node scripts/sync-bist-companies.mjs && node scripts/add-sektor.mjs` da yeterli. Sıradaki iş: FAZ 2 genel veri güncellik denetimi (cron'ların son koşuları, bayat tablolar, silent-fail'ler; FAZ 0 sırasındaki hızlı ölçümler pozitifti — şimdi sistematik tur). Dikkat: izleme çok-varlık hâlâ `watchlist.tur` migration'ını bekliyor (Barış) — bu görevden bağımsız ama hatırlatılmalı.
