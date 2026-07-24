@@ -1,0 +1,31 @@
+name: Halka Arz Cron
+
+on:
+  schedule:
+    # Gunde 5 kez (05-17 UTC arasi 3 saatte bir, offset dakika — GH yuvarlak-dakika izdihamindan kacin).
+    - cron: '18 5,8,11,14,17 * * *'
+  workflow_dispatch:
+
+jobs:
+  halka-arz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Halka arz tespit + lifecycle
+        run: |
+          body=$(curl -s -w "\n%{http_code}" \
+            -X GET "https://www.parakonusur.com/api/cron/halka-arz" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 120)
+          status=$(echo "$body" | tail -n1)
+          json=$(echo "$body" | sed '$d')
+          echo "HTTP Status: $status"
+          echo "Yanit: $json"
+          if [ "$status" != "200" ]; then
+            echo "HTTP hatasi: $status"
+            exit 1
+          fi
+          if echo "$json" | grep -qE '"hata":\s*[1-9]'; then
+            echo "Cron yaniti hata bildirdi (hata sayaci > 0)"
+            exit 1
+          fi

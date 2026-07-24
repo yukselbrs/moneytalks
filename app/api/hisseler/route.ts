@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { yeniKotasyonOverlay } from "@/lib/hisse-evren";
 import { fetchMarketQuote } from "@/lib/market-pricing";
 
 export const runtime = "nodejs";
@@ -114,15 +115,19 @@ export async function GET(req: NextRequest) {
 
   const sortDef = SORT_MAP[sort] || SORT_MAP.alfabetik;
 
-  // Arama — BIST_HISSELER üzerinden ticker veya ad ile baştan eşleşme
+  // Statik evren + yeni kotasyon overlay'i (islem_goruyor'a gecmis, JSON'a henuz sync edilmemis arzlar)
+  const overlay = await yeniKotasyonOverlay();
+  const evren = overlay.length ? [...BIST_HISSELER, ...overlay] : BIST_HISSELER;
+
+  // Arama — evren üzerinden ticker veya ad ile baştan eşleşme
   let allowedTickers: string[] | null = null;
   if (q !== "") {
-    allowedTickers = BIST_HISSELER.filter(
+    allowedTickers = evren.filter(
       (h) => h.ticker.startsWith(q) || h.ad.toUpperCase().startsWith(q)
     ).map((h) => h.ticker);
   }
 
-  const allTickers = q !== "" ? allowedTickers! : BIST_HISSELER.map((h) => h.ticker);
+  const allTickers = q !== "" ? allowedTickers! : evren.map((h) => h.ticker);
   if (allTickers.length === 0) {
     return NextResponse.json({ items: [], total: 0, page, pageSize: SAYFA_BOYUTU });
   }
@@ -199,7 +204,8 @@ export async function GET(req: NextRequest) {
   const slicedTickers = sortedTickers.slice(from, from + SAYFA_BOYUTU);
   const liveMap = shouldLiveSort ? sortLiveMap : await fetchLiveFiyatlar(slicedTickers);
   const returnMap = shouldReturnSort ? sortReturnMap : await fetchLiveGetiriler(slicedTickers);
-  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker), snapMap.get(ticker), liveMap.get(ticker), returnMap.get(ticker)));
+  const overlayMeta = new Map(overlay.map((o) => [o.ticker, o]));
+  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker) ?? overlayMeta.get(ticker), snapMap.get(ticker), liveMap.get(ticker), returnMap.get(ticker)));
 
   const response = NextResponse.json({
     items,

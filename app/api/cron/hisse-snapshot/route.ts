@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { yeniKotasyonOverlay } from "@/lib/hisse-evren";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
 import { fetchMarketQuote } from "@/lib/market-pricing";
@@ -123,8 +124,12 @@ export async function GET(req: NextRequest) {
   const start = Date.now();
   const results: SnapshotRow[] = [];
 
-  for (let i = 0; i < BIST_HISSELER.length; i += BATCH) {
-    const batch = BIST_HISSELER.slice(i, i + BATCH);
+  // Statik evren + yeni kotasyon overlay'i (islem_goruyor'a gecen halka arzlar JSON sync'ini beklemeden fiyat alir)
+  const overlay = await yeniKotasyonOverlay();
+  const evren = overlay.length ? [...BIST_HISSELER, ...overlay] : BIST_HISSELER;
+
+  for (let i = 0; i < evren.length; i += BATCH) {
+    const batch = evren.slice(i, i + BATCH);
     const data = await Promise.all(batch.map((h) => fetchHisseData(h.ticker)));
     data.forEach((r) => r && results.push(r));
   }
@@ -142,14 +147,14 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const basarisiz = BIST_HISSELER.length - results.length;
+  const basarisiz = evren.length - results.length;
   // Tekil ticker fetch'leri zaman zaman bos doner (Yahoo dalgalanmasi) — %10'u asarsa sistemik sorun say.
-  const hata = basarisiz > BIST_HISSELER.length * 0.1 ? 1 : 0;
+  const hata = basarisiz > evren.length * 0.1 ? 1 : 0;
   if (hata) hataYakala("snapshot-cron:kapsama", new Error(`${basarisiz} hisse cekilemedi`), { basarisiz });
 
   return NextResponse.json({
     success: true,
-    total: BIST_HISSELER.length,
+    total: evren.length,
     saved: results.length,
     failed: basarisiz,
     duration_ms: Date.now() - start,
