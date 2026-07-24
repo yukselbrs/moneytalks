@@ -862,10 +862,18 @@ function HisselerContent() {
   );
 }
 
+// varlik degisince content'i key ile remount et: hisse<->fon gecisinde eski tipin verisi
+// yeni tipin render'ina sizip crash'liyordu (fon.kod.slice -> undefined, ekranda 500).
+function HisselerSwitch() {
+  const searchParams = useSearchParams();
+  const varlik = searchParams.get("varlik") === "fon" ? "fon" : "hisse";
+  return <HisselerContent key={varlik} />;
+}
+
 export default function HisselerPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>}>
-      <HisselerContent />
+      <HisselerSwitch />
     </Suspense>
   );
 }
