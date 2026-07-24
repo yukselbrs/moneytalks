@@ -99,6 +99,10 @@ export default function HisseBilanco({ ticker }: { ticker: string }) {
     { ad: "Toplam Borç", yeni: el(s?.toplam_borc, 0), eski: el(s?.toplam_borc, 1) },
   ];
 
+  // Yeni kotasyonlarda TradingView henuz finansal yayinlamamis olabilir — tum satirlar bos ise bolumu hic gosterme.
+  const veriVar = [...gelirSatirlar, ...bilancoSatirlar].some(sat => sat.yeni !== null || sat.eski !== null);
+  if (!veriVar) return null;
+
   const sonTarih = b.son_bildirim_tarihi
     ? new Date(b.son_bildirim_tarihi).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })
     : null;

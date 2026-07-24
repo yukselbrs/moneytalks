@@ -167,26 +167,42 @@ function compactName(name) {
     .trim();
 }
 
+async function readExistingCompanies() {
+  // Sonradan eklenen alanlari (sektor vb.) sync sirasinda kaybetmemek icin mevcut JSON okunur.
+  try {
+    const existing = JSON.parse(await readFile(outPath, "utf8"));
+    return new Map(existing.map((company) => [company.ticker, company]));
+  } catch {
+    return new Map();
+  }
+}
+
 async function main() {
   const [activeStocks, kapMap] = await Promise.all([fetchActiveStocks(), fetchKapCompanies()]);
   const priceCoverage = await readOptionalPriceCoverage();
+  const existingMap = await readExistingCompanies();
 
   const companies = activeStocks.map((stock) => {
     const kap = kapMap.get(stock.ticker);
     const coverage = priceCoverage.get(stock.ticker);
+    const existing = existingMap.get(stock.ticker);
     return {
       ticker: stock.ticker,
       ad: compactName(kap?.kapTitle || stock.name),
       fullName: kap?.kapTitle || stock.name,
-      domain: DOMAIN_OVERRIDES[stock.ticker] || undefined,
+      domain: DOMAIN_OVERRIDES[stock.ticker] || existing?.domain || undefined,
       kapTitle: kap?.kapTitle || null,
       city: kap?.city || null,
       kapMemberOid: kap?.kapMemberOid || null,
       source: kap ? "stockanalysis+kap" : "stockanalysis",
       listed: true,
-      priceAvailable: coverage?.priceAvailable ?? null,
+      priceAvailable: coverage?.priceAvailable ?? existing?.priceAvailable ?? null,
+      ...(existing?.sektor ? { sektor: existing.sektor } : {}),
     };
   });
+
+  const yeniEklenen = companies.filter((company) => !existingMap.has(company.ticker)).map((company) => company.ticker);
+  const cikarilan = [...existingMap.keys()].filter((ticker) => !companies.some((company) => company.ticker === ticker));
 
   await mkdir(outDir, { recursive: true });
   await writeFile(outPath, `${JSON.stringify(companies, null, 2)}\n`);
@@ -198,6 +214,8 @@ async function main() {
   console.log(`Saved ${companies.length} active BIST companies to ${path.relative(root, outPath)}`);
   console.log(`Updated ${path.relative(root, bistTsPath)}`);
   console.log(`Missing KAP enrichment: ${missingKap.length}${missingKap.length ? ` (${missingKap.join(", ")})` : ""}`);
+  console.log(`Yeni eklenen: ${yeniEklenen.length}${yeniEklenen.length ? ` (${yeniEklenen.join(", ")})` : ""}`);
+  console.log(`Listeden cikan: ${cikarilan.length}${cikarilan.length ? ` (${cikarilan.join(", ")})` : ""}`);
 }
 
 async function readOptionalPriceCoverage() {

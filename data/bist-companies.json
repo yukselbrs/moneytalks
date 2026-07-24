@@ -88,7 +88,7 @@
     "ad": "ANADOLU EFES BİRACILIK VE MALT SANAYİİ",
     "fullName": "ANADOLU EFES BİRACILIK VE MALT SANAYİİ A.Ş.",
     "kapTitle": "ANADOLU EFES BİRACILIK VE MALT SANAYİİ A.Ş.",
-    "city": "İSTANBUL",
+    "city": null,
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
@@ -1070,6 +1070,18 @@
     "sektor": "Kamu Hizmetleri"
   },
   {
+    "ticker": "BETAE",
+    "ad": "BETA ENERJİ VE TEKNOLOJİ",
+    "fullName": "BETA ENERJİ VE TEKNOLOJİ A.Ş.",
+    "kapTitle": "BETA ENERJİ VE TEKNOLOJİ A.Ş.",
+    "city": "ADANA",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Üretici İmalat"
+  },
+  {
     "ticker": "BEYAZ",
     "ad": "BEYAZ FİLO OTO KİRALAMA",
     "fullName": "BEYAZ FİLO OTO KİRALAMA A.Ş.",
@@ -1421,9 +1433,9 @@
   },
   {
     "ticker": "BSOKE",
-    "ad": "BATISÖKE SÖKE ÇİMENTO SANAYİİ T.A.Ş.",
-    "fullName": "BATISÖKE SÖKE ÇİMENTO SANAYİİ T.A.Ş.",
-    "kapTitle": "BATISÖKE SÖKE ÇİMENTO SANAYİİ T.A.Ş.",
+    "ad": "BATIÇİM ÇİMENTO SANAYİ",
+    "fullName": "BATIÇİM ÇİMENTO SANAYİ A.Ş.",
+    "kapTitle": "BATIÇİM ÇİMENTO SANAYİ A.Ş.",
     "city": "İZMİR",
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
@@ -1433,9 +1445,9 @@
   },
   {
     "ticker": "BTCIM",
-    "ad": "BATIÇİM BATI ANADOLU ÇİMENTO SANAYİİ",
-    "fullName": "BATIÇİM BATI ANADOLU ÇİMENTO SANAYİİ A.Ş.",
-    "kapTitle": "BATIÇİM BATI ANADOLU ÇİMENTO SANAYİİ A.Ş.",
+    "ad": "BATIÇİM BATI ANADOLU SANAYİ VE TİCARET",
+    "fullName": "BATIÇİM BATI ANADOLU SANAYİ VE TİCARET A.Ş.",
+    "kapTitle": "BATIÇİM BATI ANADOLU SANAYİ VE TİCARET A.Ş.",
     "city": "İZMİR",
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
@@ -2299,10 +2311,34 @@
     "sektor": "Üretici İmalat"
   },
   {
+    "ticker": "EKDMR",
+    "ad": "EKİNCİLER DEMİR VE ÇELİK SANAYİ",
+    "fullName": "EKİNCİLER DEMİR VE ÇELİK SANAYİ A.Ş.",
+    "kapTitle": "EKİNCİLER DEMİR VE ÇELİK SANAYİ A.Ş.",
+    "city": "İSTANBUL",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Enerji Dışı Madencilik"
+  },
+  {
     "ticker": "EKGYO",
     "ad": "EMLAK KONUT GAYRİMENKUL YATIRIM ORTAKLIĞI",
     "fullName": "EMLAK KONUT GAYRİMENKUL YATIRIM ORTAKLIĞI A.Ş.",
     "kapTitle": "EMLAK KONUT GAYRİMENKUL YATIRIM ORTAKLIĞI A.Ş.",
+    "city": "İSTANBUL",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Finans"
+  },
+  {
+    "ticker": "EKIM",
+    "ad": "EKİM TURİZM TİCARET VE SANAYİ",
+    "fullName": "EKİM TURİZM TİCARET VE SANAYİ A.Ş.",
+    "kapTitle": "EKİM TURİZM TİCARET VE SANAYİ A.Ş.",
     "city": "İSTANBUL",
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
@@ -3022,6 +3058,18 @@
     "sektor": "Dayanıksız Tüketim Malları"
   },
   {
+    "ticker": "GOLDA",
+    "ad": "GOLDA GIDA SANAYİ VE TİCARET",
+    "fullName": "GOLDA GIDA SANAYİ VE TİCARET A.Ş.",
+    "kapTitle": "GOLDA GIDA SANAYİ VE TİCARET A.Ş.",
+    "city": "KONYA",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Dayanıksız Tüketim Malları"
+  },
+  {
     "ticker": "GOLTS",
     "ad": "GÖLTAŞ GÖLLER BÖLGESİ ÇİMENTO SANAYİ VE TİCARET",
     "fullName": "GÖLTAŞ GÖLLER BÖLGESİ ÇİMENTO SANAYİ VE TİCARET A.Ş.",
@@ -3682,6 +3730,18 @@
     "listed": true,
     "priceAvailable": true,
     "sektor": "Süreç Endüstrileri"
+  },
+  {
+    "ticker": "ISVEA",
+    "ad": "İSVEA SERAMİK VE BANYO ÜRÜNLERİ SANAYİ",
+    "fullName": "İSVEA SERAMİK VE BANYO ÜRÜNLERİ SANAYİ A.Ş.",
+    "kapTitle": "İSVEA SERAMİK VE BANYO ÜRÜNLERİ SANAYİ A.Ş.",
+    "city": "ÇORUM",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "IZENR",
@@ -5138,6 +5198,18 @@
     "sektor": "Enerji Dışı Madencilik"
   },
   {
+    "ticker": "ORZAX",
+    "ad": "ORZAKS İLAÇ VE KİMYA SANAYİ TİCARET",
+    "fullName": "ORZAKS İLAÇ VE KİMYA SANAYİ TİCARET A.Ş.",
+    "kapTitle": "ORZAKS İLAÇ VE KİMYA SANAYİ TİCARET A.Ş.",
+    "city": "İSTANBUL",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Sağlık Teknolojisi"
+  },
+  {
     "ticker": "OSMEN",
     "ad": "OSMANLI YATIRIM MENKUL DEĞERLER",
     "fullName": "OSMANLI YATIRIM MENKUL DEĞERLER A.Ş.",
@@ -6058,7 +6130,7 @@
     "ad": "ŞEKERBANK T.A.Ş.",
     "fullName": "ŞEKERBANK T.A.Ş.",
     "kapTitle": "ŞEKERBANK T.A.Ş.",
-    "city": "İSTANBUL",
+    "city": null,
     "kapMemberOid": null,
     "source": "stockanalysis+kap",
     "listed": true,
@@ -6186,6 +6258,18 @@
     "sektor": "Süreç Endüstrileri"
   },
   {
+    "ticker": "SOHOE",
+    "ad": "SOHO GİYİM VE ENERJİ",
+    "fullName": "SOHO GİYİM VE ENERJİ A.Ş.",
+    "kapTitle": "SOHO GİYİM VE ENERJİ A.Ş.",
+    "city": "İSTANBUL",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Kamu Hizmetleri"
+  },
+  {
     "ticker": "SOKE",
     "ad": "SÖKE DEĞİRMENCİLİK SANAYİ VE TİCARET",
     "fullName": "SÖKE DEĞİRMENCİLİK SANAYİ VE TİCARET A.Ş.",
@@ -6233,6 +6317,18 @@
     "listed": true,
     "priceAvailable": true,
     "sektor": "Finans"
+  },
+  {
+    "ticker": "SSAAT",
+    "ad": "SAAT VE SAAT SANAYİ VE TİCARET",
+    "fullName": "SAAT VE SAAT SANAYİ VE TİCARET A.Ş.",
+    "kapTitle": "SAAT VE SAAT SANAYİ VE TİCARET A.Ş.",
+    "city": "İSTANBUL",
+    "kapMemberOid": null,
+    "source": "stockanalysis+kap",
+    "listed": true,
+    "priceAvailable": true,
+    "sektor": "Dayanıklı Tüketim Malları"
   },
   {
     "ticker": "SUMAS",
