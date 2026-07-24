@@ -199,14 +199,17 @@ export async function ahlatciArzlari(tamamlananLimit = 10): Promise<KaynakArz[] 
 }
 
 // Islem-goruyor sinyali: Yahoo'da fiyat + ilk islem tarihi olustuysa hisse borsada islem goruyordur.
-// query1 429/kesinti verirse query2 yedegi denenir (enstruman-pricing ile ayni desen);
-// ikisi de dusmusse guvenli taraf "sinyal yok"tur — bir sonraki cron kosusu tekrar dener.
+// ONEMLI: Yahoo cagrisinda KISA UA ("Mozilla/5.0") kullanilir — uzun Chrome-masaustu UA'si (Ahlatci
+// scrape'i icin gerekli) Vercel IP'sinden 429 yiyor; kisa UA sitenin geri kalaninin (grafik/fiyatlar)
+// gunluk kullandigi calisan desen. query1 tokezlerse query2 yedegi; ikisi de dusmusse "sinyal yok"
+// (guvenli taraf) — bir sonraki cron kosusu tekrar dener.
+const YAHOO_UA = "Mozilla/5.0";
 export async function yahooIslemSinyali(kod: string): Promise<{ islemGoruyor: boolean; ilkIslemTarihi: string | null; detay: string }> {
   const denemeler: string[] = [];
   for (const host of ["query1", "query2"]) {
     try {
       const res = await fetch(`https://${host}.finance.yahoo.com/v8/finance/chart/${kod}.IS?range=5d&interval=1d`, {
-        headers: { "User-Agent": UA },
+        headers: { "User-Agent": YAHOO_UA },
         cache: "no-store",
         signal: AbortSignal.timeout(10000),
       });
