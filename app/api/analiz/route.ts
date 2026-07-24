@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { getHisseVerisi } from "@/lib/hisse-veri";
 import { tickerCozOverlayli } from "@/lib/hisse-evren";
+import { halkaArzKayitliFinansal } from "@/lib/halka-arz-finansal";
 import { requireUser } from "@/lib/auth";
 import { rateLimitHit } from "@/lib/rate-limit";
 import { formatCurrency, formatQuantity } from "@/lib/formatters";
@@ -65,6 +66,31 @@ Bu rasyolari SIRKETIN kendi tarihine ve makul sektor beklentisine gore yorumla; 
   }
 }
 
+// Yeni kotasyon fallback: bilanco_snapshots yoksa halka_arzlar'daki izahname bilancosunu prompt'a ekle.
+async function halkaArzBilancoMetni(ticker: string): Promise<string> {
+  try {
+    const kayit = await halkaArzKayitliFinansal(ticker, supabaseAuth);
+    if (!kayit || !kayit.finansal) return "";
+    const f = kayit.finansal;
+    const tl = (v: number | null): string => {
+      if (v === null || !Number.isFinite(v)) return "veri yok";
+      if (Math.abs(v) >= 1e9) return `${(v / 1e9).toFixed(2)} milyar TL`;
+      if (Math.abs(v) >= 1e6) return `${(v / 1e6).toFixed(0)} milyon TL`;
+      return `${v.toLocaleString("tr-TR")} TL`;
+    };
+    const carpan = kayit.fk !== null || kayit.pddd !== null
+      ? `\n- Degerleme (guncel piyasa degeri / izahname finansali): F/K ${kayit.fk ?? "veri yok"} | PD/DD ${kayit.pddd ?? "veri yok"}`
+      : "";
+    return `\n\nSirketin izahname (halka arz) finansal verileri${f.donem ? ` (${f.donem} yillik)` : ""} — YENI KOTASYON, henuz standart finansal veri saglayicilarinda yok:
+- Ozkaynaklar: ${tl(f.ozkaynak)} | Net donem kari: ${tl(f.net_kar)} | Odenmis sermaye: ${tl(f.odenmis_sermaye)}
+- Donen varlik: ${tl(f.donen_varlik)} | Duran varlik: ${tl(f.duran_varlik)} | KV yukumluluk: ${tl(f.kv_yukumluluk)} | UV yukumluluk: ${tl(f.uv_yukumluluk)}
+- Nakit: ${tl(f.nakit)} | Stoklar: ${tl(f.stoklar)} | Ticari borclar: ${tl(f.ticari_borclar)} | Cari oran: ${f.cari_oran ?? "veri yok"}${carpan}
+Bu izahname verilerini SIRKETIN buyuklugu/karliligi/borclulugu acisindan yorumla; yeni kotasyon oldugu icin gecmis ceyreklik trend sinirli, bunu belirt. Kesin "ucuz/pahali" hukmu verme.`;
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(req: NextRequest) {
   let body: { ticker?: unknown; veriOnly?: unknown; kisaYorum?: unknown };
   try {
@@ -100,11 +126,13 @@ export async function POST(req: NextRequest) {
     : "Guncel fiyat verisi alinamadi.";
 
   try {
-    const [macroRisk, kapMetni, bilancoBlok] = await Promise.all([
+    const [macroRisk, kapMetni, bilancoTv] = await Promise.all([
       getMacroRiskSnapshot().catch(() => null),
       kapHaberMetni(ticker),
       bilancoMetni(ticker),
     ]);
+    // TradingView bilancosu yoksa (yeni kotasyon) izahname bilancosuna dus.
+    const bilancoBlok = bilancoTv || (await halkaArzBilancoMetni(ticker));
     const makroMetni = macroRisk ? `\n\n${macroRiskPromptBlock(macroRisk)}` : "";
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",

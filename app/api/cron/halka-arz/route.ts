@@ -32,11 +32,14 @@ export async function GET(req: NextRequest) {
   const baslangic = Date.now();
   const bugun = new Date().toISOString().slice(0, 10);
   let yeni = 0, guncellenen = 0, arzTamamlanan = 0, islemeGecen = 0, hata = 0;
+  // Kaynak erisilemezligi YUMUSAK uyaridir (isi kirmizi yapmaz): veri kaybi yok, mevcut satirlar
+  // kalir, sonraki kosu tekrar dener. `hata` yalnizca gercek DB yazma basarisizliklarinda artar.
+  let kaynakUyari = 0;
 
   const kaynak = await ahlatciArzlari();
   if (kaynak === null) {
-    hata = 1;
-    hataYakala("halka-arz-cron:kaynak", new Error("Ahlatci listesi cekilemedi"));
+    kaynakUyari = 1;
+    hataYakala("halka-arz-cron:kaynak", new Error("Ahlatci listesi cekilemedi (gecici — is kirmizi yapilmaz)"));
   }
 
   const { data: mevcutData, error: okumaHatasi } = await supabase
@@ -153,5 +156,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ yeni, guncellenen, arzTamamlanan, islemeGecen, finansalGuncellenen, hata, sinyalDetay, sure_ms: Date.now() - baslangic });
+  return NextResponse.json({ yeni, guncellenen, arzTamamlanan, islemeGecen, finansalGuncellenen, hata, kaynakUyari, sinyalDetay, sure_ms: Date.now() - baslangic });
 }

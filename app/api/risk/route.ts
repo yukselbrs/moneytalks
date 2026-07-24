@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { rateLimitHit, istekIpAdresi } from "@/lib/rate-limit";
 import { getMacroRiskSnapshot } from "@/lib/macro-risk";
+import { halkaArzKayitliFinansal } from "@/lib/halka-arz-finansal";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 async function fetchOHLCV(ticker: string) {
   const res = await fetch(
@@ -223,6 +230,17 @@ export async function GET(req: NextRequest) {
       }
     } catch (e) {
       console.error("TradingView Scanner hatasi:", e);
+    }
+
+    // Yeni kotasyon fallback: TradingView temel veri tutmuyorsa halka_arzlar'daki izahname
+    // bazli F/K & PD/DD'yi kullan (risk skoruna KATMA — hesaplama yontemi farkli; yalniz goster).
+    if (fk === null && pddd === null) {
+      const kayit = await halkaArzKayitliFinansal(ticker, supabase);
+      if (kayit) {
+        if (fk === null && kayit.fk !== null) fk = kayit.fk;
+        if (pddd === null && kayit.pddd !== null) pddd = kayit.pddd;
+        if (piyasaDegeri === null && kayit.piyasa_degeri !== null) piyasaDegeri = kayit.piyasa_degeri;
+      }
     }
 
     // 11. Likidite Riski (mutlak hacim)

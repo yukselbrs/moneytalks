@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 // Halka arz finansal katmani: izahname bilanco ozeti (halkaarz.info yapisal tablosu) +
 // TradingView piyasa degeri ile F/K & PD/DD hesabi. Yeni kotasyonlar TradingView'de
 // temel veri (F/K, PD/DD, bilanco) TASIMAZ — haftalar/aylar sonra dolar; bu katman
@@ -150,6 +152,35 @@ export async function tvPiyasaDegeri(kod: string): Promise<number | null> {
     const j = await res.json();
     const v = j?.data?.[0]?.d?.[0];
     return typeof v === "number" && v > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+// Bir hissenin halka_arzlar'da kayitli finansali (yeni kotasyonlar TradingView'de temel veri
+// tutmadigi icin hisse sayfasi + AI analizi bu kayda dusuyor). Kayit yoksa/hata olursa null.
+export type KayitliFinansal = {
+  fk: number | null;
+  pddd: number | null;
+  piyasa_degeri: number | null;
+  finansal: IzahnameFinansal | null;
+};
+
+export async function halkaArzKayitliFinansal(
+  ticker: string,
+  supabase: SupabaseClient
+): Promise<KayitliFinansal | null> {
+  try {
+    const { data, error } = await supabase
+      .from("halka_arzlar")
+      .select("fk, pddd, piyasa_degeri, finansal_ozet")
+      .eq("kod", ticker.toUpperCase())
+      .maybeSingle();
+    if (error || !data) return null;
+    const fin = (data.finansal_ozet as IzahnameFinansal | null) ?? null;
+    const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : v != null && Number.isFinite(Number(v)) ? Number(v) : null);
+    if (num(data.fk) === null && num(data.pddd) === null && !fin) return null;
+    return { fk: num(data.fk), pddd: num(data.pddd), piyasa_degeri: num(data.piyasa_degeri), finansal: fin };
   } catch {
     return null;
   }
