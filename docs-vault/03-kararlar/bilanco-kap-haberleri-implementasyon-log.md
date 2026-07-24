@@ -1,6 +1,6 @@
 # Bilanço + Hisse KAP Haberleri — İmplementasyon Logu
 
-**Durum:** DEVAM EDİYOR · Başlangıç: 19 Tem 2026
+**Durum:** TAMAMLANDI (24 Tem 2026 prod doğrulamalı) · Başlangıç: 19 Tem 2026
 Resume protokolünün tek kaynağı. Yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını okur.
 
 ## TODO
@@ -129,6 +129,4 @@ Kullanıcı, tek-kart+tablo düzeni yerine İş Yatırım'ın **iki-kart** forma
 
 ## ŞU AN NEREDEYİM
 
-**KOD TAMAMLANDI (20 Tem 2026)** — FAZ 1-8'in kod tarafı bitti, `main`'e push edildi. Zincir: TradingView Scanner (`lib/bilanco`, batch + özdeşlik sağlaması) → günlük cron → `bilanco_snapshots` → `/api/bilanco/[ticker]` → `HisseBilanco` (özet kart + tablo + 4Ç mini bar) + `HisseKapHaberleri` (`/api/haberler?ticker=` reuse) → `/api/analiz` rasyo-bazlı temel analiz. 
-
-Görevin kapanması **tek manuel adıma** bakıyor — **Barış'ın SQL Editor migration'ı** (`supabase/migrations.sql` "BILANCO v1" bloğu). Bu çalışmadan: cron `bilanco_snapshots`'a yazamaz (500), hisse sayfası Bilanço bölümü gizli kalır (graceful), AI temel analiz bacağı boş döner. Migration + cron manuel tetiklemesi (Actions → Bilanco Snapshot Cron → Run) sonrası: bir sonraki oturum tam bilanço görselini + AI temel analiz çıktısını 3 sektörde (banka dahil) doğrulamalı. KAP haberleri bölümü migration'dan BAĞIMSIZ, zaten çalışıyor.
+**TAMAMLANDI (24 Tem 2026 senkron turu ile kapatıldı).** FAZ 1-8 kodu 20 Tem'de push'lanmıştı; 24 Tem prod ölçümü kalan manuel adımların da bittiğini gösterdi: `/api/bilanco/AKBNK` **8 çeyrek** dönüyor, `updated_at=2026-07-23 08:25` → Barış migration'ı VE deploy sonrası bilanço cron'unu yeniden çalıştırmış, tablo 8-çeyrek formata güncellenmiş (hızlı tablo-okuma devrede, canlı-fallback artık istisna yolu). KAP haberleri de canlı (son bildirim 23 Tem 22:18). Kalan iş yok; 3-sektör görsel doğrulaması istenirse ayrı küçük tur.

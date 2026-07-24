@@ -23,12 +23,13 @@ Her karar tek dosya:
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
 ### Uygulama kayıtları
-- [[cok-varlik-portfoy-izleme-entegrasyon]] — Fon+döviz+maden portföye ve izlemeye eklenebilir + nav aktif-vurgu fix (KOD TAMAM 24 Tem; portföy migration'sız canlı, izleme watchlist.tur migration'ı Barış'ta)
-- [[bilanco-kap-haberleri-implementasyon-log]] — Hisse sayfasına bilanço (TradingView) + hisse-KAP haberleri + AI temel analiz (KOD TAMAM 20 Tem; migration Barış'ta)
+- [[hisse-denetim-halka-arz-takvimi-log]] — AKTİF GÖREV: hisse listesi denetimi + veri güncellik + Halka Arz Takvimi modülü (başlangıç 24 Tem; resume logu)
+- [[cok-varlik-portfoy-izleme-entegrasyon]] — Fon+döviz+maden portföye ve izlemeye eklenebilir + nav aktif-vurgu fix + hisseler↔fonlar 500 fix (KOD TAMAM 24 Tem; portföy migration'sız canlı, izleme watchlist.tur migration'ı Barış'ta)
+- [[bilanco-kap-haberleri-implementasyon-log]] — Hisse sayfasına bilanço (TradingView) + hisse-KAP haberleri + AI temel analiz (TAMAMLANDI — 24 Tem prod doğrulamalı: 8 çeyrek canlı)
 - [[test-turu-19-temmuz-2026]] — Production doğrulama turu: döviz+maden ✅, KAP haberler ✅, döviz tutarlılık ✅ canlı test; kap_bildirimleri hâlâ 0 satır (açık bulgu)
 - [[ai-analiz-haber-tutarlilik-portfoy-mail]] — AI analizine KAP haberi + döviz analiz tutarlılığı + portföy KAP maili (19 Tem; AI kredi + cron secret engelli)
 - [[kap-ucretsiz-kaynak-uygulama]] — KAP ücretsiz kaynak: tek kaynak kap.org.tr (VYK/demo kaldırıldı, 19 Tem)
-- [[doviz-kiymetli-maden-implementasyon-log]] — Döviz + Kıymetli Maden modülü (KOD TAMAM 18 Tem — migration Barış'ta; resume logu + K1-K8 kararları)
+- [[doviz-kiymetli-maden-implementasyon-log]] — Döviz + Kıymetli Maden modülü (TAMAMLANDI — 24 Tem prod doğrulamalı: 16/16 canlı; kalan yalnız köprü-DROP borcu; K1-K8 kararları)
 - [[viop-nedir-uygulama]] — VİOP eğitim hikayesi (TAMAMLANDI 16 Tem — 11 sahne + simülasyon)
 - [[maden-v1-uygulama]] — Kıymetli madenler v1 (15 Tem 2026; /doviz-maden modülüne evrildi, 18 Tem)
 

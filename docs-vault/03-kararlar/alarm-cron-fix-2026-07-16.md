@@ -1,6 +1,6 @@
 # Alarm Cron Teşhis + Fix — 16 Temmuz 2026
 
-**Durum:** Kod fix uygulandı; 1 manuel adım Barış'ta. Dondurma ([[faz4-alarm-cron-donduruldu]]) kullanıcı talebiyle kalktı.
+**Durum:** ÇÖZÜLDÜ (24 Tem 2026 doğrulandı). Kod fix + Barış'ın GitHub `CRON_SECRET` güncellemesi tamam — kanıt: zamanlanmış cron'lar tekrar yazıyor (enstruman-snapshot 24 Tem 04:27, KAP 23 Tem 22:18, bilanço 23 Tem 08:25). Dondurma ([[faz4-alarm-cron-donduruldu]]) kullanıcı talebiyle kalkmıştı.
 
 ## Teşhis (iki ayrı sorun)
 

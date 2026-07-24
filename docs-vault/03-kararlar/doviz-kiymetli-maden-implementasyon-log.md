@@ -1,6 +1,6 @@
 # Döviz + Kıymetli Maden Modülü — İmplementasyon Logu
 
-**Durum:** KOD TAMAMLANDI (18 Tem 2026) — migration + prod doğrulaması bekliyor (bkz. AÇIK KALANLAR) · Başlangıç: 17 Tem 2026
+**Durum:** TAMAMLANDI (24 Tem 2026 — migration çalıştı, prod doğrulandı; kalan yalnız köprü-temizlik borcu) · Başlangıç: 17 Tem 2026
 Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını okur.
 
 ## TODO
@@ -165,4 +165,4 @@ Ek: "Her bölüm en fazla 4-5 cümle" sınırı (uzunluk/maliyet dengesi).
 
 ## ŞU AN NEREDEYİM
 
-**KOD TAMAMLANDI (18 Tem 2026)** — FAZ 0-8'in kod tarafı bitti, `main`'e push edildi. Görevin kapanması iki manuel adıma bakıyor: (1) Barış'ın SQL Editor migration'ı, (2) migration sonrası prod doğrulaması (yukarıdaki AÇIK KALANLAR 2). Bir sonraki oturum "continue" derse: önce AÇIK KALANLAR'ı kontrol et — migration çalıştıysa prod doğrulamasını yap ve 4. maddedeki köprü temizliğini planla; çalışmadıysa kullanıcıya hatırlat, kod işi YOK.
+**TAMAMLANDI (24 Tem 2026 senkron turu ile kapatıldı).** AÇIK KALANLAR 1-2-3 ve 6 çözüldü: migration çalıştı, prod `/api/doviz-maden` **16/16 enstrüman fiyatlı** ve taze (`updated_at=2026-07-24 04:27` → */15 GitHub Actions cron'u + CRON_SECRET sağlıklı; 19 Tem test turunda döviz+maden canlı ✅). Kalan yalnız bilinçli borçlar: (4) `maden_snapshots` çift-yazım köprüsünün DROP'u — 1+ hafta sorunsuz koşu doldu, uygun bir bakım turunda kaldırılabilir; (5) karne/akşam raporu enstrüman kapsamı — istenirse ayrı iş.
