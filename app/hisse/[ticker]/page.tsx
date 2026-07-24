@@ -33,6 +33,7 @@ interface HisseVeri {
   gunlukDusuk: number;
   sirketAdi?: string;
   domain?: string;
+  logoUrl?: string | null;
 }
 
 function renderMarkdown(text: string) {
@@ -345,7 +346,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
                 <Star size={18} fill={izlemede ? "currentColor" : "none"} />
               </button>
               <div className="hisse-title-row">
-                <StockLogo ticker={ticker} domain={veri?.domain} size={40} radius={10} />
+                <StockLogo ticker={ticker} domain={veri?.domain} logoUrl={veri?.logoUrl} size={40} radius={10} />
                 <div className="hisse-title-block">
                   <div className="hisse-ticker-row">
                     <h1 className="hisse-ticker" style={{ fontSize: 30, fontWeight: 500, color: "#F8FAFC", letterSpacing: "-0.5px", margin: 0, lineHeight: 1.05 }}>{ticker}</h1>

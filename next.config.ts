@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "t1.gstatic.com" },
       { protocol: "https", hostname: "t2.gstatic.com" },
       { protocol: "https", hostname: "t3.gstatic.com" },
+      { protocol: "https", hostname: "www.ahlatciyatirim.com.tr" },
     ],
   },
 };

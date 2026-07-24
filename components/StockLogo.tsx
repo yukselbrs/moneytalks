@@ -8,6 +8,7 @@ import { getStockLogoSource, getStockLogoUrl } from "@/lib/stock-logos";
 type StockLogoProps = {
   ticker: string;
   domain?: string;
+  logoUrl?: string | null;
   size?: number;
   imageSize?: number;
   radius?: number;
@@ -23,6 +24,7 @@ function fallbackText(ticker: string) {
 export default function StockLogo({
   ticker,
   domain,
+  logoUrl,
   size = 40,
   imageSize,
   radius = 10,
@@ -31,8 +33,9 @@ export default function StockLogo({
   color = "#3B82F6",
 }: StockLogoProps) {
   const [failed, setFailed] = useState(false);
-  const src = failed ? null : getStockLogoUrl(ticker, domain);
-  const source = failed ? "fallback" : getStockLogoSource(ticker, domain);
+  // Acik logoUrl (or. yeni kotasyonlarin araci-kurum logosu) statik cozumun onunde gelir.
+  const src = failed ? null : (logoUrl || getStockLogoUrl(ticker, domain));
+  const source = failed ? "fallback" : (logoUrl ? "domain" : getStockLogoSource(ticker, domain));
   const resolvedImageSize = imageSize ?? size;
   const domainImageSize = imageSize ?? Math.round(size * 0.7);
   const fallbackSize = Math.max(8, Math.round(size * 0.28));

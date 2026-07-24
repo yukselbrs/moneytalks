@@ -183,18 +183,34 @@ function tamamlananTablosu(html: string, enFazla: number): KaynakArz[] {
   return sonuc;
 }
 
-// Ana giris: aktif kartlar (+ detay sayfasi zenginlestirme) + son tamamlananlar.
+// Ahlatci detay sayfasi og:image = sirket logosu (or. /medya/borsa/hisse/sa-ra-enerji-2751.png).
+function ogImageLogo(html: string): string | null {
+  const m = html.match(/<meta property="og:image" content="([^"]+)"/);
+  if (!m) return null;
+  const u = m[1];
+  return /\/medya\/borsa\/hisse\//.test(u) ? (u.startsWith("http") ? u : AHLATCI + u) : null;
+}
+
+// Ana giris: aktif kartlar (+ detay sayfasi zenginlestirme) + son tamamlananlar (+ logo).
 export async function ahlatciArzlari(tamamlananLimit = 10): Promise<KaynakArz[] | null> {
   const html = await getir(`${AHLATCI}/halka-arz`);
   if (!html) return null;
   const aktifler = aktifKartlar(html);
   for (const arz of aktifler) {
     const detay = await getir(arz.kaynak_link);
-    if (detay) detayAlanlariUygula(arz, dtDdCiftleri(detay));
+    if (detay) {
+      detayAlanlariUygula(arz, dtDdCiftleri(detay));
+      if (!arz.logo_url) arz.logo_url = ogImageLogo(detay);
+    }
   }
   const tamamlananlar = tamamlananTablosu(html, tamamlananLimit).filter(
     (t) => !aktifler.some((a) => a.kod === t.kod)
   );
+  // Tamamlananlar tabloda logo tasimaz — detay sayfasindan og:image cek.
+  for (const arz of tamamlananlar) {
+    const detay = await getir(arz.kaynak_link);
+    if (detay) arz.logo_url = ogImageLogo(detay);
+  }
   return [...aktifler, ...tamamlananlar];
 }
 

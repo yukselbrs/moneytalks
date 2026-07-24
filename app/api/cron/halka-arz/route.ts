@@ -79,7 +79,13 @@ export async function GET(req: NextRequest) {
       else { yeni++; mevcut.set(arz.kod, { kod: arz.kod, durum: kaynakDurum, talep_bitis: arz.talep_bitis, islem_tarihi: null }); }
       continue;
     }
-    if (var_.durum === "islem_goruyor") continue;
+    if (var_.durum === "islem_goruyor") {
+      // Islem goren arz artik lifecycle disinda ama logosu eksikse (tamamlanan tablosundan gelmisti) tamamla.
+      if (arz.logo_url) {
+        await supabase.from("halka_arzlar").update({ logo_url: arz.logo_url }).eq("kod", arz.kod).is("logo_url", null);
+      }
+      continue;
+    }
     const guncelleme: Record<string, unknown> = {
       sirket_adi: arz.sirket_adi,
       talep_baslangic: arz.talep_baslangic,

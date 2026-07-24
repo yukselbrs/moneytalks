@@ -7,7 +7,7 @@ import { normalizeTicker } from "@/lib/utils";
 // Kalici uyelik sync-bist-companies.mjs + commit ile gelir; overlay o ana kadarki koprudur
 // (statik listeye girince filtreyle otomatik dusuyor). Hata/eksik tabloda guvenle bos doner.
 
-export type OverlayHisse = { ticker: string; ad: string };
+export type OverlayHisse = { ticker: string; ad: string; logoUrl: string | null };
 
 let cache: { ts: number; items: OverlayHisse[] } | null = null;
 const CACHE_MS = 5 * 60 * 1000;
@@ -21,18 +21,25 @@ export async function yeniKotasyonOverlay(): Promise<OverlayHisse[]> {
     );
     const { data, error } = await supabase
       .from("halka_arzlar")
-      .select("kod, sirket_adi")
+      .select("kod, sirket_adi, logo_url")
       .eq("durum", "islem_goruyor");
     if (error) throw error;
     const statik = new Set(BIST_HISSELER.map((h) => h.ticker));
     const items = (data ?? [])
       .filter((r) => r.kod && !statik.has(r.kod))
-      .map((r) => ({ ticker: r.kod as string, ad: (r.sirket_adi as string) || r.kod }));
+      .map((r) => ({ ticker: r.kod as string, ad: (r.sirket_adi as string) || r.kod, logoUrl: (r.logo_url as string | null) ?? null }));
     cache = { ts: Date.now(), items };
     return items;
   } catch {
     return cache?.items ?? [];
   }
+}
+
+// Bir overlay hissesinin (yeni kotasyon) logo URL'i — hisse sayfasi StockLogo'suna beslenir.
+// Statik evren hisseleri icin (zaten domain/logo cozumu var) null doner.
+export async function overlayLogo(ticker: string): Promise<string | null> {
+  const overlay = await yeniKotasyonOverlay();
+  return overlay.find((o) => o.ticker === ticker.toUpperCase())?.logoUrl ?? null;
 }
 
 // normalizeTicker statik evrene bakar; overlay hisseleri (islem_goruyor, JSON'a henuz sync olmamis)
