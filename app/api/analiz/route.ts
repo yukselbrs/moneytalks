@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { getHisseVerisi } from "@/lib/hisse-veri";
-import { normalizeTicker } from "@/lib/utils";
+import { tickerCozOverlayli } from "@/lib/hisse-evren";
 import { requireUser } from "@/lib/auth";
 import { rateLimitHit } from "@/lib/rate-limit";
 import { formatCurrency, formatQuantity } from "@/lib/formatters";
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
   }
 
-  const ticker = normalizeTicker(body.ticker);
+  const ticker = await tickerCozOverlayli(body.ticker);
   if (!ticker) return NextResponse.json({ error: "Geçersiz ticker" }, { status: 400 });
 
   const veri = await getHisseVerisi(ticker);

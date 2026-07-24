@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { normalizeTicker } from "@/lib/utils";
 
 // Yeni kotasyon overlay'i: halka arz lifecycle'i "islem_goruyor"a cevirdigi ama repo evreni
 // (data/bist-companies.json) henuz sync edilmedigi aradaki gunlerde hisseyi SITEDE gostermek icin.
@@ -32,4 +33,17 @@ export async function yeniKotasyonOverlay(): Promise<OverlayHisse[]> {
   } catch {
     return cache?.items ?? [];
   }
+}
+
+// normalizeTicker statik evrene bakar; overlay hisseleri (islem_goruyor, JSON'a henuz sync olmamis)
+// orada yoktur. Format gecerli + overlay uyesiyse kabul et — aksi halde sahte ticker reddedilir.
+// Detay sayfasi endpoint'lerinde (hisse-ozet, analiz) evren kapsamini overlay ile genisletir.
+export async function tickerCozOverlayli(raw: unknown): Promise<string | null> {
+  const std = normalizeTicker(raw);
+  if (std) return std;
+  if (typeof raw !== "string") return null;
+  const temiz = raw.trim().toUpperCase().replace(/\.IS$/, "");
+  if (!/^[A-Z0-9]{2,10}$/.test(temiz)) return null;
+  const overlay = await yeniKotasyonOverlay();
+  return overlay.some((o) => o.ticker === temiz) ? temiz : null;
 }
