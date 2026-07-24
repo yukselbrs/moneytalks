@@ -32,9 +32,10 @@ Görev tanımı (kullanıcı, 24 Tem 2026): (1) sitedeki hisse listesi denetleni
 - [x] Yapısal vs manuel ayrımı (aşağıdaki matris)
 
 ### FAZ 4 — Şema
-- [ ] `halka_arzlar` tablosu (tüm alanlar + status lifecycle: talep_toplaniyor → arz_tamamlandi → islem_goruyor)
-- [ ] Migration idempotent olarak `supabase/migrations.sql`'e (Barış SQL Editor'de çalıştırır)
-- [ ] Checkpoint: commit + log
+- [x] `halka_arzlar` tablosu (kimlik + lifecycle `durum` CHECK + arz penceresi + K-HA1 yapısal alanlar + izahname-derin nullable alanlar + kaynak izi `kaynak_linkleri` JSONB)
+- [x] Migration idempotent olarak `supabase/migrations.sql` "HALKA ARZ TAKVIMI v1" bloğu; RLS: herkes SELECT, yazma yalnız service role (snapshot deseni); `kod` unique (upsert anahtarı)
+- [ ] **[BARIŞ] Migration'ı SQL Editor'de çalıştır** (watchlist.tur ile birlikte tek seferde olabilir) — çalışana kadar takvim sayfası boş/graceful
+- [x] Checkpoint: commit + log
 
 ### FAZ 5 — Menü + UI
 - [ ] Nav'a "Halka Arz" menü öğesi (mevcut pattern, tema uyumlu)

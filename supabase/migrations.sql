@@ -928,3 +928,67 @@ ALTER TABLE public.watchlist ADD CONSTRAINT watchlist_tur_check CHECK (tur IN ('
 -- Eski essiz (user_id, ticker) -> (user_id, ticker, tur)
 DROP INDEX IF EXISTS watchlist_user_ticker_unique_idx;
 CREATE UNIQUE INDEX IF NOT EXISTS watchlist_user_ticker_tur_unique_idx ON public.watchlist (user_id, ticker, tur);
+
+-- ============================================================
+-- HALKA ARZ TAKVIMI v1 (24 Tem 2026): halka_arzlar — IPO yasam dongusu.
+-- Kaynak mimarisi (K-HA1, bkz. docs-vault hisse-denetim-halka-arz-takvimi-log):
+--   tespit+evre = KAP bildirim akisi; yapisal alanlar = araci kurum duyuru sayfasi
+--   (+ halkaarz.info JSON-LD capraz); islem sinyali = Yahoo fiyat / sync-bist-companies.
+-- Lifecycle: talep_toplaniyor -> arz_tamamlandi -> islem_goruyor (FAZ 6 cron'u yonetir).
+-- islem_goruyor'a gecince hisse evrenine aktarilir ve takvimde "gecmis" sekmesine duser.
+-- hisse_snapshots deseni: herkes SELECT, yazma yalniz service role (cron).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.halka_arzlar (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- Kimlik
+  kod TEXT NOT NULL,                    -- BIST kodu (KARCL); talep asamasinda kaynaklardan gelir
+  sirket_adi TEXT NOT NULL,
+  logo_url TEXT,
+  -- Yasam dongusu
+  durum TEXT NOT NULL DEFAULT 'talep_toplaniyor',
+  -- Arz penceresi
+  talep_baslangic DATE,
+  talep_bitis DATE,
+  islem_tarihi DATE,                    -- borsada ilk islem gunu (islem_goruyor'a gecince dolar)
+  -- Yapisal alanlar (K-HA1: araci kurum sayfasindan parse)
+  fiyat NUMERIC,                        -- halka arz fiyati (TL); aralikli arzda alt sinir
+  fiyat_ust NUMERIC,                    -- aralikli arzda ust sinir (tek fiyatsa NULL)
+  buyukluk NUMERIC,                     -- halka arz buyuklugu (TL)
+  pay_miktari NUMERIC,                  -- toplam pay adedi
+  dagitim_yontemi TEXT,                 -- esit / oransal / karma
+  pazar TEXT,                           -- Yildiz Pazar / Ana Pazar / Alt Pazar
+  arz_sekli TEXT,                       -- sermaye artirimi / ortak satisi / karma
+  iskonto_orani NUMERIC,                -- % halka arz iskontosu
+  halka_aciklik_orani NUMERIC,          -- % arz sonrasi halka aciklik
+  araci_kurumlar TEXT[] NOT NULL DEFAULT '{}',  -- konsorsiyum (lider once)
+  -- Izahname-derin alanlar (v1 manuel/nullable; UI "—" gosterir — bkz. log alan matrisi)
+  fon_kullanim_yeri TEXT,
+  tahsisat_gruplari JSONB,              -- [{grup, oran}] serbest yapi
+  dagitim_tahminleri JSONB,             -- katilim buyuklugune gore olasi pay tahmini
+  finansal_ozet JSONB,                  -- son 3 donem {donem, hasilat, brut_kar}
+  fiyat_istikrari TEXT,                 -- fiyat istikrari islemi taahhudu
+  satmama_taahhudu TEXT,                -- lock-up
+  basvuru_yerleri TEXT,
+  sirket_aciklama TEXT,                 -- kisa sirket tanitimi
+  -- Kaynak izi (guven sinyali + debug)
+  kaynak TEXT,                          -- ilk tespit kaynagi (kap / araci / manuel)
+  kap_disclosure_index BIGINT,          -- tetikleyen KAP bildirimi (varsa)
+  kaynak_linkleri JSONB,                -- {izahname, fiyat_tespit, araci_sayfa, kap} URL'leri
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.halka_arzlar DROP CONSTRAINT IF EXISTS halka_arzlar_durum_check;
+ALTER TABLE public.halka_arzlar ADD CONSTRAINT halka_arzlar_durum_check
+  CHECK (durum IN ('talep_toplaniyor', 'arz_tamamlandi', 'islem_goruyor'));
+
+-- Ayni kod bir kez (ayni sirketin tek aktif arzi olur); ON CONFLICT (kod) upsert anahtari.
+CREATE UNIQUE INDEX IF NOT EXISTS halka_arzlar_kod_unique_idx ON public.halka_arzlar (kod);
+-- Takvim listesi: aktifler once, tarihe gore.
+CREATE INDEX IF NOT EXISTS halka_arzlar_durum_tarih_idx ON public.halka_arzlar (durum, talep_baslangic DESC);
+
+ALTER TABLE public.halka_arzlar ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS halka_arzlar_select_all ON public.halka_arzlar;
+CREATE POLICY halka_arzlar_select_all ON public.halka_arzlar
+  FOR SELECT TO anon, authenticated USING (true);
+-- Yazma policy'si yok: yalniz service role (cron + admin) yazar.
