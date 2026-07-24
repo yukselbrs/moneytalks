@@ -2,22 +2,19 @@
 
 import { useEffect, useState } from "react";
 
-type CeyrekSeri = {
-  toplam_varlik: (number | null)[];
-  hasilat: (number | null)[];
-  brut_kar: (number | null)[];
-  net_kar: (number | null)[];
-  favok: (number | null)[];
-  toplam_borc: (number | null)[];
+type DegerCifti = { yeni: number | null; eski: number | null };
+type IsyOzet = {
+  donem: string;
+  gelirGecenYil: string;
+  bilancoOnceki: string;
+  gelir: { satislar: DegerCifti; brut_kar: DegerCifti; esas_faaliyet_kari: DegerCifti; favok: DegerCifti; net_donem_kari: DegerCifti };
+  bilanco: { donen_varlik: DegerCifti; duran_varlik: DegerCifti; toplam_varlik: DegerCifti; finansal_borc: DegerCifti; net_borc: DegerCifti; ozkaynak: DegerCifti };
+  para_birimi: string;
 };
 
-type Bilanco = {
-  ticker: string;
-  toplam_varlik: number | null; toplam_yukumluluk: number | null; ozkaynak: number | null;
-  ceyrek_seri: CeyrekSeri | null;
-  son_bildirim_tarihi: string | null;
-  updated_at: string;
-};
+// Eski TradingView bilanco (banka fallback'i icin korunur).
+type CeyrekSeri = { toplam_varlik: (number | null)[]; hasilat: (number | null)[]; brut_kar: (number | null)[]; net_kar: (number | null)[]; favok: (number | null)[]; toplam_borc: (number | null)[] };
+type TvBilanco = { toplam_varlik: number | null; toplam_yukumluluk: number | null; ozkaynak: number | null; ceyrek_seri: CeyrekSeri | null; son_bildirim_tarihi: string | null };
 
 // "Bin ₺": ham deger / 1000, binlik ayracli, ondaliksiz (Is Yatirim "Ozet Finansallar" birimi).
 function binTL(v: number | null | undefined): string {
@@ -25,18 +22,17 @@ function binTL(v: number | null | undefined): string {
   return Math.round(v / 1000).toLocaleString("tr-TR");
 }
 
-// Yuzde degisim: (yeni - eski) / |eski|. Yesil artis / kirmizi azalis.
 function yuzdeDegisim(yeni: number | null, eski: number | null): { metin: string; renk: string } {
   if (yeni === null || eski === null || eski === 0) return { metin: "—", renk: "#475569" };
   const d = ((yeni - eski) / Math.abs(eski)) * 100;
   const yuvarli = Math.round(d);
-  return { metin: `%${yuvarli > 0 ? "" : ""}${yuvarli}`, renk: yuvarli >= 0 ? "#22C55E" : "#EF4444" };
+  return { metin: `%${yuvarli}`, renk: yuvarli >= 0 ? "#22C55E" : "#EF4444" };
 }
 
 type Satir = { ad: string; yeni: number | null; eski: number | null };
 
 function KartTablo({ baslik, birim, kolonlar, satirlar }: { baslik: string; birim: string; kolonlar: [string, string]; satirlar: Satir[] }) {
-  const gecerli = satirlar.filter(s => s.yeni !== null || s.eski !== null);
+  const gecerli = satirlar.filter((s) => s.yeni !== null || s.eski !== null);
   if (!gecerli.length) return null;
   return (
     <div className="card-glass" style={{ borderRadius: 14, overflow: "hidden" }}>
@@ -45,9 +41,9 @@ function KartTablo({ baslik, birim, kolonlar, satirlar }: { baslik: string; biri
           <span style={{ fontSize: 14, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.2px", whiteSpace: "nowrap" }}>{baslik}</span>
           <span style={{ fontSize: 10.5, color: "#64748B", fontWeight: 600 }}>{birim}</span>
         </span>
-        <span className="bil-num" style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0" }}>{kolonlar[0]}</span>
-        <span className="bil-num" style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0" }}>{kolonlar[1]}</span>
-        <span className="bil-num" style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0" }}>%</span>
+        <span className="bil-num" style={{ fontSize: 12, fontWeight: 800, color: "#94A3B8", fontVariantNumeric: "tabular-nums" }}>{kolonlar[0]}</span>
+        <span className="bil-num" style={{ fontSize: 12, fontWeight: 800, color: "#64748B", fontVariantNumeric: "tabular-nums" }}>{kolonlar[1]}</span>
+        <span className="bil-num" style={{ fontSize: 12, fontWeight: 800, color: "#64748B" }}>%</span>
       </div>
       {gecerli.map((s) => {
         const d = yuzdeDegisim(s.yeni, s.eski);
@@ -64,76 +60,104 @@ function KartTablo({ baslik, birim, kolonlar, satirlar }: { baslik: string; biri
   );
 }
 
-export default function HisseBilanco({ ticker }: { ticker: string }) {
-  const [b, setB] = useState<Bilanco | null>(null);
-  const [yuklendi, setYuklendi] = useState(false);
-
-  useEffect(() => {
-    let iptal = false;
-    fetch(`/api/bilanco/${ticker}`)
-      .then(r => r.json())
-      .then(j => { if (!iptal) { setB(j.bilanco); setYuklendi(true); } })
-      .catch(() => { if (!iptal) setYuklendi(true); });
-    return () => { iptal = true; };
-  }, [ticker]);
-
-  if (yuklendi && !b) return null;
-  if (!b) return null;
-
-  const s = b.ceyrek_seri;
-  const el = (arr: (number | null)[] | undefined, i: number) => (arr && arr.length > i ? arr[i] : null);
-
-  // Gelir Tablosu — YIL ONCE ayni ceyrek (index 0 vs 4). Akis kalemi, yil-uzeri karsilastirma.
-  const gelirSatirlar: Satir[] = [
-    { ad: "Hasılat", yeni: el(s?.hasilat, 0), eski: el(s?.hasilat, 4) },
-    { ad: "Brüt Kâr", yeni: el(s?.brut_kar, 0), eski: el(s?.brut_kar, 4) },
-    { ad: "FAVÖK", yeni: el(s?.favok, 0), eski: el(s?.favok, 4) },
-    { ad: "Net Dönem Kârı", yeni: el(s?.net_kar, 0), eski: el(s?.net_kar, 4) },
-  ];
-
-  // Bilanco — ONCEKI ceyrek (index 0 vs 1). Stok kalemi. Ozkaynak/yukumluluk gecmisi yok -> yalniz guncel.
-  const bilancoSatirlar: Satir[] = [
-    { ad: "Toplam Varlıklar", yeni: el(s?.toplam_varlik, 0), eski: el(s?.toplam_varlik, 1) },
-    { ad: "Toplam Yükümlülükler", yeni: b.toplam_yukumluluk, eski: null },
-    { ad: "Özkaynaklar", yeni: b.ozkaynak, eski: null },
-    { ad: "Toplam Borç", yeni: el(s?.toplam_borc, 0), eski: el(s?.toplam_borc, 1) },
-  ];
-
-  // Yeni kotasyonlarda TradingView henuz finansal yayinlamamis olabilir — tum satirlar bos ise bolumu hic gosterme.
-  const veriVar = [...gelirSatirlar, ...bilancoSatirlar].some(sat => sat.yeni !== null || sat.eski !== null);
-  if (!veriVar) return null;
-
-  const sonTarih = b.son_bildirim_tarihi
-    ? new Date(b.son_bildirim_tarihi).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" })
-    : null;
-
+function Cerceve({ birim, sag, children, kaynak }: { birim: string; sag: string; children: React.ReactNode; kaynak: string }) {
   return (
     <section style={{ marginTop: 26 }}>
       <style>{`
         .bil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .bil-satir { display: grid; grid-template-columns: minmax(0,1.5fr) 1fr 1fr 56px; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .bil-satir { display: grid; grid-template-columns: minmax(0,1.5fr) 1fr 1fr 52px; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .bil-satir:last-child { border-bottom: none; }
         .bil-head { border-bottom: 1px solid rgba(255,255,255,0.08); padding-top: 14px; padding-bottom: 14px; }
         .bil-num { text-align: right; }
-        @media (max-width: 800px) {
-          .bil-grid { grid-template-columns: 1fr; }
-          .bil-satir { grid-template-columns: minmax(0,1.4fr) 1fr 1fr 48px; gap: 6px; padding: 11px 13px; }
-        }
+        @media (max-width: 800px) { .bil-grid { grid-template-columns: 1fr; } .bil-satir { grid-template-columns: minmax(0,1.4fr) 1fr 1fr 46px; gap: 6px; padding: 11px 13px; } }
       `}</style>
-
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
         <h2 style={{ fontSize: 17, fontWeight: 800, color: "#F1F5F9", margin: 0, letterSpacing: "-0.3px" }}>Özet Finansallar</h2>
-        {sonTarih && <span style={{ fontSize: 11, color: "#64748B" }}>Son bildirim: {sonTarih}</span>}
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", background: "rgba(148,163,184,0.1)", borderRadius: 7, padding: "4px 10px" }}>{sag}</span>
       </div>
-
-      <div className="bil-grid">
-        <KartTablo baslik="Özet Gelir Tablosu" birim="Bin ₺" kolonlar={["Son Çeyrek", "Geçen Yıl"]} satirlar={gelirSatirlar} />
-        <KartTablo baslik="Özet Bilanço" birim="Bin ₺" kolonlar={["Son Çeyrek", "Önceki"]} satirlar={bilancoSatirlar} />
-      </div>
-
-      <p style={{ fontSize: 11, color: "#475569", marginTop: 10, lineHeight: 1.6 }}>
-        Kaynak: TradingView (finansal tablolar). Değerler Bin ₺ ve son açıklanan finansal rapora dayanır; fiyat verisinden bağımsızdır. Gelir tablosu geçen yıl aynı çeyrekle, bilanço önceki çeyrekle karşılaştırılır. Bilgilendirme amaçlıdır; yatırım tavsiyesi değildir.
-      </p>
+      <div className="bil-grid">{children}</div>
+      <p style={{ fontSize: 11, color: "#475569", marginTop: 10, lineHeight: 1.6 }}>{kaynak}</p>
     </section>
   );
+}
+
+export default function HisseBilanco({ ticker }: { ticker: string }) {
+  const [isy, setIsy] = useState<IsyOzet | null>(null);
+  const [tv, setTv] = useState<TvBilanco | null>(null);
+  const [yuklendi, setYuklendi] = useState(false);
+
+  useEffect(() => {
+    let iptal = false;
+    setYuklendi(false); setIsy(null); setTv(null);
+    (async () => {
+      try {
+        const j = await fetch(`/api/finansal/${ticker}`).then((r) => r.json());
+        if (iptal) return;
+        if (j?.veri?.ozet) { setIsy(j.veri.ozet); setYuklendi(true); return; }
+      } catch { /* Is Yatirim yoksa TradingView'e dus */ }
+      // Fallback: banka/eksik hisseler icin TradingView bilanco_snapshots.
+      try {
+        const j2 = await fetch(`/api/bilanco/${ticker}`).then((r) => r.json());
+        if (!iptal) { setTv(j2?.bilanco ?? null); setYuklendi(true); }
+      } catch { if (!iptal) setYuklendi(true); }
+    })();
+    return () => { iptal = true; };
+  }, [ticker]);
+
+  if (!yuklendi) return null;
+
+  // Birincil: Is Yatirim ozet finansal (ekran goruntusu 3 formati; onceki donem tam).
+  if (isy) {
+    const gelirSatirlar: Satir[] = [
+      { ad: "Satışlar", yeni: isy.gelir.satislar.yeni, eski: isy.gelir.satislar.eski },
+      { ad: "Brüt Kâr", yeni: isy.gelir.brut_kar.yeni, eski: isy.gelir.brut_kar.eski },
+      { ad: "Esas Faaliyet Kârı", yeni: isy.gelir.esas_faaliyet_kari.yeni, eski: isy.gelir.esas_faaliyet_kari.eski },
+      { ad: "FAVÖK", yeni: isy.gelir.favok.yeni, eski: isy.gelir.favok.eski },
+      { ad: "Net Dönem Kârı", yeni: isy.gelir.net_donem_kari.yeni, eski: isy.gelir.net_donem_kari.eski },
+    ];
+    const bilancoSatirlar: Satir[] = [
+      { ad: "Dönen Varlıklar", yeni: isy.bilanco.donen_varlik.yeni, eski: isy.bilanco.donen_varlik.eski },
+      { ad: "Duran Varlıklar", yeni: isy.bilanco.duran_varlik.yeni, eski: isy.bilanco.duran_varlik.eski },
+      { ad: "Toplam Varlıklar", yeni: isy.bilanco.toplam_varlik.yeni, eski: isy.bilanco.toplam_varlik.eski },
+      { ad: "Finansal Borçlar", yeni: isy.bilanco.finansal_borc.yeni, eski: isy.bilanco.finansal_borc.eski },
+      { ad: "Net Borç", yeni: isy.bilanco.net_borc.yeni, eski: isy.bilanco.net_borc.eski },
+      { ad: "Özkaynaklar", yeni: isy.bilanco.ozkaynak.yeni, eski: isy.bilanco.ozkaynak.eski },
+    ];
+    if (![...gelirSatirlar, ...bilancoSatirlar].some((s) => s.yeni !== null || s.eski !== null)) return null;
+    return (
+      <Cerceve birim="" sag={isy.para_birimi}
+        kaynak="Kaynak: İş Yatırım (finansal tablolar). Değerler Bin ₺ ve son açıklanan finansal rapora dayanır; fiyat verisinden bağımsızdır. Gelir tablosu geçen yıl aynı dönemle, bilanço önceki yıl sonuyla karşılaştırılır. Bilgilendirme amaçlıdır; yatırım tavsiyesi değildir.">
+        <KartTablo baslik="Özet Gelir Tablosu" birim="Bin ₺" kolonlar={[isy.donem, isy.gelirGecenYil]} satirlar={gelirSatirlar} />
+        <KartTablo baslik="Özet Bilanço" birim="Bin ₺" kolonlar={[isy.donem, isy.bilancoOnceki]} satirlar={bilancoSatirlar} />
+      </Cerceve>
+    );
+  }
+
+  // Fallback: TradingView (banka vb.). Ozkaynak/yukumluluk gecmisi TradingView'de yok -> Onceki bos kalabilir.
+  if (tv) {
+    const s = tv.ceyrek_seri;
+    const el = (arr: (number | null)[] | undefined, i: number) => (arr && arr.length > i ? arr[i] : null);
+    const gelirSatirlar: Satir[] = [
+      { ad: "Hasılat", yeni: el(s?.hasilat, 0), eski: el(s?.hasilat, 4) },
+      { ad: "Brüt Kâr", yeni: el(s?.brut_kar, 0), eski: el(s?.brut_kar, 4) },
+      { ad: "FAVÖK", yeni: el(s?.favok, 0), eski: el(s?.favok, 4) },
+      { ad: "Net Dönem Kârı", yeni: el(s?.net_kar, 0), eski: el(s?.net_kar, 4) },
+    ];
+    const bilancoSatirlar: Satir[] = [
+      { ad: "Toplam Varlıklar", yeni: el(s?.toplam_varlik, 0), eski: el(s?.toplam_varlik, 1) },
+      { ad: "Toplam Yükümlülükler", yeni: tv.toplam_yukumluluk, eski: null },
+      { ad: "Özkaynaklar", yeni: tv.ozkaynak, eski: null },
+      { ad: "Toplam Borç", yeni: el(s?.toplam_borc, 0), eski: el(s?.toplam_borc, 1) },
+    ];
+    if (![...gelirSatirlar, ...bilancoSatirlar].some((sat) => sat.yeni !== null || sat.eski !== null)) return null;
+    return (
+      <Cerceve birim="" sag="TRY"
+        kaynak="Kaynak: TradingView (finansal tablolar). Değerler Bin ₺ ve son açıklanan finansal rapora dayanır. Gelir tablosu geçen yıl aynı çeyrekle, bilanço önceki çeyrekle karşılaştırılır. Bilgilendirme amaçlıdır; yatırım tavsiyesi değildir.">
+        <KartTablo baslik="Özet Gelir Tablosu" birim="Bin ₺" kolonlar={["Son Çeyrek", "Geçen Yıl"]} satirlar={gelirSatirlar} />
+        <KartTablo baslik="Özet Bilanço" birim="Bin ₺" kolonlar={["Son Çeyrek", "Önceki"]} satirlar={bilancoSatirlar} />
+      </Cerceve>
+    );
+  }
+
+  return null;
 }

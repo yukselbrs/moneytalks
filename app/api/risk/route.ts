@@ -1,13 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { rateLimitHit, istekIpAdresi } from "@/lib/rate-limit";
 import { getMacroRiskSnapshot } from "@/lib/macro-risk";
-import { halkaArzKayitliFinansal } from "@/lib/halka-arz-finansal";
+import { isyOzetFinansal, isyCarpanlar } from "@/lib/isyatirim-finansal";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// TradingView market_cap_basic — F/K & PD/DD hesabinin taban carpani (islem goren hisselerde dolu).
+async function tvMarketCap(ticker: string): Promise<number | null> {
+  try {
+    const res = await fetch("https://scanner.tradingview.com/turkey/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0" },
+      body: JSON.stringify({ symbols: { tickers: [`BIST:${ticker}`] }, columns: ["market_cap_basic"] }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return null;
+    const j = await res.json();
+    const v = j?.data?.[0]?.d?.[0];
+    return typeof v === "number" && v > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
 
 async function fetchOHLCV(ticker: string) {
   const res = await fetch(
@@ -232,14 +245,18 @@ export async function GET(req: NextRequest) {
       console.error("TradingView Scanner hatasi:", e);
     }
 
-    // Yeni kotasyon fallback: TradingView temel veri tutmuyorsa halka_arzlar'daki izahname
-    // bazli F/K & PD/DD'yi kullan (risk skoruna KATMA — hesaplama yontemi farkli; yalniz goster).
-    if (fk === null && pddd === null) {
-      const kayit = await halkaArzKayitliFinansal(ticker, supabase);
-      if (kayit) {
-        if (fk === null && kayit.fk !== null) fk = kayit.fk;
-        if (pddd === null && kayit.pddd !== null) pddd = kayit.pddd;
-        if (piyasaDegeri === null && kayit.piyasa_degeri !== null) piyasaDegeri = kayit.piyasa_degeri;
+    // Yeni kotasyon fallback: TradingView temel veri tutmuyorsa (yeni kotasyonlar) Is Yatirim mali
+    // tablosundan hesapla — F/K = piyasa degeri / TTM net kar, PD/DD = piyasa degeri / ozkaynak.
+    // Risk skoruna KATMA (agirlik 0 — hesaplama yontemi farkli; yalniz goster).
+    if ((fk === null || pddd === null) && !isEndeks) {
+      const now = new Date();
+      const ozet = await isyOzetFinansal(ticker, { yil: now.getUTCFullYear(), ay: now.getUTCMonth() + 1 });
+      if (ozet) {
+        const mcap = piyasaDegeri ?? (await tvMarketCap(ticker));
+        const c = isyCarpanlar(ozet, mcap);
+        if (fk === null && c.fk !== null) fk = c.fk;
+        if (pddd === null && c.pddd !== null) pddd = c.pddd;
+        if (piyasaDegeri === null && mcap !== null) piyasaDegeri = mcap;
       }
     }
 
