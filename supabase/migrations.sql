@@ -992,3 +992,17 @@ DROP POLICY IF EXISTS halka_arzlar_select_all ON public.halka_arzlar;
 CREATE POLICY halka_arzlar_select_all ON public.halka_arzlar
   FOR SELECT TO anon, authenticated USING (true);
 -- Yazma policy'si yok: yalniz service role (cron + admin) yazar.
+
+-- ============================================================
+-- HALKA ARZ FINANSAL (24 Tem 2026): izahname bilanco ozeti + hesaplanan F/K & PD/DD.
+-- Kaynak: halkaarz.info yapisal bilanco tablosu (izahname verisi) + TradingView market_cap_basic.
+-- Yeni kotasyonlar TradingView'de temel veri (F/K/PD/DD/bilanco) TASIMAZ (haftalar sonra dolar);
+-- bu alanlar o boslugu izahname verisiyle doldurur. finansal_ozet JSONB tek-donem bilanco ozetini tutar:
+--   { donem, donen_varlik, duran_varlik, kv_yukumluluk, uv_yukumluluk, ozkaynak, net_kar,
+--     odenmis_sermaye, nakit, stoklar, ticari_borclar, cari_oran }.
+-- F/K = piyasa_degeri / net_kar; PD/DD = piyasa_degeri / ozkaynak (yalniz islem gorenlerde + girdi tamsa).
+-- ============================================================
+ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS fk NUMERIC;
+ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS pddd NUMERIC;
+ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS piyasa_degeri NUMERIC;
+ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS finansal_guncelleme TIMESTAMPTZ;

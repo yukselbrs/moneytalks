@@ -25,7 +25,10 @@ type Arz = {
   fon_kullanim_yeri: string | null;
   tahsisat_gruplari: { grup: string; oran: number | string }[] | null;
   dagitim_tahminleri: { katilim: string; tahmin: string }[] | null;
-  finansal_ozet: { donem: string; hasilat: number | null; brut_kar: number | null }[] | null;
+  finansal_ozet: IzahnameFinansal | null;
+  fk: number | null;
+  pddd: number | null;
+  piyasa_degeri: number | null;
   fiyat_istikrari: string | null;
   satmama_taahhudu: string | null;
   basvuru_yerleri: string | null;
@@ -33,7 +36,35 @@ type Arz = {
   kaynak_linkleri: Record<string, string> | null;
 };
 
+type IzahnameFinansal = {
+  donem: string | null;
+  donen_varlik: number | null;
+  duran_varlik: number | null;
+  kv_yukumluluk: number | null;
+  uv_yukumluluk: number | null;
+  ozkaynak: number | null;
+  net_kar: number | null;
+  odenmis_sermaye: number | null;
+  nakit: number | null;
+  stoklar: number | null;
+  ticari_borclar: number | null;
+  cari_oran: number | null;
+};
+
 const AYLAR = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+// Ham TL -> "8,86 Mr ₺" / "175,82 Mn ₺" / "1.234 ₺"
+function tlKisa(v: number | null): string {
+  if (v === null || !Number.isFinite(v)) return "—";
+  if (Math.abs(v) >= 1e9) return `${(v / 1e9).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} Mr ₺`;
+  if (Math.abs(v) >= 1e6) return `${(v / 1e6).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} Mn ₺`;
+  return `${v.toLocaleString("tr-TR", { maximumFractionDigits: 0 })} ₺`;
+}
+
+function oran(v: number | null): string {
+  if (v === null || !Number.isFinite(v)) return "—";
+  return v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
 function tarihAraligi(bas: string | null, bit: string | null): string {
   if (!bas) return "—";
@@ -219,18 +250,55 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
                 </BilgiBlok>
               )}
 
-              {Array.isArray(arz.finansal_ozet) && arz.finansal_ozet.length > 0 && (
-                <BilgiBlok baslik="Finansal Özet (Bin ₺)">
-                  <div style={{ display: "grid", gridTemplateColumns: `1.2fr repeat(${arz.finansal_ozet.length}, 1fr)`, gap: 6, fontSize: 12.5 }}>
-                    <span style={{ color: "#475569", fontWeight: 700 }}></span>
-                    {arz.finansal_ozet.map((f) => <span key={f.donem} style={{ color: "#94A3B8", fontWeight: 800, textAlign: "right" }}>{f.donem}</span>)}
-                    <span style={{ color: "#CBD5E1" }}>Hasılat</span>
-                    {arz.finansal_ozet.map((f) => <span key={f.donem + "h"} style={{ color: "#E2E8F0", fontWeight: 700, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{f.hasilat !== null ? Math.round(f.hasilat / 1000).toLocaleString("tr-TR") : "—"}</span>)}
-                    <span style={{ color: "#CBD5E1" }}>Brüt Kâr</span>
-                    {arz.finansal_ozet.map((f) => <span key={f.donem + "b"} style={{ color: "#E2E8F0", fontWeight: 700, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{f.brut_kar !== null ? Math.round(f.brut_kar / 1000).toLocaleString("tr-TR") : "—"}</span>)}
+              {(arz.fk !== null || arz.pddd !== null) && (
+                <div className="card-glass" style={{ borderRadius: 14, padding: "16px 18px" }}>
+                  <h3 style={{ margin: "0 0 4px", fontSize: 13, fontWeight: 800, color: "#93C5FD", letterSpacing: "0.2px" }}>Değerleme Çarpanları</h3>
+                  <p style={{ margin: "0 0 12px", fontSize: 11, color: "#64748B" }}>Güncel piyasa değeri ve izahname finansallarına göre hesaplanmıştır.</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 13 }}>
+                    {[
+                      { l: "F/K Oranı", v: oran(arz.fk) },
+                      { l: "PD/DD Oranı", v: oran(arz.pddd) },
+                      { l: "Piyasa Değeri", v: tlKisa(arz.piyasa_degeri) },
+                    ].map((c) => (
+                      <div key={c.l}>
+                        <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>{c.l}</p>
+                        <p style={{ margin: "3px 0 0", fontSize: 15, fontWeight: 800, color: "#F8FAFC", fontVariantNumeric: "tabular-nums" }}>{c.v}</p>
+                      </div>
+                    ))}
                   </div>
-                </BilgiBlok>
+                </div>
               )}
+
+              {arz.finansal_ozet && (() => {
+                const f = arz.finansal_ozet;
+                const satirlar: { l: string; v: string }[] = [
+                  { l: "Dönen Varlıklar", v: tlKisa(f.donen_varlik) },
+                  { l: "Duran Varlıklar", v: tlKisa(f.duran_varlik) },
+                  { l: "Kısa Vadeli Yükümlülük", v: tlKisa(f.kv_yukumluluk) },
+                  { l: "Uzun Vadeli Yükümlülük", v: tlKisa(f.uv_yukumluluk) },
+                  { l: "Özkaynaklar", v: tlKisa(f.ozkaynak) },
+                  { l: "Net Dönem Kârı", v: tlKisa(f.net_kar) },
+                  { l: "Ödenmiş Sermaye", v: tlKisa(f.odenmis_sermaye) },
+                  { l: "Nakit", v: tlKisa(f.nakit) },
+                  { l: "Stoklar", v: tlKisa(f.stoklar) },
+                  { l: "Ticari Borçlar", v: tlKisa(f.ticari_borclar) },
+                  { l: "Cari Oran", v: oran(f.cari_oran) },
+                ].filter((s) => s.v !== "—");
+                if (!satirlar.length) return null;
+                return (
+                  <BilgiBlok baslik={`Bilanço Özeti${f.donem ? ` (${f.donem})` : ""}`}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
+                      {satirlar.map((s) => (
+                        <div key={s.l} style={{ display: "flex", justifyContent: "space-between", gap: 8, paddingBottom: 8, borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                          <span style={{ fontSize: 12, color: "#94A3B8" }}>{s.l}</span>
+                          <span style={{ fontSize: 12.5, fontWeight: 700, color: "#E2E8F0", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{s.v}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p style={{ margin: "10px 0 0", fontSize: 10.5, color: "#475569" }}>Kaynak: izahname finansal tabloları (yıllık). Bilgilendirme amaçlıdır.</p>
+                  </BilgiBlok>
+                );
+              })()}
 
               {(arz.fiyat_istikrari || arz.satmama_taahhudu) && (
                 <BilgiBlok baslik="Taahhütler">
