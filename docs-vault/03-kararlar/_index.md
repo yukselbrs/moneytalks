@@ -23,7 +23,7 @@ Her karar tek dosya:
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
 ### Uygulama kayıtları
-- [[hisse-denetim-halka-arz-takvimi-log]] — Hisse denetimi (evren 614, 8 yeni kotasyon) + veri güncellik turu + Halka Arz Takvimi modülü (KOD TAMAM 24 Tem; halka_arzlar migration'ı Barış'ta, sonrası cron tohumlama + dolu-UI doğrulaması)
+- [[hisse-denetim-halka-arz-takvimi-log]] — Hisse denetimi (evren 614, 8 yeni kotasyon) + veri güncellik turu + Halka Arz Takvimi modülü (TAMAMLANDI 24 Tem — migration çalıştı, lifecycle prod'da uçtan uca doğrulandı: SARAE otomatik işleme geçişi + overlay)
 - [[cok-varlik-portfoy-izleme-entegrasyon]] — Fon+döviz+maden portföye ve izlemeye eklenebilir + nav aktif-vurgu fix + hisseler↔fonlar 500 fix (KOD TAMAM 24 Tem; portföy migration'sız canlı, izleme watchlist.tur migration'ı Barış'ta)
 - [[bilanco-kap-haberleri-implementasyon-log]] — Hisse sayfasına bilanço (TradingView) + hisse-KAP haberleri + AI temel analiz (TAMAMLANDI — 24 Tem prod doğrulamalı: 8 çeyrek canlı)
 - [[test-turu-19-temmuz-2026]] — Production doğrulama turu: döviz+maden ✅, KAP haberler ✅, döviz tutarlılık ✅ canlı test; kap_bildirimleri hâlâ 0 satır (açık bulgu)

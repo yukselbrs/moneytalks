@@ -1,6 +1,6 @@
 # Hisse Listesi Denetimi + Halka Arz Takvimi — İmplementasyon Logu
 
-**Durum:** DEVAM EDİYOR · Başlangıç: 24 Tem 2026
+**Durum:** TAMAMLANDI (24 Tem 2026 — prod uçtan uca doğrulamalı; kalan yalnız bilinçli borçlar) · Başlangıç: 24 Tem 2026
 Bu dosya resume protokolünün tek kaynağıdır: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını okur.
 
 Görev tanımı (kullanıcı, 24 Tem 2026): (1) sitedeki hisse listesi denetlenip eksik/yeni kotasyonlar eklenecek + genel veri güncelliği kontrol edilecek; (2) Halka Arz Takvimi modülü — arz süreci boyunca ayrı menüde, işlem görmeye başlayınca otomatik Hisseler'e geçiş. HalkArz.com görselleri YALNIZ bilgi mimarisi referansı (içerik/tasarım kopyalanmaz, scrape edilmez).
@@ -55,7 +55,7 @@ Görev tanımı (kullanıcı, 24 Tem 2026): (1) sitedeki hisse listesi denetleni
 ### FAZ 7 — Test
 - [x] Gerçek arz alan doğrulaması (canlı parser: KARCL 35,00₺ / 22-24 Tem / Eşit Dağıtım / %20 iskonto / %15,42 açıklık / 128M lot / 4,48 Mlr₺ — web kaynaklarıyla birebir; MASFN + 6 tamamlanan konsorsiyumlarıyla)
 - [x] **[MIGRATION SONRASI]** Dolu liste+detay UI doğrulandı (24 Tem akşam: 5 kayıt — KARCL/MASFN "Talep Toplanıyor"+YENİ rozetli, logolar, tüm alanlar; KARCL detayı 10 alanlık grid + kaynak linki + SPK notu) — ekran görüntülü
-- [ ] Lifecycle canlı geçiş: SARAE gerçekte işlem görüyor (Yahoo 123,8₺, ilk işlem 17 Tem) ama Vercel'den sinyal tutmadı → sinyalDetay teşhisi eklendi (`2a7f88e`), sonuç bekleniyor
+- [x] **Lifecycle canlı geçiş DOĞRULANDI (prod, kısa-UA fix sonrası):** SARAE → islem_goruyor (islem_tarihi 2026-07-17); takvimde "İşlem Görmeye Başlayanlar"a düştü + `/hisse/SARAE` linki; **overlay ile Hisseler'de canlı 123,80₺** (evren-dışı olmasına rağmen). ALBTN+METEN `query1:404` ile doğru şekilde arz_tamamlandi kaldı; KARCL+MASFN talep_toplaniyor. Üç durum da uçtan uca kanıtlı.
 - [x] Mobil test (375px, taşma yok, ekran görüntülü)
 - [x] FAZ 1-2 doğrulamaları (BETAE prod'da canlı; snapshot cron 614 yazdı)
 - [x] Negatif testler: cron auth'suz 401; tablo yokken cron temiz 500+hata:1, sayfa/API graceful boş
@@ -132,4 +132,6 @@ Diğerleri güncel: [[cok-varlik-portfoy-izleme-entegrasyon]] (24 Tem, watchlist
 
 ## ŞU AN NEREDEYİM
 
-**24 Tem 2026 — GÖREVİN KOD TARAFI TAMAMLANDI.** FAZ 0-8 kapandı; tek koşullu iş kaldı: Barış migration'ı çalıştırınca (risk 1) cron'u elle tetikleyip dolu UI + lifecycle simülasyonunu doğrulamak (risk 2). Bir sonraki oturum "continue" derse: önce `halka_arzlar` tablosu var mı bak — varsa risk 2'deki doğrulamayı yap ve KARCL'ın işleme geçişini izle (talep 24 Tem'de bitti; işlem muhtemelen hafta içi başlar → overlay'in ilk gerçek sınavı); yoksa Barış'a migration'ı hatırlat, kod işi YOK. Ayrıca beklemede: watchlist.tur migration'ı (izleme çok-varlık) ve FAZ 2'deki cron offset kadans ölçümü (`gh run list` ile önceki güne kıyas).
+**24 Tem 2026 — GÖREV TAMAMEN BİTTİ (prod uçtan uca doğrulandı).** FAZ 0-8 + migration + lifecycle canlı doğrulama kapandı. Kanıt: `halka_arzlar` 5 kayıtla tohumlu, üç lifecycle durumu da gerçek arzlarla çalışıyor (SARAE otomatik islem_goruyor'a geçti + overlay ile Hisseler'de 123,80₺ + takvim geçmiş bölümü + /hisse linki). Kısa-UA fix'iyle Yahoo 429 sorunu çözüldü ([[yahoo-vercel-ua]] memory'sine yazıldı). watchlist.tur migration'ı da çalıştı → izleme çok-varlık tam açık.
+
+**Kalan (hepsi bilinçli borç / opsiyonel, kod işi YOK):** (a) SARAE gibi işleme geçenlerin `data/bist-companies.json`'a kalıcı girişi — overlay köprüsü çalışıyor, StockAnalysis/KAP kodu listeleyince `sync-bist-companies.mjs` + commit ile kalıcılaşır (1-3 gün); (b) KARCL+MASFN yarın (talep_bitis 24 Tem geçince) arz_tamamlandi'ya, işlem başlayınca islem_goruyor'a otomatik geçecek — cron günde 5 kez izliyor; (c) izahname-derin manuel alanlar, halkaarz.info yedeği, sektör rozeti (AÇIK RİSKLER 3-6); (d) FAZ 2 cron offset kadans ölçümü. Bir sonraki oturum "continue" derse: gerçek yeni iş yok — istenirse (a) için sync tetiklenebilir veya (c) opsiyonel zenginleştirmeler yapılabilir.
