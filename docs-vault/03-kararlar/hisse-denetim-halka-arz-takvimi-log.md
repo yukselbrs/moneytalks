@@ -54,7 +54,8 @@ Görev tanımı (kullanıcı, 24 Tem 2026): (1) sitedeki hisse listesi denetleni
 
 ### FAZ 7 — Test
 - [x] Gerçek arz alan doğrulaması (canlı parser: KARCL 35,00₺ / 22-24 Tem / Eşit Dağıtım / %20 iskonto / %15,42 açıklık / 128M lot / 4,48 Mlr₺ — web kaynaklarıyla birebir; MASFN + 6 tamamlanan konsorsiyumlarıyla)
-- [ ] **[MIGRATION SONRASI]** Lifecycle simülasyonu (status elle değiştir → overlay + menü geçişi) — tablo yokken yapılamaz
+- [x] **[MIGRATION SONRASI]** Dolu liste+detay UI doğrulandı (24 Tem akşam: 5 kayıt — KARCL/MASFN "Talep Toplanıyor"+YENİ rozetli, logolar, tüm alanlar; KARCL detayı 10 alanlık grid + kaynak linki + SPK notu) — ekran görüntülü
+- [ ] Lifecycle canlı geçiş: SARAE gerçekte işlem görüyor (Yahoo 123,8₺, ilk işlem 17 Tem) ama Vercel'den sinyal tutmadı → sinyalDetay teşhisi eklendi (`2a7f88e`), sonuç bekleniyor
 - [x] Mobil test (375px, taşma yok, ekran görüntülü)
 - [x] FAZ 1-2 doğrulamaları (BETAE prod'da canlı; snapshot cron 614 yazdı)
 - [x] Negatif testler: cron auth'suz 401; tablo yokken cron temiz 500+hata:1, sayfa/API graceful boş
@@ -115,8 +116,9 @@ Diğerleri güncel: [[cok-varlik-portfoy-izleme-entegrasyon]] (24 Tem, watchlist
 
 ## AÇIK RİSKLER / BİLİNÇLİ SINIRLAR
 
-1. **[BARIŞ — BLOKER] `halka_arzlar` migration'ı** (`supabase/migrations.sql` "HALKA ARZ TAKVIMI v1" bloğu; `watchlist.tur` bloğuyla birlikte tek seferde çalıştırılabilir). Çalışana kadar: takvim sayfası boş-durum gösterir (kırılmaz), halka-arz cron'u Actions'ta KIRMIZI yanar (bilinçli — hata:1 sinyali migration hatırlatıcısıdır).
-2. **Migration sonrası ilk tohum:** Actions → "Halka Arz Cron" → Run workflow (elle) → KARCL+MASFN aktif, ~6 tamamlanan dolar. Ardından dolu liste/detay UI + lifecycle simülasyonu doğrulanmalı (FAZ 7'nin tek açık maddesi).
+1. ~~[BARIŞ — BLOKER] migration~~ → **ÇÖZÜLDÜ (24 Tem akşam):** Barış `halka_arzlar` + `watchlist.tur` migration'larını çalıştırdı (Supabase MCP ile doğrulandı; watchlist'in 11 mevcut satırı korunmuş). İzleme çok-varlık artık tam açık.
+2. ~~Migration sonrası ilk tohum~~ → **ÇÖZÜLDÜ:** Barış cron'u 16:29'da dispatch etmiş; tablo 5 kayıtla tohumlu (KARCL+MASFN talep_toplaniyor, ALBTN+METEN+SARAE arz_tamamlandi; SSAAT/EKIM/GOLDA doğru şekilde atlandı — statik evrendeler). Dolu liste+detay UI doğrulandı. Kalan tek doğrulama: SARAE'nin islem_goruyor geçişi (aşağıda 2b).
+2b. **SARAE sinyal gecikmesi → TEŞHİS + FIX (`7c2f2cd`):** `sinyalDetay` teşhisi (`2a7f88e`) kök nedeni netleştirdi: üç kod da `query1:429,query2:429` döndü — Yahoo, `yahooIslemSinyali`'nin kullandığı **uzun Chrome-masaüstü UA'sını** Vercel IP'sinden rate-limit'liyordu. Oysa `/api/grafik` ve `/api/fiyatlar` **kısa UA** (`"Mozilla/5.0"`) ile aynı altyapıdan sorunsuz çalışıyor. Fix: Yahoo çağrısı kısa UA'ya çevrildi (Ahlatcı scrape'i uzun UA'da kaldı — o Yahoo değil, gerçekçi tarayıcı UA'sı istiyor). Beklenen sonuç: SARAE→islem_goruyor (gerçekten işlem görüyor, Yahoo 123,8₺); ALBTN+METEN arz_tamamlandi kalır (ilk probe'da Yahoo "Not Found" — tahsis aşamasında, henüz işlem yok); KARCL+MASFN talep_toplaniyor (talep_bitis=24 Tem=bugün, `< bugun` değil → yarın arz_tamamlandi'ya döner). SARAE evren-dışı olduğu için overlay'i de sınayacak (Hisseler'de görünme + snapshot fiyatı).
 3. **Evren kalıcılığı yarı-otomatik:** islem_goruyor'a geçen kod overlay ile ANINDA sitede görünür (liste+fiyat+detay sayfası çalışır) ama `data/bist-companies.json`'a kalıcı girişi `node scripts/sync-bist-companies.mjs && node scripts/add-sektor.mjs` + commit ister (StockAnalysis+KAP kaynakları kodu listeledikten sonra — genelde işlem başladıktan 1-3 gün içinde). Overlay o güne kadarki köprü; statik listeye girince otomatik düşer.
 4. **Tek yapısal kaynak Ahlatcı:** sayfa yapısı değişirse parser boş döner → cron kırmızı (sessiz bozulmaz). halkaarz.info JSON-LD yedeği K-HA1'de seçili ama v1'de KODLANMADI (bilinçli — gerekirse eklenir). KAP-tabanlı otomatik tespit de v1'de pasif (KAP verisi başlık/PDF-gömülü; Ahlatcı zaten hızlı).
 5. **İzahname-derin alanlar** (fon kullanımı, tahsisat, finansal özet, lock-up, fiyat istikrarı, başvuru yerleri, şirket özeti) **manuel/nullable** — UI yalnız doluysa gösterir. Doldurma yolu: Supabase'de elle veya ileride KAP ek-indir PDF + AI özet (ayrı iş).
