@@ -18,7 +18,7 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - Türkçe karakter: `LANG=tr_TR.UTF-8 python3` ile yaz.
 
 ## App Structure
-- `app/` — Next.js App Router sayfaları (dashboard, hisse/[ticker], portfoy, analizler, alarmlar, izleme, haberler, blog, takvim, bildirimler, profile, pro, login, register, reset-password)
+- `app/` — Next.js App Router sayfaları (dashboard, hisse/[ticker], hisseler, halka-arz/[kod], portfoy, analizler, alarmlar, izleme, haberler, blog, takvim, bildirimler, profile, pro, login, register, reset-password)
 - `app/api/` — API route'ları
 - `app/api/cron/` — GitHub Actions ile tetiklenen cron job'lar
 - `components/` — Shared component'lar (AppShell, StockLogo, HisseChatbot, RiskProfilWidget)
@@ -40,6 +40,8 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `/api/cron/hisse-snapshot` — */5dk GitHub Actions, Yahoo Finance → Supabase hisse_snapshots.
 - `/api/cron/alarmlar` — Alarm tetikleme cron'u. Fiyat, yüzde, RSI bazlı kontrol + Resend email.
 - `/api/hesap-sil` — DELETE, Supabase Admin API. Bearer token zorunlu, sadece kendi hesabını silebilir.
+- `/api/halka-arz` + `/api/halka-arz/[kod]` — Halka Arz Takvimi liste/detay (halka_arzlar tablosu; aktif/geçmiş ayrımı).
+- `/api/cron/halka-arz` — Günde 5 kez: Ahlatcı duyuru sayfasından tespit + lifecycle (talep_toplaniyor→arz_tamamlandi→islem_goruyor; Yahoo fiyat sinyaliyle). islem_goruyor kodlar `lib/hisse-evren.ts` overlay'i ile JSON sync'ini beklemeden Hisseler'de görünür.
 - `/auth/callback` — OAuth SSR callback. Supabase SSR cookie yazımı (@supabase/ssr).
 
 ## Supabase Tables
@@ -54,11 +56,13 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `risk_profil` — (user_id, vade, risk_toleransi, sermaye, sektor, deneyim, ai_oneri JSON)
 - `chatbot_usage` — (user_id, gun, mesaj_sayisi, updated_at) PK(user_id,gun). Günlük mesaj kotası; yazma yalnız service role, kullanıcı kendi satırını okur.
 - `rate_limits` — (key, window_start, count, updated_at). `rate_limit_hit()` RPC ile atomik sayaç; yalnız service role (policy yok). Şema kaynağı: `supabase/migrations.sql` (SQL Editor'de manuel çalıştırılır).
+- `halka_arzlar` — (kod UNIQUE, sirket_adi, durum: talep_toplaniyor/arz_tamamlandi/islem_goruyor, talep tarihleri, fiyat, buyukluk, dagitim_yontemi, iskonto, aciklik, araci_kurumlar[], izahname-derin nullable alanlar, kaynak_linkleri JSONB). Herkes SELECT, yazma yalnız service role (cron).
 
 ## Data Sources
 - Yahoo Finance — fiyat, grafik, beta, volatilite (15dk gecikmeli, `.IS` suffix zorunlu)
 - TradingView Scanner — F/K (price_earnings_ttm), PD/DD (price_book_ratio), piyasa değeri. POST https://scanner.tradingview.com/turkey/scan, ticker format: "BIST:THYAO"
-- BIST evreni: 607 aktif hisse (StockAnalysis + KAP parse). Yahoo fiyat kapsamı 606/607 (KOZAA eksik).
+- BIST evreni: 614 aktif hisse (StockAnalysis + KAP parse; 24 Tem 2026 denetimi: 8 yeni kotasyon eklendi). Yahoo fiyat kapsamı 614/614 (TRMET/eski-KOZAA dahil). Güncelleme: `node scripts/sync-bist-companies.mjs && node scripts/add-sektor.mjs` (sektor/domain korunur).
+- Halka arz verisi: Ahlatcı Yatırım duyuru sayfası (yapısal alanlar) + Yahoo işlem sinyali; KAP bildirimleri tespit yedeği (bkz. docs-vault K-HA1).
 
 ## Stock Logo Resolution Order
 1. Local Midas cache (`/public/stock-logos/midas/` — 132 hisse)
@@ -110,8 +114,9 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `images.remotePatterns`: www.google.com, t1/t2/t3.gstatic.com (favicon için).
 
 ## GitHub Actions
-- `.github/workflows/` altında cron job'lar tanımlı.
-- `hisse-snapshot`: */5 dakikada bir Yahoo Finance → Supabase hisse_snapshots.
+- `.github/workflows/` altında cron job'lar tanımlı (8+1: hisse/enstruman/fon/bilanco/kap/alarm/karne/aksam-raporu/halka-arz).
+- `hisse-snapshot`: 5dk'lık cron (offset `2-57/5`) Yahoo Finance → Supabase hisse_snapshots. GH throttling gerçek kadansı ~1-2 saate düşürür; liste sayfası görünür dilim için istek-anı canlı fiyat çeker (bilinçli tasarım).
+- `halka-arz`: günde 5 kez tespit + lifecycle.
 - Cron secret: `CRON_SECRET` env variable, `lib/cron-auth.ts` ile doğrulanır.
 
 ## Sanity CMS

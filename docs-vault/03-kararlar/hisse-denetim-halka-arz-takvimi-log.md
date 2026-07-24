@@ -38,29 +38,31 @@ Görev tanımı (kullanıcı, 24 Tem 2026): (1) sitedeki hisse listesi denetleni
 - [x] Checkpoint: commit + log
 
 ### FAZ 5 — Menü + UI
-- [ ] Nav'a "Halka Arz" menü öğesi (mevcut pattern, tema uyumlu)
-- [ ] Liste sayfası (durum rozetli kartlar)
-- [ ] Detay sayfası (Halka Arz Bilgileri sekmesi + Forum placeholder — kapsam kararını logla)
-- [ ] Mobil uyum
-- [ ] Kaynak dipnot pattern'i (uygulanabilirse)
+- [x] Nav: PİYASA grubuna "Halka Arz" (roket ikon; dizi SONUNA eklendi → index kayması yok; bayat grup yorumu düzeltildi)
+- [x] Liste sayfası `/halka-arz` (durum rozetli kartlar: Talep Toplanıyor pulse + YENİ, Arz Tamamlandı; geçmiş "İşlem Görmeye Başlayanlar" → `/hisse/[kod]`; boş durum)
+- [x] Detay `/halka-arz/[kod]`: "Halka Arz Bilgileri" + "Forum" sekmeleri — **Forum kapsam DIŞI, "yakında" placeholder** (karar: bu görev veri+takvim odaklı; topluluk ayrı iş)
+- [x] Mobil uyum (375px taşmasız; alt nav + Daha Fazla menüsünde Halka Arz doğrulandı)
+- [x] Kaynak dipnotları (`kaynak_linkleri` → İzahname / Fiyat Tespit / Aracı Kurum / KAP linkleri) + SPK notu
 
 ### FAZ 6 — Cron + otomatik lifecycle
-- [ ] Cron: yeni arz tespiti → tabloya insert (talep_toplaniyor)
-- [ ] Durum takibi → islem_goruyor geçişi
-- [ ] islem_goruyor → hisse evrenine otomatik aktarım (FAZ 1 ekleme akışıyla ORTAK fonksiyon)
-- [ ] Fiyat cron'una dahil olma + takvimden arşive düşme
-- [ ] Hata durumları loglanır (silent fail yok)
+- [x] `lib/halka-arz-kaynak.ts`: Ahlatcı parser (aktif kartlar `</article>` sınırlı + detay dt/dd + tamamlanan tablosu `<th scope=row>` yapısı) + TR tarih/sayı çözücüler + Yahoo işlem sinyali (query1→query2 yedeği)
+- [x] `/api/cron/halka-arz`: tespit+upsert (derin manuel alanlara DOKUNMAZ), talep_bitis geçince arz_tamamlandi, Yahoo fiyat akınca islem_goruyor (durum asla geri düşmez)
+- [x] Hisse evrenine aktarım: `lib/hisse-evren.ts` overlay (5dk cache) — islem_goruyor kodlar `/api/hisseler`de görünür + `hisse-snapshot` cron'u fiyatını yazar; kalıcı üyelik repo sync'iyle (aşağıda açık risk)
+- [x] Takvimden arşive düşme: liste sayfası islem_goruyor'u "İşlem Görmeye Başlayanlar" bölümüne alır
+- [x] Hatalar `hataYakala` + yanıt sayaçları; workflow `hata>0`'da kırmızı (silent fail yok)
+- [x] Workflow `halka-arz-cron.yml` günde 5 kez (offset dakika `18 5,8,11,14,17`)
 
 ### FAZ 7 — Test
-- [ ] Gerçek arz örneğiyle alan doğrulama
-- [ ] Lifecycle simülasyonu (status elle değiştir → aktarım + menüden kalkma)
-- [ ] Mobil test
-- [ ] FAZ 1-2 düzeltmelerinin sitede doğrulanması
+- [x] Gerçek arz alan doğrulaması (canlı parser: KARCL 35,00₺ / 22-24 Tem / Eşit Dağıtım / %20 iskonto / %15,42 açıklık / 128M lot / 4,48 Mlr₺ — web kaynaklarıyla birebir; MASFN + 6 tamamlanan konsorsiyumlarıyla)
+- [ ] **[MIGRATION SONRASI]** Lifecycle simülasyonu (status elle değiştir → overlay + menü geçişi) — tablo yokken yapılamaz
+- [x] Mobil test (375px, taşma yok, ekran görüntülü)
+- [x] FAZ 1-2 doğrulamaları (BETAE prod'da canlı; snapshot cron 614 yazdı)
+- [x] Negatif testler: cron auth'suz 401; tablo yokken cron temiz 500+hata:1, sayfa/API graceful boş
 
 ### FAZ 8 — Obsidian kapanış
-- [ ] Bu dosya TAMAMLANDI + açık riskler bölümü
-- [ ] Geçmiş log senkronunun tamamlığı
-- [ ] `.claude/CLAUDE.md`'ye modül + denetim sonucu
+- [x] Bu dosya güncel + açık riskler bölümü (aşağıda)
+- [x] Geçmiş log senkronu tamam (FAZ 0 tablosu)
+- [x] `.claude/CLAUDE.md`'ye modül + denetim sonucu
 
 ## Geçmiş Log Senkronizasyonu (24 Tem 2026)
 
@@ -109,6 +111,23 @@ Diğerleri güncel: [[cok-varlik-portfoy-izleme-entegrasyon]] (24 Tem, watchlist
 
 **Alan matrisi (yapısal ✓ / manuel ✗):** kod ✓, şirket adı ✓, durum ✓, halka arz fiyatı ✓, talep tarihleri ✓, büyüklük ✓, dağıtım yöntemi ✓, iskonto ✓, halka açıklık oranı ✓, pazar ~ (detayda varsa ✓), aracı kurum(lar) ~ (KAP bildirimi yayıncısından + detay), pay miktarı ~ ; **manuel/nullable v1:** fonun kullanım yeri ✗, tahsisat grupları ✗, katılım-bazlı dağıtım tahminleri ✗, son 3 dönem finansal özet ✗, fiyat istikrarı ✗, lock-up ✗, başvuru yerleri ✗, şirket özeti ✗ (hepsi izahname PDF'inde — v1'de nullable kolon + UI'da "—"; ileride KAP ek-indir PDF + AI özetiyle doldurulabilir, açık iş).
 
-## ŞU AN NEREDEYİM
+**24 Tem 2026 — FAZ 5+6+7 (`dc2828d`):** UI + cron + lifecycle kodu bitti, push'landı. Ahlatcı parser'ında 3 gerçek bug canlı testte bulunup düzeltildi: (1) kart split'i `</article>`'ta kesilmiyordu → son kartın parçası sayfanın kalanını yutup tamamlanan tablosunun `<time>` etiketlerini karta sızdırıyordu (MASFN tarihi 2026-01-28 görünüyordu); (2) tamamlanan tablosunda Şirket hücresi `<td>` değil `<th scope="row">` → `<th` içeren satırı atlayan kod TÜM veri satırlarını atlıyordu, indeksler de kaymıştı; (3) Yahoo 429'unda tek host'a bağımlılık → query2 yedeği. Test IP'sinde Yahoo 429 nedeniyle sinyal testi bash probe kanıtına dayanıyor (SSAAT fiyat dönüyor); prod Vercel IP'sinde sorun beklenmez.
+
+## AÇIK RİSKLER / BİLİNÇLİ SINIRLAR
+
+1. **[BARIŞ — BLOKER] `halka_arzlar` migration'ı** (`supabase/migrations.sql` "HALKA ARZ TAKVIMI v1" bloğu; `watchlist.tur` bloğuyla birlikte tek seferde çalıştırılabilir). Çalışana kadar: takvim sayfası boş-durum gösterir (kırılmaz), halka-arz cron'u Actions'ta KIRMIZI yanar (bilinçli — hata:1 sinyali migration hatırlatıcısıdır).
+2. **Migration sonrası ilk tohum:** Actions → "Halka Arz Cron" → Run workflow (elle) → KARCL+MASFN aktif, ~6 tamamlanan dolar. Ardından dolu liste/detay UI + lifecycle simülasyonu doğrulanmalı (FAZ 7'nin tek açık maddesi).
+3. **Evren kalıcılığı yarı-otomatik:** islem_goruyor'a geçen kod overlay ile ANINDA sitede görünür (liste+fiyat+detay sayfası çalışır) ama `data/bist-companies.json`'a kalıcı girişi `node scripts/sync-bist-companies.mjs && node scripts/add-sektor.mjs` + commit ister (StockAnalysis+KAP kaynakları kodu listeledikten sonra — genelde işlem başladıktan 1-3 gün içinde). Overlay o güne kadarki köprü; statik listeye girince otomatik düşer.
+4. **Tek yapısal kaynak Ahlatcı:** sayfa yapısı değişirse parser boş döner → cron kırmızı (sessiz bozulmaz). halkaarz.info JSON-LD yedeği K-HA1'de seçili ama v1'de KODLANMADI (bilinçli — gerekirse eklenir). KAP-tabanlı otomatik tespit de v1'de pasif (KAP verisi başlık/PDF-gömülü; Ahlatcı zaten hızlı).
+5. **İzahname-derin alanlar** (fon kullanımı, tahsisat, finansal özet, lock-up, fiyat istikrarı, başvuru yerleri, şirket özeti) **manuel/nullable** — UI yalnız doluysa gösterir. Doldurma yolu: Supabase'de elle veya ileride KAP ek-indir PDF + AI özet (ayrı iş).
+6. Halka arz kartlarında sektör rozeti gösterilmiyor (kaynakta var, şemada yok — istenirse eklenir).
+
+## ESKİ DURUM NOTLARI (kronoloji için saklandı)
 
 **24 Tem 2026 — FAZ 0-3 bitti; FAZ 4'e (şema) geçiliyor.** Kaynak mimarisi K-HA1 ile karara bağlandı: tespit+evre=KAP, yapısal alan=Ahlatcı (+halkaarz.info yedek), işlem sinyali=Yahoo/sync. Aktif vaka listesi hazır: KARCL (talep 22-24 Tem, bugün bitiyor), ALBTN Albayrak Hazır Beton (fiyat tespit 22 Tem yayınlandı), Masfen Enerji (izahname 20 Tem), Metgün Enerji (sonuçlanmış), ŞA-RA Enerji. Sıradaki iş: **FAZ 4 `halka_arzlar` tablosu** — status lifecycle (talep_toplaniyor→arz_tamamlandi→islem_goruyor), K-HA1 alan matrisi (yapısallar + nullable manueller), idempotent migration `supabase/migrations.sql`'e (Barış çalıştırır). Dikkat: izleme çok-varlık hâlâ `watchlist.tur` migration'ını bekliyor (Barış) — halka arz migration'ıyla AYNI oturumda çalıştırılabilir.
+
+---
+
+## ŞU AN NEREDEYİM
+
+**24 Tem 2026 — GÖREVİN KOD TARAFI TAMAMLANDI.** FAZ 0-8 kapandı; tek koşullu iş kaldı: Barış migration'ı çalıştırınca (risk 1) cron'u elle tetikleyip dolu UI + lifecycle simülasyonunu doğrulamak (risk 2). Bir sonraki oturum "continue" derse: önce `halka_arzlar` tablosu var mı bak — varsa risk 2'deki doğrulamayı yap ve KARCL'ın işleme geçişini izle (talep 24 Tem'de bitti; işlem muhtemelen hafta içi başlar → overlay'in ilk gerçek sınavı); yoksa Barış'a migration'ı hatırlat, kod işi YOK. Ayrıca beklemede: watchlist.tur migration'ı (izleme çok-varlık) ve FAZ 2'deki cron offset kadans ölçümü (`gh run list` ile önceki güne kıyas).
