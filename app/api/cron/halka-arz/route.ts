@@ -113,9 +113,11 @@ export async function GET(req: NextRequest) {
 
   // 3) Islem sinyali: arz_tamamlandi olanlari Yahoo'da yokla; fiyat aktiysa islem_goruyor.
   //    Statik evren disindaki kod hisseler menusunde overlay ile aninda gorunur (lib/hisse-evren).
+  const sinyalDetay: Record<string, string> = {};
   for (const r of mevcut.values()) {
     if (r.durum !== "arz_tamamlandi") continue;
     const sinyal = await yahooIslemSinyali(r.kod);
+    sinyalDetay[r.kod] = sinyal.detay;
     if (!sinyal.islemGoruyor) continue;
     const { error } = await supabase.from("halka_arzlar")
       .update({ durum: "islem_goruyor", islem_tarihi: sinyal.ilkIslemTarihi ?? bugun, updated_at: new Date().toISOString() })
@@ -124,5 +126,5 @@ export async function GET(req: NextRequest) {
     else islemeGecen++;
   }
 
-  return NextResponse.json({ yeni, guncellenen, arzTamamlanan, islemeGecen, hata, sure_ms: Date.now() - baslangic });
+  return NextResponse.json({ yeni, guncellenen, arzTamamlanan, islemeGecen, hata, sinyalDetay, sure_ms: Date.now() - baslangic });
 }

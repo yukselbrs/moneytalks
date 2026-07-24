@@ -201,7 +201,8 @@ export async function ahlatciArzlari(tamamlananLimit = 10): Promise<KaynakArz[] 
 // Islem-goruyor sinyali: Yahoo'da fiyat + ilk islem tarihi olustuysa hisse borsada islem goruyordur.
 // query1 429/kesinti verirse query2 yedegi denenir (enstruman-pricing ile ayni desen);
 // ikisi de dusmusse guvenli taraf "sinyal yok"tur — bir sonraki cron kosusu tekrar dener.
-export async function yahooIslemSinyali(kod: string): Promise<{ islemGoruyor: boolean; ilkIslemTarihi: string | null }> {
+export async function yahooIslemSinyali(kod: string): Promise<{ islemGoruyor: boolean; ilkIslemTarihi: string | null; detay: string }> {
+  const denemeler: string[] = [];
   for (const host of ["query1", "query2"]) {
     try {
       const res = await fetch(`https://${host}.finance.yahoo.com/v8/finance/chart/${kod}.IS?range=5d&interval=1d`, {
@@ -209,18 +210,24 @@ export async function yahooIslemSinyali(kod: string): Promise<{ islemGoruyor: bo
         cache: "no-store",
         signal: AbortSignal.timeout(10000),
       });
-      if (!res.ok) continue;
+      if (!res.ok) {
+        denemeler.push(`${host}:${res.status}`);
+        continue;
+      }
       const data = await res.json();
       const meta = data?.chart?.result?.[0]?.meta;
       const fiyat = meta?.regularMarketPrice;
       const ilk = meta?.firstTradeDate;
+      const varMi = typeof fiyat === "number" && Number.isFinite(fiyat);
+      denemeler.push(`${host}:${varMi ? "fiyat" : "bos:" + (data?.chart?.error?.code ?? "?")}`);
       return {
-        islemGoruyor: typeof fiyat === "number" && Number.isFinite(fiyat),
+        islemGoruyor: varMi,
         ilkIslemTarihi: typeof ilk === "number" ? new Date(ilk * 1000).toISOString().slice(0, 10) : null,
+        detay: denemeler.join(","),
       };
-    } catch {
-      /* siradaki host */
+    } catch (e) {
+      denemeler.push(`${host}:exc:${e instanceof Error ? e.name : "?"}`);
     }
   }
-  return { islemGoruyor: false, ilkIslemTarihi: null };
+  return { islemGoruyor: false, ilkIslemTarihi: null, detay: denemeler.join(",") };
 }
