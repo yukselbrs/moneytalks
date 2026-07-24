@@ -23,6 +23,7 @@ Her karar tek dosya:
 - ⛔ [[faz4-alarm-cron-donduruldu]] — alarm cron + ilgili her şey ikinci emre kadar ertelendi (15 Tem 2026)
 
 ### Uygulama kayıtları
+- [[cok-varlik-portfoy-izleme-entegrasyon]] — Fon+döviz+maden portföye ve izlemeye eklenebilir + nav aktif-vurgu fix (KOD TAMAM 24 Tem; portföy migration'sız canlı, izleme watchlist.tur migration'ı Barış'ta)
 - [[bilanco-kap-haberleri-implementasyon-log]] — Hisse sayfasına bilanço (TradingView) + hisse-KAP haberleri + AI temel analiz (KOD TAMAM 20 Tem; migration Barış'ta)
 - [[test-turu-19-temmuz-2026]] — Production doğrulama turu: döviz+maden ✅, KAP haberler ✅, döviz tutarlılık ✅ canlı test; kap_bildirimleri hâlâ 0 satır (açık bulgu)
 - [[ai-analiz-haber-tutarlilik-portfoy-mail]] — AI analizine KAP haberi + döviz analiz tutarlılığı + portföy KAP maili (19 Tem; AI kredi + cron secret engelli)
