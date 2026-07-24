@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
@@ -8,10 +8,11 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "next/link";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
 import { formatCurrency, formatNumber, formatPercent, formatQuantity, formatSignedCurrency } from "@/lib/formatters";
-import { usePortfolioData, enstrumanPozisyonMu, type PortfoyItem } from "@/hooks/usePortfolioData";
+import { usePortfolioData, enstrumanPozisyonMu, fonPozisyonMu, hisseHarici, type PortfoyItem } from "@/hooks/usePortfolioData";
 import { ENSTRUMANLAR } from "@/lib/enstruman-pricing";
 
 // Portfoye yalniz TL bazli enstrumanlar eklenebilir (K8): USD/EUR cinsi pozisyonlar ₺ toplamlari bozardi.
+// Fon TL bazlidir, ayrica eklenebilir.
 const TL_BAZLI_ENSTRUMANLAR = ENSTRUMANLAR.filter(e =>
   e.tur === "doviz" ? e.karsi === "TRY" : e.birim === "gram"
 );
@@ -21,11 +22,14 @@ function pozisyonTanim(ticker: string) {
 }
 
 function pozisyonAd(item: Pick<PortfoyItem, "ticker" | "tur">): string {
-  return enstrumanPozisyonMu(item) ? pozisyonTanim(item.ticker)?.ad ?? item.ticker.toUpperCase() : item.ticker;
+  if (enstrumanPozisyonMu(item)) return pozisyonTanim(item.ticker)?.ad ?? item.ticker.toUpperCase();
+  return item.ticker; // fon: kod gosterilir (detay sayfasi tam unvani gosterir); hisse: ticker
 }
 
 function pozisyonLink(item: Pick<PortfoyItem, "ticker" | "tur">): string {
-  return enstrumanPozisyonMu(item) ? `/doviz-maden/${item.ticker}` : `/hisse/${item.ticker}`;
+  if (enstrumanPozisyonMu(item)) return `/doviz-maden/${item.ticker}`;
+  if (fonPozisyonMu(item)) return `/fon/${item.ticker}`;
+  return `/hisse/${item.ticker}`;
 }
 import { usePortfolioGrafik } from "@/hooks/usePortfolioGrafik";
 
@@ -171,6 +175,13 @@ export default function PortfoyPage() {
     open: false, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false,
   });
 
+  // Fon arama/algilama listesi (kod+unvan) — bir kez cekilir.
+  const [fonListesi, setFonListesi] = useState<{ kod: string; unvan: string }[]>([]);
+  useEffect(() => {
+    supabase.from("fon_snapshots").select("kod, unvan").then(({ data }) => { if (data) setFonListesi(data); });
+  }, []);
+  const fonKodSet = useMemo(() => new Set(fonListesi.map(f => f.kod)), [fonListesi]);
+
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
   const [sonRiskHesaplama, setSonRiskHesaplama] = useState<Date | null>(() => {
     try {
@@ -233,13 +244,15 @@ export default function PortfoyPage() {
         setEkleModal((m) => ({ ...m, hata: "Portföye yalnız TL bazlı enstrümanlar eklenebilir: USD-TRY, EUR-TRY, GBP-TRY, GRAM-ALTIN, GRAM-GUMUS.", yukleniyor: false }));
         return;
       }
+      const fonMu = !enstruman && fonKodSet.has(girilen);
+      const tur = enstruman ? enstruman.tur : fonMu ? "fon" : undefined;
       const { error } = await supabase.from("portfoy").upsert(
         {
           user_id: session.user.id,
           ticker: enstruman ? enstruman.kod : girilen,
           adet: parseFloat(ekleModal.adet),
           maliyet: parseFloat(ekleModal.maliyet),
-          ...(enstruman ? { tur: enstruman.tur } : {}),
+          ...(tur ? { tur } : {}),
         },
         { onConflict: "user_id,ticker" }
       );
@@ -366,7 +379,7 @@ export default function PortfoyPage() {
     if (!senaryoAcik || portfoy.length === 0) return;
     // Beta/senaryo hisse'ye ozgu — doviz/maden pozisyonlari istege dahil edilmez.
     const eksikTickers = portfoy
-      .filter(p => !enstrumanPozisyonMu(p))
+      .filter(p => !hisseHarici(p))
       .map(p => p.ticker)
       .filter(ticker => betaVerisi[ticker] === undefined);
     if (eksikTickers.length === 0) return;
@@ -1014,7 +1027,7 @@ export default function PortfoyPage() {
                           </td>
                           <td className="px-3 py-2.5">
                             <div className="flex items-center gap-0.5 justify-end">
-                              {!risk?.skor && !risk?.yukleniyor && !enstrumanPozisyonMu(item) && (
+                              {!risk?.skor && !risk?.yukleniyor && !hisseHarici(item) && (
                                 <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">⚡</button>
                               )}
                               <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Lot Ekle/Çıkar" className="p-1.5 rounded text-slate-600 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
@@ -1203,8 +1216,9 @@ export default function PortfoyPage() {
                       e.kod.toUpperCase().includes(q) || e.ad.toUpperCase().includes(q) ||
                       (e.tur === "doviz" && e.aciklama.toUpperCase().includes(q))
                     ).slice(0, 3);
-                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6 - enstrumanlar.length);
-                    return matches.length > 0 || enstrumanlar.length > 0 ? (
+                    const fonlar = fonListesi.filter(f => f.kod.startsWith(q) || f.unvan.toUpperCase().includes(q)).slice(0, 3);
+                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6 - enstrumanlar.length - fonlar.length);
+                    return matches.length > 0 || enstrumanlar.length > 0 || fonlar.length > 0 ? (
                       <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 100, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
                         {enstrumanlar.map(en => (
                           <div key={en.kod} onMouseDown={() => setEkleModal(m => ({ ...m, ticker: en.kod.toUpperCase() }))}
@@ -1215,6 +1229,18 @@ export default function PortfoyPage() {
                             <span style={{ fontSize: 10, fontWeight: 700, color: en.tur === "doviz" ? "#60A5FA" : "#FBBF24", background: en.tur === "doviz" ? "rgba(59,130,246,0.12)" : "rgba(245,158,11,0.12)", borderRadius: 999, padding: "2px 8px" }}>
                               {en.tur === "doviz" ? "Döviz" : "Maden"}
                             </span>
+                          </div>
+                        ))}
+                        {fonlar.map(f => (
+                          <div key={f.kod} onMouseDown={() => setEkleModal(m => ({ ...m, ticker: f.kod }))}
+                            style={{ padding: "8px 12px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(59,130,246,0.06)" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)") }
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                            <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{f.kod}</span>
+                              <span className="truncate" style={{ fontSize: 11, color: "#475569", maxWidth: 150 }}>{f.unvan}</span>
+                            </span>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "#2DD4BF", background: "rgba(45,212,191,0.12)", borderRadius: 999, padding: "2px 8px", flexShrink: 0 }}>Fon</span>
                           </div>
                         ))}
                         {matches.map(h => (
