@@ -98,9 +98,9 @@ function parseOran(value: number | string): number | null {
 
 function katilimMetni(value: number): string {
   if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} Milyon`;
+    return `${(value / 1_000_000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} milyon kişi`;
   }
-  return `${Math.round(value / 1000).toLocaleString("tr-TR")} Bin`;
+  return `${Math.round(value / 1000).toLocaleString("tr-TR")} bin kişi`;
 }
 
 const DURUM_META: Record<Arz["durum"], { label: string; renk: string; zemin: string }> = {
@@ -223,8 +223,8 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
             style={{ "--pct": `${sliderPct}%` } as React.CSSProperties}
           />
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3, color: "#475569", fontSize: 10.5 }}>
-            <span>100 Bin</span>
-            <span>2,5 Milyon</span>
+            <span>100 bin</span>
+            <span>2,5 milyon</span>
           </div>
         </div>
 
