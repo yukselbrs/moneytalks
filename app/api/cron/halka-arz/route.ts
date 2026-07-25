@@ -4,6 +4,7 @@ import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
 import { ahlatciArzlari, yahooIslemSinyali } from "@/lib/halka-arz-kaynak";
 import { kodSlugHaritasi, halkaArzFinansalCek } from "@/lib/halka-arz-finansal";
+import { isyCarpanlar, isyOzetFinansal } from "@/lib/isyatirim-finansal";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 
 export const runtime = "nodejs";
@@ -141,17 +142,29 @@ export async function GET(req: NextRequest) {
   //    Tum tablodaki her arz icin (guncel kalsin) — hafif throttle, hata tekil yutulur (silent fail yok).
   let finansalGuncellenen = 0;
   const slugHarita = await kodSlugHaritasi();
+  const simdi = new Date();
+  const bugunIsy = { yil: simdi.getUTCFullYear(), ay: simdi.getUTCMonth() + 1 };
   for (const kod of mevcut.keys()) {
     const slug = slugHarita.get(kod);
     if (!slug) continue;
     try {
       const f = await halkaArzFinansalCek(kod, slug);
       if (!f.finansal && f.piyasa_degeri === null) continue;
+      let fk = f.fk;
+      let pddd = f.pddd;
+      if (mevcut.get(kod)?.durum === "islem_goruyor") {
+        const isyOzet = await isyOzetFinansal(kod, bugunIsy);
+        if (isyOzet) {
+          const isyCarpan = isyCarpanlar(isyOzet, f.piyasa_degeri);
+          fk = isyCarpan.fk ?? fk;
+          pddd = isyCarpan.pddd ?? pddd;
+        }
+      }
       const { error } = await supabase.from("halka_arzlar").update({
         finansal_ozet: f.finansal,
         piyasa_degeri: f.piyasa_degeri,
-        fk: f.fk,
-        pddd: f.pddd,
+        fk,
+        pddd,
         finansal_guncelleme: new Date().toISOString(),
       }).eq("kod", kod);
       if (error) { hata = 1; hataYakala("halka-arz-cron:finansal", error, { kod }); }

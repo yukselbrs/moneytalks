@@ -90,11 +90,35 @@ function sayiMetni(v: number | null, sonek = ""): string {
   return `${v.toLocaleString("tr-TR")}${sonek}`;
 }
 
+function parseOran(value: number | string): number | null {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  const parsed = Number(value.replace("%", "").replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function katilimMetni(value: number): string {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} Milyon`;
+  }
+  return `${Math.round(value / 1000).toLocaleString("tr-TR")} Bin`;
+}
+
 const DURUM_META: Record<Arz["durum"], { label: string; renk: string; zemin: string }> = {
   talep_toplaniyor: { label: "Talep Toplanıyor", renk: "#34D399", zemin: "rgba(16,185,129,0.12)" },
   arz_tamamlandi: { label: "Arz Tamamlandı", renk: "#FBBF24", zemin: "rgba(245,158,11,0.12)" },
   islem_goruyor: { label: "İşlem Görüyor", renk: "#60A5FA", zemin: "rgba(59,130,246,0.12)" },
 };
+
+function durumMeta(arz: Pick<Arz, "durum" | "talep_baslangic">, simdiMs: number) {
+  const meta = DURUM_META[arz.durum];
+  if (arz.durum === "talep_toplaniyor" && arz.talep_baslangic) {
+    const baslangicMs = new Date(`${arz.talep_baslangic}T00:00:00`).getTime();
+    if (Number.isFinite(baslangicMs) && baslangicMs > simdiMs) {
+      return { ...meta, label: "Talep Toplanacak" };
+    }
+  }
+  return meta;
+}
 
 function BilgiBlok({ baslik, children }: { baslik: string; children: React.ReactNode }) {
   return (
@@ -105,11 +129,107 @@ function BilgiBlok({ baslik, children }: { baslik: string; children: React.React
   );
 }
 
+function DagitimTahminAraci({ arz }: { arz: Arz }) {
+  const [katilim, setKatilim] = useState(500_000);
+  const bireyselGrup = arz.tahsisat_gruplari?.find((t) => t.grup.toLocaleLowerCase("tr").includes("bireysel"));
+  const bireyselOran = bireyselGrup ? parseOran(bireyselGrup.oran) : null;
+  const dagitilacakLot = arz.pay_miktari !== null && bireyselOran !== null
+    ? Math.floor(arz.pay_miktari * bireyselOran / 100)
+    : null;
+  const tahminiLot = dagitilacakLot !== null ? Math.floor(dagitilacakLot / katilim) : null;
+  const tahminiTutar = tahminiLot !== null && arz.fiyat !== null ? tahminiLot * arz.fiyat : null;
+  const min = 100_000;
+  const max = 2_500_000;
+  const step = 50_000;
+  const sliderPct = ((katilim - min) / (max - min)) * 100;
+
+  if (dagitilacakLot === null || tahminiLot === null) {
+    return (
+      <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahminleri">
+        {arz.dagitim_tahminleri?.map((t, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 0", borderTop: i ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+            <span style={{ fontSize: 12.5, color: "#CBD5E1" }}>{t.katilim}</span>
+            <span style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0", fontVariantNumeric: "tabular-nums" }}>{t.tahmin}</span>
+          </div>
+        ))}
+        <p style={{ margin: "9px 0 0", fontSize: 10.5, color: "#475569" }}>Tahminler katılım büyüklüğüne bağlı varsayımlardır; kesin dağıtım arz sonuçlarıyla açıklanır.</p>
+      </BilgiBlok>
+    );
+  }
+
+  return (
+    <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahmini">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "center" }}>
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 9 }}>
+            <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 750 }}>Katılım Sayısı</span>
+            <span style={{ fontSize: 13, color: "#F8FAFC", fontWeight: 850, fontVariantNumeric: "tabular-nums" }}>{katilimMetni(katilim)}</span>
+          </div>
+          <input
+            aria-label="Katılım sayısı"
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={katilim}
+            onChange={(event) => setKatilim(Number(event.target.value))}
+            style={{
+              width: "100%",
+              accentColor: "#3B82F6",
+              background: `linear-gradient(90deg, #3B82F6 ${sliderPct}%, rgba(148,163,184,0.16) ${sliderPct}%)`,
+              cursor: "pointer",
+            }}
+          />
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7, color: "#475569", fontSize: 10.5 }}>
+            <span>100 Bin</span>
+            <span>2,5 Milyon</span>
+          </div>
+        </div>
+
+        <label style={{ display: "grid", gap: 6 }}>
+          <span style={{ fontSize: 10, color: "#475569", fontWeight: 800, letterSpacing: "0.3px", textTransform: "uppercase" }}>Manuel Katılım</span>
+          <input
+            type="number"
+            min={min}
+            max={max}
+            step={step}
+            value={katilim}
+            onChange={(event) => {
+              const next = Number(event.target.value);
+              if (Number.isFinite(next)) setKatilim(Math.min(max, Math.max(min, next)));
+            }}
+            style={{ width: "100%", boxSizing: "border-box", border: "1px solid rgba(148,163,184,0.16)", borderRadius: 10, background: "rgba(15,23,42,0.76)", color: "#E2E8F0", padding: "9px 10px", fontSize: 13, fontWeight: 760, fontVariantNumeric: "tabular-nums" }}
+          />
+        </label>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginTop: 15 }}>
+        {[
+          { l: "Tahmini Lot", v: `${tahminiLot.toLocaleString("tr-TR")} Lot`, vurgu: true },
+          { l: "Yaklaşık Tutar", v: tahminiTutar !== null ? tlKisa(tahminiTutar) : "—", vurgu: true },
+          { l: "Bireysel Tahsis", v: bireyselOran !== null ? `%${bireyselOran.toLocaleString("tr-TR")}` : "—" },
+          { l: "Dağıtıma Esas Lot", v: `${dagitilacakLot.toLocaleString("tr-TR")} Lot` },
+        ].map((c) => (
+          <div key={c.l} style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 10 }}>
+            <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 800, letterSpacing: "0.3px", textTransform: "uppercase" }}>{c.l}</p>
+            <p style={{ margin: "3px 0 0", fontSize: c.vurgu ? 16 : 13, fontWeight: c.vurgu ? 880 : 760, color: c.vurgu ? "#F8FAFC" : "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>{c.v}</p>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ margin: "11px 0 0", fontSize: 10.5, color: "#475569", lineHeight: 1.5 }}>
+        Hesaplama bireysel yatırımcı tahsisatı üzerinden yaklaşık yapılır; kesin dağıtım arz sonuçlarıyla açıklanır.
+      </p>
+    </BilgiBlok>
+  );
+}
+
 export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: string }> }) {
   const { kod } = use(params);
   const [arz, setArz] = useState<Arz | null>(null);
   const [yuklendi, setYuklendi] = useState(false);
   const [sekme, setSekme] = useState<"bilgi" | "forum">("bilgi");
+  const [simdiMs] = useState(() => Date.now());
 
   useEffect(() => {
     fetch(`/api/halka-arz/${kod}`)
@@ -136,7 +256,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
     );
   }
 
-  const d = DURUM_META[arz.durum];
+  const d = durumMeta(arz, simdiMs);
   const temel: { l: string; v: string }[] = [
     { l: "Halka Arz Fiyatı", v: fiyatMetni(arz.fiyat, arz.fiyat_ust) },
     { l: "Talep Tarihleri", v: tarihAraligi(arz.talep_baslangic, arz.talep_bitis) },
@@ -152,7 +272,14 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
   if (arz.islem_tarihi) temel.push({ l: "İlk İşlem Tarihi", v: tarihAraligi(arz.islem_tarihi, null) });
 
   const linkler = arz.kaynak_linkleri || {};
-  const LINK_ETIKET: Record<string, string> = { izahname: "İzahname", fiyat_tespit: "Fiyat Tespit Raporu", araci_sayfa: "Aracı Kurum Duyurusu", kap: "KAP Bildirimi" };
+  const LINK_ETIKET: Record<string, string> = {
+    izahname: "İzahname",
+    fiyat_tespit: "Fiyat Tespit Raporu",
+    araci_sayfa: "Halka Arz Bilgileri",
+    sirket_sayfasi: "Şirket Sayfası",
+    spk_haber: "SPK Onayı",
+    kap: "KAP Bildirimi",
+  };
 
   return (
     <AppShell>
@@ -239,15 +366,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
               )}
 
               {Array.isArray(arz.dagitim_tahminleri) && arz.dagitim_tahminleri.length > 0 && (
-                <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahminleri">
-                  {arz.dagitim_tahminleri.map((t, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 0", borderTop: i ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                      <span style={{ fontSize: 12.5, color: "#CBD5E1" }}>{t.katilim}</span>
-                      <span style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0", fontVariantNumeric: "tabular-nums" }}>{t.tahmin}</span>
-                    </div>
-                  ))}
-                  <p style={{ margin: "9px 0 0", fontSize: 10.5, color: "#475569" }}>Tahminler katılım büyüklüğüne bağlı varsayımlardır; kesin dağıtım arz sonuçlarıyla açıklanır.</p>
-                </BilgiBlok>
+                <DagitimTahminAraci arz={arz} />
               )}
 
               {(arz.fk !== null || arz.pddd !== null) && (

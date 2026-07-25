@@ -195,8 +195,8 @@ export async function GET(req: NextRequest) {
     const rows = (await getRows(forceLive))
       .filter((row) => {
         if (tefasFilter === "tumu") return true;
-        if (tefasFilter === "kapali") return row.tefas_durum === false;
-        return row.tefas_durum !== false;
+        if (tefasFilter === "kapali") return row.tefas_durum !== true;
+        return row.tefas_durum === true;
       })
       .filter((row) => {
         if (!q) return true;

@@ -54,8 +54,19 @@ const DURUM_ROZET: Record<ArzOzet["durum"], { label: string; renk: string; zemin
   islem_goruyor: { label: "İşlem Görüyor", renk: "#60A5FA", zemin: "rgba(59,130,246,0.12)" },
 };
 
-function DurumRozet({ durum, yeni }: { durum: ArzOzet["durum"]; yeni: boolean }) {
-  const r = DURUM_ROZET[durum];
+function rozetMeta(durum: ArzOzet["durum"], talepBaslangic: string | null, simdiMs: number) {
+  const meta = DURUM_ROZET[durum];
+  if (durum === "talep_toplaniyor" && talepBaslangic) {
+    const baslangicMs = new Date(`${talepBaslangic}T00:00:00`).getTime();
+    if (Number.isFinite(baslangicMs) && baslangicMs > simdiMs) {
+      return { ...meta, label: "Talep Toplanacak" };
+    }
+  }
+  return meta;
+}
+
+function DurumRozet({ durum, yeni, talepBaslangic, simdiMs }: { durum: ArzOzet["durum"]; yeni: boolean; talepBaslangic: string | null; simdiMs: number }) {
+  const r = rozetMeta(durum, talepBaslangic, simdiMs);
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
       {yeni && durum === "talep_toplaniyor" && (
@@ -69,8 +80,8 @@ function DurumRozet({ durum, yeni }: { durum: ArzOzet["durum"]; yeni: boolean })
   );
 }
 
-function ArzKart({ arz }: { arz: ArzOzet }) {
-  const yeni = Date.now() - new Date(arz.created_at).getTime() < 3 * 86400_000;
+function ArzKart({ arz, simdiMs }: { arz: ArzOzet; simdiMs: number }) {
+  const yeni = simdiMs - new Date(arz.created_at).getTime() < 3 * 86400_000;
   return (
     <Link href={`/halka-arz/${arz.kod}`} className="card-glass" style={{ display: "block", borderRadius: 14, padding: "16px 18px", textDecoration: "none", transition: "border-color 0.15s" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
@@ -86,7 +97,7 @@ function ArzKart({ arz }: { arz: ArzOzet }) {
             <p className="truncate" style={{ margin: 0, fontSize: 11.5, color: "#64748B", maxWidth: 280 }}>{arz.sirket_adi}</p>
           </div>
         </div>
-        <DurumRozet durum={arz.durum} yeni={yeni} />
+        <DurumRozet durum={arz.durum} yeni={yeni} talepBaslangic={arz.talep_baslangic} simdiMs={simdiMs} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
         {[
@@ -109,6 +120,7 @@ export default function HalkaArzPage() {
   const [aktif, setAktif] = useState<ArzOzet[]>([]);
   const [gecmis, setGecmis] = useState<ArzOzet[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
+  const [simdiMs] = useState(() => Date.now());
 
   useEffect(() => {
     fetch("/api/halka-arz")
@@ -141,7 +153,7 @@ export default function HalkaArzPage() {
             </div>
           ) : (
             <div style={{ display: "grid", gap: 12 }}>
-              {aktif.map((a) => <ArzKart key={a.kod} arz={a} />)}
+              {aktif.map((a) => <ArzKart key={a.kod} arz={a} simdiMs={simdiMs} />)}
             </div>
           )}
 

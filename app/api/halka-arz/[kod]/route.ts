@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isyCarpanlar, isyOzetFinansal } from "@/lib/isyatirim-finansal";
+import { tvPiyasaDegeri } from "@/lib/halka-arz-finansal";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,5 +24,26 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ kod
     console.error("halka-arz detay HATA:", error.message);
     return NextResponse.json({ arz: null });
   }
-  return NextResponse.json({ arz: data ?? null });
+  if (data?.durum !== "islem_goruyor") {
+    return NextResponse.json({ arz: data ?? null });
+  }
+
+  const now = new Date();
+  const bugun = { yil: now.getUTCFullYear(), ay: now.getUTCMonth() + 1 };
+  const [isyOzet, piyasaDegeri] = await Promise.all([
+    isyOzetFinansal(temiz, bugun),
+    tvPiyasaDegeri(temiz),
+  ]);
+
+  if (!isyOzet) return NextResponse.json({ arz: data });
+
+  const { fk, pddd } = isyCarpanlar(isyOzet, piyasaDegeri);
+  return NextResponse.json({
+    arz: {
+      ...data,
+      fk: fk ?? data.fk,
+      pddd: pddd ?? data.pddd,
+      piyasa_degeri: piyasaDegeri ?? data.piyasa_degeri,
+    },
+  });
 }

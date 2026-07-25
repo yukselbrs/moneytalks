@@ -202,10 +202,17 @@ export async function GET(req: NextRequest) {
 
   const from = (page - 1) * SAYFA_BOYUTU;
   const slicedTickers = sortedTickers.slice(from, from + SAYFA_BOYUTU);
-  const liveMap = shouldLiveSort ? sortLiveMap : await fetchLiveFiyatlar(slicedTickers);
+  const quoteSorted = sort === "fiyat" || sort === "gun" || sort === "yukselis" || sort === "dusus" || sort === "hacim" || sort === "islem_hacmi";
+  const liveMap = shouldLiveSort ? sortLiveMap : quoteSorted ? new Map<string, LiveFiyat>() : await fetchLiveFiyatlar(slicedTickers);
   const returnMap = shouldReturnSort ? sortReturnMap : await fetchLiveGetiriler(slicedTickers);
   const overlayMeta = new Map(overlay.map((o) => [o.ticker, o]));
-  const items = slicedTickers.map((ticker) => formatRow(HISSE_META.get(ticker) ?? overlayMeta.get(ticker), snapMap.get(ticker), liveMap.get(ticker), returnMap.get(ticker)));
+  const items = slicedTickers.map((ticker) => formatRow(
+    HISSE_META.get(ticker) ?? overlayMeta.get(ticker),
+    snapMap.get(ticker),
+    liveMap.get(ticker),
+    returnMap.get(ticker),
+    { preferSnapshotQuote: quoteSorted }
+  ));
 
   const response = NextResponse.json({
     items,
@@ -318,11 +325,18 @@ async function fetchLiveGetiriler(tickers: string[]) {
   return new Map(results.filter((entry): entry is [string, LiveGetiriler] => entry[1] !== null));
 }
 
-function formatRow(meta: { ticker: string; ad: string; domain?: string; listed?: boolean; priceAvailable?: boolean | null } | undefined, snap?: HisseSnapshot, live?: LiveFiyat, getiriler?: LiveGetiriler) {
+function formatRow(
+  meta: { ticker: string; ad: string; domain?: string; listed?: boolean; priceAvailable?: boolean | null } | undefined,
+  snap?: HisseSnapshot,
+  live?: LiveFiyat,
+  getiriler?: LiveGetiriler,
+  options: { preferSnapshotQuote?: boolean } = {}
+) {
   if (!meta) {
     return { ticker: snap?.ticker || "", ad: "", domain: undefined, fiyat: null };
   }
-  if (!live && (!snap || snap.fiyat === null)) {
+  const snapshotFiyat = safeNumber(snap?.fiyat);
+  if (!live && snapshotFiyat === null) {
     const veriDurumu = meta.listed === false
       ? "İşleme kapalı"
       : meta.priceAvailable === false
@@ -344,20 +358,30 @@ function formatRow(meta: { ticker: string; ad: string; domain?: string; listed?:
       veriDurumu,
     };
   }
-  const fiyat = live?.fiyat ?? Number(snap?.fiyat);
-  const degisim = safeDailyChange(live?.degisim) ?? safeDailyChange(snap?.degisim_yuzde);
+  const fiyat = options.preferSnapshotQuote
+    ? snapshotFiyat ?? live?.fiyat
+    : live?.fiyat ?? snapshotFiyat;
+  const degisim = options.preferSnapshotQuote
+    ? safeDailyChange(snap?.degisim_yuzde) ?? safeDailyChange(live?.degisim)
+    : safeDailyChange(live?.degisim) ?? safeDailyChange(snap?.degisim_yuzde);
+  const hacim = options.preferSnapshotQuote
+    ? snap?.hacim ?? live?.hacim ?? null
+    : live?.hacim ?? snap?.hacim ?? null;
+  const piyasaDegeri = options.preferSnapshotQuote
+    ? snap?.piyasa_degeri ?? live?.piyasaDegeri ?? null
+    : live?.piyasaDegeri ?? snap?.piyasa_degeri ?? null;
   return {
     ticker: meta.ticker,
     ad: meta.ad,
     domain: meta.domain,
-    fiyat: fiyat.toLocaleString("tr-TR", {
+    fiyat: fiyat !== undefined && fiyat !== null ? fiyat.toLocaleString("tr-TR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }),
+    }) : null,
     degisim: degisim !== null ? degisim.toFixed(2) : null,
     yukselis: degisim !== null ? degisim >= 0 : null,
-    hacim: live?.hacim ?? snap?.hacim ?? null,
-    piyasaDegeri: live?.piyasaDegeri ?? snap?.piyasa_degeri ?? null,
+    hacim,
+    piyasaDegeri,
     getiri_1h: formatGetiri(getiriler ? getiriler.getiri_1h : snap?.getiri_1h),
     getiri_1a: formatGetiri(getiriler ? getiriler.getiri_1a : snap?.getiri_1a),
     getiri_3a: formatGetiri(getiriler ? getiriler.getiri_3a : snap?.getiri_3a),
