@@ -301,7 +301,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
   const { kod } = use(params);
   const [arz, setArz] = useState<Arz | null>(null);
   const [yuklendi, setYuklendi] = useState(false);
-  const [sekme, setSekme] = useState<"bilgi" | "forum">("bilgi");
+  const [sekme, setSekme] = useState<"bilgi" | "sirket" | "forum">("bilgi");
   const [simdiMs] = useState(() => Date.now());
 
   useEffect(() => {
@@ -384,7 +384,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
           )}
 
           <div style={{ display: "flex", gap: 6, margin: "20px 0 16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            {([["bilgi", "Halka Arz Bilgileri"], ["forum", "Forum"]] as const).map(([k, l]) => (
+            {([["bilgi", "Halka Arz Bilgileri"], ["sirket", "Şirket Hakkında"], ["forum", "Forum"]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setSekme(k)}
                 style={{ background: "none", border: "none", cursor: "pointer", padding: "9px 14px", fontSize: 13, fontWeight: 700, color: sekme === k ? "#F8FAFC" : "#64748B", borderBottom: sekme === k ? "2px solid #3B82F6" : "2px solid transparent", marginBottom: -1 }}>
                 {l}
@@ -397,50 +397,12 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
               <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#CBD5E1" }}>Forum yakında</p>
               <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748B" }}>Halka arz tartışmaları için topluluk alanı üzerinde çalışıyoruz.</p>
             </div>
-          ) : (
+          ) : sekme === "sirket" ? (
             <div style={{ display: "grid", gap: 12 }}>
-              <div className="card-glass" style={{ borderRadius: 14, padding: "16px 18px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 13 }}>
-                  {temel.map((c) => (
-                    <div key={c.l}>
-                      <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>{c.l}</p>
-                      <p style={{ margin: "3px 0 0", fontSize: 13.5, fontWeight: 700, color: "#E2E8F0", fontVariantNumeric: "tabular-nums" }}>{c.v}</p>
-                    </div>
-                  ))}
-                </div>
-                {arz.araci_kurumlar.length > 0 && (
-                  <div style={{ marginTop: 13, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                    <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>Aracı Kurum{arz.araci_kurumlar.length > 1 ? "lar (Konsorsiyum)" : ""}</p>
-                    <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "#CBD5E1", lineHeight: 1.6 }}>{arz.araci_kurumlar.join(" · ")}</p>
-                  </div>
-                )}
-              </div>
-
               {arz.sirket_aciklama && (
                 <BilgiBlok baslik="Şirket Hakkında">
                   <p style={{ margin: 0, fontSize: 13, color: "#CBD5E1", lineHeight: 1.7 }}>{arz.sirket_aciklama}</p>
                 </BilgiBlok>
-              )}
-
-              {arz.fon_kullanim_yeri && (
-                <BilgiBlok baslik="Halka Arz Gelirinin Kullanım Yeri">
-                  <p style={{ margin: 0, fontSize: 13, color: "#CBD5E1", lineHeight: 1.7, whiteSpace: "pre-line" }}>{arz.fon_kullanim_yeri}</p>
-                </BilgiBlok>
-              )}
-
-              {Array.isArray(arz.tahsisat_gruplari) && arz.tahsisat_gruplari.length > 0 && (
-                <BilgiBlok baslik="Tahsisat Grupları">
-                  {arz.tahsisat_gruplari.map((t, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 0", borderTop: i ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                      <span style={{ fontSize: 12.5, color: "#CBD5E1" }}>{t.grup}</span>
-                      <span style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0", fontVariantNumeric: "tabular-nums" }}>{typeof t.oran === "number" ? `%${t.oran.toLocaleString("tr-TR")}` : t.oran}</span>
-                    </div>
-                  ))}
-                </BilgiBlok>
-              )}
-
-              {Array.isArray(arz.dagitim_tahminleri) && arz.dagitim_tahminleri.length > 0 && (
-                <DagitimTahminAraci arz={arz} />
               )}
 
               {(arz.fk !== null || arz.pddd !== null) && (
@@ -492,6 +454,52 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
                   </BilgiBlok>
                 );
               })()}
+
+              {!arz.sirket_aciklama && !arz.finansal_ozet && arz.fk === null && arz.pddd === null && (
+                <BilgiBlok baslik="Şirket Hakkında">
+                  <p style={{ margin: 0, fontSize: 13, color: "#94A3B8", lineHeight: 1.7 }}>Bu halka arz için şirket özeti henüz eklenmedi.</p>
+                </BilgiBlok>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 12 }}>
+              <div className="card-glass" style={{ borderRadius: 14, padding: "16px 18px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 13 }}>
+                  {temel.map((c) => (
+                    <div key={c.l}>
+                      <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>{c.l}</p>
+                      <p style={{ margin: "3px 0 0", fontSize: 13.5, fontWeight: 700, color: "#E2E8F0", fontVariantNumeric: "tabular-nums" }}>{c.v}</p>
+                    </div>
+                  ))}
+                </div>
+                {arz.araci_kurumlar.length > 0 && (
+                  <div style={{ marginTop: 13, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                    <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>Aracı Kurum{arz.araci_kurumlar.length > 1 ? "lar (Konsorsiyum)" : ""}</p>
+                    <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "#CBD5E1", lineHeight: 1.6 }}>{arz.araci_kurumlar.join(" · ")}</p>
+                  </div>
+                )}
+              </div>
+
+              {arz.fon_kullanim_yeri && (
+                <BilgiBlok baslik="Halka Arz Gelirinin Kullanım Yeri">
+                  <p style={{ margin: 0, fontSize: 13, color: "#CBD5E1", lineHeight: 1.7, whiteSpace: "pre-line" }}>{arz.fon_kullanim_yeri}</p>
+                </BilgiBlok>
+              )}
+
+              {Array.isArray(arz.tahsisat_gruplari) && arz.tahsisat_gruplari.length > 0 && (
+                <BilgiBlok baslik="Tahsisat Grupları">
+                  {arz.tahsisat_gruplari.map((t, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 0", borderTop: i ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                      <span style={{ fontSize: 12.5, color: "#CBD5E1" }}>{t.grup}</span>
+                      <span style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0", fontVariantNumeric: "tabular-nums" }}>{typeof t.oran === "number" ? `%${t.oran.toLocaleString("tr-TR")}` : t.oran}</span>
+                    </div>
+                  ))}
+                </BilgiBlok>
+              )}
+
+              {Array.isArray(arz.dagitim_tahminleri) && arz.dagitim_tahminleri.length > 0 && (
+                <DagitimTahminAraci arz={arz} />
+              )}
 
               {(arz.fiyat_istikrari || arz.satmama_taahhudu) && (
                 <BilgiBlok baslik="Taahhütler">
