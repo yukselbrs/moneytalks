@@ -3,7 +3,7 @@ import { Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
-import { BadgePercent, ChevronDown, Search, Shield, SlidersHorizontal, TrendingUp, Users, Wallet, X } from "lucide-react";
+import { ArrowDownAZ, BadgePercent, ChevronDown, Search, Shield, SlidersHorizontal, TrendingUp, Users, Wallet, X } from "lucide-react";
 import { tickerRenk } from "@/lib/utils";
 
 type IsiHisse = {
@@ -100,6 +100,13 @@ const FON_TEFAS_FILTERS = [
   { key: "tumu", label: "Tümü" },
 ] as const;
 
+const SORT_DEFAULT_DIR: Record<string, "asc" | "desc"> = {
+  alfabetik: "asc",
+  dusus: "asc",
+  risk: "asc",
+  ucret: "asc",
+};
+
 const TABLO_BASLIKLARI = [
   { label: "#", align: "left" },
   { label: "HİSSE", align: "left" },
@@ -181,17 +188,25 @@ function HisselerContent() {
     router.replace(`/hisseler?${params.toString()}`);
   }, [router, searchParams]);
 
+  const updateSort = useCallback((nextSort: string, nextDir: "asc" | "desc" | null = null) => {
+    updateParams({
+      sort: nextSort === "alfabetik" ? null : nextSort,
+      dir: nextSort === "alfabetik" ? null : nextDir,
+      page: "1",
+    });
+  }, [updateParams]);
+
   const handleHeaderSort = useCallback((sortKey: string) => {
     if (sort !== sortKey || sortDir === null) {
-      updateParams({ sort: sortKey, dir: "desc", page: "1" });
+      updateSort(sortKey, "desc");
       return;
     }
     if (sortDir === "desc") {
-      updateParams({ sort: sortKey, dir: "asc", page: "1" });
+      updateSort(sortKey, "asc");
       return;
     }
-    updateParams({ sort: "alfabetik", dir: null, page: "1" });
-  }, [sort, sortDir, updateParams]);
+    updateSort("alfabetik");
+  }, [sort, sortDir, updateSort]);
 
   useEffect(() => {
     setArama(q);
@@ -283,12 +298,14 @@ function HisselerContent() {
   const fonKapali = varlik === "fon" && aktifTefasFilter === "kapali";
   const siralamaOptions = fonKapali ? FON_KAPALI_SIRALAMA_OPTIONS : varlik === "fon" ? FON_SIRALAMA_OPTIONS : SIRALAMA_OPTIONS;
   const aktifSiralama = siralamaOptions.find((s) => s.key === sort);
+  const effectiveSortDir = sort === "alfabetik" ? null : sortDir ?? SORT_DEFAULT_DIR[sort] ?? "desc";
   const aktifSiralamaMetni = aktifSiralama
-    ? `${aktifSiralama.label}${sortDir ? ` ${sortDir === "desc" ? "azalan" : "artan"}` : ""}`
+    ? `${aktifSiralama.label}${effectiveSortDir ? ` ${effectiveSortDir === "desc" ? "azalan" : "artan"}` : ""}`
     : "A-Z";
   const fonGetiriSortlari = fonKapali ? ["gun", "1wk", "1mo", "3mo", "6mo"] : ["gun", "1mo", "3mo", "6mo", "1y"];
   const fonMetricTabs = varlik === "fon"
     ? [
+        { key: "alfabetik", label: "A-Z", icon: ArrowDownAZ, activeKeys: ["alfabetik"] },
         { key: "gun", label: "Getiri", icon: TrendingUp, activeKeys: fonGetiriSortlari },
         { key: "buyukluk", label: "Büyüklük", icon: Wallet, activeKeys: ["buyukluk"] },
         { key: "kisi", label: "Yatırımcı", icon: Users, activeKeys: ["kisi"] },
@@ -521,7 +538,7 @@ function HisselerContent() {
                   <select
                     className="fon-select"
                     value={siralamaOptions.some((s) => s.key === sort) ? sort : "alfabetik"}
-                    onChange={(event) => updateParams({ sort: event.target.value, dir: null, page: "1" })}
+                    onChange={(event) => updateSort(event.target.value)}
                     style={{ paddingLeft: 38 }}
                   >
                     {siralamaOptions.map((option) => (
@@ -535,11 +552,11 @@ function HisselerContent() {
                   <button
                     type="button"
                     className="fon-direction-btn"
-                    onClick={() => updateParams({ dir: sortDir === "asc" ? "desc" : "asc", page: "1" })}
-                    aria-label="Sıralama yönünü değiştir"
-                  >
-                    <span>{sortDir === "asc" ? "Artan" : "Azalan"}</span>
-                    <span style={{ color: "#60A5FA", fontSize: 15 }}>{sortDir === "asc" ? "↑" : "↓"}</span>
+                      onClick={() => updateParams({ dir: effectiveSortDir === "asc" ? "desc" : "asc", page: "1" })}
+                      aria-label="Sıralama yönünü değiştir"
+                    >
+                    <span>{effectiveSortDir === "asc" ? "Artan" : "Azalan"}</span>
+                    <span style={{ color: "#60A5FA", fontSize: 15 }}>{effectiveSortDir === "asc" ? "↑" : "↓"}</span>
                   </button>
                 )}
               </div>
@@ -557,7 +574,7 @@ function HisselerContent() {
                     <button
                       key={tab.key}
                       type="button"
-                      onClick={() => updateParams({ sort: tab.key, dir: null, page: "1" })}
+                      onClick={() => updateSort(tab.key)}
                       className={`fon-metric-tab ${active ? "fon-metric-tab-active" : ""}`}
                       aria-pressed={active}
                     >
@@ -574,7 +591,7 @@ function HisselerContent() {
                 {siralamaOptions.map(s => (
                   <button
                     key={s.key}
-                    onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
+                    onClick={() => updateSort(s.key)}
                     className={`sort-btn ${sort === s.key ? "sort-btn-active" : "sort-btn-inactive"}`}
                   >
                     {s.label}
