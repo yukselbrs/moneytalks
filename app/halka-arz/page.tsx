@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import { CalendarDays, Clock3 } from "lucide-react";
 
 type ArzOzet = {
   kod: string;
@@ -23,6 +24,7 @@ type ArzOzet = {
 };
 
 const AYLAR = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+const GUNLER = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 
 function tarihAraligi(bas: string | null, bit: string | null): string {
   if (!bas) return "—";
@@ -46,6 +48,21 @@ function buyuklukMetni(v: number | null): string {
   if (v >= 1e9) return `${(v / 1e9).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} Mlr ₺`;
   if (v >= 1e6) return `${(v / 1e6).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} Mn ₺`;
   return `${v.toLocaleString("tr-TR")} ₺`;
+}
+
+function islemTarihiOzet(tarih: string | null, simdiMs: number) {
+  if (!tarih) return null;
+  const d = new Date(`${tarih}T00:00:00`);
+  if (!Number.isFinite(d.getTime())) return null;
+  const bugun = new Date(simdiMs);
+  const bugunGun = new Date(bugun.getFullYear(), bugun.getMonth(), bugun.getDate()).getTime();
+  const tarihGun = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const kalanGun = Math.ceil((tarihGun - bugunGun) / 86400_000);
+  return {
+    baslik: `${d.getDate()} ${AYLAR[d.getMonth()]} ${d.getFullYear()}`,
+    alt: GUNLER[d.getDay()],
+    kalan: kalanGun > 0 ? `${kalanGun} gün kaldı` : kalanGun === 0 ? "Bugün" : "İşlem başladı",
+  };
 }
 
 const DURUM_ROZET: Record<ArzOzet["durum"], { label: string; renk: string; zemin: string }> = {
@@ -82,6 +99,7 @@ function DurumRozet({ durum, yeni, talepBaslangic, simdiMs }: { durum: ArzOzet["
 
 function ArzKart({ arz, simdiMs }: { arz: ArzOzet; simdiMs: number }) {
   const yeni = simdiMs - new Date(arz.created_at).getTime() < 3 * 86400_000;
+  const islemTarihi = islemTarihiOzet(arz.islem_tarihi, simdiMs);
   return (
     <Link href={`/halka-arz/${arz.kod}`} className="card-glass" style={{ display: "block", borderRadius: 14, padding: "16px 18px", textDecoration: "none", transition: "border-color 0.15s" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
@@ -112,6 +130,24 @@ function ArzKart({ arz, simdiMs }: { arz: ArzOzet; simdiMs: number }) {
           </div>
         ))}
       </div>
+      {arz.durum === "arz_tamamlandi" && (
+        <div style={{ marginTop: 14, borderRadius: 12, border: "1px solid rgba(245,158,11,0.18)", background: "linear-gradient(135deg, rgba(245,158,11,0.11), rgba(59,130,246,0.05))", padding: "11px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            <span style={{ width: 38, height: 38, borderRadius: 10, background: islemTarihi ? "rgba(245,158,11,0.16)" : "rgba(148,163,184,0.09)", border: `1px solid ${islemTarihi ? "rgba(245,158,11,0.24)" : "rgba(148,163,184,0.12)"}`, display: "inline-flex", alignItems: "center", justifyContent: "center", color: islemTarihi ? "#FBBF24" : "#94A3B8", flexShrink: 0 }}>
+              {islemTarihi ? <CalendarDays size={18} /> : <Clock3 size={18} />}
+            </span>
+            <span style={{ minWidth: 0 }}>
+              <span style={{ display: "block", fontSize: 10, color: "#64748B", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>İlk İşlem Günü</span>
+              <span style={{ display: "block", marginTop: 2, fontSize: 13.5, color: "#E2E8F0", fontWeight: 850, fontVariantNumeric: "tabular-nums" }}>
+                {islemTarihi ? islemTarihi.baslik : "BIST duyurusu bekleniyor"}
+              </span>
+            </span>
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, borderRadius: 999, padding: "6px 10px", background: islemTarihi ? "rgba(251,191,36,0.12)" : "rgba(148,163,184,0.07)", color: islemTarihi ? "#FCD34D" : "#94A3B8", fontSize: 11.5, fontWeight: 850, whiteSpace: "nowrap" }}>
+            {islemTarihi ? `${islemTarihi.alt} · ${islemTarihi.kalan}` : "Tarih netleşince güncellenecek"}
+          </span>
+        </div>
+      )}
     </Link>
   );
 }

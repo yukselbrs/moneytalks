@@ -351,6 +351,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
     araci_sayfa: "Halka Arz Bilgileri",
     sirket_sayfasi: "Şirket Sayfası",
     basvuru_yerleri: "Başvuru Yerleri",
+    islem_tarihi: "İlk İşlem Tarihi",
     spk_haber: "SPK Onayı",
     kap: "KAP Bildirimi",
   };
