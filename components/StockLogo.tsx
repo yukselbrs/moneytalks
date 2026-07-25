@@ -64,7 +64,10 @@ export default function StockLogo({
           alt={`${ticker} logo`}
           width={hasNeutralPlate ? domainImageSize : resolvedImageSize}
           height={hasNeutralPlate ? domainImageSize : resolvedImageSize}
-          unoptimized
+          // Acik logoUrl'i (uzak host) next/image proxy'siyle SAME-ORIGIN servis et (server-fetch,
+          // Vercel cache) — client cross-origin/referer takintilarini asar. Diger kaynaklar (data:,
+          // favicon) unoptimized kalir.
+          unoptimized={!(logoUrl && logoUrl === src && /^https?:\/\//.test(logoUrl))}
           style={{
             width: hasNeutralPlate ? domainImageSize : resolvedImageSize,
             height: hasNeutralPlate ? domainImageSize : resolvedImageSize,
