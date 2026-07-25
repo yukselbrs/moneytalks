@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
-import { CalendarDays, Clock3 } from "lucide-react";
 
 type ArzOzet = {
   kod: string;
@@ -100,6 +99,21 @@ function DurumRozet({ durum, yeni, talepBaslangic, simdiMs }: { durum: ArzOzet["
 function ArzKart({ arz, simdiMs }: { arz: ArzOzet; simdiMs: number }) {
   const yeni = simdiMs - new Date(arz.created_at).getTime() < 3 * 86400_000;
   const islemTarihi = islemTarihiOzet(arz.islem_tarihi, simdiMs);
+  const ozetAlanlar = [
+    { l: "Halka Arz Fiyatı", v: fiyatMetni(arz.fiyat, arz.fiyat_ust), vurgu: true },
+    { l: "Talep Tarihleri", v: tarihAraligi(arz.talep_baslangic, arz.talep_bitis) },
+    { l: "Büyüklük", v: buyuklukMetni(arz.buyukluk) },
+    { l: "Dağıtım", v: arz.dagitim_yontemi || "—" },
+    ...(arz.durum === "arz_tamamlandi"
+      ? [{
+          l: "İlk İşlem",
+          v: islemTarihi ? islemTarihi.baslik : "BIST duyurusu bekleniyor",
+          alt: islemTarihi ? `${islemTarihi.alt} · ${islemTarihi.kalan}` : "Tarih netleşince güncellenecek",
+          vurgu: Boolean(islemTarihi),
+          islem: true,
+        }]
+      : []),
+  ];
   return (
     <Link href={`/halka-arz/${arz.kod}`} className="card-glass" style={{ display: "block", borderRadius: 14, padding: "16px 18px", textDecoration: "none", transition: "border-color 0.15s" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
@@ -118,36 +132,14 @@ function ArzKart({ arz, simdiMs }: { arz: ArzOzet; simdiMs: number }) {
         <DurumRozet durum={arz.durum} yeni={yeni} talepBaslangic={arz.talep_baslangic} simdiMs={simdiMs} />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
-        {[
-          { l: "Halka Arz Fiyatı", v: fiyatMetni(arz.fiyat, arz.fiyat_ust), vurgu: true },
-          { l: "Talep Tarihleri", v: tarihAraligi(arz.talep_baslangic, arz.talep_bitis) },
-          { l: "Büyüklük", v: buyuklukMetni(arz.buyukluk) },
-          { l: "Dağıtım", v: arz.dagitim_yontemi || "—" },
-        ].map((c) => (
+        {ozetAlanlar.map((c) => (
           <div key={c.l}>
             <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>{c.l}</p>
-            <p style={{ margin: "3px 0 0", fontSize: 13, fontWeight: c.vurgu ? 800 : 600, color: c.vurgu ? "#F8FAFC" : "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>{c.v}</p>
+            <p style={{ margin: "3px 0 0", fontSize: 13, fontWeight: c.vurgu ? 800 : 600, color: c.islem ? (islemTarihi ? "#FCD34D" : "#CBD5E1") : c.vurgu ? "#F8FAFC" : "#CBD5E1", fontVariantNumeric: "tabular-nums" }}>{c.v}</p>
+            {c.alt && <p style={{ margin: "2px 0 0", fontSize: 10.5, color: islemTarihi ? "#FBBF24" : "#64748B", fontWeight: 700 }}>{c.alt}</p>}
           </div>
         ))}
       </div>
-      {arz.durum === "arz_tamamlandi" && (
-        <div style={{ marginTop: 14, borderRadius: 12, border: "1px solid rgba(245,158,11,0.18)", background: "linear-gradient(135deg, rgba(245,158,11,0.11), rgba(59,130,246,0.05))", padding: "11px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-            <span style={{ width: 38, height: 38, borderRadius: 10, background: islemTarihi ? "rgba(245,158,11,0.16)" : "rgba(148,163,184,0.09)", border: `1px solid ${islemTarihi ? "rgba(245,158,11,0.24)" : "rgba(148,163,184,0.12)"}`, display: "inline-flex", alignItems: "center", justifyContent: "center", color: islemTarihi ? "#FBBF24" : "#94A3B8", flexShrink: 0 }}>
-              {islemTarihi ? <CalendarDays size={18} /> : <Clock3 size={18} />}
-            </span>
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 10, color: "#64748B", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>İlk İşlem Günü</span>
-              <span style={{ display: "block", marginTop: 2, fontSize: 13.5, color: "#E2E8F0", fontWeight: 850, fontVariantNumeric: "tabular-nums" }}>
-                {islemTarihi ? islemTarihi.baslik : "BIST duyurusu bekleniyor"}
-              </span>
-            </span>
-          </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, borderRadius: 999, padding: "6px 10px", background: islemTarihi ? "rgba(251,191,36,0.12)" : "rgba(148,163,184,0.07)", color: islemTarihi ? "#FCD34D" : "#94A3B8", fontSize: 11.5, fontWeight: 850, whiteSpace: "nowrap" }}>
-            {islemTarihi ? `${islemTarihi.alt} · ${islemTarihi.kalan}` : "Tarih netleşince güncellenecek"}
-          </span>
-        </div>
-      )}
     </Link>
   );
 }
