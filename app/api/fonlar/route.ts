@@ -14,7 +14,11 @@ const supabase = createClient(
 const SAYFA_BOYUTU = 25;
 const LIVE_CACHE_TTL_MS = 60 * 60 * 1000;
 const SUPABASE_PAGE_SIZE = 1000;
-const MIN_SNAPSHOT_ROWS = 2100;
+// Snapshot'in EKSIK/yarim yazilmadigini dogrulamak icin taban satir sayisi. TEFAS fon evreni
+// zamanla degisir (kapali fonlar cikar); 2100 fazla katiydi (evren 2035'e inince tum istekler
+// yavas canli TEFAS scrape'ine dusup fon sayfasini kilitliyordu). Kalite zaten priced>=900 &
+// returnRows>=900 ile ayrica dogrulaniyor; bu esik yalnizca ciddi eksik snapshot'a karsi taban.
+const MIN_SNAPSHOT_ROWS = 1500;
 
 let liveFallbackCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
 
