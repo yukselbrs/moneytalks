@@ -142,7 +142,6 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
   const max = 2_500_000;
   const step = 50_000;
   const sliderPct = ((katilim - min) / (max - min)) * 100;
-  const presetler = [150_000, 250_000, 500_000, 700_000, 1_100_000, 1_600_000, 2_200_000];
 
   if (dagitilacakLot === null || tahminiLot === null) {
     return (
@@ -173,8 +172,8 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
         .ipo-range::-webkit-slider-runnable-track {
           height: 7px;
           border-radius: 999px;
-          border: 1px solid rgba(148,163,184,0.16);
-          background: linear-gradient(90deg, #60A5FA 0 var(--pct), rgba(148,163,184,0.16) var(--pct) 100%);
+          border: 1px solid rgba(167,139,250,0.16);
+          background: linear-gradient(90deg, #8B5CF6 0 var(--pct), rgba(148,163,184,0.14) var(--pct) 100%);
           box-shadow: inset 0 1px 1px rgba(2,6,23,0.35);
         }
         .ipo-range::-webkit-slider-thumb {
@@ -184,55 +183,31 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
           height: 19px;
           margin-top: -7px;
           border-radius: 999px;
-          border: 2px solid #DBEAFE;
-          background: #2563EB;
-          box-shadow: 0 3px 10px rgba(2,6,23,0.42);
+          border: 2px solid #DDD6FE;
+          background: #7C3AED;
+          box-shadow: 0 3px 10px rgba(2,6,23,0.42), 0 0 0 4px rgba(139,92,246,0.10);
         }
         .ipo-range::-moz-range-track {
           height: 7px;
           border-radius: 999px;
-          border: 1px solid rgba(148,163,184,0.16);
-          background: linear-gradient(90deg, #60A5FA 0 var(--pct), rgba(148,163,184,0.16) var(--pct) 100%);
+          border: 1px solid rgba(167,139,250,0.16);
+          background: linear-gradient(90deg, #8B5CF6 0 var(--pct), rgba(148,163,184,0.14) var(--pct) 100%);
         }
         .ipo-range::-moz-range-thumb {
           width: 15px;
           height: 15px;
           border-radius: 999px;
-          border: 2px solid #DBEAFE;
-          background: #2563EB;
-          box-shadow: 0 3px 10px rgba(2,6,23,0.42);
-        }
-        .ipo-preset {
-          border: 1px solid rgba(148,163,184,0.12);
-          border-radius: 999px;
-          background: transparent;
-          color: #64748B;
-          padding: 5px 8px;
-          font-size: 10.5px;
-          font-weight: 750;
-          cursor: pointer;
-          font-family: inherit;
-          white-space: nowrap;
-          transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
-        }
-        .ipo-preset:hover {
-          color: #BFDBFE;
-          border-color: rgba(96,165,250,0.30);
-          background: rgba(59,130,246,0.07);
-        }
-        .ipo-preset-active {
-          color: #DBEAFE;
-          border-color: rgba(96,165,250,0.46);
-          background: rgba(59,130,246,0.12);
+          border: 2px solid #DDD6FE;
+          background: #7C3AED;
+          box-shadow: 0 3px 10px rgba(2,6,23,0.42), 0 0 0 4px rgba(139,92,246,0.10);
         }
       `}</style>
       <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahmini">
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", flexWrap: "wrap" }}>
             <p style={{ margin: 0, fontSize: 12, color: "#94A3B8", fontWeight: 800 }}>Katılım Sayısı</p>
-            <p style={{ margin: 0, color: "#F8FAFC", fontSize: 20, fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>
+            <p style={{ margin: 0, color: "#EDE9FE", fontSize: 20, fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>
               {katilimMetni(katilim)}
-              <span style={{ marginLeft: 8, color: "#64748B", fontSize: 11, fontWeight: 700 }}>{katilim.toLocaleString("tr-TR")} kişi</span>
             </p>
           </div>
 
@@ -251,22 +226,9 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
             <span>100 Bin</span>
             <span>2,5 Milyon</span>
           </div>
-
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 11 }}>
-            {presetler.map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                className={`ipo-preset ${preset === katilim ? "ipo-preset-active" : ""}`}
-                onClick={() => setKatilim(preset)}
-              >
-                {katilimMetni(preset)}
-              </button>
-            ))}
-          </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 0, marginTop: 15, borderTop: "1px solid rgba(148,163,184,0.10)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 0, marginTop: 16, borderTop: "1px solid rgba(167,139,250,0.10)" }}>
           {[
             { l: "Tahmini Lot", v: `${tahminiLot.toLocaleString("tr-TR")} Lot`, vurgu: true },
             { l: "Yaklaşık Tutar", v: tahminiTutar !== null ? tlKisa(tahminiTutar) : "—", vurgu: true },
