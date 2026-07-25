@@ -159,48 +159,30 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
 
   return (
     <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahmini">
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "center" }}>
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 9 }}>
-            <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 750 }}>Katılım Sayısı</span>
-            <span style={{ fontSize: 13, color: "#F8FAFC", fontWeight: 850, fontVariantNumeric: "tabular-nums" }}>{katilimMetni(katilim)}</span>
-          </div>
-          <input
-            aria-label="Katılım sayısı"
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={katilim}
-            onChange={(event) => setKatilim(Number(event.target.value))}
-            style={{
-              width: "100%",
-              accentColor: "#3B82F6",
-              background: `linear-gradient(90deg, #3B82F6 ${sliderPct}%, rgba(148,163,184,0.16) ${sliderPct}%)`,
-              cursor: "pointer",
-            }}
-          />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7, color: "#475569", fontSize: 10.5 }}>
-            <span>100 Bin</span>
-            <span>2,5 Milyon</span>
-          </div>
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 9 }}>
+          <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 750 }}>Katılım Sayısı</span>
+          <span style={{ fontSize: 13, color: "#F8FAFC", fontWeight: 850, fontVariantNumeric: "tabular-nums" }}>{katilimMetni(katilim)}</span>
         </div>
-
-        <label style={{ display: "grid", gap: 6 }}>
-          <span style={{ fontSize: 10, color: "#475569", fontWeight: 800, letterSpacing: "0.3px", textTransform: "uppercase" }}>Manuel Katılım</span>
-          <input
-            type="number"
-            min={min}
-            max={max}
-            step={step}
-            value={katilim}
-            onChange={(event) => {
-              const next = Number(event.target.value);
-              if (Number.isFinite(next)) setKatilim(Math.min(max, Math.max(min, next)));
-            }}
-            style={{ width: "100%", boxSizing: "border-box", border: "1px solid rgba(148,163,184,0.16)", borderRadius: 10, background: "rgba(15,23,42,0.76)", color: "#E2E8F0", padding: "9px 10px", fontSize: 13, fontWeight: 760, fontVariantNumeric: "tabular-nums" }}
-          />
-        </label>
+        <input
+          aria-label="Katılım sayısı"
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={katilim}
+          onChange={(event) => setKatilim(Number(event.target.value))}
+          style={{
+            width: "100%",
+            accentColor: "#3B82F6",
+            background: `linear-gradient(90deg, #3B82F6 ${sliderPct}%, rgba(148,163,184,0.16) ${sliderPct}%)`,
+            cursor: "pointer",
+          }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7, color: "#475569", fontSize: 10.5 }}>
+          <span>100 Bin</span>
+          <span>2,5 Milyon</span>
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginTop: 15 }}>
