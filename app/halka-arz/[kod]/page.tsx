@@ -161,109 +161,79 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
   return (
     <>
       <style>{`
-        .ipo-range-panel {
-          position: relative;
-          overflow: hidden;
-          border: 1px solid rgba(59,130,246,0.20);
-          border-radius: 14px;
-          padding: 16px;
-          background:
-            radial-gradient(circle at 18% 0%, rgba(59,130,246,0.18), transparent 34%),
-            linear-gradient(180deg, rgba(15,23,42,0.88), rgba(8,13,24,0.78));
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 18px 42px rgba(2,6,23,0.20);
-        }
-        .ipo-range-panel::before {
-          content: "";
-          position: absolute;
-          left: 16px;
-          right: 16px;
-          top: 72px;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(147,197,253,0.55), transparent);
-          opacity: 0.45;
-        }
         .ipo-range {
-          position: relative;
-          z-index: 1;
           width: 100%;
-          height: 34px;
-          margin: 8px 0 0;
+          height: 26px;
+          margin: 10px 0 0;
           appearance: none;
           -webkit-appearance: none;
           background: transparent;
           cursor: pointer;
         }
         .ipo-range::-webkit-slider-runnable-track {
-          height: 12px;
+          height: 7px;
           border-radius: 999px;
-          border: 1px solid rgba(147,197,253,0.22);
-          background:
-            linear-gradient(90deg, #38BDF8 0 var(--pct), rgba(15,23,42,0.96) var(--pct) 100%),
-            linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0));
-          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.035), 0 0 28px rgba(59,130,246,0.18);
+          border: 1px solid rgba(148,163,184,0.16);
+          background: linear-gradient(90deg, #60A5FA 0 var(--pct), rgba(148,163,184,0.16) var(--pct) 100%);
+          box-shadow: inset 0 1px 1px rgba(2,6,23,0.35);
         }
         .ipo-range::-webkit-slider-thumb {
           appearance: none;
           -webkit-appearance: none;
-          width: 28px;
-          height: 28px;
-          margin-top: -9px;
+          width: 19px;
+          height: 19px;
+          margin-top: -7px;
           border-radius: 999px;
-          border: 3px solid #EFF6FF;
-          background: radial-gradient(circle at 35% 30%, #FFFFFF, #93C5FD 46%, #2563EB);
-          box-shadow: 0 0 0 7px rgba(59,130,246,0.13), 0 0 24px rgba(56,189,248,0.58), 0 7px 18px rgba(2,6,23,0.48);
+          border: 2px solid #DBEAFE;
+          background: #2563EB;
+          box-shadow: 0 3px 10px rgba(2,6,23,0.42);
         }
         .ipo-range::-moz-range-track {
-          height: 12px;
+          height: 7px;
           border-radius: 999px;
-          border: 1px solid rgba(147,197,253,0.22);
-          background: linear-gradient(90deg, #38BDF8 0 var(--pct), rgba(15,23,42,0.96) var(--pct) 100%);
+          border: 1px solid rgba(148,163,184,0.16);
+          background: linear-gradient(90deg, #60A5FA 0 var(--pct), rgba(148,163,184,0.16) var(--pct) 100%);
         }
         .ipo-range::-moz-range-thumb {
-          width: 22px;
-          height: 22px;
+          width: 15px;
+          height: 15px;
           border-radius: 999px;
-          border: 3px solid #EFF6FF;
-          background: #60A5FA;
-          box-shadow: 0 0 0 7px rgba(59,130,246,0.13), 0 0 24px rgba(56,189,248,0.58);
+          border: 2px solid #DBEAFE;
+          background: #2563EB;
+          box-shadow: 0 3px 10px rgba(2,6,23,0.42);
         }
         .ipo-preset {
-          border: 1px solid rgba(148,163,184,0.13);
+          border: 1px solid rgba(148,163,184,0.12);
           border-radius: 999px;
-          background: rgba(15,23,42,0.62);
+          background: transparent;
           color: #64748B;
-          padding: 6px 9px;
-          font-size: 11px;
-          font-weight: 800;
+          padding: 5px 8px;
+          font-size: 10.5px;
+          font-weight: 750;
           cursor: pointer;
           font-family: inherit;
           white-space: nowrap;
-          transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+          transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
         }
         .ipo-preset:hover {
-          color: #DBEAFE;
-          border-color: rgba(96,165,250,0.38);
-          background: rgba(59,130,246,0.10);
-          transform: translateY(-1px);
+          color: #BFDBFE;
+          border-color: rgba(96,165,250,0.30);
+          background: rgba(59,130,246,0.07);
         }
         .ipo-preset-active {
-          color: #EFF6FF;
-          border-color: rgba(56,189,248,0.60);
-          background: linear-gradient(135deg, rgba(59,130,246,0.26), rgba(20,184,166,0.14));
-          box-shadow: 0 0 18px rgba(59,130,246,0.18);
+          color: #DBEAFE;
+          border-color: rgba(96,165,250,0.46);
+          background: rgba(59,130,246,0.12);
         }
       `}</style>
       <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahmini">
-        <div className="ipo-range-panel">
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 8, flexWrap: "wrap" }}>
-            <div>
-              <p style={{ margin: 0, fontSize: 10, color: "#64748B", fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase" }}>Katılım Sayısı</p>
-              <p style={{ margin: "4px 0 0", color: "#E2E8F0", fontSize: 12, fontWeight: 700 }}>Bireysel dağıtım senaryosu</p>
-            </div>
-            <div style={{ minWidth: 128, textAlign: "right" }}>
-              <p style={{ margin: 0, color: "#F8FAFC", fontSize: 24, fontWeight: 900, letterSpacing: "-0.3px", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{katilimMetni(katilim)}</p>
-              <p style={{ margin: "4px 0 0", color: "#60A5FA", fontSize: 11, fontWeight: 800 }}>{katilim.toLocaleString("tr-TR")} kişi</p>
-            </div>
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", flexWrap: "wrap" }}>
+            <p style={{ margin: 0, fontSize: 12, color: "#94A3B8", fontWeight: 800 }}>Katılım Sayısı</p>
+            <p style={{ margin: 0, color: "#F8FAFC", fontSize: 20, fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>
+              {katilimMetni(katilim)}
+              <span style={{ marginLeft: 8, color: "#64748B", fontSize: 11, fontWeight: 700 }}>{katilim.toLocaleString("tr-TR")} kişi</span>
+            </p>
           </div>
 
           <input
@@ -277,12 +247,12 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
             onChange={(event) => setKatilim(Number(event.target.value))}
             style={{ "--pct": `${sliderPct}%` } as React.CSSProperties}
           />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, color: "#475569", fontSize: 10.5 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3, color: "#475569", fontSize: 10.5 }}>
             <span>100 Bin</span>
             <span>2,5 Milyon</span>
           </div>
 
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 13 }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 11 }}>
             {presetler.map((preset) => (
               <button
                 key={preset}
@@ -296,16 +266,16 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginTop: 15 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 0, marginTop: 15, borderTop: "1px solid rgba(148,163,184,0.10)" }}>
           {[
             { l: "Tahmini Lot", v: `${tahminiLot.toLocaleString("tr-TR")} Lot`, vurgu: true },
             { l: "Yaklaşık Tutar", v: tahminiTutar !== null ? tlKisa(tahminiTutar) : "—", vurgu: true },
             { l: "Bireysel Tahsis", v: bireyselOran !== null ? `%${bireyselOran.toLocaleString("tr-TR")}` : "—" },
             { l: "Dağıtıma Esas Lot", v: `${dagitilacakLot.toLocaleString("tr-TR")} Lot` },
           ].map((c) => (
-            <div key={c.l} style={{ border: "1px solid rgba(148,163,184,0.10)", borderRadius: 11, background: "rgba(15,23,42,0.46)", padding: 12, minHeight: 74 }}>
+            <div key={c.l} style={{ padding: "13px 12px 4px 0", minHeight: 58 }}>
               <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 800, letterSpacing: "0.3px", textTransform: "uppercase" }}>{c.l}</p>
-              <p style={{ margin: "5px 0 0", fontSize: c.vurgu ? 18 : 13, fontWeight: c.vurgu ? 900 : 760, color: c.vurgu ? "#F8FAFC" : "#CBD5E1", fontVariantNumeric: "tabular-nums", lineHeight: 1.15 }}>{c.v}</p>
+              <p style={{ margin: "5px 0 0", fontSize: c.vurgu ? 17 : 13, fontWeight: c.vurgu ? 900 : 760, color: c.vurgu ? "#F8FAFC" : "#CBD5E1", fontVariantNumeric: "tabular-nums", lineHeight: 1.15 }}>{c.v}</p>
             </div>
           ))}
         </div>
