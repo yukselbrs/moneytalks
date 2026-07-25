@@ -129,6 +129,53 @@ function BilgiBlok({ baslik, children }: { baslik: string; children: React.React
   );
 }
 
+function basvuruYerleriListesi(value: string | null): string[] {
+  if (!value) return [];
+  return value
+    .split(/\n|;|\s+·\s+/)
+    .map((item) => item.replace(/^[-*•]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function BasvuruYerleriBlok({ basvuruYerleri }: { basvuruYerleri: string }) {
+  const [acik, setAcik] = useState(false);
+  const kurumlar = basvuruYerleriListesi(basvuruYerleri);
+  const gorunenKurumlar = acik ? kurumlar : kurumlar.slice(0, 18);
+  const kalan = kurumlar.length - gorunenKurumlar.length;
+
+  if (!kurumlar.length) return null;
+
+  return (
+    <BilgiBlok baslik="Katılım Yapılabilecek Kurumlar">
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+        <p style={{ margin: 0, fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>
+          Halka arz talebi girilebilen banka ve aracı kurumlar.
+        </p>
+        <span style={{ fontSize: 11, fontWeight: 800, color: "#A78BFA", background: "rgba(139,92,246,0.10)", border: "1px solid rgba(139,92,246,0.22)", borderRadius: 999, padding: "5px 9px", whiteSpace: "nowrap" }}>
+          {kurumlar.length} kurum
+        </span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8 }}>
+        {gorunenKurumlar.map((kurum) => (
+          <div key={kurum} style={{ border: "1px solid rgba(148,163,184,0.09)", borderRadius: 8, background: "rgba(15,23,42,0.34)", padding: "8px 10px", minHeight: 36, display: "flex", alignItems: "center" }}>
+            <span style={{ width: 6, height: 6, borderRadius: 999, background: "#8B5CF6", boxShadow: "0 0 0 3px rgba(139,92,246,0.10)", marginRight: 9, flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: "#CBD5E1", lineHeight: 1.35 }}>{kurum}</span>
+          </div>
+        ))}
+      </div>
+      {kalan > 0 || acik ? (
+        <button
+          type="button"
+          onClick={() => setAcik((onceki) => !onceki)}
+          style={{ marginTop: 12, background: "transparent", border: "1px solid rgba(139,92,246,0.24)", borderRadius: 8, color: "#A78BFA", fontSize: 12, fontWeight: 800, padding: "8px 11px", cursor: "pointer", fontFamily: "inherit" }}
+        >
+          {acik ? "Listeyi kısalt" : `${kalan} kurumu daha göster`}
+        </button>
+      ) : null}
+    </BilgiBlok>
+  );
+}
+
 function DagitimTahminAraci({ arz }: { arz: Arz }) {
   const [katilim, setKatilim] = useState(500_000);
   const bireyselGrup = arz.tahsisat_gruplari?.find((t) => t.grup.toLocaleLowerCase("tr").includes("bireysel"));
@@ -303,6 +350,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
     fiyat_tespit: "Fiyat Tespit Raporu",
     araci_sayfa: "Halka Arz Bilgileri",
     sirket_sayfasi: "Şirket Sayfası",
+    basvuru_yerleri: "Başvuru Yerleri",
     spk_haber: "SPK Onayı",
     kap: "KAP Bildirimi",
   };
@@ -452,11 +500,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
                 </BilgiBlok>
               )}
 
-              {arz.basvuru_yerleri && (
-                <BilgiBlok baslik="Başvuru Yerleri">
-                  <p style={{ margin: 0, fontSize: 13, color: "#CBD5E1", lineHeight: 1.7 }}>{arz.basvuru_yerleri}</p>
-                </BilgiBlok>
-              )}
+              {arz.basvuru_yerleri && <BasvuruYerleriBlok basvuruYerleri={arz.basvuru_yerleri} />}
 
               {Object.keys(linkler).length > 0 && (
                 <p style={{ margin: "4px 0 0", fontSize: 11, color: "#475569", lineHeight: 1.8 }}>
