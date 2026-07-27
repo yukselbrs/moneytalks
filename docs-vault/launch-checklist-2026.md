@@ -1,139 +1,131 @@
 # ParaKonuşur — Launch Checklist 2026
 
-**Hedef:** ~9 Ağustos 2026 (15 gün) · **Kapsam:** Site launch'ta TAMAMEN ÜCRETSİZ · **Pro/premium KAPSAM DIŞI** ("Çok Yakında" olarak işaretlenecek, ödeme akışına GÖTÜRMEYECEK) · **Veri:** mevcut kaynaklarla çıkılıyor (resmi BIST/MKK lisansı önkoşul değil)
+**Hedef:** ~9 Ağustos 2026 (15 gün) · **Kapsam:** Launch'ta site TAMAMEN ÜCRETSİZ · **Pro/premium KAPSAM DIŞI** ("Çok Yakında") · **Veri:** mevcut kaynaklarla (resmi BIST/MKK lisansı önkoşul değil)
 
 ---
 
-## 🚦 LAUNCH DURUMU (25 Tem 2026, 02:1x)
+## 🚦 LAUNCH DURUMU (25 Tem 2026)
 
 | | Açık | Kapandı | Toplam |
 |---|---|---|---|
 | 🔴 **BLOCKER** | **1** | 2 | 3 |
-| 🟠 **MAJOR** | **3** | 1 | 4 |
+| 🟠 **MAJOR** | **5** | 3 | 8 |
 | 🟡 MINOR | 4 | 0 | 4 |
 
-**Test edilen madde:** 14 / ~95 · **Kalan fazlar:** 2, 3, 4, 6, 7, 8 (+5'in bir kısmı)
+**Test edilen madde:** 19 / ~95 · **Kalan fazlar:** 2 (2.13 hariç), 3, 4, 6 (kısmi), 7 (kısmi), 8
 
 ### ⛔ Launch için önce şunlar kapatılmalı
-1. **[BLOCKER-3] Test kullanıcıları production DB'de** — `pk-test-a@example.com`, `pk-test-b@example.com` (bu denetim için oluşturuldu). Launch öncesi SİLİNMELİ + oluşturdukları portfoy/watchlist satırları temizlenmeli.
-2. **[MAJOR-2] Yahoo Finance tek nokta bağımlılığı** — Barış'ın karar vermesi gereken risk (aşağıda FAZ 1.2).
-3. **[MAJOR-3] Sentry DSN + uptime monitoring kurulu değil** (paket var, config yok).
-4. **[MAJOR-4] Supabase "leaked password protection" kapalı** — Barış dashboard'dan açmalı (1 dk).
+
+| # | Madde | Kim | Süre |
+|---|---|---|---|
+| 🔴 **B-3** | **Test kullanıcılarını sil**: `pk-test-a@example.com`, `pk-test-b@example.com` + B'nin portfoy/watchlist satırları (bu denetim için prod DB'de oluşturuldu) | Claude (sonraki oturum) | 2 dk |
+| 🟠 **M-4** | **Yahoo Finance tek-nokta bağımlılığı** — risk kabul mü, ikincil kaynak mı? | **Barış kararı** | — |
+| 🟠 **M-5** | **Sentry DSN + uptime monitoring** (paket var, config yok) | Barış + Claude | 30 dk |
+| 🟠 **M-6** | **Supabase "leaked password protection"** kapalı → Dashboard → Auth → Password | **Barış** | 1 dk |
+| 🟠 **M-7** | **Cloudflare purge stratejisi** kurulu/test edilmiş değil | Barış + Claude | 20 dk |
+| 🟠 **M-8** | Uygulama içi sayfalarda footer/yasal link yok (yalnız landing + dashboard'da var) | Claude/Kaan | 20 dk |
 
 ---
 
 ## FAZ 0 — Resume protokolü ✅
 
-- [x] Bu dosya oluşturuldu · **Geçti** · —
-- [x] Geçmiş log taraması (84 md dosyası) · **Geçti** · — · Bulgular aşağıdaki tabloda
+- [x] Bu dosya oluşturuldu · **Geçti**
+- [x] 84 vault dosyası tarandı, gerçek durum kod/DB ile doğrulandı · **Geçti**
 
-### Geçmiş log durumu (gerçek kod/DB doğrulamasıyla)
+### Geçmiş log durumu (yazan ≠ gerçek olanlar işaretli)
 
-| Log | Yazan durum | GERÇEK durum | Aksiyon |
+| Log | Yazan | GERÇEK | Aksiyon |
 |---|---|---|---|
-| hisse-denetim-halka-arz-takvimi-log | TAMAMLANDI | ✅ Doğru (prod'da 614 hisse, halka arz canlı) | — |
-| doviz-kiymetli-maden-implementasyon-log | TAMAMLANDI | ✅ Doğru (16/16 enstrüman canlı) | — |
-| bilanco-kap-haberleri-implementasyon-log | TAMAMLANDI | ✅ Doğru (8 çeyrek, KAP canlı) | — |
-| kap-ucretsiz-kaynak-uygulama | prod'da | ✅ Doğru (tek kaynak kap.org.tr, VYK yok) | FAZ 1.1'de teyit |
-| cok-varlik-portfoy-izleme-entegrasyon | "watchlist migration Barış'ta" | ✅ **Migration çalışmış** (watchlist.tur + unique idx var) | Log güncellenecek |
-| track1-gorev2-cron-secret-rotasyonu | "secret güncellemesi bekliyor" | ✅ **Çözüldü** (24 Tem: cron'lar yazıyor) | — |
-| track1-gorev3-rate-limit-supabase | "migration bekliyor" | ✅ **Uygulanmış** (rate_limits + RPC canlı) | — |
-| track1-gorev4-rls-audit | "grant SQL bekliyor" | ✅ **Uygulanmış** (profiles email kolon-kısıtlı) | Bu denetimde daha da sıkılaştırıldı |
-| faz4-gorev7-gozlemlenebilirlik | "Sentry DSN Barış'ta" | ⚠️ **Hâlâ açık** → MAJOR-3 | FAZ 7.4 |
-| faz4-gorev16-web-push | ERTELENDİ | Kapsam dışı (launch'ı engellemez) | MINOR |
-| faz4-gorev21-fon-karnesi | Kısmen | Şema var, UI yok — kapsam dışı | MINOR |
-| faz4-gorev22-dalga5 | ERTELENDİ | Kapsam dışı | — |
-| faz4-alarm-cron-donduruldu | "Aktif kısıt" | ⚠️ Bayat — dondurma 16 Tem'de kalktı | Log düzeltilecek |
-| kiymetli-madenler-plan / viop-*-plani | PLAN | ✅ Hepsi uygulandı (maden-v1, viop-nedir canlı) | — |
+| hisse-denetim-halka-arz-takvimi | TAMAMLANDI | ✅ Doğru | — |
+| doviz-kiymetli-maden | TAMAMLANDI | ✅ Doğru (16/16 canlı) | — |
+| bilanco-kap-haberleri | TAMAMLANDI | ✅ Doğru | — |
+| kap-ucretsiz-kaynak | prod'da | ✅ Doğru (tek kaynak, flag yok) | — |
+| **cok-varlik-portfoy-izleme** | "migration Barış'ta" | ✅ **Çalışmış** | Log düzeltildi ✓ |
+| **track1-gorev2-cron-secret** | "secret bekliyor" | ✅ **Çözüldü** | — |
+| **track1-gorev3-rate-limit** | "migration bekliyor" | ✅ **Uygulanmış** | — |
+| **track1-gorev4-rls-audit** | "grant bekliyor" | ✅ **Uygulanmış** | Bu denetimde daha da sıkıldı |
+| **faz4-alarm-cron-donduruldu** | "Aktif kısıt" | ⚠️ **Bayat** (16 Tem'de kalktı) | Log düzeltildi ✓ |
+| faz4-gorev7-gozlemlenebilirlik | "Sentry Barış'ta" | ⚠️ Hâlâ açık | → M-5 |
+| faz4-gorev16 / 21 / 22 | ERTELENDİ/Kısmen | Kapsam dışı | MINOR |
+| kiymetli-madenler / viop planları | PLAN | ✅ Hepsi uygulandı | — |
 
 ---
 
-## FAZ 1 — Geçmiş iş durumu doğrulaması 🔄
+## FAZ 1 — Geçmiş iş doğrulaması ✅ (1.1b hariç)
 
-- [x] **1.1a CRON_SECRET rotasyonu** · **Geçti** · — · GitHub secret güncel; 24-25 Tem'de tüm zamanlanmış cron'lar yazıyor (hisse/enstruman/KAP/bilanço/fon/halka-arz).
-- [ ] **1.1b Cloudflare cache purge stratejisi** · **Test Edilmedi** · MAJOR
-- [x] **1.1c KAP production endpoint** · **Geçti** · — · Feature-flag YOK; tek kaynak `kap.org.tr` açık JSON API (VYK/demo tamamen kaldırılmış). Prod'da bildirimler akıyor (1064 satır).
-- [ ] **1.2 Yahoo Finance bağımlılığı** · **Kısmen** · **MAJOR-2** · Hisse fiyat/grafik/getiri/risk, döviz+maden, temettü ve halka arz işlem-sinyali Yahoo'ya bağlı. Bilinen kırılganlık: Vercel IP'sinden **uzun UA ile 429** (kısa UA ile aşıldı — bkz. [[yahoo-vercel-ua]] notu). Yedekler: döviz için Frankfurter fallback var; hisse fiyatı için yedek YOK. **Barış kararı:** launch trafiğinde Yahoo kesintisi = fiyatların durması. Risk kabul edilebilir mi, yoksa ikincil kaynak (Stooq/TradingView) eklensin mi?
-- [x] **1.3 Son modüllerin gerçek durumu** · **Geçti** · — · Yukarıdaki tabloda tek tek doğrulandı (5 modül canlı).
-
----
-
-## FAZ 5 — GÜVENLİK (öncelikli faz) 🔄
-
-- [x] **5.1 Kullanıcı veri izolasyonu (RLS) — fiili test** · **Geçti** · — · İki gerçek test hesabıyla: A, B'nin `portfoy`/`alarmlar`/`watchlist`/`bildirimler`/`analizler`/`risk_profil` satırlarını **göremiyor, silemiyor**; `user_id=eq.B` ile zorlamada da boş. App API route'ları sahte token'a 401. **Sızıntı yok.**
-- [x] **5.1b Anon (girişsiz) erişim** · **BLOCKER — KAPANDI** · 🔴 · **`get_email_by_username` RPC'si anon'a GRANT'liydi: kullanıcı adından E-POSTA dönüyordu** (KVKK + phishing/enumeration). Kanıt: anon çağrısı HTTP 200 + gerçek e-posta. **Düzeltildi** (`efeaa3b`): giriş `/api/giris` ile sunucuya taşındı — e-posta istemciye hiç dönmez, IP başına 10/5dk kaba-kuvvet limiti, "kullanıcı yok" ile "şifre yanlış" aynı mesaj. RPC + 3 fonksiyon `PUBLIC`'ten revoke edildi. Doğrulama: 4/4 anon çağrısı 401.
-- [x] **5.1c Rate limit bypass** · **BLOCKER — KAPANDI** · 🔴 · `rate_limits_temizle()` anon'a açıktı (HTTP 204) → rate limit tablosu dışarıdan silinip **AI limitleri bypass** edilebilirdi (maliyet patlaması). Revoke edildi, doğrulandı.
-- [x] **5.1d profiles aşırı geniş okuma** · **MAJOR — KAPANDI** · 🟠 · Policy `USING (true)` idi: giriş yapmış herkes **27 kullanıcının** username/full_name/avatar'ını okuyabiliyordu. Kendi satırına daraltıldı; müsaitlik kontrolü kişisel veri dönmeyen `username_musait` RPC'sine taşındı. Doğrulama: A artık yalnız 1 profil görüyor.
-- [x] **5.2 Client'ta secret sızıntısı** · **Geçti** · — · `.next/static` içinde SERVICE_ROLE / ANTHROPIC / CRON_SECRET / RESEND anahtarlarının hiçbiri yok (0 dosya).
-- [ ] **5.3 AI/maliyetli endpoint rate limiting** · **Test Edilmedi** · BLOCKER adayı · `/api/analiz` 10/saat + chatbot kotası var görünüyor, fiilen test edilecek.
-- [ ] **5.4 Sayfa yükleme hızı (bilanço/KAP ağır sayfalar)** · **Test Edilmedi** · MAJOR
-- [x] **5.5 Cron'ların prod sağlığı** · **Geçti** · — · 9 workflow, son koşular yeşil; halka-arz cron `hata:0`.
-- [ ] **5.6 Supabase advisor kalan uyarıları** · **Kısmen** · 🟡 MINOR · `function_search_path_mutable` (set_updated_at, sync_portfoy_fiyat); waitlist'te çift INSERT policy; `avatars` bucket listelemeye açık. Hiçbiri veri sızdırmıyor, launch'ı engellemez.
-- [ ] **5.7 Leaked password protection** · **Geçmedi** · 🟠 **MAJOR-4** · Supabase Auth'ta kapalı. **Barış:** Dashboard → Authentication → Password → "Leaked password protection" aç (1 dk).
-- [ ] **5.8 Test kullanıcılarını temizle** · **Geçmedi** · 🔴 **BLOCKER-3** · `pk-test-a@example.com`, `pk-test-b@example.com` prod DB'de + B'nin portfoy/watchlist satırları. Launch öncesi silinecek.
+- [x] **1.1a CRON_SECRET rotasyonu** · **Geçti** · 24-25 Tem'de 9 workflow yeşil, tablolara yazıyor.
+- [ ] **1.1b Cloudflare purge stratejisi** · **Test Edilmedi** · 🟠 **M-7**
+- [x] **1.1c KAP production endpoint** · **Geçti** · Feature-flag YOK; tek kaynak `kap.org.tr` (VYK/demo kaldırılmış), prod'da 1064 bildirim.
+- [x] **1.2 Yahoo bağımlılığı** · **Kısmen** · 🟠 **M-4** · Hisse fiyat/grafik/getiri/risk + döviz/maden + temettü + halka-arz işlem sinyali Yahoo'ya bağlı. Bilinen kırılganlık: Vercel IP'sinden **uzun UA'da 429** (kısa UA ile aşıldı, [[yahoo-vercel-ua]]). Döviz'de Frankfurter yedeği var; **hisse fiyatında yedek YOK** → Yahoo kesilirse fiyatlar durur. **Barış kararı gerekiyor.**
+- [x] **1.3 Son modüllerin gerçek durumu** · **Geçti** · 5 modül canlı doğrulandı.
 
 ---
 
-## FAZ 2 — İşlevsel test (sayfa sayfa) ⏳
+## FAZ 5 — GÜVENLİK (öncelikli) 🔄
 
-- [ ] 2.1 Ana sayfa / landing · **Test Edilmedi**
-- [ ] 2.2 Hisse listesi + tekil hisse (farklı sektörler) · **Test Edilmedi**
-- [ ] 2.3 Döviz ve Kıymetli Maden (9 çift + madenler) · **Test Edilmedi**
-- [ ] 2.4 Bilanço bölümü · **Test Edilmedi**
-- [ ] 2.5 KAP haberleri · **Test Edilmedi**
-- [ ] 2.6 Halka Arz Takvimi (liste + detay) · **Test Edilmedi**
-- [ ] 2.7 AI analiz butonu (her modül; cache + boş veri davranışı) · **Test Edilmedi**
-- [ ] 2.8 Fiyat alarmı kurma · **Test Edilmedi**
-- [ ] 2.9 Portföy ekleme/görüntüleme · **Test Edilmedi**
-- [ ] 2.10 Kayıt / giriş / şifre sıfırlama · **Kısmen** · Giriş akışı bu oturumda değişti (sunucu tarafı) — API seviyesinde 3 senaryo geçti; **UI'dan uçtan uca test edilecek** + kayıt/şifre sıfırlama.
-- [ ] 2.11 Arama/filtreleme · **Test Edilmedi**
-- [ ] 2.12 404 / hata sayfaları · **Test Edilmedi**
-- [ ] 2.13 **Pro/premium referansları** ("Çok Yakında" + ödeme akışına gitmemeli) · **Test Edilmedi** · MAJOR adayı · Tespit: `app/pro`, AppShell'de "Pro'ya Yükselt" kartı, profile/login/chatbot'ta is_pro referansları.
+- [x] **5.1 RLS çapraz-kullanıcı izolasyonu (fiili test)** · **Geçti** · İki gerçek hesap: A, B'nin `portfoy`/`alarmlar`/`watchlist`/`bildirimler`/`analizler`/`risk_profil` satırlarını **göremiyor/silemiyor**; `user_id=eq.B` zorlamasında da boş; app API'leri sahte token'a 401. **Sızıntı yok.**
+- [x] **5.1b Anon e-posta sızıntısı** · 🔴 **BLOCKER — KAPANDI** (`efeaa3b`) · `get_email_by_username` anon'a GRANT'liydi → **girişsiz herkes kullanıcı adından e-posta okuyabiliyordu** (KVKK + phishing). Giriş `/api/giris` ile sunucuya taşındı (e-posta istemciye dönmez, 10/5dk IP limiti, aynı genel hata mesajı). 4/4 anon RPC artık 401.
+- [x] **5.1c Rate limit bypass** · 🔴 **BLOCKER — KAPANDI** (`efeaa3b`) · `rate_limits_temizle()` anon'a açıktı (204) → limit tablosu silinip AI limitleri bypass edilebiliyordu.
+- [x] **5.1d profiles aşırı geniş okuma** · 🟠 **MAJOR — KAPANDI** (`efeaa3b`) · `USING(true)` → 27 kullanıcının username/full_name/avatar'ı okunabiliyordu. Kendi satırına daraltıldı + `username_musait` RPC'si.
+- [x] **5.2 Client'ta secret sızıntısı** · **Geçti** · `.next/static`'te SERVICE_ROLE/ANTHROPIC/CRON_SECRET/RESEND yok (0 dosya).
+- [x] **5.3 AI/maliyetli endpoint rate limiting** · 🟠 **MAJOR — KAPANDI** (`ccfae43`) · `/api/analiz` 10/saat ✓, chatbot 20/dk+kota ✓, doviz-maden/analiz ✓ — ama **`/api/risk-profil` Claude çağırıyordu ve LİMİTSİZDİ**. 10/saat/kullanıcı eklendi; fiili test: 11. istekte 429 ✓.
+- [ ] **5.4 Sayfa yükleme hızı** · **Test Edilmedi** · MAJOR adayı
+- [x] **5.5 Cron prod sağlığı** · **Geçti** · 9 workflow yeşil, halka-arz `hata:0`.
+- [ ] **5.6 Advisor kalan uyarıları** · **Kısmen** · 🟡 MINOR · `function_search_path_mutable` (set_updated_at, sync_portfoy_fiyat); waitlist'te çift INSERT policy; `avatars` bucket listelenebilir. Veri sızdırmıyor.
+- [ ] **5.7 Leaked password protection** · **Geçmedi** · 🟠 **M-6** · Barış: Dashboard → Authentication → Password.
+- [ ] **5.8 Test kullanıcılarını temizle** · **Geçmedi** · 🔴 **B-3**
 
-## FAZ 3 — Tutarlılık ve UX ⏳
-- [ ] 3.1 Terminoloji · 3.2 Görsel tutarlılık · 3.3 Gecikme uyarıları · 3.4 "Yatırım tavsiyesi değildir" · 3.5 Loading state · 3.6 Boş veri · 3.7 Türkçe dil kalitesi — **hepsi Test Edilmedi**
+---
 
-## FAZ 4 — Mobil / cross-browser ⏳
-- [ ] 4.1 Mobil genişlik (tablolar, kartlar) · 4.2 Chrome/Safari/Firefox · 4.3 Dokunma hedefleri — **Test Edilmedi**
+## FAZ 2 — İşlevsel test ⏳
 
-## FAZ 6 — Yasal ⏳
-- [ ] 6.1 KVKK / gizlilik / kullanım şartları (sayfalar var: `/kvkk`, `/gizlilik`, `/kullanim-sartlari`, `/risk-uyarisi`) — footer erişimi + güncellik **Test Edilmedi**
-- [ ] 6.2 Çerez onayı · 6.4 "Yatırım tavsiyesi değildir" görünürlüğü — **Test Edilmedi**
-- [x] 6.3 Ödeme akışı kapsam dışı · **Kapsam Dışı** · Yalnız 2.13 kontrolü yapılacak
+- [x] **2.13 Pro/premium referansları** · **Geçti** (`ccfae43`) · **Ödeme sağlayıcı entegrasyonu HİÇ YOK** (iyzico/stripe/paytr yok) → kırık ödeme akışı riski sıfır. `/pro` zaten "çok yakında + bekleme listesi" sayfası (`/api/waitlist`). 18 CTA metni "Çok Yakında" diline çevrildi (AppShell kartı, profil, login, Pako AI, DashboardAiPanel, HisseChatbot, chatbot kota mesajı, /pro meta).
+- [ ] 2.1 Landing · 2.2 Hisse listesi + tekil hisse · 2.3 Döviz/Maden · 2.4 Bilanço · 2.5 KAP · 2.6 Halka Arz · 2.7 AI analiz (cache/boş veri) · 2.8 Alarm kurma · 2.9 Portföy · 2.11 Arama/filtre · 2.12 404/hata — **Test Edilmedi**
+- [ ] **2.10 Kayıt/giriş/şifre sıfırlama** · **Kısmen** · Giriş akışı bu oturumda **sunucu tarafına taşındı**; API'de 3 senaryo geçti (doğru giriş 200+token, yanlış şifre 401, olmayan kullanıcı aynı 401). **UI'dan uçtan uca test + kayıt + şifre sıfırlama sonraki oturumda.**
 
-## FAZ 7 — SEO ve izlenebilirlik ⏳
-- [ ] 7.1 sitemap.xml (yeni modüller: halka-arz, doviz-maden, fon?) · **Test Edilmedi** · MAJOR adayı
-- [ ] 7.2 robots.txt · 7.3 meta/OG — **Test Edilmedi**
-- [ ] **7.4 Sentry + uptime** · **Geçmedi** · 🟠 **MAJOR-3** · `@sentry/nextjs` paket var ama sentry config dosyası YOK, DSN kurulmamış.
-- [x] 7.5 Analytics · **Geçti** · — · GA4 kurulu (`G-0H2KJGRV6D`, layout.tsx).
+## FAZ 3 — Tutarlılık/UX ⏳ — hepsi Test Edilmedi
+## FAZ 4 — Mobil/cross-browser ⏳ — hepsi Test Edilmedi
+
+## FAZ 6 — Yasal 🔄
+- [x] **6.1 Yasal sayfalar** · **Kısmen** · 🟠 **M-8** · 4 sayfa da mevcut (`/kvkk` 86, `/gizlilik` 74, `/kullanim-sartlari` 71, `/risk-uyarisi` 65 satır) ve `Footer.tsx` + `DashboardFooter.tsx`'te linkli. **Ama footer yalnız landing + dashboard'da render ediliyor** — AppShell'li iç sayfalarda (hisseler, portföy, halka arz…) yasal linke erişim yok.
+- [ ] 6.2 Çerez onayı · 6.4 Disclaimer görünürlüğü — **Test Edilmedi**
+- [x] 6.3 Ödeme akışı · **Kapsam Dışı** (2.13'te doğrulandı)
+
+## FAZ 7 — SEO/izlenebilirlik 🔄
+- [x] **7.1 sitemap.xml** · 🟠 **MAJOR — KAPANDI** (`d61d4bf`) · 2136 URL vardı ama **`/halka-arz` (yeni modül), `/kullanim-sartlari`, `/risk-uyarisi` eksikti**; fon listesi girişi de yoktu. Dördü eklendi, lokal doğrulandı.
+- [x] **7.2 robots.txt** · **Geçti** · `Allow: /`, `/api/ /auth/ /studio/` disallow, sitemap referansı doğru.
+- [ ] 7.3 Meta/OG etiketleri · **Test Edilmedi**
+- [ ] **7.4 Sentry + uptime** · **Geçmedi** · 🟠 **M-5** · `@sentry/nextjs` bağımlılığı var, **config dosyası ve DSN yok**.
+- [x] **7.5 Analytics** · **Geçti** · GA4 kurulu (`G-0H2KJGRV6D`).
 - [ ] 7.6 Resend SPF/DKIM/DMARC + spam testi · **Test Edilmedi** · MAJOR adayı
 
-## FAZ 8 — Launch günü ⏳
-- [ ] 8.1 DB yedekleme · 8.2 Feature flag'ler · 8.3 Vercel/Supabase plan limitleri · 8.4 Favicon/OG görselleri — **Test Edilmedi**
+## FAZ 8 — Launch günü ⏳ — hepsi Test Edilmedi
 
 ---
 
 ## Kapanan bulgular (kanıtlı)
 
-| # | Bulgu | Önem | Commit | Doğrulama |
+| # | Bulgu | Önem | Commit | Kanıt |
 |---|---|---|---|---|
 | 1 | Anon → kullanıcı adından e-posta okuma | 🔴 BLOCKER | `efeaa3b` | anon RPC 401; giriş 3 senaryo geçti; yanıtta e-posta yok |
-| 2 | `rate_limits_temizle` anon'a açık → limit bypass | 🔴 BLOCKER | `efeaa3b` | anon 401 |
-| 3 | profiles `USING(true)` → 27 kullanıcının kişisel verisi | 🟠 MAJOR | `efeaa3b` | A artık 1 profil görüyor; `username_musait` çalışıyor |
+| 2 | `rate_limits_temizle` anon'a açık → AI limit bypass | 🔴 BLOCKER | `efeaa3b` | anon 401 |
+| 3 | profiles `USING(true)` → 27 kullanıcının kişisel verisi | 🟠 MAJOR | `efeaa3b` | A artık yalnız 1 profil görüyor |
+| 4 | `/api/risk-profil` AI çağrısı limitsiz | 🟠 MAJOR | `ccfae43` | 11. istekte 429 |
+| 5 | sitemap'te `/halka-arz` + 2 yasal sayfa eksik | 🟠 MAJOR | `d61d4bf` | lokal sitemap'te 4 yeni URL |
 
 ---
 
 ## ŞU AN NEREDEYİM
 
-**25 Tem 2026 — FAZ 0 bitti, FAZ 5'in güvenlik çekirdeği (5.1/5.2) bitti, FAZ 1 %80.**
+**25 Tem 2026 — FAZ 0 ✅, FAZ 1 ✅ (1.1b hariç), FAZ 5 çekirdeği ✅, FAZ 2.13 ✅, FAZ 7.1/7.2/7.5 ✅.**
 
-Bu oturumda **2 BLOCKER + 1 MAJOR bulundu ve kapatıldı** (hepsi gerçek sızıntıydı, en ciddisi girişsiz kullanıcıların kullanıcı adından e-posta okuyabilmesiydi). RLS çapraz-kullanıcı izolasyonu iki gerçek hesapla test edildi ve **sağlam** çıktı; client bundle'da secret yok.
+Bu oturumda **2 BLOCKER + 3 MAJOR bulundu ve kapatıldı** — hepsi gerçek açıktı, en ciddisi girişsiz kullanıcıların kullanıcı adından e-posta okuyabilmesiydi (KVKK). RLS çapraz-kullanıcı izolasyonu iki gerçek hesapla test edildi: **sağlam**. Ödeme akışı riski yok (sağlayıcı entegrasyonu hiç yok).
 
 **Sonraki oturum sırası:**
-1. **BLOCKER-3**: test kullanıcılarını sil (`pk-test-a/b@example.com` + B'nin portfoy/watchlist satırları) — FAZ 5.8.
-2. FAZ 5 kalanı: 5.3 (AI rate limit fiili test), 5.4 (sayfa hızı).
-3. FAZ 2 (sayfa sayfa işlevsel test) — özellikle **2.13 Pro/premium referansları** ve **2.10 giriş UI'ı** (akış bu oturumda değişti, UI'dan doğrulanmalı).
-4. FAZ 7.1 (sitemap yeni modüller) + 7.4 (Sentry) + 7.6 (e-posta SPF/DKIM).
-5. FAZ 3/4/6/8.
+1. 🔴 **B-3**: test kullanıcılarını sil (FAZ 5.8) — ilk iş.
+2. **FAZ 2** sayfa sayfa işlevsel test (özellikle 2.10 giriş UI'ı — akış değişti).
+3. **FAZ 3 + 4** (tutarlılık, mobil).
+4. FAZ 5.4 (hız), 6.2/6.4, 7.3/7.6, FAZ 8.
+5. M-5 (Sentry) ve M-8 (iç sayfalarda yasal link) — Claude yapabilir.
 
-**Barış'ın karar/aksiyonu gereken:** Yahoo bağımlılığı riski (MAJOR-2), Sentry DSN (MAJOR-3), Supabase leaked-password koruması (MAJOR-4), Cloudflare purge stratejisi (FAZ 1.1b).
+**Barış'ın aksiyonu:** M-4 (Yahoo riski kararı), M-6 (leaked password koruması, 1 dk), M-7 (Cloudflare purge), M-5 için Sentry DSN.
