@@ -49,6 +49,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/dashboard`, priority: 0.9 },
     { url: `${base}/hisseler`, priority: 0.9 },
     { url: `${base}/doviz-maden`, priority: 0.9 },
+    { url: `${base}/halka-arz`, priority: 0.9 },
+    { url: `${base}/hisseler?varlik=fon`, priority: 0.8 },
     { url: `${base}/viop-nedir`, priority: 0.8 },
     { url: `${base}/kap`, priority: 0.9 },
     { url: `${base}/analizler`, priority: 0.8 },
@@ -63,6 +65,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/register`, priority: 0.5 },
     { url: `${base}/gizlilik`, priority: 0.3 },
     { url: `${base}/kvkk`, priority: 0.3 },
+    { url: `${base}/kullanim-sartlari`, priority: 0.3 },
+    { url: `${base}/risk-uyarisi`, priority: 0.3 },
   ];
 
   const statik: MetadataRoute.Sitemap = statikSayfalar.map(s => ({
