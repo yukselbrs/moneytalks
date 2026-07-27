@@ -1,6 +1,6 @@
 # Çok-Varlık Portföy + İzleme Entegrasyonu — İmplementasyon Logu
 
-**Durum:** KOD TAMAMLANDI (24 Tem 2026) — watchlist migration Barış'ta bekliyor · Başlangıç: 24 Tem 2026
+**Durum:** TAMAMLANDI (25 Tem 2026 doğrulandı — watchlist.tur migration'ı çalıştı, mevcut 11 satır korunmuş) · Başlangıç: 24 Tem 2026
 Tek kaynak: yeni oturum en alttaki **ŞU AN NEREDEYİM** paragrafını okur.
 
 ## Bağlam / Talep

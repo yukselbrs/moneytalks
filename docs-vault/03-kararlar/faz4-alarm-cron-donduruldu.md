@@ -2,7 +2,7 @@
 
 > ✅ **GÜNCELLEME 16 Temmuz 2026:** Kullanıcı "alarm cron çalışmıyor tespit edip çöz" diyerek dondurmayı KALDIRDI. Teşhis+fix: [[alarm-cron-fix-2026-07-16]]. Bu not artık tarihsel.
 
-**Tarih:** 15 Temmuz 2026 · **Durum:** Aktif kısıt (ikinci bir emre kadar)
+**Tarih:** 15 Temmuz 2026 · **Durum:** ARTIK GEÇERSİZ — dondurma 16 Tem 2026'da kullanıcı talebiyle kalktı; alarm cron'u çalışıyor (bkz. [[alarm-cron-fix-2026-07-16]]). Tarihsel kayıt olarak saklanıyor.
 
 ## Karar
 Kullanıcı direktifiyle **alarm cron'u ve alarmlarla ilgili her şey ikinci bir emre kadar ertelendi.** Yeni özellik, refactor, iyileştirme veya bakım — hiçbiri yapılmayacak; mevcut kod olduğu gibi kalır.
