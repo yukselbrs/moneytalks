@@ -22,10 +22,10 @@ Tek kaynak: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını oku
 - [x] 2.3 Temettü: **KAP "Kar Payı Dağıtımı" konusu** bulundu ve canlı doğrulandı (K-TK3)
 - [x] 2.4 Halka Arz — araştırma YOK (mevcut modül entegre edilecek)
 
-### FAZ 3 — Şema
-- [ ] 3.1 `sirket_takvim_etkinlikleri` (bilanço+temettü ortak, event_type ayrımı)
-- [ ] 3.2 Ekonomik takvim tablosu
-- [ ] 3.3 Migration + commit
+### FAZ 3 — Şema ✅
+- [x] 3.1 `sirket_takvim_etkinlikleri` (bilanço+temettü ortak, `event_type` ayrımı)
+- [x] 3.2 `ekonomik_takvim` tablosu
+- [x] 3.3 Migration **uygulandı** (MCP) + `supabase/migrations.sql`'e işlendi + commit
 
 ### FAZ 4 — Birleşik UI
 - [ ] 4.1 Nav: tek "Takvim" öğesi, Halka Arz onun altına + 301 redirect
@@ -120,6 +120,22 @@ Mevcut durum: kod Finnhub'a bağlı ama **`FINNHUB_API_KEY` env'de yok** → can
 - 📌 **İleriye not:** Şirket kurulup ticarileştiğinde bu karar gözden geçirilmeli — o noktada ücretli bir sağlayıcının ToS'u ve lisansı yeniden değerlendirilecek.
 - **Saat dilimi:** kaynak GMT/EST verirse **TRT (UTC+3)**'e çevrilecek; mevcut `/api/takvim` Finnhub dalında `timeZone: "Europe/Istanbul"` ile bunu zaten yapıyor — aynı yardımcı yeni kayıtlarda da kullanılacak.
 
+### FAZ 3 — ŞEMA (uygulandı, 25 Tem 2026)
+
+**`sirket_takvim_etkinlikleri`** — bilanço + temettü TEK tabloda (`event_type`):
+- Ortak: `ticker`, `tarih`, `tarih_kesin` (beyan/tahmin ↔ kesin), `durum` (`bekleniyor`|`aciklandi`)
+- Bilanço: `donem` ('2026/Q2'), `donem_bitis`
+- Temettü (nullable): `brut_tutar`, `net_tutar`, `stopaj_orani`, `para_birimi`, `odeme_sekli`, `genel_kurul_tarihi`, `karar_tarihi`
+- Kaynak izi: `kaynak`, `kap_disclosure_index`, `kap_link`, `ham_alanlar` JSONB (parse edilen etiket→değer — denetim izi)
+
+**Eşsizlik kararı (önemli):** `COALESCE(donem, tarih::TEXT)` ifadeli tek indeks **IMMUTABLE olmadığı için Postgres reddetti** (date→text cast DateStyle'a bağlı). Doğru tasarım zaten **tip başına kısmi indeks**:
+- `(ticker, donem) WHERE event_type='bilanco_aciklama'` — şirket beyan tarihini güncelleyebilir, dönem sabit kalır → upsert doğru satırı günceller.
+- `(ticker, tarih) WHERE event_type='temettu'` — aynı şirket yıl içinde birden çok ödeme yapabilir.
+
+**`ekonomik_takvim`** — `ulke_kod`, `ulke_bayrak`, `olay`, `tarih`, `saat` (**TRT**), `onem` (Yüksek/Orta/Düşük CHECK), `onceki`/`beklenti`/`gerceklesen`, `ilgili_enstruman` (satır→`/doviz-maden/[kod]` yönlendirmesi için), `kaynak`. Eşsiz: `(ulke_kod, olay, tarih)`.
+
+**RLS:** ikisinde de herkes SELECT, yazma yalnız service role (snapshot/halka-arz deseni). Doğrulama: anon SELECT 200 ✓. `halka_arzlar`'a **dokunulmadı**.
+
 ---
 
 ## Kronoloji
@@ -130,12 +146,12 @@ Mevcut durum: kod Finnhub'a bağlı ama **`FINNHUB_API_KEY` env'de yok** → can
 
 ## ŞU AN NEREDEYİM
 
-**25 Tem 2026 — FAZ 0, 1 ve 2 bitti; sıradaki FAZ 3 (şema).**
+**25 Tem 2026 — FAZ 0, 1, 2 ve 3 bitti; sıradaki FAZ 4 (birleşik UI) + FAZ 5 (cron).**
 
 Keşifte iki gerçek bug bulundu (Bilanço + Halka Arz sekmeleri ekonomik etkinlik gösteriyor; Finnhub anahtarı hiç yok). FAZ 2'de **KAP konu-filtresi (subjectOid)** keşfedildi: bilanço takvimi ve temettü için birincil, ücretsiz, lisans-riski olmayan kaynak bulundu ve **canlı doğrulandı** (Finansal Takvim 27 bildirim/30 gün; Kar Payı 1181/180 gün, alanlar teyitli). Ekonomik takvimde resmî MB/TÜİK takvimleri birincil seçildi; Finnhub/FMP anahtarı **opsiyonel zenginleştirme** olarak Barış'a bırakıldı.
 
 **Sonraki oturum sırası:**
-1. **FAZ 3 şema:** `sirket_takvim_etkinlikleri` (event_type: `bilanco_aciklama` | `temettu`; ortak: ticker/tarih/tarih_kesin/durum; temettü-özel nullable: brut_tutar, net_tutar, odeme_tarihi, genel_kurul_tarihi, stopaj; bilanço-özel: donem `2026/Q2`, kaynak_disclosure_index) + `ekonomik_takvim` (ulke, olay, tarih_saat TRT, onem, onceki/beklenti/gerceklesen). `halka_arzlar` tablosuna **DOKUNMA**.
+1. **FAZ 5 cron ÖNCE (veri olmadan UI test edilemez):** `/api/cron/takvim` — KAP `subjectList` ile (a) Finansal Takvim → `bilanco_aciklama` satırları, (b) Kar Payı Dağıtımı → `temettu` satırları (yalnız **ödeme yapanlar**; "Ödenmeyecek" olanlar takvime girmez). Pencere ≤90 gün (byCriteria 500 limiti). Ekonomik takvim seed'i: resmî MB/TÜİK tarihleri (mevcut `MERKEZ_BANKASI_TAKVIM` genişletilerek `ekonomik_takvim` tablosuna).
 2. **FAZ 4 UI:** mevcut `/takvim` iskeleti korunarak 4 sekmeye gerçek veri; nav'da tek "Takvim" + `/halka-arz` → `/takvim?sekme=halka-arz` **301**.
 3. **FAZ 5 cron:** KAP konu-bazlı çekim (≤90 gün pencereli — 500 limiti), bilanço "açıklandı"da bilanço cron'u tetikleme, hata loglama.
 4. FAZ 6-9.
