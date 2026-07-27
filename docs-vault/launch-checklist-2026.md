@@ -8,17 +8,16 @@
 
 | | Açık | Kapandı | Toplam |
 |---|---|---|---|
-| 🔴 **BLOCKER** | **1** | 2 | 3 |
+| 🔴 **BLOCKER** | **0** | 3 | 3 |
 | 🟠 **MAJOR** | **5** | 3 | 8 |
 | 🟡 MINOR | 4 | 0 | 4 |
 
-**Test edilen madde:** 19 / ~95 · **Kalan fazlar:** 2 (2.13 hariç), 3, 4, 6 (kısmi), 7 (kısmi), 8
+**Test edilen madde:** 20 / ~95 · **Kalan fazlar:** 2 (2.13 hariç), 3, 4, 6 (kısmi), 7 (kısmi), 8
 
 ### ⛔ Launch için önce şunlar kapatılmalı
 
 | # | Madde | Kim | Süre |
 |---|---|---|---|
-| 🔴 **B-3** | **Test kullanıcılarını sil**: `pk-test-a@example.com`, `pk-test-b@example.com` + B'nin portfoy/watchlist satırları (bu denetim için prod DB'de oluşturuldu) | Claude (sonraki oturum) | 2 dk |
 | 🟠 **M-4** | **Yahoo Finance tek-nokta bağımlılığı** — risk kabul mü, ikincil kaynak mı? | **Barış kararı** | — |
 | 🟠 **M-5** | **Sentry DSN + uptime monitoring** (paket var, config yok) | Barış + Claude | 30 dk |
 | 🟠 **M-6** | **Supabase "leaked password protection"** kapalı → Dashboard → Auth → Password | **Barış** | 1 dk |
@@ -73,7 +72,7 @@
 - [x] **5.5 Cron prod sağlığı** · **Geçti** · 9 workflow yeşil, halka-arz `hata:0`.
 - [ ] **5.6 Advisor kalan uyarıları** · **Kısmen** · 🟡 MINOR · `function_search_path_mutable` (set_updated_at, sync_portfoy_fiyat); waitlist'te çift INSERT policy; `avatars` bucket listelenebilir. Veri sızdırmıyor.
 - [ ] **5.7 Leaked password protection** · **Geçmedi** · 🟠 **M-6** · Barış: Dashboard → Authentication → Password.
-- [ ] **5.8 Test kullanıcılarını temizle** · **Geçmedi** · 🔴 **B-3**
+- [x] **5.8 Test kullanıcılarını temizle** · 🔴 **BLOCKER — KAPANDI** (25 Tem) · `pk-test-a/b@example.com` + portfoy/watchlist satırları silindi; doğrulama: kalan test kullanıcısı YOK.
 
 ---
 
@@ -112,6 +111,7 @@
 | 3 | profiles `USING(true)` → 27 kullanıcının kişisel verisi | 🟠 MAJOR | `efeaa3b` | A artık yalnız 1 profil görüyor |
 | 4 | `/api/risk-profil` AI çağrısı limitsiz | 🟠 MAJOR | `ccfae43` | 11. istekte 429 |
 | 5 | sitemap'te `/halka-arz` + 2 yasal sayfa eksik | 🟠 MAJOR | `d61d4bf` | lokal sitemap'te 4 yeni URL |
+| 6 | Test kullanıcıları prod DB'de | 🔴 BLOCKER | — | admin API ile silindi, doğrulandı |
 
 ---
 
@@ -122,7 +122,7 @@
 Bu oturumda **2 BLOCKER + 3 MAJOR bulundu ve kapatıldı** — hepsi gerçek açıktı, en ciddisi girişsiz kullanıcıların kullanıcı adından e-posta okuyabilmesiydi (KVKK). RLS çapraz-kullanıcı izolasyonu iki gerçek hesapla test edildi: **sağlam**. Ödeme akışı riski yok (sağlayıcı entegrasyonu hiç yok).
 
 **Sonraki oturum sırası:**
-1. 🔴 **B-3**: test kullanıcılarını sil (FAZ 5.8) — ilk iş.
+1. ~~B-3 test kullanıcıları~~ ✅ 25 Tem'de silindi — **açık BLOCKER kalmadı**.
 2. **FAZ 2** sayfa sayfa işlevsel test (özellikle 2.10 giriş UI'ı — akış değişti).
 3. **FAZ 3 + 4** (tutarlılık, mobil).
 4. FAZ 5.4 (hız), 6.2/6.4, 7.3/7.6, FAZ 8.
