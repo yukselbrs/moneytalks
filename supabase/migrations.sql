@@ -1006,3 +1006,39 @@ ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS fk NUMERIC;
 ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS pddd NUMERIC;
 ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS piyasa_degeri NUMERIC;
 ALTER TABLE public.halka_arzlar ADD COLUMN IF NOT EXISTS finansal_guncelleme TIMESTAMPTZ;
+
+-- ============================================================
+-- LAUNCH GUVENLIK (25 Tem 2026): SECURITY DEFINER fonksiyonlarina genel EXECUTE erisimi kapatildi.
+-- POSTGRES TUZAGI: yeni fonksiyonlarda EXECUTE varsayilan olarak PUBLIC'e verilir; yalnizca
+-- anon/authenticated'dan REVOKE etmek YETMEZ — PUBLIC uzerinden yine calistirilir.
+-- Bulgu (launch denetimi): anon rolü `get_email_by_username` ile kullanici adindan E-POSTA
+-- okuyabiliyordu (KVKK + phishing/enumeration). Giris artik /api/giris ile SUNUCUDA yapiliyor.
+-- ============================================================
+REVOKE EXECUTE ON FUNCTION public.get_email_by_username(TEXT) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.rate_limit_hit(TEXT, INT, INT) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.rate_limits_temizle() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+
+-- ============================================================
+-- LAUNCH GIZLILIK (25 Tem 2026): profiles SELECT policy'si daraltildi.
+-- Onceki `USING (true)`: giris yapmis HERKES tum kullanicilarin username/full_name/avatar'ini
+-- okuyabiliyordu (KVKK). Genis policy'nin tek nedeni "kullanici adi musait mi" kontroluydu ->
+-- kisisel veri dondurmeyen bir RPC'ye tasindi.
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.username_musait(uname TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT NOT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE username = LOWER(TRIM(uname)) AND id <> auth.uid()
+  )
+$$;
+REVOKE EXECUTE ON FUNCTION public.username_musait(TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.username_musait(TEXT) TO authenticated;
+
+DROP POLICY IF EXISTS "profiles_select_authenticated" ON public.profiles;
+CREATE POLICY "profiles_select_own" ON public.profiles
+FOR SELECT TO authenticated USING (auth.uid() = id);

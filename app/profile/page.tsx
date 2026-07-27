@@ -71,9 +71,11 @@ export default function ProfilePage() {
     if (cleanUsername && cleanUsername.length < 3) { setError("Kullanıcı adı en az 3 karakter olmalı."); return; }
     if (cleanUsername && !/^[a-z0-9_]{3,20}$/.test(cleanUsername)) { setError("Kullanıcı adı sadece küçük harf, rakam ve alt çizgi içerebilir."); return; }
     if (cleanUsername) {
-      const { data: existing, error: checkError } = await supabase.from("profiles").select("id").eq("username", cleanUsername).neq("id", user.id).maybeSingle();
+      // Musaitlik kontrolu RPC ile: profiles SELECT policy'si artik yalniz kendi satirini acar
+      // (baskalarinin username/full_name/avatar bilgisi sizmasin). RPC yalniz boolean doner.
+      const { data: musait, error: checkError } = await supabase.rpc("username_musait", { uname: cleanUsername });
       if (checkError) { setError("Kullanıcı adı kontrol edilemedi."); return; }
-      if (existing) { setError("Bu kullanıcı adı zaten alınmış."); return; }
+      if (musait === false) { setError("Bu kullanıcı adı zaten alınmış."); return; }
     }
     const { error: profileError } = await supabase.from("profiles").upsert({ id: user.id, username: cleanUsername || null, full_name: fullName });
     if (profileError) {

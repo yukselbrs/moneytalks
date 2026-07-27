@@ -45,24 +45,35 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     const loginIdentifier = email.trim();
-    let loginEmail = loginIdentifier;
-    if (!loginIdentifier.includes("@")) {
-      const { data, error: rpcError } = await supabase.rpc("get_email_by_username", { uname: loginIdentifier });
-      if (rpcError || !data) {
-        setError("Kullanıcı adı bulunamadı.");
+    // Giris SUNUCUDA yapilir: kullanici adi -> e-posta cozumlemesi service role ile olur,
+    // e-posta istemciye hic donmez (eski anon RPC'si e-posta sizdiriyordu).
+    try {
+      const res = await fetch("/api/giris", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: loginIdentifier, password }),
+      });
+      const veri = await res.json();
+      if (!res.ok || !veri.access_token) {
+        setError(veri.error || "E-posta/kullanıcı adı veya şifre hatalı.");
         setLoading(false);
         return;
       }
-      loginEmail = data;
-    }
-    const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
-    if (error) {
-      setError("E-posta/kullanıcı adı veya şifre hatalı.");
-      setLoading(false);
-    } else {
+      const { error } = await supabase.auth.setSession({
+        access_token: veri.access_token,
+        refresh_token: veri.refresh_token,
+      });
+      if (error) {
+        setError("Oturum başlatılamadı. Lütfen tekrar deneyin.");
+        setLoading(false);
+        return;
+      }
       if (beniHatirla) localStorage.setItem(LS.LOGIN_IDENTIFIER, loginIdentifier);
       else localStorage.removeItem(LS.LOGIN_IDENTIFIER);
       router.push("/dashboard");
+    } catch {
+      setError("Bağlantı hatası. Lütfen tekrar deneyin.");
+      setLoading(false);
     }
   }
 
