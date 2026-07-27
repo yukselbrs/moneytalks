@@ -726,7 +726,7 @@ export default function YapayZekaPage() {
             </div>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 9 }}>
               {kalanHak !== null
-                ? <span style={{ fontSize: 11, color: "#4A6888" }}>{kalanHak} mesaj hakkı kaldı · <a href="/pro" style={{ color: "#818CF8", textDecoration: "none" }}>Pro&apos;ya geç →</a></span>
+                ? <span style={{ fontSize: 11, color: "#4A6888" }}>{kalanHak} mesaj hakkı kaldı · <a href="/pro" style={{ color: "#818CF8", textDecoration: "none" }}>Pro çok yakında →</a></span>
                 : <span style={{ fontSize: 11, color: "#3D527B" }}>Pako cevapları analiz desteğidir; son kararı kendi verinle doğrula.</span>
               }
             </div>

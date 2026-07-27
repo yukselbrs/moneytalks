@@ -153,7 +153,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
                     Teknik göstergeler ve risk faktörleri analiz edildi.
                   </p>
                   <a href="/pro" style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 11, fontWeight: 600, color: "#F97316", textDecoration: "none" }}>
-                    ⚡ Detaylı yorumu görmek için Pro&apos;ya geç →
+                    ⚡ Detaylı yorum Pro ile çok yakında →
                   </a>
                 </div>
               )}
@@ -161,7 +161,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
                 Veri yeterliliği: <span style={{ color: aiPanel.guven === "Güvenilir" ? "#10B981" : aiPanel.guven === "Kısmi" ? "#F59E0B" : "#EF4444", fontWeight: 600 }}>{aiPanel.guven}</span>
               </p>
               <a href="/pro" style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8, fontSize: 11, fontWeight: 500, color: "#64748B", textDecoration: "none" }}>
-                <span style={{ color: "#F97316" }}>⚡</span> Detaylı teknik analiz için Pro&apos;ya geç →
+                <span style={{ color: "#F97316" }}>⚡</span> Detaylı teknik analiz Pro ile çok yakında →
               </a>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
               style={{ width: "100%", padding: "9px 0", background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 8, fontSize: 12, fontWeight: 500, color: "#F97316", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, textDecoration: "none", transition: "all 0.15s" }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(249,115,22,0.12)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "rgba(249,115,22,0.06)"; e.currentTarget.style.borderColor = "rgba(249,115,22,0.2)"; }}>
-              ⚡ Pro&apos;ya Yükselt
+              ⚡ Pro — Çok Yakında
             </a>
             <div className="pro-tooltip" style={{ display: "none", position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", borderRadius: 6, padding: "6px 12px", fontSize: 11, color: "#F97316", whiteSpace: "nowrap", zIndex: 50 }}>
               Sınırsız analiz ve gerçek zamanlı veriler

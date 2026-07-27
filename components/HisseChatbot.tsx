@@ -81,7 +81,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
           setLimitDoldu(true);
           setMesajlar(prev => [...prev, {
             role: "assistant",
-            content: "⚡ Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz için Pro'ya geçin.",
+            content: "⚡ Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz Pro ile çok yakında.",
             proLink: true,
           }]);
         } else {
@@ -147,7 +147,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
       if (!aktifMesajVar) {
         setMesajlar(prev => [...prev, { role: "assistant", content: "Cevap üretilemedi, tekrar dene." }]);
       } else if (kalanHak === 0 || kalanHak === 1) {
-        const ek = kalanHak === 0 ? " · Günlük hakkınız bitti, Pro'ya geçin." : " · Son mesaj hakkınız.";
+        const ek = kalanHak === 0 ? " · Günlük hakkınız bitti; Pro çok yakında." : " · Son mesaj hakkınız.";
         setMesajlar(prev => {
           const next = [...prev];
           const son = next[next.length - 1];
@@ -317,7 +317,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
                   {m.content}
                   {m.proLink && (
                     <a href="/pro" style={{ display: "block", marginTop: 8, padding: "6px 12px", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.3)", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#F97316", textDecoration: "none", textAlign: "center" }}>
-                      ⚡ Pro'ya Yükselt
+                      ⚡ Pro — Çok Yakında
                     </a>
                   )}
                   {m.alarmTaslak && (
@@ -343,7 +343,7 @@ export default function HisseChatbot({ ticker, veri, analiz, portfoy }: Props) {
           <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(59,130,246,0.1)", display: "flex", gap: 8 }}>
             {limitDoldu ? (
               <a href="/pro" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 12px", borderRadius: 8, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 600, textDecoration: "none", gap: 6 }}>
-                ⚡ Pro'ya Yükselt — Sınırsız Analiz
+                ⚡ Pro Çok Yakında — Sınırsız Analiz
               </a>
             ) : (
               <>

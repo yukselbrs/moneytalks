@@ -387,7 +387,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Pro Banner */}
         <div style={{ paddingBottom: 4 }}>
           {collapsed ? (
-            <Link href="/pro" aria-label="Pro'ya Yükselt" onMouseEnter={e => showTip(e, "Pro'ya Yükselt")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Pro'ya Yükselt")} onBlur={() => setTip(null)}
+            <Link href="/pro" aria-label="Pro — Çok Yakında" onMouseEnter={e => showTip(e, "Pro — Çok Yakında")} onMouseLeave={() => setTip(null)} onFocus={e => focusTip(e, "Pro — Çok Yakında")} onBlur={() => setTip(null)}
               style={{ display: "flex", justifyContent: "center", padding: "10px 0", textDecoration: "none" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
@@ -401,11 +401,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ color: "#FEF3C7", fontSize: 12, fontWeight: 700, margin: 0, lineHeight: 1.3 }}>Pro'ya Yükselt</p>
-                <p style={{ color: "#92400E", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Gelişmiş analiz & daha geniş limit</p>
+                <p style={{ color: "#FEF3C7", fontSize: 12, fontWeight: 700, margin: 0, lineHeight: 1.3 }}>Pro — Çok Yakında</p>
+                <p style={{ color: "#92400E", fontSize: 10, margin: 0, lineHeight: 1.4, marginTop: 1 }}>Gelişmiş analiz & daha geniş limit — haberdar ol</p>
               </div>
               <Link href="/pro" style={{ flexShrink: 0, background: "linear-gradient(135deg, #D97706, #F59E0B)", color: "#1C0A00", fontSize: 10, fontWeight: 800, padding: "5px 8px", borderRadius: 6, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 2px 8px rgba(245,158,11,0.35)" }}>
-                Yükselt →
+                Haber Ver →
               </Link>
             </div>
           )}

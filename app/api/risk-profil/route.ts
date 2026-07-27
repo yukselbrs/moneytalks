@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { requireUser } from "@/lib/auth";
+import { rateLimitHit } from "@/lib/rate-limit";
+
+// AI (Claude) cagrisi iceren POST icin kullanici basina limit — kotuye kullanim/maliyet freni.
+const RATE_PENCERE_SN = 3600;
+const RATE_MAKS = 10;
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -90,6 +95,12 @@ export async function POST(req: NextRequest) {
   const auth = await requireUser(req, supabase);
   if (!auth.user) return auth.response;
   const user = auth.user;
+
+  // Claude cagrisi yapar -> kullanici basina limit (auth tek basina maliyet patlamasini engellemez).
+  const { allowed } = await rateLimitHit(`risk-profil:${user.id}`, RATE_PENCERE_SN, RATE_MAKS);
+  if (!allowed) {
+    return NextResponse.json({ error: "Çok fazla istek. Lütfen birazdan tekrar deneyin." }, { status: 429 });
+  }
 
   let body: unknown;
   try {

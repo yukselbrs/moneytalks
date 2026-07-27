@@ -2638,7 +2638,7 @@ export async function POST(req: NextRequest) {
   if (!limitAtlandi && mevcutSayi >= GUNLUK_LIMIT) {
     return NextResponse.json({
       error: "gunluk_limit",
-      mesaj: "Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz için Pro'ya geçin.",
+      mesaj: "Günlük ücretsiz mesaj hakkınız doldu. Sınırsız analiz Pro ile çok yakında.",
       kullanilanHak: mevcutSayi,
       toplamHak: GUNLUK_LIMIT,
     }, { status: 429 });

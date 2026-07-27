@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Pro Plan | ParaKonuşur",
-  description: "Sınırsız AI analiz, gelişmiş risk skorlama ve öncelikli destek. ParaKonuşur Pro'ya geçin.",
+  description: "Sınırsız AI analiz, gelişmiş risk skorlama ve öncelikli destek. ParaKonuşur Pro çok yakında — çıktığında ilk siz haberdar olun.",
   alternates: { canonical: "/pro" },
 };
 

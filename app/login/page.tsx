@@ -133,7 +133,7 @@ export default function LoginPage() {
               <p style={{ fontSize: 13, fontWeight: 600, color: "#E2E8F0" }}>Pro özellikler ile yatırımınızı bir üst seviyeye taşıyın.</p>
               <p style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>Daha fazla analiz, gelişmiş araçlar ve özel veriler.</p>
             </div>
-            <Link href="/pro" style={{ flexShrink: 0, padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", borderRadius: 8, textDecoration: "none", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>Pro'ya Yükselt</Link>
+            <Link href="/pro" style={{ flexShrink: 0, padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", borderRadius: 8, textDecoration: "none", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>Pro — Çok Yakında</Link>
           </div>
 
           <div style={{ display: "flex", gap: 20, marginTop: 32 }}>

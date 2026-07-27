@@ -250,8 +250,8 @@ export default function ProfilePage() {
               </div>
               <div style={{ border: "1px solid rgba(249,115,22,0.15)", borderRadius: 12, padding: "16px 20px", background: "rgba(249,115,22,0.04)" }}>
                 <p style={{ fontSize: 13, fontWeight: 600, color: "#F97316", marginBottom: 4 }}>⚡ Demo Hesap</p>
-                <p style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>Pro'ya geçerek sınırsız analiz ve gerçek zamanlı veri erişimi kazanın.</p>
-                <a href="/pro" style={{ display: "inline-block", marginTop: 10, fontSize: 12, fontWeight: 600, color: "#fff", background: "linear-gradient(90deg, #EA580C, #F97316)", padding: "7px 16px", borderRadius: 8, textDecoration: "none" }}>Pro'ya Yükselt →</a>
+                <p style={{ fontSize: 12, color: "#64748B", lineHeight: 1.5 }}>Pro çok yakında: sınırsız analiz ve gerçek zamanlı veri. Çıktığında haberdar olmak için kaydolun.</p>
+                <a href="/pro" style={{ display: "inline-block", marginTop: 10, fontSize: 12, fontWeight: 600, color: "#fff", background: "linear-gradient(90deg, #EA580C, #F97316)", padding: "7px 16px", borderRadius: 8, textDecoration: "none" }}>Pro — Çok Yakında →</a>
               </div>
             </div>
           </>)}
@@ -405,7 +405,7 @@ export default function ProfilePage() {
                   </div>
                   {!plan.aktif && (
                     <a href="/pro" style={{ display: "block", textAlign: "center", background: "linear-gradient(90deg, #EA580C, #F97316)", color: "#fff", fontSize: 13, fontWeight: 600, padding: "10px", borderRadius: 8, textDecoration: "none" }}>
-                      Pro'ya Yükselt →
+                      Pro — Çok Yakında →
                     </a>
                   )}
                 </div>
