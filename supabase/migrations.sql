@@ -1042,3 +1042,77 @@ GRANT EXECUTE ON FUNCTION public.username_musait(TEXT) TO authenticated;
 DROP POLICY IF EXISTS "profiles_select_authenticated" ON public.profiles;
 CREATE POLICY "profiles_select_own" ON public.profiles
 FOR SELECT TO authenticated USING (auth.uid() = id);
+
+-- ============================================================
+-- BIRLESIK TAKVIM v1 (25 Tem 2026): Bilanco + Temettu TEK tabloda (event_type ayrimi),
+-- ikisi de ayni KAP kaynagindan besleniyor. Ekonomik takvim ayri tablo.
+-- halka_arzlar tablosuna DOKUNULMADI (kendi lifecycle'i var).
+-- Kaynak kararlari: docs-vault/03-kararlar/takvim-modulu-implementasyon-log (K-TK1/2/3).
+-- KAP konu filtresi: byCriteria + subjectList[oid] — Finansal Takvim / Kar Payi Dagitimi.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.sirket_takvim_etkinlikleri (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_type TEXT NOT NULL,
+  ticker TEXT NOT NULL,
+  tarih DATE NOT NULL,
+  tarih_kesin BOOLEAN NOT NULL DEFAULT FALSE,
+  durum TEXT NOT NULL DEFAULT 'bekleniyor',
+  donem TEXT,
+  donem_bitis DATE,
+  brut_tutar NUMERIC,
+  net_tutar NUMERIC,
+  stopaj_orani NUMERIC,
+  para_birimi TEXT DEFAULT 'TRY',
+  odeme_sekli TEXT,
+  genel_kurul_tarihi DATE,
+  karar_tarihi DATE,
+  kaynak TEXT DEFAULT 'kap',
+  kap_disclosure_index BIGINT,
+  kap_link TEXT,
+  ham_alanlar JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE public.sirket_takvim_etkinlikleri DROP CONSTRAINT IF EXISTS sirket_takvim_event_type_check;
+ALTER TABLE public.sirket_takvim_etkinlikleri ADD CONSTRAINT sirket_takvim_event_type_check
+  CHECK (event_type IN ('bilanco_aciklama', 'temettu'));
+ALTER TABLE public.sirket_takvim_etkinlikleri DROP CONSTRAINT IF EXISTS sirket_takvim_durum_check;
+ALTER TABLE public.sirket_takvim_etkinlikleri ADD CONSTRAINT sirket_takvim_durum_check
+  CHECK (durum IN ('bekleniyor', 'aciklandi'));
+-- Tip basina kismi essiz indeks (COALESCE'li ifade IMMUTABLE degil — kismi indeks dogru cozum):
+CREATE UNIQUE INDEX IF NOT EXISTS sirket_takvim_bilanco_essiz_idx
+  ON public.sirket_takvim_etkinlikleri (ticker, donem) WHERE event_type = 'bilanco_aciklama';
+CREATE UNIQUE INDEX IF NOT EXISTS sirket_takvim_temettu_essiz_idx
+  ON public.sirket_takvim_etkinlikleri (ticker, tarih) WHERE event_type = 'temettu';
+CREATE INDEX IF NOT EXISTS sirket_takvim_tarih_idx
+  ON public.sirket_takvim_etkinlikleri (tarih, event_type);
+ALTER TABLE public.sirket_takvim_etkinlikleri ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sirket_takvim_select_all ON public.sirket_takvim_etkinlikleri;
+CREATE POLICY sirket_takvim_select_all ON public.sirket_takvim_etkinlikleri
+  FOR SELECT TO anon, authenticated USING (true);
+
+CREATE TABLE IF NOT EXISTS public.ekonomik_takvim (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ulke_kod TEXT NOT NULL,
+  ulke_bayrak TEXT,
+  olay TEXT NOT NULL,
+  tarih DATE NOT NULL,
+  saat TEXT,
+  onem TEXT NOT NULL DEFAULT 'Orta',
+  onceki TEXT,
+  beklenti TEXT,
+  gerceklesen TEXT,
+  ilgili_enstruman TEXT,
+  kaynak TEXT DEFAULT 'resmi',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE public.ekonomik_takvim DROP CONSTRAINT IF EXISTS ekonomik_takvim_onem_check;
+ALTER TABLE public.ekonomik_takvim ADD CONSTRAINT ekonomik_takvim_onem_check
+  CHECK (onem IN ('Yüksek', 'Orta', 'Düşük'));
+CREATE UNIQUE INDEX IF NOT EXISTS ekonomik_takvim_essiz_idx ON public.ekonomik_takvim (ulke_kod, olay, tarih);
+CREATE INDEX IF NOT EXISTS ekonomik_takvim_tarih_idx ON public.ekonomik_takvim (tarih, onem);
+ALTER TABLE public.ekonomik_takvim ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS ekonomik_takvim_select_all ON public.ekonomik_takvim;
+CREATE POLICY ekonomik_takvim_select_all ON public.ekonomik_takvim
+  FOR SELECT TO anon, authenticated USING (true);
