@@ -1,4 +1,5 @@
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { overlayHisse } from "@/lib/hisse-evren";
 import { fetchMarketQuote } from "@/lib/market-pricing";
 
 // Hisse ozet verisi — /api/analiz (veriOnly) ve /api/hisse-ozet ortak cekirdegi (Faz 4, A.7).
@@ -14,12 +15,14 @@ function titleCaseTr(value: string) {
 
 export function displayCompanyName(raw: string) {
   return titleCaseTr(raw)
+    .replace(/\bVe\b/g, "ve")
     .replace(/\s+T\.a\.ş\.$/i, "")
     .replace(/\s+T\.a\.o\.$/i, "")
     .replace(/\s+A\.ş\.$/i, "")
     .replace(/\s+A\.o\.$/i, "")
     .replace(/\s+Anonim Şirketi$/i, "")
     .replace(/\s+Anonim Ortaklığı$/i, "")
+    .replace(/\s+San\. ve Tic\.$/i, "")
     .trim();
 }
 
@@ -41,7 +44,8 @@ export async function getHisseVerisi(ticker: string): Promise<HisseOzet | null> 
     const quote = await fetchMarketQuote(ticker, { cache: "no-store" });
     if (!quote) return null;
     const localCompany = BIST_HISSELER.find((h) => h.ticker === ticker);
-    const companyName = localCompany?.fullName || localCompany?.ad || ticker;
+    const overlayCompany = localCompany ? null : await overlayHisse(ticker);
+    const companyName = localCompany?.fullName || localCompany?.ad || overlayCompany?.ad || ticker;
     return {
       fiyat: quote.fiyat,
       oncekiKapanis: quote.oncekiKapanis,

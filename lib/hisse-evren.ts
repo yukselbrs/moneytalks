@@ -42,6 +42,11 @@ export async function overlayLogo(ticker: string): Promise<string | null> {
   return overlay.find((o) => o.ticker === ticker.toUpperCase())?.logoUrl ?? null;
 }
 
+export async function overlayHisse(ticker: string): Promise<OverlayHisse | null> {
+  const overlay = await yeniKotasyonOverlay();
+  return overlay.find((o) => o.ticker === ticker.toUpperCase()) ?? null;
+}
+
 // normalizeTicker statik evrene bakar; overlay hisseleri (islem_goruyor, JSON'a henuz sync olmamis)
 // orada yoktur. Format gecerli + overlay uyesiyse kabul et — aksi halde sahte ticker reddedilir.
 // Detay sayfasi endpoint'lerinde (hisse-ozet, analiz) evren kapsamini overlay ile genisletir.

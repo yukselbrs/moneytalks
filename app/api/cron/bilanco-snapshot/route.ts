@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const start = Date.now();
   const tickerlar = (bistHisseler as BistEntry[]).map(h => h.ticker).filter(Boolean);
   const { satirlar, hata: fetchHata } = await bilancoSnapshotlariUret(tickerlar);
-  let hata = fetchHata;
+  const hata = fetchHata;
   if (fetchHata) hataYakala("bilanco-cron:fetch", new Error(`${fetchHata} chunk cekilemedi`));
 
   if (!satirlar.length) {
