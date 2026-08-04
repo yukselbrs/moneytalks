@@ -22,6 +22,9 @@ export type KapListeOgesi = {
   stockCodes: string | null;
   publishDate?: string;
   disclosureType?: string;
+  year?: string | number | null;      // finansal rapor donemi
+  period?: string | null;             // '3'|'6'|'9'|'12' veya 'MT'|'HZ'|'EY'|'YS'
+  donem?: string | null;
 };
 
 // Kaynak akisinin nerede koptugunu gorunur kilar. `tabloluGovde` kritik: sirketlerin
@@ -347,18 +350,34 @@ export async function temettuCek(gunGeri = 45, enFazlaDetay = 120): Promise<Teme
 }
 
 // ---- FIILEN ACIKLANAN BILANCOLAR: KAP "Finansal Rapor" ----
-// Takvimdeki 'bekleniyor' satirini 'aciklandi' + tarih_kesin=true yapmak icin.
-export async function aciklananBilancolar(gunGeri = 80): Promise<{ ticker: string; tarih: string }[] | null> {
+// Bilanco takviminin BIRINCIL kaynagi. Neden: KAP'in "Finansal Takvim" bildirimlerinde
+// sirketin BEYAN ETTIGI planlanan ilan tarihleri attachment-detail yanitinda HIC gelmiyor —
+// tablo iskeleti var, deger hucreleri bos (83/83 bildirimde dogrulandi, uretim kosusu dahil).
+// Bu yuzden takvim "fiilen aciklanan raporlar"dan kuruluyor: her FR bildirimi = bir sirketin
+// bir donem raporunu KAP'ta yayinladigi kesin tarih. Uydurma/tahmini tarih uretilmiyor.
+export type AciklananRapor = { ticker: string; tarih: string; donem: string | null; donemBitis: string | null; index: number };
+
+// disclosureBasic.period -> ceyrek sonu ayi. KAP kodlari: 3/6/9/12 ay numarasi veya
+// MT(mart) HZ(haziran) EY(eylul) YS(yil sonu) kisaltmasi olarak gelebiliyor.
+const DONEM_AY: Record<string, string> = {
+  "3": "03", MT: "03", "6": "06", HZ: "06", "9": "09", EY: "09", "12": "12", YS: "12", AR: "12",
+};
+
+export async function aciklananBilancolar(gunGeri = 80): Promise<AciklananRapor[] | null> {
   const liste = await kapKonuListesi(KONU_OID.finansalRapor, gunGeri);
   if (liste === null) return null;
-  const out: { ticker: string; tarih: string }[] = [];
+  const out: AciklananRapor[] = [];
   for (const item of liste) {
     const ticker = ilkTicker(item.stockCodes);
     const pd = item.publishDate;   // 'DD.MM.YYYY HH:MM:SS' veya 'YYYY.MM.DD ...'
     if (!ticker || !pd) continue;
     const parca = pd.split(" ")[0];
     const t = trTarihIso(parca) ?? (/^\d{4}\./.test(parca) ? parca.replace(/\./g, "-") : null);
-    if (t) out.push({ ticker, tarih: t });
+    if (!t) continue;
+    const ay = DONEM_AY[String(item.period ?? item.donem ?? "").trim().toUpperCase()];
+    const yil = item.year ? String(item.year) : null;
+    const donemBitis = ay && yil ? `${yil}-${ay}-${ay === "02" ? "28" : ["04", "06", "09", "11"].includes(ay) ? "30" : "31"}` : null;
+    out.push({ ticker, tarih: t, donem: donemBitis ? donemEtiketi(donemBitis) : null, donemBitis, index: item.disclosureIndex });
   }
   return out;
 }

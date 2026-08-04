@@ -121,17 +121,46 @@ export async function GET(req: NextRequest) {
   if (aciklanan === null) kaynakUyari.push("kap-finansal-rapor");
   const tetiklenecek = new Set<string>();
   for (const a of aciklanan ?? []) {
-    const { data, error } = await supabase.from("sirket_takvim_etkinlikleri")
-      .update({ durum: "aciklandi", tarih_kesin: true, tarih: a.tarih, updated_at: new Date().toISOString() })
-      .eq("ticker", a.ticker).eq("event_type", "bilanco_aciklama").eq("durum", "bekleniyor")
-      .lte("donem_bitis", a.tarih)
-      .select("id");
-    if (error) { hata = 1; hataYakala("takvim-cron:aciklandi", error, { ticker: a.ticker }); continue; }
-    if (data?.length) { aciklandiIsaretlenen += data.length; tetiklenecek.add(a.ticker); }
+    if (!a.donem) continue;                      // donemi cozulemeyen bildirim takvime girmez
+    // Bekleyen satir varsa 'aciklandi'ya cevir; yoksa aciklanan raporun KENDISINI yaz.
+    // (Beyan edilen planlanan tarihler KAP API'sinde gelmedigi icin takvimin birincil
+    //  icerigi budur — fiilen aciklanmis, tarihi kesin raporlar.)
+    const anahtar = `${a.ticker}|${a.donem}`;
+    const satir = {
+      event_type: "bilanco_aciklama",
+      ticker: a.ticker,
+      tarih: a.tarih,
+      tarih_kesin: true,
+      durum: "aciklandi",
+      donem: a.donem,
+      donem_bitis: a.donemBitis,
+      kaynak: "kap",
+      kap_disclosure_index: a.index,
+      kap_link: `https://www.kap.org.tr/tr/Bildirim/${a.index}`,
+    };
+    const mevcut = bilancoMevcut.get(anahtar);
+    if (!mevcut) {
+      const { error } = await supabase.from("sirket_takvim_etkinlikleri").insert(satir);
+      if (error) { hata = 1; hataYakala("takvim-cron:aciklandi-insert", error, { anahtar }); continue; }
+      bilancoMevcut.set(anahtar, { id: "", imza: `${a.tarih}|aciklandi|true` });
+      aciklandiIsaretlenen++; tetiklenecek.add(a.ticker);
+    } else if (mevcut.imza !== `${a.tarih}|aciklandi|true`) {
+      const { error } = await supabase.from("sirket_takvim_etkinlikleri")
+        .update({ ...satir, updated_at: new Date().toISOString() })
+        .eq("ticker", a.ticker).eq("event_type", "bilanco_aciklama").eq("donem", a.donem);
+      if (error) { hata = 1; hataYakala("takvim-cron:aciklandi", error, { anahtar }); continue; }
+      mevcut.imza = `${a.tarih}|aciklandi|true`;
+      aciklandiIsaretlenen++; tetiklenecek.add(a.ticker);
+    }
   }
-  if (tetiklenecek.size) {
+  // Bilanco modulu tetikleme — kosu basina tavan. Ilk kosuda 80+ rapor birden gelebiliyor;
+  // hepsini tek istekte cekmek 60sn butcesini asar, kalanlar sonraki kosularda toplanir.
+  const TETIK_TAVAN = 20;
+  const tetikLIstesi = [...tetiklenecek].slice(0, TETIK_TAVAN);
+  const tetikAtlanan = tetiklenecek.size - tetikLIstesi.length;
+  if (tetikLIstesi.length) {
     try {
-      const { satirlar } = await bilancoSnapshotlariUret([...tetiklenecek]);
+      const { satirlar } = await bilancoSnapshotlariUret(tetikLIstesi);
       const yazilacak = satirlar.filter((s) => s.toplam_varlik !== null || s.hasilat !== null || s.net_kar !== null);
       if (yazilacak.length) {
         const { error } = await supabase.from("bilanco_snapshots")
@@ -179,6 +208,7 @@ export async function GET(req: NextRequest) {
     ekonomik: ekoSayac,
     aciklandiIsaretlenen,
     bilancoSnapshotYazilan,
+    tetikAtlanan,
     hata,
     kaynakUyari,
     sure_ms: Date.now() - baslangic,
