@@ -357,6 +357,9 @@ export async function temettuCek(gunGeri = 45, enFazlaDetay = 120): Promise<Teme
 // tablo iskeleti var, deger hucreleri bos (83/83 bildirimde dogrulandi, uretim kosusu dahil).
 // Bu yuzden takvim "fiilen aciklanan raporlar"dan kuruluyor: her FR bildirimi = bir sirketin
 // bir donem raporunu KAP'ta yayinladigi kesin tarih. Uydurma/tahmini tarih uretilmiyor.
+// FR akisinin teshisi: kac FR bildirimi gorulду, kaci donemi cozulemedigi icin atlandi.
+export type FrTeshis = { toplam: number; fr: number; donemsiz: number };
+
 export type AciklananRapor = { ticker: string; tarih: string; donem: string | null; donemBitis: string | null; index: number };
 
 // disclosureBasic.period -> ceyrek sonu ayi. KAP kodlari: 3/6/9/12 ay numarasi veya
@@ -365,7 +368,7 @@ const DONEM_AY: Record<string, string> = {
   "3": "03", MT: "03", "6": "06", HZ: "06", "9": "09", EY: "09", "12": "12", YS: "12", AR: "12",
 };
 
-export async function aciklananBilancolar(gunGeri = 8): Promise<AciklananRapor[] | null> {
+export async function aciklananBilancolar(gunGeri = 8, teshis?: FrTeshis): Promise<AciklananRapor[] | null> {
   // FR icin KONU FILTRESI KULLANILMIYOR: finansalRapor subjectOid'i byCriteria'da her
   // pencere boyunda 500 donduruyor (15 gunluk dilimlerde bile). Bunun yerine projede
   // zaten calisan desen uygulaniyor (bkz. lib/kap-kaynak.ts): konu filtresiz cekip
@@ -376,6 +379,7 @@ export async function aciklananBilancolar(gunGeri = 8): Promise<AciklananRapor[]
   // zaten DB'de birikiyor.
   const liste = await kapKonuListesi("", gunGeri, 1, 4);
   if (liste === null) return null;
+  if (teshis) teshis.toplam = liste.length;
   const out: AciklananRapor[] = [];
   for (const item of liste) {
     if ((item.disclosureType ?? "").toUpperCase() !== "FR") continue;
@@ -386,9 +390,19 @@ export async function aciklananBilancolar(gunGeri = 8): Promise<AciklananRapor[]
     const t = trTarihIso(parca) ?? (/^\d{4}\./.test(parca) ? parca.replace(/\./g, "-") : null);
     if (!t) continue;
     const ay = DONEM_AY[String(item.period ?? item.donem ?? "").trim().toUpperCase()];
-    const yil = item.year ? String(item.year) : null;
-    const donemBitis = ay && yil ? `${yil}-${ay}-${ay === "02" ? "28" : ["04", "06", "09", "11"].includes(ay) ? "30" : "31"}` : null;
-    out.push({ ticker, tarih: t, donem: donemBitis ? donemEtiketi(donemBitis) : null, donemBitis, index: item.disclosureIndex });
+    if (!ay) { if (teshis) teshis.donemsiz++; continue; }
+    // KAP'ta `year` cogu zaman null geliyor -> donem yilini YAYIN TARIHINDEN turet.
+    // Rapor her zaman donem sonundan SONRA yayinlanir; aday yil yayin yiliysa ve
+    // donem sonu yayin tarihinden sonraya dusuyorsa bir onceki yildir (or. Subat'ta
+    // yayinlanan "YS" raporu gecen yila aittir).
+    const sonGun = ["04", "06", "09", "11"].includes(ay) ? "30" : ay === "02" ? "28" : "31";
+    let yil = item.year ? parseInt(String(item.year), 10) : parseInt(t.slice(0, 4), 10);
+    if (!item.year && `${yil}-${ay}-${sonGun}` > t) yil -= 1;
+    const donemBitis = `${yil}-${ay}-${sonGun}`;
+    const donem = donemEtiketi(donemBitis);
+    if (!donem) { if (teshis) teshis.donemsiz++; continue; }
+    if (teshis) teshis.fr++;
+    out.push({ ticker, tarih: t, donem, donemBitis, index: item.disclosureIndex });
   }
   return out;
 }

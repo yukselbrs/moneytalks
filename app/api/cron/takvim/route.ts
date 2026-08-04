@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import { temettuCek, aciklananBilancolar } from "@/lib/takvim-kaynak";
+import { temettuCek, aciklananBilancolar, type FrTeshis } from "@/lib/takvim-kaynak";
 import { ekonomikTakvimTopla } from "@/lib/ekonomik-takvim-kaynak";
 import { bilancoSnapshotlariUret } from "@/lib/bilanco";
 
@@ -80,7 +80,8 @@ export async function GET(req: NextRequest) {
   // (ortak servis: bilancoSnapshotlariUret — kod tekrari yok)
   let aciklandiIsaretlenen = 0;
   let bilancoSnapshotYazilan = 0;
-  const aciklanan = await aciklananBilancolar();
+  const frTeshis: FrTeshis = { toplam: 0, fr: 0, donemsiz: 0 };
+  const aciklanan = await aciklananBilancolar(8, frTeshis);
   if (aciklanan === null) kaynakUyari.push("kap-finansal-rapor");
   const tetiklenecek = new Set<string>();
   for (const a of aciklanan ?? []) {
@@ -190,7 +191,7 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    bilanco: { aciklandiIsaretlenen, snapshotYazilan: bilancoSnapshotYazilan, tetikAtlanan },
+    bilanco: { aciklandiIsaretlenen, snapshotYazilan: bilancoSnapshotYazilan, tetikAtlanan, ...frTeshis },
     temettu: temettuSayac,
     ekonomik: ekoSayac,
     hata,
