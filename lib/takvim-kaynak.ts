@@ -97,7 +97,9 @@ function gunEkle(d: Date, n: number): Date {
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 // Konu bazli bildirim listesi — tarih araligi PENCERE_GUN dilimlerine bolunur (500 limiti).
-export async function kapKonuListesi(subjectOid: string, gunGeri: number, gunIleri = 1): Promise<KapListeOgesi[] | null> {
+export async function kapKonuListesi(
+  subjectOid: string, gunGeri: number, gunIleri = 1, pencereGun = PENCERE_GUN,
+): Promise<KapListeOgesi[] | null> {
   await isindir();
   const bugun = new Date();
   const enEski = gunEkle(bugun, -gunGeri);
@@ -105,8 +107,8 @@ export async function kapKonuListesi(subjectOid: string, gunGeri: number, gunIle
   const hepsi: KapListeOgesi[] = [];
   let herhangiBasarili = false;
 
-  for (let bas = new Date(enEski); bas < enYeni; bas = gunEkle(bas, PENCERE_GUN)) {
-    const bit = gunEkle(bas, PENCERE_GUN) < enYeni ? gunEkle(bas, PENCERE_GUN) : enYeni;
+  for (let bas = new Date(enEski); bas < enYeni; bas = gunEkle(bas, pencereGun)) {
+    const bit = gunEkle(bas, pencereGun) < enYeni ? gunEkle(bas, pencereGun) : enYeni;
     try {
       const res = await fetch(`${SITE}/tr/api/disclosure/members/byCriteria`, {
         method: "POST",
@@ -364,7 +366,9 @@ const DONEM_AY: Record<string, string> = {
 };
 
 export async function aciklananBilancolar(gunGeri = 80): Promise<AciklananRapor[] | null> {
-  const liste = await kapKonuListesi(KONU_OID.finansalRapor, gunGeri);
+  // FR, KAP'in en yuksek hacimli konusu (her sirket her donem bildiriyor). 80 gunluk
+  // pencere sonuc kumesi cok buyudugu icin HTTP 500 veriyor -> 15 gunluk dilimler.
+  const liste = await kapKonuListesi(KONU_OID.finansalRapor, gunGeri, 1, 15);
   if (liste === null) return null;
   const out: AciklananRapor[] = [];
   for (const item of liste) {
