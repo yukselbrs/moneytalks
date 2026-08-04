@@ -358,7 +358,7 @@ export async function temettuCek(gunGeri = 45, enFazlaDetay = 120): Promise<Teme
 // Bu yuzden takvim "fiilen aciklanan raporlar"dan kuruluyor: her FR bildirimi = bir sirketin
 // bir donem raporunu KAP'ta yayinladigi kesin tarih. Uydurma/tahmini tarih uretilmiyor.
 // FR akisinin teshisi: kac FR bildirimi gorulду, kaci donemi cozulemedigi icin atlandi.
-export type FrTeshis = { toplam: number; fr: number; donemsiz: number };
+export type FrTeshis = { toplam: number; fr: number; donemsiz: number; kodlar?: string };
 
 export type AciklananRapor = { ticker: string; tarih: string; donem: string | null; donemBitis: string | null; index: number };
 
@@ -390,7 +390,15 @@ export async function aciklananBilancolar(gunGeri = 8, teshis?: FrTeshis): Promi
     const t = trTarihIso(parca) ?? (/^\d{4}\./.test(parca) ? parca.replace(/\./g, "-") : null);
     if (!t) continue;
     const ay = DONEM_AY[String(item.period ?? item.donem ?? "").trim().toUpperCase()];
-    if (!ay) { if (teshis) teshis.donemsiz++; continue; }
+    if (!ay) {
+      if (teshis) {
+        teshis.donemsiz++;
+        const k = `${item.period ?? "-"}/${item.donem ?? "-"}/${item.year ?? "-"}`;
+        if (!teshis.kodlar) teshis.kodlar = "";
+        if (teshis.kodlar.length < 300 && !teshis.kodlar.includes(k)) teshis.kodlar += k + " ";
+      }
+      continue;
+    }
     // KAP'ta `year` cogu zaman null geliyor -> donem yilini YAYIN TARIHINDEN turet.
     // Rapor her zaman donem sonundan SONRA yayinlanir; aday yil yayin yiliysa ve
     // donem sonu yayin tarihinden sonraya dusuyorsa bir onceki yildir (or. Subat'ta
