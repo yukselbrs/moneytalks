@@ -24,6 +24,10 @@ export type KapListeOgesi = {
   disclosureType?: string;
 };
 
+// Kaynak akisinin nerede koptugunu gorunur kilar: liste bos mu, govde mi gelmiyor,
+// yoksa parse mi eslesmiyor. Cron yanitinda raporlanir — sessiz sifir donusu teshis edilebilir olsun.
+export type CekimTeshis = { liste: number; tickerli: number; govde: number; eslesme: number };
+
 export type BilancoTakvimKaydi = {
   ticker: string;
   donem: string;          // '2026/Q2'
@@ -160,11 +164,43 @@ function tdCiftleri(html: string): [string, string][] {
   return out;
 }
 
-// Etiket->deger haritasi (ilk gorulen kazanir).
+// Etiket->deger haritasi (ilk gorulen kazanir). YALNIZ duz "etiket | deger" tablolari icin;
+// matris tablolarda (bkz. matrisSatirlar) yanlis eslesme uretir.
 function alanCiftleri(html: string): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [etiket, deger] of tdCiftleri(html)) {
     if (etiket.length < 90 && etiket !== deger && !(etiket in out)) out[etiket] = deger;
+  }
+  return out;
+}
+
+// Satir-hucre matrisi: her <tr> icin <td>/<th> hucreleri sirasiyla.
+// (KAP bazi basliklarda <th> kullaniyor — Ahlatci parserindaki ayni tuzak.)
+function tabloSatirlari(html: string): string[][] {
+  const satirlar: string[][] = [];
+  for (const tr of html.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)) {
+    const hucreler: string[] = [];
+    for (const c of tr[1].matchAll(/<(?:td|th)[^>]*>([\s\S]*?)<\/(?:td|th)>/g)) hucreler.push(htmlTemizle(c[1]));
+    if (hucreler.length) satirlar.push(hucreler);
+  }
+  return satirlar;
+}
+
+// KAP'in "Nakit Kar Payi Odeme Tutar ve Oranlari" / "Kar Payi Odeme Tarihleri" tablolari
+// MATRIS: tek baslik satiri + pay grubu basina bir veri satiri. Basligi bulup sonraki
+// satirlari sutun adlarina gore okur. Ardisik <td> ciftleme bu yapida basligi degerle
+// eslestiriyordu (or. brut tutar olarak "1 TL Nominal..." etiketinden "1" cikiyordu).
+function matrisSatirlar(satirlar: string[][], baslikIsareti: RegExp): Record<string, string>[] {
+  const i = satirlar.findIndex((s) => s.some((h) => baslikIsareti.test(h)));
+  if (i < 0) return [];
+  const baslik = satirlar[i];
+  const out: Record<string, string>[] = [];
+  for (const s of satirlar.slice(i + 1)) {
+    if (s.length < 2) break;
+    if (s.some((h) => baslikIsareti.test(h))) break;   // sonraki tablonun basligina geldik
+    const kayit: Record<string, string> = {};
+    baslik.forEach((b, j) => { if (b && s[j]) kayit[b] = s[j]; });
+    if (Object.keys(kayit).length) out.push(kayit);
   }
   return out;
 }
@@ -177,9 +213,12 @@ function ilkTicker(stockCodes: string | null | undefined): string | null {
 
 // ---- BILANCO TAKVIMI: KAP "Finansal Takvim" ----
 // Govdede donem-sonu -> aciklanma tarihi cift(ler)i bulunur (or. 30/06/2026 -> 13/08/2026).
-export async function bilancoTakvimiCek(gunGeri = 120, enFazlaDetay = 120): Promise<BilancoTakvimKaydi[] | null> {
+export async function bilancoTakvimiCek(
+  gunGeri = 120, enFazlaDetay = 120, teshis?: CekimTeshis,
+): Promise<BilancoTakvimKaydi[] | null> {
   const liste = await kapKonuListesi(KONU_OID.finansalTakvim, gunGeri);
   if (liste === null) return null;
+  if (teshis) teshis.liste = liste.length;
   const kayitlar: BilancoTakvimKaydi[] = [];
   // Ayni sirketin birden cok bildirimi olabilir; en YENI bildirim kazanir (liste yeniden eskiye).
   const gorulen = new Set<string>();
@@ -188,14 +227,23 @@ export async function bilancoTakvimiCek(gunGeri = 120, enFazlaDetay = 120): Prom
     if (detaySayaci >= enFazlaDetay) break;   // tur basi tavan — kalanlar sonraki kosuda
     const ticker = ilkTicker(item.stockCodes);
     if (!ticker) continue;
+    if (teshis) teshis.tickerli++;
     detaySayaci++;
     const govde = await bildirimGovdesi(item.disclosureIndex);
     if (!govde) continue;
-    // "Finansal Tablo Dönemleri" tablosu: her satir  <donem sonu> | <aciklanma tarihi>.
-    // Iki tarafi da DD/MM/YYYY olan td ciftlerini al.
-    const tarihler = tdCiftleri(govde).filter(
-      ([a, b]) => /^\d{2}\/\d{2}\/\d{4}$/.test(a) && /^\d{2}\/\d{2}\/\d{4}$/.test(b),
-    );
+    if (teshis) teshis.govde++;
+    // "Finansal Tablo Dönemleri" tablosu: her satirda  <donem sonu> ... <aciklanma tarihi>.
+    // Satir icindeki TUM komsu hucre ciftlerini tara (sutun sayisi bildirimden bildirime
+    // degisiyor); ikisi de DD/MM/YYYY olanlari al. Asagidaki uc kosul (ceyrek sonu olma,
+    // aciklama > donem sonu, ayni ticker+donem tekrari) yanlis eslesmeyi eliyor.
+    const tarihler: [string, string][] = [];
+    for (const satir of tabloSatirlari(govde)) {
+      for (let i = 0; i + 1 < satir.length; i++) {
+        const [a, b] = [satir[i], satir[i + 1]];
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(a) && /^\d{2}\/\d{2}\/\d{4}$/.test(b)) tarihler.push([a, b]);
+      }
+    }
+    if (teshis) teshis.eslesme += tarihler.length;
     for (const t of tarihler) {
       const donemBitis = trTarihIso(t[0]);
       const aciklama = trTarihIso(t[1]);
@@ -228,22 +276,22 @@ export async function temettuCek(gunGeri = 45, enFazlaDetay = 120): Promise<Teme
     const govde = await bildirimGovdesi(item.disclosureIndex);
     if (!govde) continue;
     const alan = alanCiftleri(govde);
+    const satirlar = tabloSatirlari(govde);
 
     const odemeSekli = alan["Nakit Kar Payı Ödeme Şekli"] ?? null;
     if (odemeSekli && /ödenmeyecek/i.test(odemeSekli)) continue;  // kar dagitilmiyor
 
-    // Odeme tarihi: etiketi "... Nakit Kar Payı Ödeme Tarihi" varyasyonlari
+    // Odeme tarihi — "Kar Payi Odeme Tarihleri" matrisinden.
+    // Oncelik: kesinlesen odeme tarihi > kesinlesen hak kullanim > teklif edilen.
+    const tarihSatirlari = matrisSatirlar(satirlar, /Hak Kullanım Tarihi/i);
     let odemeTarihi: string | null = null;
-    for (const [k, v] of Object.entries(alan)) {
-      if (/ödeme tarihi/i.test(k)) {
-        const t = trTarihIso(v);
+    for (const kalip of [/^Ödeme Tarihi/i, /^Kesinleşen/i, /^Teklif Edilen/i]) {
+      for (const s of tarihSatirlari) {
+        const k = Object.keys(s).find((x) => kalip.test(x));
+        const t = k ? trTarihIso(s[k]) : null;
         if (t) { odemeTarihi = t; break; }
       }
-    }
-    if (!odemeTarihi) {
-      // Tabloda etiketsiz olabilir: "Ödeme Tarihi" basligindan sonraki ilk tarih
-      const m = govde.match(/Ödeme Tarihi[\s\S]{0,400}?(\d{2}\.\d{2}\.\d{4})/);
-      odemeTarihi = m ? trTarihIso(m[1]) : null;
+      if (odemeTarihi) break;
     }
     if (!odemeTarihi) continue;   // tarihi olmayan kayit takvime giremez
 
@@ -251,27 +299,33 @@ export async function temettuCek(gunGeri = 45, enFazlaDetay = 120): Promise<Teme
     if (gorulen.has(anahtar)) continue;
     gorulen.add(anahtar);
 
-    // Brut/net: "1 TL Nominal Değerli Paya Ödenecek Nakit Kar Payı - Brüt/Net (TL)"
-    // Etiket HEM "kar payi" HEM brut/net icermeli — gevsek /net/ eslesmesi
-    // "Net Donem Kari" gibi alanlari yakalayip yanlis tutar yaziyordu.
-    let brut: number | null = null, net: number | null = null;
-    for (const [k, v] of Object.entries(alan)) {
-      if (!/kar\s*pay/i.test(k)) continue;
-      if (/brüt/i.test(k) && brut === null) brut = trSayi(v);
-      else if (/\bnet\b/i.test(k) && net === null) net = trSayi(v);
+    // Tutarlar — "Nakit Kar Payi Odeme Tutar ve Oranlari" matrisinden.
+    // Sutunlar: ...Brut(TL) | ...Brut(%) | Stopaj Orani(%) | ...Net(TL) | ...Net(%)
+    // (TL) suzgeci yuzdelik sutunlari eler; pay gruplari ayni TL tutarini alir,
+    // tutari dolu ilk grup yeterlidir.
+    let brut: number | null = null, net: number | null = null, stopaj: number | null = null;
+    for (const s of matrisSatirlar(satirlar, /Pay Grup Bilgileri/i)) {
+      for (const [k, v] of Object.entries(s)) {
+        if (/stopaj/i.test(k) && stopaj === null) stopaj = trSayi(v);
+        if (!/kar\s*pay/i.test(k) || !/\(TL\)/i.test(k)) continue;
+        if (/brüt/i.test(k) && brut === null) brut = trSayi(v);
+        else if (/\bnet\b/i.test(k) && net === null) net = trSayi(v);
+      }
+      if (brut !== null || net !== null) break;
     }
+
     kayitlar.push({
       ticker,
       tarih: odemeTarihi,
       brut_tutar: brut,
       net_tutar: net,
-      stopaj_orani: trSayi(alan["Stopaj Oranı(%)"] ?? null),
+      stopaj_orani: stopaj,
       para_birimi: alan["Para Birimi"] ?? "TRY",
       odeme_sekli: odemeSekli,
       genel_kurul_tarihi: trTarihIso(alan["Konunun Gündemde Yer Aldığı Genel Kurul Tarihi"] ?? null),
       karar_tarihi: trTarihIso(alan["Karar Tarihi"] ?? null),
       kap_disclosure_index: item.disclosureIndex,
-      ham_alanlar: Object.fromEntries(Object.entries(alan).slice(0, 25)),
+      ham_alanlar: { govde_satir_sayisi: String(satirlar.length), odeme_sekli: odemeSekli ?? "" },
     });
   }
   return kayitlar;

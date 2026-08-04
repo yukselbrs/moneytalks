@@ -1,0 +1,37 @@
+name: Takvim Cron
+
+on:
+  schedule:
+    # Gunde 3 kez: sabah (BIST oncesi), oglen, aksam. Offset dakika — GH yuvarlak-dakika izdihamindan kacin.
+    # KAP bildirimleri gun icine yayilir; ekonomik takvimin 'gerceklesen' alani olay saatinden sonra dolar.
+    - cron: '23 4,11,18 * * *'
+  workflow_dispatch:
+
+jobs:
+  takvim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Bilanco + temettu + ekonomik takvim senkronu
+        run: |
+          body=$(curl -s -w "\n%{http_code}" \
+            -X GET "https://www.parakonusur.com/api/cron/takvim" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 120)
+          status=$(echo "$body" | tail -n1)
+          json=$(echo "$body" | sed '$d')
+          echo "HTTP Status: $status"
+          echo "Yanit: $json"
+          if [ "$status" != "200" ]; then
+            echo "HTTP hatasi: $status"
+            exit 1
+          fi
+          # Kaynak erisilemezligi (KAP 429/500, ForexFactory kesintisi) isi KIRMIZI yapmaz —
+          # `kaynakUyari` alaninda raporlanir. Yalniz DB yazma hatasi (`hata` > 0) basarisizliktir.
+          if echo "$json" | grep -qE '"hata":\s*[1-9]'; then
+            echo "Cron yaniti hata bildirdi (hata sayaci > 0)"
+            exit 1
+          fi
+          if echo "$json" | grep -q '"kaynakUyari":\[.'; then
+            echo "::warning::Bazi kaynaklar bu kosuda erisilemedi (detay yukaridaki yanitta)"
+          fi

@@ -1,117 +1,122 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const IMPACT_MAP: Record<string, string> = {
-  high: "Yüksek",
-  medium: "Orta",
-  low: "Düşük",
-};
+// Birlesik takvim okuma ucu — dort alt takvimin TEK giris noktasi.
+//   ?tip=ekonomik   -> ekonomik_takvim
+//   ?tip=bilanco    -> sirket_takvim_etkinlikleri (event_type=bilanco_aciklama)
+//   ?tip=temettu    -> sirket_takvim_etkinlikleri (event_type=temettu)
+//   ?tip=halka-arz  -> halka_arzlar (kendi tablosu; asama tarihlerine acilir)
+// Veriyi /api/cron/takvim (KAP + ForexFactory + Fed + TR kural ureteci) ve
+// /api/cron/halka-arz yazar. Bu uc yalniz okur — anon key, RLS altinda.
 
-const EVENT_TR: Record<string, string> = {
-  "Inflation Rate MoM": "Enflasyon Oranı (Aylık)",
-  "Inflation Rate YoY": "Enflasyon Oranı (Yıllık)",
-  "Core Inflation Rate MoM": "Çekirdek Enflasyon (Aylık)",
-  "Core Inflation Rate YoY": "Çekirdek Enflasyon (Yıllık)",
-  "PPI MoM": "ÜFE (Aylık)",
-  "PPI YoY": "ÜFE (Yıllık)",
-  "Balance of Trade": "Dış Ticaret Dengesi",
-  "Balance of Trade Prel": "Dış Ticaret Dengesi (Ön)",
-  "Exports": "İhracat",
-  "Exports Prel": "İhracat (Ön)",
-  "Imports": "İthalat",
-  "Imports Prel": "İthalat (Ön)",
-  "Exports YoY": "İhracat (Yıllık)",
-  "Imports YoY": "İthalat (Yıllık)",
-  "GDP Growth Rate QoQ": "GSYİH Büyümesi (Çeyreklik)",
-  "GDP Growth Rate YoY": "GSYİH Büyümesi (Yıllık)",
-  "GDP Growth Rate QoQ Prel": "GSYİH Büyümesi (Çeyreklik, Ön)",
-  "GDP Growth Rate YoY Prel": "GSYİH Büyümesi (Yıllık, Ön)",
-  "Unemployment Rate": "İşsizlik Oranı",
-  "Industrial Production MoM": "Sanayi Üretimi (Aylık)",
-  "Industrial Production YoY": "Sanayi Üretimi (Yıllık)",
-  "Retail Sales MoM": "Perakende Satışlar (Aylık)",
-  "Retail Sales YoY": "Perakende Satışlar (Yıllık)",
-  "Current Account": "Cari Hesap",
-  "Foreign Exchange Reserves": "Döviz Rezervleri",
-  "Treasury Cash Balance": "Hazine Nakit Dengesi",
-  "Istanbul Chamber of Industry Manufacturing PMI": "İSO İmalat PMI",
-  "Interest Rate Decision": "Faiz Kararı",
-  "TCMB Interest Rate Decision": "TCMB Faiz Kararı",
-  "Consumer Confidence": "Tüketici Güveni",
-  "Business Confidence": "İş Dünyası Güveni",
-  "Capacity Utilization": "Kapasite Kullanım Oranı",
-  "Car Sales MoM": "Otomobil Satışları (Aylık)",
-  "Car Sales YoY": "Otomobil Satışları (Yıllık)",
-  "Tourist Arrivals YoY": "Turist Girişleri (Yıllık)",
-  "Harmonised Inflation Rate YoY": "Uyumlaştırılmış Enflasyon (Yıllık)",
-};
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
 
-const MERKEZ_BANKASI_TAKVIM = [
-  { tarih: "2026-01-22", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-03-12", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-04-22", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-06-11", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-07-23", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-09-10", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-10-22", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-12-10", saat: "14:00", baslik: "TCMB Faiz Kararı", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-02-12", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-05-14", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-08-13", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-11-12", saat: "10:00", baslik: "TCMB Enflasyon Raporu", onem: "Yüksek", ulke: "🇹🇷", ulkeKod: "TR" },
-  { tarih: "2026-01-28", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-  { tarih: "2026-03-18", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-  { tarih: "2026-04-29", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-  { tarih: "2026-06-17", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-  { tarih: "2026-07-29", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-  { tarih: "2026-09-16", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-  { tarih: "2026-10-28", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-  { tarih: "2026-12-09", saat: "21:00", baslik: "FED Faiz Kararı (FOMC)", onem: "Yüksek", ulke: "🇺🇸", ulkeKod: "US" },
-];
+const bugun = () => new Date().toISOString().slice(0, 10);
+
+type TakvimTip = "ekonomik" | "bilanco" | "temettu" | "halka-arz";
+
+// Halka arz asamalari — bir arz takvimde birden fazla gunde gorunur.
+const HA_ASAMA = [
+  { alan: "talep_baslangic", etiket: "Talep toplama başlangıcı" },
+  { alan: "talep_bitis", etiket: "Talep toplama bitişi" },
+  { alan: "islem_tarihi", etiket: "Borsada işlem görmeye başlıyor" },
+] as const;
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const from = searchParams.get("from") || new Date().toISOString().slice(0, 10);
+  const tip = (searchParams.get("tip") || "ekonomik") as TakvimTip;
+  const from = searchParams.get("from") || bugun();
   const to = searchParams.get("to") || from;
 
-  const res = await fetch(
-    `https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${process.env.FINNHUB_API_KEY}`,
-    { cache: "no-store" }
-  );
-
-  const hardcodedEvents = MERKEZ_BANKASI_TAKVIM
-    .filter(e => e.tarih >= from && e.tarih <= to)
-    .map(e => ({ ...e, beklenti: null, onceki: null, gerceklesen: null }));
-
-  let finnhubEvents: typeof hardcodedEvents = [];
-
-  if (res.ok) {
-    const data = await res.json();
-    finnhubEvents = (data.economicCalendar || [])
-      .filter((e: { country: string }) => e.country === "TR")
-      .map((e: {
-        time: string; event: string; impact: string; country: string;
-        estimate: number | null; prev: number | null; actual: number | null; unit: string;
-      }) => {
-        const utcDate = new Date(e.time.replace(" ", "T") + "Z");
-        const trSaat = utcDate.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
-        return {
-          tarih: e.time.slice(0, 10),
-          saat: trSaat,
-          baslik: EVENT_TR[e.event] || e.event,
-          onem: IMPACT_MAP[e.impact] || "Düşük",
-          ulke: "🇹🇷",
-          ulkeKod: "TR",
-          beklenti: e.estimate !== null ? `${e.estimate}${e.unit ? " " + e.unit : ""}` : null,
-          onceki: e.prev !== null ? `${e.prev}${e.unit ? " " + e.unit : ""}` : null,
-          gerceklesen: e.actual !== null ? `${e.actual}${e.unit ? " " + e.unit : ""}` : null,
-        };
-      });
+  if (tip === "ekonomik") {
+    const { data, error } = await supabase
+      .from("ekonomik_takvim")
+      .select("ulke_kod, ulke_bayrak, olay, tarih, saat, onem, onceki, beklenti, gerceklesen, ilgili_enstruman")
+      .gte("tarih", from).lte("tarih", to)
+      .order("tarih").order("saat", { nullsFirst: false });
+    if (error) return NextResponse.json({ events: [], hata: error.message });
+    return NextResponse.json({
+      events: (data ?? []).map((e) => ({
+        tarih: e.tarih,
+        saat: e.saat ?? "—",
+        baslik: e.olay,
+        onem: e.onem,
+        ulke: e.ulke_bayrak,
+        ulkeKod: e.ulke_kod,
+        beklenti: e.beklenti,
+        onceki: e.onceki,
+        gerceklesen: e.gerceklesen,
+        link: e.ilgili_enstruman ? `/doviz-maden/${e.ilgili_enstruman}` : null,
+      })),
+    });
   }
 
-  const allEvents = [...finnhubEvents, ...hardcodedEvents].sort((a, b) => a.tarih.localeCompare(b.tarih) || a.saat.localeCompare(b.saat));
+  if (tip === "bilanco" || tip === "temettu") {
+    const eventType = tip === "bilanco" ? "bilanco_aciklama" : "temettu";
+    const { data, error } = await supabase
+      .from("sirket_takvim_etkinlikleri")
+      .select("ticker, tarih, tarih_kesin, durum, donem, donem_bitis, brut_tutar, net_tutar, stopaj_orani, para_birimi, odeme_sekli, genel_kurul_tarihi, kap_link")
+      .eq("event_type", eventType)
+      .gte("tarih", from).lte("tarih", to)
+      .order("tarih").order("ticker");
+    if (error) return NextResponse.json({ events: [], hata: error.message });
+    return NextResponse.json({
+      events: (data ?? []).map((e) => ({
+        tarih: e.tarih,
+        ticker: e.ticker,
+        tarihKesin: e.tarih_kesin,
+        durum: e.durum,
+        donem: e.donem,
+        donemBitis: e.donem_bitis,
+        brutTutar: e.brut_tutar,
+        netTutar: e.net_tutar,
+        stopajOrani: e.stopaj_orani,
+        paraBirimi: e.para_birimi,
+        odemeSekli: e.odeme_sekli,
+        genelKurulTarihi: e.genel_kurul_tarihi,
+        kapLink: e.kap_link,
+        link: `/hisse/${e.ticker}`,
+      })),
+    });
+  }
 
-  return NextResponse.json({ events: allEvents });
+  if (tip === "halka-arz") {
+    const { data, error } = await supabase
+      .from("halka_arzlar")
+      .select("kod, sirket_adi, logo_url, durum, talep_baslangic, talep_bitis, islem_tarihi, fiyat, fiyat_ust, buyukluk, dagitim_yontemi, pazar")
+      .order("talep_baslangic", { ascending: false, nullsFirst: false });
+    if (error) return NextResponse.json({ events: [], hata: error.message });
+    const events = [];
+    for (const a of data ?? []) {
+      for (const { alan, etiket } of HA_ASAMA) {
+        const tarih = a[alan];
+        if (!tarih || tarih < from || tarih > to) continue;
+        events.push({
+          tarih,
+          kod: a.kod,
+          sirketAdi: a.sirket_adi,
+          logoUrl: a.logo_url,
+          durum: a.durum,
+          asama: etiket,
+          asamaAlan: alan,
+          fiyat: a.fiyat,
+          fiyatUst: a.fiyat_ust,
+          buyukluk: a.buyukluk,
+          dagitimYontemi: a.dagitim_yontemi,
+          pazar: a.pazar,
+          link: `/halka-arz/${a.kod}`,
+        });
+      }
+    }
+    events.sort((x, y) => x.tarih.localeCompare(y.tarih) || x.kod.localeCompare(y.kod));
+    return NextResponse.json({ events });
+  }
+
+  return NextResponse.json({ events: [], hata: "bilinmeyen tip" }, { status: 400 });
 }

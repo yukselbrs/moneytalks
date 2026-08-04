@@ -23,14 +23,14 @@ const NAV_ITEMS = [
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>, label: "Bildirimler", href: "/bildirimler" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>, label: "Pako AI", href: "/yapay-zeka" },
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>, label: "VİOP Nedir?", href: "/viop-nedir" },
-  { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>, label: "Halka Arz", href: "/halka-arz" },
 ];
 
 // 0:Dashboard 1:Portföy 2:Analizler 3:Hisseler 4:Fonlar 5:Döviz-Maden 6:İzleme 7:Haberler
-// 8:Blog 9:Takvim 10:Alarmlar 11:Bildirimler 12:PakoAI 13:VİOP 14:HalkaArz
+// 8:Blog 9:Takvim 10:Alarmlar 11:Bildirimler 12:PakoAI 13:VİOP
+// Halka Arz nav'dan kaldirildi -> /takvim?sekme=halka-arz (sayfa yasiyor, sekmeden linkli)
 const NAV_GROUPS: { label?: string; indices: number[] }[] = [
   { indices: [0] },
-  { label: "PİYASA", indices: [3, 4, 14, 5, 6] },
+  { label: "PİYASA", indices: [3, 4, 5, 6] },
   { label: "KİŞİSEL", indices: [1, 2, 9] },
   { label: "KEŞFET", indices: [8, 7, 13, 10] },
 ];

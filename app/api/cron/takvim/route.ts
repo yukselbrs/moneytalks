@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import { bilancoTakvimiCek, temettuCek, aciklananBilancolar } from "@/lib/takvim-kaynak";
+import { bilancoTakvimiCek, temettuCek, aciklananBilancolar, type CekimTeshis } from "@/lib/takvim-kaynak";
 import { ekonomikTakvimTopla } from "@/lib/ekonomik-takvim-kaynak";
 import { bilancoSnapshotlariUret } from "@/lib/bilanco";
 
@@ -70,7 +70,8 @@ export async function GET(req: NextRequest) {
 
   // ---- 1) BILANCO TAKVIMI (KAP "Finansal Takvim") ----
   const bilancoSayac: Sayac = { yeni: 0, guncellenen: 0 };
-  const bilanco = await bilancoTakvimiCek();
+  const bilancoTeshis: CekimTeshis = { liste: 0, tickerli: 0, govde: 0, eslesme: 0 };
+  const bilanco = await bilancoTakvimiCek(120, 120, bilancoTeshis);
   if (bilanco === null) kaynakUyari.push("kap-finansal-takvim");
   for (const b of bilanco ?? []) {
     hata += await ustuneYaz(bilancoMevcut, `${b.ticker}|${b.donem}`, `${b.tarih}|bekleniyor|false`, {
@@ -173,6 +174,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     bilanco: bilancoSayac,
+    bilancoTeshis,
     temettu: temettuSayac,
     ekonomik: ekoSayac,
     aciklandiIsaretlenen,

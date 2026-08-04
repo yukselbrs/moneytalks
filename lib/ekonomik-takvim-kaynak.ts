@@ -36,6 +36,53 @@ const FF_ULKE: Record<string, string> = {
 // Satir tiklaninca gidilecek enstruman (varsa) — /doviz-maden/[kod]
 const ENSTRUMAN: Record<string, string> = { US: "usd-try", EU: "eur-try", GB: "gbp-try", JP: "usd-jpy" };
 
+// ForexFactory olay adlari Ingilizce gelir; urun Turkce — basliklari cevir.
+// Once tam eslesme, sonra parca-parca kalip cevirisi (donem ekleri m/m, y/y, q/q dahil).
+const OLAY_TR: Record<string, string> = {
+  "Non-Farm Employment Change": "Tarım Dışı İstihdam Değişimi",
+  "Unemployment Rate": "İşsizlik Oranı",
+  "Average Hourly Earnings": "Ortalama Saatlik Kazanç",
+  "Employment Change": "İstihdam Değişimi",
+  "Unemployment Claims": "İşsizlik Maaşı Başvuruları",
+  "CPI": "TÜFE", "Core CPI": "Çekirdek TÜFE", "PPI": "ÜFE", "Core PPI": "Çekirdek ÜFE",
+  "CPI Flash Estimate": "TÜFE Öncü Tahmini",
+  "Retail Sales": "Perakende Satışlar", "Core Retail Sales": "Çekirdek Perakende Satışlar",
+  "GDP": "GSYİH", "Prelim GDP": "Öncü GSYİH", "Final GDP": "Nihai GSYİH",
+  "Industrial Production": "Sanayi Üretimi", "Trade Balance": "Dış Ticaret Dengesi",
+  "Current Account": "Cari Denge", "Building Permits": "İnşaat Ruhsatları",
+  "Consumer Confidence": "Tüketici Güveni", "Consumer Sentiment": "Tüketici Güven Endeksi",
+  "Manufacturing PMI": "İmalat PMI", "Services PMI": "Hizmet PMI",
+  "Flash Manufacturing PMI": "Öncü İmalat PMI", "Flash Services PMI": "Öncü Hizmet PMI",
+  "ISM Manufacturing PMI": "ISM İmalat PMI", "ISM Services PMI": "ISM Hizmet PMI",
+  "Federal Funds Rate": "Fed Politika Faizi", "Main Refinancing Rate": "ECB Politika Faizi",
+  "Official Bank Rate": "BoE Politika Faizi", "Official Cash Rate": "Politika Faizi",
+  "Overnight Rate": "Gecelik Faiz", "Cash Rate": "Politika Faizi",
+  "FOMC Statement": "FOMC Karar Metni", "FOMC Press Conference": "FOMC Basın Toplantısı",
+  "FOMC Meeting Minutes": "FOMC Toplantı Tutanakları", "FOMC Economic Projections": "FOMC Ekonomik Projeksiyonlar",
+  "ECB Press Conference": "ECB Basın Toplantısı", "Monetary Policy Statement": "Para Politikası Metni",
+  "Crude Oil Inventories": "Ham Petrol Stokları", "Natural Gas Storage": "Doğal Gaz Stokları",
+  "OPEC-JMMC Meetings": "OPEC-JMMC Toplantıları", "OPEC Meetings": "OPEC Toplantıları",
+  "Bank Holiday": "Resmi Tatil",
+};
+// Sonek: donem kisaltmalari
+const DONEM_TR: [RegExp, string][] = [
+  [/\s+m\/m$/i, " (Aylık)"], [/\s+y\/y$/i, " (Yıllık)"], [/\s+q\/q$/i, " (Çeyreklik)"],
+];
+
+function olayCevir(baslik: string): string {
+  let ad = baslik.trim();
+  let sonek = "";
+  for (const [kalip, tr] of DONEM_TR) {
+    if (kalip.test(ad)) { sonek = tr; ad = ad.replace(kalip, ""); break; }
+  }
+  const cevrilen = OLAY_TR[ad];
+  if (cevrilen) return cevrilen + sonek;
+  // Konusmaci/tutanak kaliplari: "Fed Chair Powell Speaks" -> "... Konuşuyor"
+  const konusma = ad.match(/^(.*?)\s+Speaks$/i);
+  if (konusma) return `${konusma[1]} Konuşuyor`;
+  return sonek ? ad + sonek : ad;   // bilinmeyen olay: ozgun ad korunur (uydurma ceviri yok)
+}
+
 function onemCevir(x: string): "Yüksek" | "Orta" | "Düşük" {
   const t = (x || "").toLowerCase();
   if (t.includes("high")) return "Yüksek";
@@ -96,7 +143,7 @@ export async function ffHaftalikTakvim(): Promise<EkonomikOlay[] | null> {
       olaylar.push({
         ulke_kod: ulke,
         ulke_bayrak: BAYRAK[ulke] ?? "🌍",
-        olay: baslik,
+        olay: olayCevir(baslik),
         tarih,
         saat: saatHam ? ffSaatTrt(tarih, saatHam) : null,
         onem,

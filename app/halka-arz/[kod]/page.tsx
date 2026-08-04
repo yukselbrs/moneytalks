@@ -316,7 +316,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
       <AppShell>
         <main style={{ maxWidth: 720, margin: "0 auto", padding: "60px 24px", textAlign: "center" }}>
           <p style={{ fontSize: 15, fontWeight: 700, color: "#CBD5E1" }}>Halka arz kaydı bulunamadı</p>
-          <Link href="/halka-arz" style={{ fontSize: 13, color: "#60A5FA", textDecoration: "none" }}>← Halka Arz Takvimi&apos;ne dön</Link>
+          <Link href="/takvim?sekme=halka-arz" style={{ fontSize: 13, color: "#60A5FA", textDecoration: "none" }}>← Halka Arz Takvimi&apos;ne dön</Link>
         </main>
       </AppShell>
     );
@@ -360,7 +360,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
     <AppShell>
       <div style={{ minHeight: "100vh" }}>
         <main style={{ width: "100%", maxWidth: 900, margin: "0 auto", padding: "28px 24px 60px", boxSizing: "border-box" }}>
-          <Link href="/halka-arz" style={{ fontSize: 12, color: "#64748B", textDecoration: "none" }}>← Halka Arz Takvimi</Link>
+          <Link href="/takvim?sekme=halka-arz" style={{ fontSize: 12, color: "#64748B", textDecoration: "none" }}>← Halka Arz Takvimi</Link>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, margin: "14px 0 4px", flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 13, minWidth: 0 }}>
