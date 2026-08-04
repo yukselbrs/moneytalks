@@ -365,12 +365,16 @@ const DONEM_AY: Record<string, string> = {
   "3": "03", MT: "03", "6": "06", HZ: "06", "9": "09", EY: "09", "12": "12", YS: "12", AR: "12",
 };
 
-export async function aciklananBilancolar(gunGeri = 45): Promise<AciklananRapor[] | null> {
+export async function aciklananBilancolar(gunGeri = 8): Promise<AciklananRapor[] | null> {
   // FR icin KONU FILTRESI KULLANILMIYOR: finansalRapor subjectOid'i byCriteria'da her
   // pencere boyunda 500 donduruyor (15 gunluk dilimlerde bile). Bunun yerine projede
   // zaten calisan desen uygulaniyor (bkz. lib/kap-kaynak.ts): konu filtresiz cekip
   // disclosureType === "FR" ile istemci tarafinda suzmek.
-  const liste = await kapKonuListesi("", gunGeri, 1, 10);
+  // Pencere 4 gun: konu filtresiz sorgu tum KAP bildirimlerini dondurdugu icin daha
+  // genis aralikta 500 aliniyor (lib/kap-kaynak.ts de 4 gun kullaniyor). Cron gunde
+  // 3 kez kostugundan 8 gunluk geriye bakis yeni raporlari kacirmaya yetmez; gecmis
+  // zaten DB'de birikiyor.
+  const liste = await kapKonuListesi("", gunGeri, 1, 4);
   if (liste === null) return null;
   const out: AciklananRapor[] = [];
   for (const item of liste) {
