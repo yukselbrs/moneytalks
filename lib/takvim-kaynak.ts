@@ -362,10 +362,11 @@ export type FrTeshis = { toplam: number; fr: number; donemsiz: number; kodlar?: 
 
 export type AciklananRapor = { ticker: string; tarih: string; donem: string | null; donemBitis: string | null; index: number };
 
-// disclosureBasic.period -> ceyrek sonu ayi. KAP kodlari: 3/6/9/12 ay numarasi veya
-// MT(mart) HZ(haziran) EY(eylul) YS(yil sonu) kisaltmasi olarak gelebiliyor.
+// KAP liste ogesindeki `period` CEYREK NUMARASIDIR (ay degil): 1..4 + `year`.
+// Canli dogrulandi: "2/-/2026" = 2026 2. ceyrek, "4/-/2025" = 2025 yil sonu.
+// Bildirim detayinda ayrica MT/HZ/EY/YS kisaltmalari gorulebiliyor — ikisi de haritada.
 const DONEM_AY: Record<string, string> = {
-  "3": "03", MT: "03", "6": "06", HZ: "06", "9": "09", EY: "09", "12": "12", YS: "12", AR: "12",
+  "1": "03", MT: "03", "2": "06", HZ: "06", "3": "09", EY: "09", "4": "12", YS: "12", AR: "12",
 };
 
 export async function aciklananBilancolar(gunGeri = 8, teshis?: FrTeshis): Promise<AciklananRapor[] | null> {
