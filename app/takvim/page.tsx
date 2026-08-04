@@ -44,7 +44,7 @@ type TemettuOlay = SirketOlayTemel & { tip: "temettu" };
 type HalkaArzOlay = {
   tip: "halka-arz"; tarih: string; kod: string; sirketAdi: string; logoUrl: string | null;
   durum: string; asama: string; asamaAlan: string; fiyat: number | null; fiyatUst: number | null;
-  buyukluk: string | null; dagitimYontemi: string | null; pazar: string | null; link: string;
+  buyukluk: number | null; dagitimYontemi: string | null; pazar: string | null; link: string;
 };
 type Olay = EkonomikOlay | BilancoOlay | TemettuOlay | HalkaArzOlay;
 
@@ -61,6 +61,14 @@ function ayinIlkVeSon(y: number, m: number) {
     son: `${y}-${String(m + 1).padStart(2, "0")}-${String(new Date(y, m + 1, 0).getDate()).padStart(2, "0")}`,
   };
 }
+// Halka arz buyuklugu ham sayi olarak okunaksiz (6230000000) — /halka-arz sayfasiyla ayni bicim.
+function buyuklukMetni(v: number | null): string {
+  if (v === null || !Number.isFinite(v)) return "—";
+  if (v >= 1e9) return `${(v / 1e9).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} Mlr ₺`;
+  if (v >= 1e6) return `${(v / 1e6).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} Mn ₺`;
+  return `${v.toLocaleString("tr-TR")} ₺`;
+}
+
 function kisaTarih(iso: string | null) {
   if (!iso) return "—";
   const d = new Date(iso + "T00:00:00");
@@ -475,7 +483,7 @@ function GunDetay({ olaylar, sekme, isMobil, git }: {
                   <td style={{ padding: "10px 12px", textAlign: "center", color: "#94A3B8" }}>
                     {e.fiyat !== null ? (e.fiyatUst && e.fiyatUst !== e.fiyat ? `${e.fiyat}–${e.fiyatUst} ₺` : formatCurrency(e.fiyat)) : "—"}
                   </td>
-                  <td style={{ padding: "10px 12px", textAlign: "center", color: "#64748B" }}>{e.buyukluk ?? "—"}</td>
+                  <td style={{ padding: "10px 12px", textAlign: "center", color: "#64748B" }}>{buyuklukMetni(e.buyukluk)}</td>
                   <td style={{ padding: "10px 12px", textAlign: "center" }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: HA_DURUM[e.durum]?.renk ?? "#94A3B8" }}>{HA_DURUM[e.durum]?.label ?? e.durum}</span>
                   </td>

@@ -24,9 +24,10 @@ export type KapListeOgesi = {
   disclosureType?: string;
 };
 
-// Kaynak akisinin nerede koptugunu gorunur kilar: liste bos mu, govde mi gelmiyor,
-// yoksa parse mi eslesmiyor. Cron yanitinda raporlanir — sessiz sifir donusu teshis edilebilir olsun.
-export type CekimTeshis = { liste: number; tickerli: number; govde: number; eslesme: number };
+// Kaynak akisinin nerede koptugunu gorunur kilar. `tabloluGovde` kritik: sirketlerin
+// cogu Finansal Takvim tablosunu bos birakip yalniz aciklama metni yaziyor — tablolu
+// bildirim sayisi sifira duserse KAP sablonu degismis demektir.
+export type CekimTeshis = { liste: number; tickerli: number; govde: number; tabloluGovde: number; eslesme: number };
 
 export type BilancoTakvimKaydi = {
   ticker: string;
@@ -144,8 +145,11 @@ async function bildirimGovdesi(index: number): Promise<string | null> {
     if (!res.ok) return null;
     const d = await res.json();
     const d0 = Array.isArray(d) ? d[0] : d;
+    // disclosureBody bir DIZI — sablonun parcalari ayri elemanlarda gelebiliyor;
+    // yalniz [0] okumak tablonun deger bolumunu disarida birakiyordu.
     const govde = d0?.disclosureBody;
-    return Array.isArray(govde) && typeof govde[0] === "string" ? govde[0] : null;
+    if (Array.isArray(govde)) return govde.filter((x: unknown) => typeof x === "string").join("\n");
+    return typeof govde === "string" ? govde : null;
   } catch {
     return null;
   }
@@ -232,18 +236,29 @@ export async function bilancoTakvimiCek(
     const govde = await bildirimGovdesi(item.disclosureIndex);
     if (!govde) continue;
     if (teshis) teshis.govde++;
-    // "Finansal Tablo Dönemleri" tablosu: her satirda  <donem sonu> ... <aciklanma tarihi>.
-    // Satir icindeki TUM komsu hucre ciftlerini tara (sutun sayisi bildirimden bildirime
-    // degisiyor); ikisi de DD/MM/YYYY olanlari al. Asagidaki uc kosul (ceyrek sonu olma,
-    // aciklama > donem sonu, ayni ticker+donem tekrari) yanlis eslesmeyi eliyor.
+    // "Finansal Takvim" govde yapisi (canli dogrulandi, 83 bildirim):
+    //   <tr> ... Dönem Başlangıç Tarihi | Dönem Bitiş Tarihi | Planlanan KAP'ta İlan Tarihi
+    //   <tr> oda_FirstQuarter ... 1. Çeyrek     (2./3. Çeyrek ve Yıllık ayni sekilde)
+    // ONEMLI: tarih degerleri hucre METNINDE cikmiyor — KAP sablonu degerleri gizli
+    // dugum/oznitelikte tasiyor (htmlTemizle sonrasi hucreler bos, ham HTML'de tarih var).
+    // Bu yuzden basliktan sonraki satirlarin HAM HTML'inden tarih cikariyoruz; son iki
+    // tarih (donem bitisi, ilan tarihi) alinir. Asagidaki uc kosul — ceyrek sonu olma,
+    // ilan > donem sonu, ticker+donem tekrari — yanlis eslesmeyi eliyor.
+    const hamSatirlar = [...govde.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)].map((m) => m[1]);
+    const baslikIdx = hamSatirlar.findIndex((r) => /Planlanan KAP/i.test(r));
     const tarihler: [string, string][] = [];
-    for (const satir of tabloSatirlari(govde)) {
-      for (let i = 0; i + 1 < satir.length; i++) {
-        const [a, b] = [satir[i], satir[i + 1]];
-        if (/^\d{2}\/\d{2}\/\d{4}$/.test(a) && /^\d{2}\/\d{2}\/\d{4}$/.test(b)) tarihler.push([a, b]);
+    const tara = (satirlar: string[]) => {
+      for (const ham of satirlar) {
+        const gunler = [...ham.matchAll(/\b\d{1,2}[./]\d{1,2}[./]\d{4}\b/g)].map((m) => m[0]);
+        if (gunler.length >= 2) tarihler.push([gunler[gunler.length - 2], gunler[gunler.length - 1]]);
       }
+    };
+    if (baslikIdx >= 0) tara(hamSatirlar.slice(baslikIdx + 1));
+    else tara(hamSatirlar);          // sablon degisirse sessizce sifira dusme
+    if (teshis) {
+      teshis.eslesme += tarihler.length;
+      if (baslikIdx >= 0) teshis.tabloluGovde++;
     }
-    if (teshis) teshis.eslesme += tarihler.length;
     for (const t of tarihler) {
       const donemBitis = trTarihIso(t[0]);
       const aciklama = trTarihIso(t[1]);

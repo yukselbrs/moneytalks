@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
 
   // ---- 1) BILANCO TAKVIMI (KAP "Finansal Takvim") ----
   const bilancoSayac: Sayac = { yeni: 0, guncellenen: 0 };
-  const bilancoTeshis: CekimTeshis = { liste: 0, tickerli: 0, govde: 0, eslesme: 0 };
+  const bilancoTeshis: CekimTeshis = { liste: 0, tickerli: 0, govde: 0, tabloluGovde: 0, eslesme: 0 };
   const bilanco = await bilancoTakvimiCek(120, 120, bilancoTeshis);
   if (bilanco === null) kaynakUyari.push("kap-finansal-takvim");
   for (const b of bilanco ?? []) {
