@@ -113,7 +113,7 @@ export async function kapKonuListesi(
       const res = await fetch(`${SITE}/tr/api/disclosure/members/byCriteria`, {
         method: "POST",
         headers: LISTE_HEADERS,
-        body: JSON.stringify({ fromDate: iso(bas), toDate: iso(bit), mkkMemberOidList: [], subjectList: [subjectOid] }),
+        body: JSON.stringify({ fromDate: iso(bas), toDate: iso(bit), mkkMemberOidList: [], subjectList: subjectOid ? [subjectOid] : [] }),
         cache: "no-store",
         signal: AbortSignal.timeout(25000),
       });
@@ -365,13 +365,16 @@ const DONEM_AY: Record<string, string> = {
   "3": "03", MT: "03", "6": "06", HZ: "06", "9": "09", EY: "09", "12": "12", YS: "12", AR: "12",
 };
 
-export async function aciklananBilancolar(gunGeri = 80): Promise<AciklananRapor[] | null> {
-  // FR, KAP'in en yuksek hacimli konusu (her sirket her donem bildiriyor). 80 gunluk
-  // pencere sonuc kumesi cok buyudugu icin HTTP 500 veriyor -> 15 gunluk dilimler.
-  const liste = await kapKonuListesi(KONU_OID.finansalRapor, gunGeri, 1, 15);
+export async function aciklananBilancolar(gunGeri = 45): Promise<AciklananRapor[] | null> {
+  // FR icin KONU FILTRESI KULLANILMIYOR: finansalRapor subjectOid'i byCriteria'da her
+  // pencere boyunda 500 donduruyor (15 gunluk dilimlerde bile). Bunun yerine projede
+  // zaten calisan desen uygulaniyor (bkz. lib/kap-kaynak.ts): konu filtresiz cekip
+  // disclosureType === "FR" ile istemci tarafinda suzmek.
+  const liste = await kapKonuListesi("", gunGeri, 1, 10);
   if (liste === null) return null;
   const out: AciklananRapor[] = [];
   for (const item of liste) {
+    if ((item.disclosureType ?? "").toUpperCase() !== "FR") continue;
     const ticker = ilkTicker(item.stockCodes);
     const pd = item.publishDate;   // 'DD.MM.YYYY HH:MM:SS' veya 'YYYY.MM.DD ...'
     if (!ticker || !pd) continue;
