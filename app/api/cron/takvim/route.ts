@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import { bilancoTakvimiCek, temettuCek, aciklananBilancolar, type CekimTeshis } from "@/lib/takvim-kaynak";
+import { temettuCek, aciklananBilancolar } from "@/lib/takvim-kaynak";
 import { ekonomikTakvimTopla } from "@/lib/ekonomik-takvim-kaynak";
 import { bilancoSnapshotlariUret } from "@/lib/bilanco";
 
@@ -12,7 +12,12 @@ export const dynamic = "force-dynamic";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-// Birlesik takvim cron'u — 4 bagimsiz adim. Bir adimin kaynagi duserse digerleri calisir.
+// Birlesik takvim cron'u — 3 bagimsiz adim. Bir adimin kaynagi duserse digerleri calisir.
+// KALDIRILAN ADIM: KAP "Finansal Takvim" (sirket-beyanli planlanan bilanco tarihleri).
+//   attachment-detail yaniti tablo iskeletini veriyor ama deger hucreleri BOS (83/83
+//   bildirimde dogrulandi) — kosu basina 83 detay istegi harciyor, 0 satir uretiyor ve
+//   ardindan gelen FR liste cagrisini KAP WAF'ina yakiyordu. Bilanco takvimi artik
+//   FIILEN aciklanan raporlardan kuruluyor (adim 1).
 // `hata` YALNIZ gercek DB yazma basarisizliklarinda artar (isi kirmizi yapar);
 // kaynak erisilemezligi `kaynakUyari`dir (halka-arz cron'uyla ayni desen).
 // Halka Arz takvimi AYRI cron'da (/api/cron/halka-arz) — buraya karistirilmadi.
@@ -68,52 +73,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ---- 1) BILANCO TAKVIMI (KAP "Finansal Takvim") ----
-  const bilancoSayac: Sayac = { yeni: 0, guncellenen: 0 };
-  const bilancoTeshis: CekimTeshis = { liste: 0, tickerli: 0, govde: 0, tabloluGovde: 0, eslesme: 0 };
-  const bilanco = await bilancoTakvimiCek(120, 120, bilancoTeshis);
-  if (bilanco === null) kaynakUyari.push("kap-finansal-takvim");
-  for (const b of bilanco ?? []) {
-    hata += await ustuneYaz(bilancoMevcut, `${b.ticker}|${b.donem}`, `${b.tarih}|bekleniyor|false`, {
-      event_type: "bilanco_aciklama",
-      ticker: b.ticker,
-      tarih: b.tarih,
-      tarih_kesin: false,          // sirket beyani — degisebilir
-      durum: "bekleniyor",
-      donem: b.donem,
-      donem_bitis: b.donem_bitis,
-      kaynak: "kap",
-      kap_disclosure_index: b.kap_disclosure_index,
-      kap_link: `https://www.kap.org.tr/tr/Bildirim/${b.kap_disclosure_index}`,
-    }, bilancoSayac);
-  }
-
-  // ---- 2) TEMETTU (KAP "Kar Payi Dagitimi", yalniz odeme yapanlar) ----
-  const temettuSayac: Sayac = { yeni: 0, guncellenen: 0 };
-  const temettu = await temettuCek();
-  if (temettu === null) kaynakUyari.push("kap-kar-payi");
-  for (const t of temettu ?? []) {
-    hata += await ustuneYaz(temettuMevcut, `${t.ticker}|${t.tarih}`, `${t.net_tutar}|bekleniyor`, {
-      event_type: "temettu",
-      ticker: t.ticker,
-      tarih: t.tarih,
-      tarih_kesin: true,           // odeme tarihi genel kurulda kesinlesir
-      durum: "bekleniyor",
-      brut_tutar: t.brut_tutar,
-      net_tutar: t.net_tutar,
-      stopaj_orani: t.stopaj_orani,
-      para_birimi: t.para_birimi,
-      odeme_sekli: t.odeme_sekli,
-      genel_kurul_tarihi: t.genel_kurul_tarihi,
-      karar_tarihi: t.karar_tarihi,
-      kaynak: "kap",
-      kap_disclosure_index: t.kap_disclosure_index,
-      kap_link: `https://www.kap.org.tr/tr/Bildirim/${t.kap_disclosure_index}`,
-      ham_alanlar: t.ham_alanlar,
-    }, temettuSayac);
-  }
-
-  // ---- 3) ACIKLANAN BILANCOLAR -> durum guncelle + Bilanco modulunu tetikle ----
+  // ---- 1) ACIKLANAN BILANCOLAR (KAP "Finansal Rapor") -> bilanco takvimi + modul tetikleme ----
+  // ONCE calisir: liste cagrisi ucuz ve detay cekimlerinden ONCE yapilmali. Temettu adimi
+  // kosu basina 120 detay istegi yapabiliyor; ardindan KAP WAF ayni cagri icinde IP'yi
+  // kapatiyor ve FR listesi hep 500 doneyordu.
   // (ortak servis: bilancoSnapshotlariUret — kod tekrari yok)
   let aciklandiIsaretlenen = 0;
   let bilancoSnapshotYazilan = 0;
@@ -174,7 +137,32 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ---- 4) EKONOMIK TAKVIM (ForexFactory + Fed + TR kural ureteci) ----
+  // ---- 2) TEMETTU (KAP "Kar Payi Dagitimi", yalniz odeme yapanlar) ----
+  const temettuSayac: Sayac = { yeni: 0, guncellenen: 0 };
+  const temettu = await temettuCek();
+  if (temettu === null) kaynakUyari.push("kap-kar-payi");
+  for (const t of temettu ?? []) {
+    hata += await ustuneYaz(temettuMevcut, `${t.ticker}|${t.tarih}`, `${t.net_tutar}|bekleniyor`, {
+      event_type: "temettu",
+      ticker: t.ticker,
+      tarih: t.tarih,
+      tarih_kesin: true,           // odeme tarihi genel kurulda kesinlesir
+      durum: "bekleniyor",
+      brut_tutar: t.brut_tutar,
+      net_tutar: t.net_tutar,
+      stopaj_orani: t.stopaj_orani,
+      para_birimi: t.para_birimi,
+      odeme_sekli: t.odeme_sekli,
+      genel_kurul_tarihi: t.genel_kurul_tarihi,
+      karar_tarihi: t.karar_tarihi,
+      kaynak: "kap",
+      kap_disclosure_index: t.kap_disclosure_index,
+      kap_link: `https://www.kap.org.tr/tr/Bildirim/${t.kap_disclosure_index}`,
+      ham_alanlar: t.ham_alanlar,
+    }, temettuSayac);
+  }
+
+  // ---- 3) EKONOMIK TAKVIM (ForexFactory + Fed + TR kural ureteci) ----
   const ekoSayac: Sayac = { yeni: 0, guncellenen: 0 };
   const { olaylar, uyari } = await ekonomikTakvimTopla(new Date().getUTCFullYear());
   kaynakUyari.push(...uyari.map((u) => `ekonomik:${u}`));
@@ -202,13 +190,9 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    bilanco: bilancoSayac,
-    bilancoTeshis,
+    bilanco: { aciklandiIsaretlenen, snapshotYazilan: bilancoSnapshotYazilan, tetikAtlanan },
     temettu: temettuSayac,
     ekonomik: ekoSayac,
-    aciklandiIsaretlenen,
-    bilancoSnapshotYazilan,
-    tetikAtlanan,
     hata,
     kaynakUyari,
     sure_ms: Date.now() - baslangic,

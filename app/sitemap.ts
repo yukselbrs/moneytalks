@@ -58,7 +58,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/izleme`, priority: 0.7 },
     { url: `${base}/haberler`, priority: 0.7 },
     { url: `${base}/blog`, priority: 0.7 },
-    { url: `${base}/takvim`, priority: 0.6 },
+    // Takvim artik dort alt takvimin ana sayfasi — oncelik yukseltildi, sekmeler ayri URL.
+    { url: `${base}/takvim`, priority: 0.9 },
+    { url: `${base}/takvim?sekme=bilanco`, priority: 0.7 },
+    { url: `${base}/takvim?sekme=temettu`, priority: 0.7 },
+    { url: `${base}/takvim?sekme=halka-arz`, priority: 0.7 },
     { url: `${base}/alarmlar`, priority: 0.6 },
     { url: `${base}/pro`, priority: 0.8 },
     { url: `${base}/login`, priority: 0.5 },
