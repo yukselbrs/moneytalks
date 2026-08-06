@@ -330,7 +330,16 @@ export function temettuGovdesiCoz(govde: string, ticker: string, index: number):
     stopaj_orani: stopaj,
     para_birimi: alan["Para Birimi"] ?? "TRY",
     odeme_sekli: odemeSekli,
-    genel_kurul_tarihi: trTarihIso(alan["Konunun Gündemde Yer Aldığı Genel Kurul Tarihi"] ?? null),
+    // Etiket bildirimden bildirime degisiyor ("Konunun Gündemde Yer Aldığı Genel Kurul
+    // Tarihi", "Genel Kurul Tarihi", ...) -> tam eslesme yerine icerik eslesmesi.
+    genel_kurul_tarihi: (() => {
+      for (const [k, v] of Object.entries(alan)) {
+        if (!/genel kurul/i.test(k) || /gündem|karar/i.test(v)) continue;
+        const t = trTarihIso(v);
+        if (t) return t;
+      }
+      return null;
+    })(),
     karar_tarihi: trTarihIso(alan["Karar Tarihi"] ?? null),
     kap_disclosure_index: index,
     ham_alanlar: { govde_satir_sayisi: String(satirlar.length), odeme_sekli: odemeSekli ?? "" },
@@ -372,7 +381,7 @@ export async function temettuTutarTamamla(
     const govde = await bildirimGovdesi(h.index);
     if (!govde) continue;
     const kayit = temettuGovdesiCoz(govde, h.ticker, h.index);
-    if (kayit && (kayit.brut_tutar !== null || kayit.net_tutar !== null)) out.push({ index: h.index, kayit });
+    if (kayit) out.push({ index: h.index, kayit });
   }
   return out;
 }

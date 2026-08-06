@@ -194,6 +194,9 @@ export async function GET(req: NextRequest) {
   // pencerenin disinda kaldigi icin yukaridaki dongu onlara hic ugramiyor; saklanan
   // kap_disclosure_index ile bildirimi dogrudan cekip duzeltilmis matris parser'iyla
   // cozuyoruz. Kosu basina tavan — kuyruk kosu kosu eriyor.
+  // Kosul YALNIZ net_tutar: "genel kurul tarihi bos" olanlari da kuyruga alinca,
+  // bildirimde gercekten genel kurul tarihi OLMAYAN satirlar (yonetim kurulu karari
+  // verilmis, GK henuz toplanmamis) her kosuda bosuna yeniden cekiliyordu.
   let temettuOnarilan = 0;
   const { data: bosTutarlar } = await supabase
     .from("sirket_takvim_etkinlikleri")
@@ -213,6 +216,8 @@ export async function GET(req: NextRequest) {
         net_tutar: kayit.net_tutar,
         stopaj_orani: kayit.stopaj_orani,
         odeme_sekli: kayit.odeme_sekli ?? undefined,
+        genel_kurul_tarihi: kayit.genel_kurul_tarihi ?? undefined,
+        karar_tarihi: kayit.karar_tarihi ?? undefined,
         updated_at: new Date().toISOString(),
       }).eq("id", id);
       if (error) { hata = 1; hataYakala("takvim-cron:temettu-onarim", error, { index }); continue; }
