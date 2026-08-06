@@ -19,6 +19,7 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 
 ## App Structure
 - `app/` — Next.js App Router sayfaları (dashboard, hisse/[ticker], hisseler, halka-arz/[kod], portfoy, analizler, alarmlar, izleme, haberler, blog, takvim, bildirimler, profile, pro, login, register, reset-password)
+- `/takvim` — dört sekmeli birleşik takvim (`?sekme=ekonomik|bilanco|temettu|halka-arz`). Sidebar'da tek "Takvim" öğesi; `/halka-arz` liste sayfası SEO için yaşıyor, sekmeden linkli.
 - `app/api/` — API route'ları
 - `app/api/cron/` — GitHub Actions ile tetiklenen cron job'lar
 - `components/` — Shared component'lar (AppShell, StockLogo, HisseChatbot, RiskProfilWidget)
@@ -41,6 +42,8 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `/api/cron/alarmlar` — Alarm tetikleme cron'u. Fiyat, yüzde, RSI bazlı kontrol + Resend email.
 - `/api/hesap-sil` — DELETE, Supabase Admin API. Bearer token zorunlu, sadece kendi hesabını silebilir.
 - `/api/halka-arz` + `/api/halka-arz/[kod]` — Halka Arz Takvimi liste/detay (halka_arzlar tablosu; aktif/geçmiş ayrımı).
+- `/api/takvim` — Birleşik takvim okuma ucu. `?tip=ekonomik|bilanco|temettu|halka-arz&from=&to=`. Dört sekmenin TEK giriş noktası.
+- `/api/cron/takvim` — Günde 3 kez (`23 4,11,18`): (1) KAP "Finansal Rapor" → bilanço takvimi + bilanço modülü tetikleme, (2) KAP "Kar Payı Dağıtımı" → temettü, (3) ekonomik takvim senkronu. Kaynak erişilemezliği `kaynakUyari` (işi kırmaz), yalnız DB yazma hatası `hata`.
 - `/api/cron/halka-arz` — Günde 5 kez: Ahlatcı duyuru sayfasından tespit + lifecycle (talep_toplaniyor→arz_tamamlandi→islem_goruyor; Yahoo fiyat sinyaliyle). islem_goruyor kodlar `lib/hisse-evren.ts` overlay'i ile JSON sync'ini beklemeden Hisseler'de görünür.
 - `/auth/callback` — OAuth SSR callback. Supabase SSR cookie yazımı (@supabase/ssr).
 
@@ -56,12 +59,15 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `risk_profil` — (user_id, vade, risk_toleransi, sermaye, sektor, deneyim, ai_oneri JSON)
 - `chatbot_usage` — (user_id, gun, mesaj_sayisi, updated_at) PK(user_id,gun). Günlük mesaj kotası; yazma yalnız service role, kullanıcı kendi satırını okur.
 - `rate_limits` — (key, window_start, count, updated_at). `rate_limit_hit()` RPC ile atomik sayaç; yalnız service role (policy yok). Şema kaynağı: `supabase/migrations.sql` (SQL Editor'de manuel çalıştırılır).
+- `sirket_takvim_etkinlikleri` — (event_type: bilanco_aciklama/temettu, ticker, tarih, tarih_kesin, durum, donem, brut/net_tutar, stopaj_orani, odeme_sekli, genel_kurul_tarihi, kap_link). Tip başına **kısmi** eşsiz indeks (bilanço: ticker+donem, temettü: ticker+tarih) — ON CONFLICT çıkarsayamaz, cron oku/karşılaştır/yaz yapar. Herkes SELECT, yazma yalnız service role.
+- `ekonomik_takvim` — (ulke_kod, olay, tarih, saat, onem, onceki, beklenti, gerceklesen, ilgili_enstruman, kaynak). Eşsiz: ulke_kod+olay+tarih.
 - `halka_arzlar` — (kod UNIQUE, sirket_adi, durum: talep_toplaniyor/arz_tamamlandi/islem_goruyor, talep tarihleri, fiyat, buyukluk, dagitim_yontemi, iskonto, aciklik, araci_kurumlar[], izahname-derin nullable alanlar, kaynak_linkleri JSONB). Herkes SELECT, yazma yalnız service role (cron).
 
 ## Data Sources
 - Yahoo Finance — fiyat, grafik, beta, volatilite (15dk gecikmeli, `.IS` suffix zorunlu)
 - TradingView Scanner — F/K (price_earnings_ttm), PD/DD (price_book_ratio), piyasa değeri. POST https://scanner.tradingview.com/turkey/scan, ticker format: "BIST:THYAO"
 - BIST evreni: 614 aktif hisse (StockAnalysis + KAP parse; 24 Tem 2026 denetimi: 8 yeni kotasyon eklendi). Yahoo fiyat kapsamı 614/614 (TRMET/eski-KOZAA dahil). Güncelleme: `node scripts/sync-bist-companies.mjs && node scripts/add-sektor.mjs` (sektor/domain korunur).
+- Takvim verisi: KAP `byCriteria` (bilanço = `disclosureType==="FR"` fiilen açıklanan raporlar; temettü = "Kar Payı Dağıtımı" konusu) + ForexFactory haftalık XML + Fed FOMC sayfası + TÜİK/TCMB kural üreteci. **KAP tuzakları:** `period` alanı ÇEYREK numarasıdır (1→Mart, 2→Haziran, 3→Eylül, 4→Aralık), ay değil; ucuz liste çağrıları pahalı detay çekimlerinden ÖNCE yapılmalı yoksa WAF aynı çağrı içinde IP'yi kapatır; "Finansal Takvim" konusu şirket-beyanlı planlanan tarihleri **taşımıyor** (değer hücreleri boş — bkz. docs-vault K-TK4).
 - Halka arz verisi: Ahlatcı Yatırım duyuru sayfası (yapısal alanlar) + Yahoo işlem sinyali; KAP bildirimleri tespit yedeği (bkz. docs-vault K-HA1).
 
 ## Stock Logo Resolution Order
@@ -114,7 +120,7 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `images.remotePatterns`: www.google.com, t1/t2/t3.gstatic.com (favicon için).
 
 ## GitHub Actions
-- `.github/workflows/` altında cron job'lar tanımlı (8+1: hisse/enstruman/fon/bilanco/kap/alarm/karne/aksam-raporu/halka-arz).
+- `.github/workflows/` altında cron job'lar tanımlı (9+1: hisse/enstruman/fon/bilanco/kap/alarm/karne/aksam-raporu/halka-arz/takvim).
 - `hisse-snapshot`: 5dk'lık cron (offset `2-57/5`) Yahoo Finance → Supabase hisse_snapshots. GH throttling gerçek kadansı ~1-2 saate düşürür; liste sayfası görünür dilim için istek-anı canlı fiyat çeker (bilinçli tasarım).
 - `halka-arz`: günde 5 kez tespit + lifecycle.
 - Cron secret: `CRON_SECRET` env variable, `lib/cron-auth.ts` ile doğrulanır.

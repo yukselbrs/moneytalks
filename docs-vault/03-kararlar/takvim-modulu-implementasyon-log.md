@@ -1,6 +1,6 @@
 # Birleşik Takvim Modülü — İmplementasyon Logu
 
-**Durum:** DEVAM EDİYOR · Başlangıç: 25 Tem 2026
+**Durum:** TAMAMLANDI · 25 Tem 2026 → 5 Ağu 2026 · Production'da canlı
 Tek kaynak: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını okur.
 
 **Görev:** Dört alt takvim tek sayfa/menü altında sekmeli sunulacak — Ekonomik, Bilanço, Temettü, Halka Arz (sonuncusu mevcut, yeniden yazılmayacak; entegre edilecek).
@@ -27,26 +27,28 @@ Tek kaynak: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını oku
 - [x] 3.2 `ekonomik_takvim` tablosu
 - [x] 3.3 Migration **uygulandı** (MCP) + `supabase/migrations.sql`'e işlendi + commit
 
-### FAZ 4 — Birleşik UI
-- [ ] 4.1 Nav: tek "Takvim" öğesi, Halka Arz onun altına + 301 redirect
-- [ ] 4.2 Sekmeler + ortak tarih navigasyonu
-- [ ] 4.3 Önem derecesi görsel vurgu
-- [ ] 4.4 Satır→detay yönlendirmeleri (hisse / döviz-emtia)
-- [ ] 4.5 Mobil
-- [ ] 4.6 Tema uyumu
+### FAZ 4 — Birleşik UI ✅
+- [x] 4.1 Nav: tek "Takvim" öğesi (Halka Arz nav öğesi kaldırıldı, sekme oldu)
+- [x] 4.2 Dört sekme + `?sekme=` URL senkronu + ortak tarih navigasyonu
+- [x] 4.3 Önem derecesi görsel vurgu (yüksek önemli satır sol kenarlık + koyu metin)
+- [x] 4.4 Satır→detay: `/hisse/[ticker]`, `/halka-arz/[kod]`, `/doviz-maden/[kod]`
+- [x] 4.5 Mobil (kart görünümü, `useMediaQuery`)
+- [x] 4.6 Tema uyumu (mevcut kart/tablo dili korundu)
 
-### FAZ 5 — Cron
-- [ ] 5.1 Ekonomik (günlük + olay saatine yakın sık kontrol)
-- [ ] 5.2 Bilanço/Temettü KAP cron + bilanço modülü tetikleme
-- [ ] 5.3 Halka arz cron'una DOKUNMA
-- [ ] 5.4 Hata loglama
+### FAZ 5 — Cron ✅
+- [x] 5.1 Ekonomik: ForexFactory + Fed + TR kural üreteci, günde 3 kez
+- [x] 5.2 Bilanço/Temettü KAP cron + bilanço modülü tetikleme (koşu başına tavan 20)
+- [x] 5.3 Halka arz cron'una DOKUNULMADI
+- [x] 5.4 Hata loglama: `hataYakala` + yanıtta `hata`/`kaynakUyari` + teşhis sayaçları
 
-### FAZ 6 — AI/KAP ilişkilendirme (opsiyonel)
-- [ ] 6.1 Hisse AI analizine yaklaşan bilanço/temettü notu
-- [ ] 6.2 Ekonomik olay → döviz/emtia AI context
+### FAZ 6 — AI/KAP ilişkilendirme
+- [ ] 6.1-6.2 YAPILMADI (opsiyoneldi, launch kapsamı dışında bırakıldı)
 
-### FAZ 7 — Test · FAZ 8 — SEO · FAZ 9 — Kapanış
-- [ ] 7.1-7.5 · [ ] 8.1-8.2 · [ ] 9.1-9.3
+### FAZ 7 — Test ✅ · FAZ 8 — SEO ✅ · FAZ 9 — Kapanış ✅
+- [x] 7.x Dört sekme production'da gerçek veriyle doğrulandı (aşağıda)
+- [x] 8.1 `/takvim` meta'sı dört takvimi anlatıyor (eskiden yalnız "Ekonomik Takvim")
+- [x] 8.2 Sitemap: öncelik 0.6→0.9, üç sekme URL'i eklendi
+- [x] 9.x Log kapatıldı + CLAUDE.md güncellendi
 
 ---
 
@@ -146,7 +148,7 @@ Mevcut durum: kod Finnhub'a bağlı ama **`FINNHUB_API_KEY` env'de yok** → can
 
 ## ŞU AN NEREDEYİM
 
-**25 Tem 2026 — FAZ 0, 1, 2 ve 3 bitti; sıradaki FAZ 4 (birleşik UI) + FAZ 5 (cron).**
+**[GEÇMİŞ NOT — 25 Tem 2026]** Aşağıdaki plan FAZ 4/5 öncesine aittir. FAZ 2'de seçilen KAP "Finansal Takvim" kaynağı sonradan kullanılamaz çıktı; güncel durum için en alttaki KAPANIŞ bölümüne bak (K-TK4).
 
 Keşifte iki gerçek bug bulundu (Bilanço + Halka Arz sekmeleri ekonomik etkinlik gösteriyor; Finnhub anahtarı hiç yok). FAZ 2'de **KAP konu-filtresi (subjectOid)** keşfedildi: bilanço takvimi ve temettü için birincil, ücretsiz, lisans-riski olmayan kaynak bulundu ve **canlı doğrulandı** (Finansal Takvim 27 bildirim/30 gün; Kar Payı 1181/180 gün, alanlar teyitli). Ekonomik takvimde resmî MB/TÜİK takvimleri birincil seçildi; Finnhub/FMP anahtarı **opsiyonel zenginleştirme** olarak Barış'a bırakıldı.
 
@@ -157,3 +159,95 @@ Keşifte iki gerçek bug bulundu (Bilanço + Halka Arz sekmeleri ekonomik etkinl
 4. FAZ 6-9.
 
 **Barış aksiyonu:** ekonomik takvimde beklenti/gerçekleşen değerleri isteniyorsa `FINNHUB_API_KEY` (veya FMP) sağlanmalı; sağlanmazsa modül resmî takvimlerle çalışır.
+
+---
+
+## KAPANIŞ — 5 Ağu 2026
+
+### K-TK4: KAP "Finansal Takvim" konusu KULLANILAMAZ (önemli düzeltme)
+
+FAZ 2'de bu konu "bilanço takviminin birincil kaynağı" olarak seçilmişti. **Bu karar yanlış çıktı ve iptal edildi.**
+
+Canlı teşhis (83 bildirim, hem yerelde hem production koşusunda):
+`liste=83 tickerli=83 govde=83 tabloluGovde=83 eslesme=0`
+
+Yani konu OID'i doğru, bildirimler geliyor, gövde geliyor, şablon başlığı
+(`Dönem Başlangıç Tarihi | Dönem Bitiş Tarihi | Planlanan KAP'ta İlan Tarihi`)
+83/83 bildirimde var — **ama değer hücreleri boş.** Tarih ne hücre metninde
+ne de ham satır HTML'inde çıkıyor. KAP web arayüzünde görünen değerler
+`attachment-detail` ucundan gelmiyor. Şirketin **beyan ettiği planlanan**
+bilanço tarihlerine bu API üzerinden erişilemiyor.
+
+**Sonuç:** Bilanço takvimi artık **fiilen açıklanan raporlardan** kuruluyor
+(KAP `disclosureType === "FR"`). Her satır = bir şirketin bir dönem raporunu
+KAP'ta yayınladığı **kesin** tarih. Tahmini/uydurma tarih üretilmiyor.
+`durum` alanı `bekleniyor`/`aciklandi` ayrımını taşımaya devam ediyor; beyan
+edilen tarihler ileride erişilebilir olursa `bekleniyor` satırı olarak eklenip
+FR geldiğinde `aciklandi`ya çevrilecek — üstüne-yaz mantığı buna hazır.
+
+### K-TK5: KAP `period` alanı ÇEYREK numarasıdır, ay değil
+
+`period: "2", year: 2026` = 2026 **2. çeyrek**. Ay numarası sanılıp
+`{3:03, 6:06, 9:09, 12:12}` haritası yazılmıştı; 466 FR bildiriminin tamamı
+"dönemsiz" diye atlanıyordu. Doğrusu: `1→03, 2→06, 3→09, 4→12`.
+Detay bildiriminde ayrıca `MT/HZ/EY/YS` kısaltmaları görülebiliyor (haritada ikisi de var).
+`year` bazı bildirimlerde null; o durumda dönem yılı yayın tarihinden türetiliyor
+(rapor her zaman dönem sonundan sonra yayınlanır).
+
+### K-TK6: KAP WAF bütçesi — adım sırası kritik
+
+FR liste çağrısı her koşuda 500 dönüyordu. Pencere boyu (80/15/10/4 gün)
+veya konu OID'i **değildi**: cron önce "Finansal Takvim" adımında 83, sonra
+temettüde 120'ye kadar detay isteği yapıyor; FR'ye sıra geldiğinde KAP WAF'ı
+**aynı çağrı içinde** IP'yi kapatıyordu. Ölü adım kaldırılıp FR öne alınınca
+`kaynakUyari: []` oldu.
+
+**Kural:** KAP'a giden ucuz liste çağrıları, pahalı detay çekimlerinden ÖNCE yapılmalı.
+
+### K-TK7: Temettü tablosu MATRİS — ardışık `<td>` çiftleme yanlış
+
+"Nakit Kar Payı Ödeme Tutar ve Oranları" tablosu başlık satırı + pay grubu
+başına bir veri satırı. Ardışık `<td>` çiftleme başlığı değerle eşliyor ve
+brüt tutar olarak `"1 TL Nominal..."` etiketinden **1** üretiyordu. Bu yüzden
+DB'deki 28 satırın parasal alanları güvenilmezdi (`brut=1` hepsinde,
+`SELEC net=-379,8`, `NUHCM net=746,3`). Tarih ve ödeme şekli doğru olduğu
+için korundu, **tutarlar NULL'landı** — finans ürününde yanlış temettü tutarı
+boş tutardan kötüdür. Düzeltilmiş matris parser'ı 45 günlük pencereye giren
+yeni kararlarda doğru tutarı yazıyor; pencere dışındaki eski satırlar boş kalır.
+
+### Production doğrulaması (5 Ağu 2026, GitHub Actions koşusu)
+
+```
+bilanco:  { aciklandiIsaretlenen: 123, snapshotYazilan: 10, tetikAtlanan: 94,
+            toplam: 3191, fr: 466, donemsiz: 0 }
+temettu:  { yeni: 0, guncellenen: 0 }
+ekonomik: { yeni: 0, guncellenen: 0 }
+hata: 0   kaynakUyari: []   sure_ms: 47260
+```
+
+DB: `sirket_takvim_etkinlikleri` 114 bilanço satırı (2026/Q2: 110, Q1: 3, 2025/Q4: 1),
+28 temettü satırı; `ekonomik_takvim` 82 satır (fed 25 / resmi-kural 24 / resmi-tcmb 16 / forexfactory 17).
+UI: dört sekme de production'da gerçek veri gösteriyor — Bilanço sekmesi
+ASELS/AYGAZ/TUPRS 2026/Q2 açıklamaları + KAP bildirim linkleri.
+
+### Planlanandan SAPMALAR
+
+1. **`/halka-arz` 301 redirect YAPILMADI.** Plan nav birleştirme + 301'di.
+   Nav birleştirildi (sidebar'da tek "Takvim"), ama liste sayfası **yaşıyor**:
+   sitemap'te 0.9 öncelikle indeksli ve "aktif/geçmiş arz" görünümünü ay-kapsamlı
+   takvim veremiyor. Sekmeden `Tüm halka arzları listele →` ile köprü kuruldu.
+   Detay sayfasının geri linkleri `/takvim?sekme=halka-arz`e çevrildi.
+2. **FAZ 6 (AI entegrasyonu) yapılmadı** — opsiyoneldi, launch kapsamı dışı.
+3. **`/api/temettu` silindi** — Yahoo'dan GEÇMİŞ temettüleri çekiyordu, ileriye
+   dönük takvimde yanlış kaynaktı.
+
+### Bilinen sınırlar / sonraki adımlar
+
+- **Şirket beyanlı planlanan bilanço tarihleri yok** (K-TK4). İstenirse başka
+  bir uç keşfedilmeli; İş Yatırım/Fintables gibi ikincil kaynaklar ToS açısından
+  yeniden değerlendirilmeli.
+- **Eski temettü satırlarının tutarları boş** (K-TK7). 45 günlük pencere dışındalar.
+- **Ekonomik takvimde `beklenti`/`gerçekleşen` yalnız ForexFactory satırlarında** var;
+  TR/Fed satırları tarih-saat taşıyor. Barış `FINNHUB_API_KEY` sağlarsa zenginleşir.
+- **TCMB PPK tarihleri kural üreteciyle** yazılıyor (sayfa JS-render, RSS/API yok).
+  Yılda bir TCMB'nin ilan ettiği takvimle karşılaştırılmalı.
