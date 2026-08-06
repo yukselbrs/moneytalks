@@ -281,6 +281,62 @@ export async function bilancoTakvimiCek(
 }
 
 // ---- TEMETTU: KAP "Kar Payi Dagitimi" ----
+
+// Tek bildirim govdesini cozer. temettuCek ve temettuTutarTamamla ayni cozucuyu
+// kullanir — geri-doldurma yolunun parser'i canli yoldan sapmasin diye ayrildi.
+// Odenmeyecek karari veya odeme tarihi yoksa null doner.
+export function temettuGovdesiCoz(govde: string, ticker: string, index: number): TemettuKaydi | null {
+  const alan = alanCiftleri(govde);
+  const satirlar = tabloSatirlari(govde);
+
+  const odemeSekli = alan["Nakit Kar Payı Ödeme Şekli"] ?? null;
+  if (odemeSekli && /ödenmeyecek/i.test(odemeSekli)) return null;   // kar dagitilmiyor
+
+  // Odeme tarihi — "Kar Payi Odeme Tarihleri" matrisinden.
+  // Oncelik: kesinlesen odeme tarihi > kesinlesen hak kullanim > teklif edilen.
+  const tarihSatirlari = matrisSatirlar(satirlar, /Hak Kullanım Tarihi/i);
+  let odemeTarihi: string | null = null;
+  for (const kalip of [/^Ödeme Tarihi/i, /^Kesinleşen/i, /^Teklif Edilen/i]) {
+    for (const st of tarihSatirlari) {
+      const k = Object.keys(st).find((x) => kalip.test(x));
+      const t = k ? trTarihIso(st[k]) : null;
+      if (t) { odemeTarihi = t; break; }
+    }
+    if (odemeTarihi) break;
+  }
+  if (!odemeTarihi) return null;
+
+  // Tutarlar — "Nakit Kar Payi Odeme Tutar ve Oranlari" MATRISINDEN.
+  // Sutunlar: ...Brut(TL) | ...Brut(%) | Stopaj Orani(%) | ...Net(TL) | ...Net(%)
+  // (TL) suzgeci yuzdelik sutunlari eler; pay gruplari ayni TL tutarini alir.
+  let brut: number | null = null, net: number | null = null, stopaj: number | null = null;
+  for (const st of matrisSatirlar(satirlar, /Pay Grup Bilgileri/i)) {
+    for (const [k, v] of Object.entries(st)) {
+      if (/stopaj/i.test(k) && stopaj === null) stopaj = trSayi(v);
+      if (!/kar\s*pay/i.test(k) || !/\(TL\)/i.test(k)) continue;
+      if (/brüt/i.test(k) && brut === null) brut = trSayi(v);
+      else if (/\bnet\b/i.test(k) && net === null) net = trSayi(v);
+    }
+    if (brut !== null || net !== null) break;
+  }
+  // Brut < net imkansiz; boyle bir cift matris kaymasinin isareti, ikisini de atariz.
+  if (brut !== null && net !== null && brut < net) { brut = null; net = null; }
+
+  return {
+    ticker,
+    tarih: odemeTarihi,
+    brut_tutar: brut,
+    net_tutar: net,
+    stopaj_orani: stopaj,
+    para_birimi: alan["Para Birimi"] ?? "TRY",
+    odeme_sekli: odemeSekli,
+    genel_kurul_tarihi: trTarihIso(alan["Konunun Gündemde Yer Aldığı Genel Kurul Tarihi"] ?? null),
+    karar_tarihi: trTarihIso(alan["Karar Tarihi"] ?? null),
+    kap_disclosure_index: index,
+    ham_alanlar: { govde_satir_sayisi: String(satirlar.length), odeme_sekli: odemeSekli ?? "" },
+  };
+}
+
 // YALNIZ odeme yapanlar takvime girer ("Odenmeyecek" kararlari gurultu olur, atlanir).
 export async function temettuCek(gunGeri = 45, enFazlaDetay = 120): Promise<TemettuKaydi[] | null> {
   const liste = await kapKonuListesi(KONU_OID.karPayi, gunGeri);
@@ -295,60 +351,30 @@ export async function temettuCek(gunGeri = 45, enFazlaDetay = 120): Promise<Teme
     detaySayaci++;
     const govde = await bildirimGovdesi(item.disclosureIndex);
     if (!govde) continue;
-    const alan = alanCiftleri(govde);
-    const satirlar = tabloSatirlari(govde);
-
-    const odemeSekli = alan["Nakit Kar Payı Ödeme Şekli"] ?? null;
-    if (odemeSekli && /ödenmeyecek/i.test(odemeSekli)) continue;  // kar dagitilmiyor
-
-    // Odeme tarihi — "Kar Payi Odeme Tarihleri" matrisinden.
-    // Oncelik: kesinlesen odeme tarihi > kesinlesen hak kullanim > teklif edilen.
-    const tarihSatirlari = matrisSatirlar(satirlar, /Hak Kullanım Tarihi/i);
-    let odemeTarihi: string | null = null;
-    for (const kalip of [/^Ödeme Tarihi/i, /^Kesinleşen/i, /^Teklif Edilen/i]) {
-      for (const s of tarihSatirlari) {
-        const k = Object.keys(s).find((x) => kalip.test(x));
-        const t = k ? trTarihIso(s[k]) : null;
-        if (t) { odemeTarihi = t; break; }
-      }
-      if (odemeTarihi) break;
-    }
-    if (!odemeTarihi) continue;   // tarihi olmayan kayit takvime giremez
-
-    const anahtar = `${ticker}|${odemeTarihi}`;
+    const kayit = temettuGovdesiCoz(govde, ticker, item.disclosureIndex);
+    if (!kayit) continue;
+    const anahtar = `${kayit.ticker}|${kayit.tarih}`;
     if (gorulen.has(anahtar)) continue;
     gorulen.add(anahtar);
-
-    // Tutarlar — "Nakit Kar Payi Odeme Tutar ve Oranlari" matrisinden.
-    // Sutunlar: ...Brut(TL) | ...Brut(%) | Stopaj Orani(%) | ...Net(TL) | ...Net(%)
-    // (TL) suzgeci yuzdelik sutunlari eler; pay gruplari ayni TL tutarini alir,
-    // tutari dolu ilk grup yeterlidir.
-    let brut: number | null = null, net: number | null = null, stopaj: number | null = null;
-    for (const s of matrisSatirlar(satirlar, /Pay Grup Bilgileri/i)) {
-      for (const [k, v] of Object.entries(s)) {
-        if (/stopaj/i.test(k) && stopaj === null) stopaj = trSayi(v);
-        if (!/kar\s*pay/i.test(k) || !/\(TL\)/i.test(k)) continue;
-        if (/brüt/i.test(k) && brut === null) brut = trSayi(v);
-        else if (/\bnet\b/i.test(k) && net === null) net = trSayi(v);
-      }
-      if (brut !== null || net !== null) break;
-    }
-
-    kayitlar.push({
-      ticker,
-      tarih: odemeTarihi,
-      brut_tutar: brut,
-      net_tutar: net,
-      stopaj_orani: stopaj,
-      para_birimi: alan["Para Birimi"] ?? "TRY",
-      odeme_sekli: odemeSekli,
-      genel_kurul_tarihi: trTarihIso(alan["Konunun Gündemde Yer Aldığı Genel Kurul Tarihi"] ?? null),
-      karar_tarihi: trTarihIso(alan["Karar Tarihi"] ?? null),
-      kap_disclosure_index: item.disclosureIndex,
-      ham_alanlar: { govde_satir_sayisi: String(satirlar.length), odeme_sekli: odemeSekli ?? "" },
-    });
+    kayitlar.push(kayit);
   }
   return kayitlar;
+}
+
+// Tutari bos kalmis ESKI satirlari onarir: saklanan kap_disclosure_index ile bildirimi
+// yeniden cekip duzeltilmis matris parser'iyla cozer. Canli pencere (45 gun) disinda
+// kalan satirlar aksi halde sonsuza dek bos kalirdi.
+export async function temettuTutarTamamla(
+  hedefler: { ticker: string; index: number }[],
+): Promise<{ index: number; kayit: TemettuKaydi }[]> {
+  const out: { index: number; kayit: TemettuKaydi }[] = [];
+  for (const h of hedefler) {
+    const govde = await bildirimGovdesi(h.index);
+    if (!govde) continue;
+    const kayit = temettuGovdesiCoz(govde, h.ticker, h.index);
+    if (kayit && (kayit.brut_tutar !== null || kayit.net_tutar !== null)) out.push({ index: h.index, kayit });
+  }
+  return out;
 }
 
 // ---- FIILEN ACIKLANAN BILANCOLAR: KAP "Finansal Rapor" ----

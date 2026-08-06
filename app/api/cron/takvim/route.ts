@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import { temettuCek, aciklananBilancolar, type FrTeshis } from "@/lib/takvim-kaynak";
+import { temettuCek, temettuTutarTamamla, aciklananBilancolar, type FrTeshis } from "@/lib/takvim-kaynak";
 import { ekonomikTakvimTopla } from "@/lib/ekonomik-takvim-kaynak";
 import { bilancoSnapshotlariUret } from "@/lib/bilanco";
 
@@ -118,7 +118,21 @@ export async function GET(req: NextRequest) {
     }
   }
   // Bilanco modulu tetikleme — kosu basina tavan. Ilk kosuda 80+ rapor birden gelebiliyor;
-  // hepsini tek istekte cekmek 60sn butcesini asar, kalanlar sonraki kosularda toplanir.
+  // hepsini tek istekte cekmek 60sn butcesini asar.
+  //
+  // KENDINI ONARAN GERI-DOLDURMA: tavan yuzunden atlananlar SONRAKI kosuda yeniden
+  // denenmeli. Yalniz "bu kosuda degisen satirlar"a bakmak yetmiyordu — satir bir kez
+  // yazildiktan sonra imzasi sabitleniyor ve o ticker bir daha hic tetiklenmiyordu
+  // (ilk kosuda 94 ticker atlandi, 66'si snapshot'siz kaldi). Bu yuzden takvimde satiri
+  // olup bilanco_snapshots'ta KAYDI OLMAYAN ticker'lar da kuyruga ekleniyor; kuyruk
+  // kosu kosu eriyor.
+  const { data: snapVar, error: snapHata } = await supabase.from("bilanco_snapshots").select("ticker");
+  if (snapHata) hataYakala("takvim-cron:snapshot-okuma", snapHata);
+  const snapSet = new Set((snapVar ?? []).map((s) => s.ticker));
+  const { data: takvimTicker } = await supabase
+    .from("sirket_takvim_etkinlikleri").select("ticker").eq("event_type", "bilanco_aciklama");
+  for (const r of takvimTicker ?? []) if (!snapSet.has(r.ticker)) tetiklenecek.add(r.ticker);
+
   const TETIK_TAVAN = 20;
   const tetikLIstesi = [...tetiklenecek].slice(0, TETIK_TAVAN);
   const tetikAtlanan = tetiklenecek.size - tetikLIstesi.length;
@@ -163,6 +177,36 @@ export async function GET(req: NextRequest) {
     }, temettuSayac);
   }
 
+  // Tutari bos kalmis ESKI temettu satirlarini onar. Bu satirlar canli 45 gunluk
+  // pencerenin disinda kaldigi icin yukaridaki dongu onlara hic ugramiyor; saklanan
+  // kap_disclosure_index ile bildirimi dogrudan cekip duzeltilmis matris parser'iyla
+  // cozuyoruz. Kosu basina tavan — kuyruk kosu kosu eriyor.
+  let temettuOnarilan = 0;
+  const { data: bosTutarlar } = await supabase
+    .from("sirket_takvim_etkinlikleri")
+    .select("id, ticker, kap_disclosure_index")
+    .eq("event_type", "temettu").is("net_tutar", null).not("kap_disclosure_index", "is", null)
+    .limit(12);
+  if (bosTutarlar?.length) {
+    const onarim = await temettuTutarTamamla(
+      bosTutarlar.map((r) => ({ ticker: r.ticker, index: r.kap_disclosure_index as number })),
+    );
+    const idHarita = new Map(bosTutarlar.map((r) => [r.kap_disclosure_index as number, r.id]));
+    for (const { index, kayit } of onarim) {
+      const id = idHarita.get(index);
+      if (!id) continue;
+      const { error } = await supabase.from("sirket_takvim_etkinlikleri").update({
+        brut_tutar: kayit.brut_tutar,
+        net_tutar: kayit.net_tutar,
+        stopaj_orani: kayit.stopaj_orani,
+        odeme_sekli: kayit.odeme_sekli ?? undefined,
+        updated_at: new Date().toISOString(),
+      }).eq("id", id);
+      if (error) { hata = 1; hataYakala("takvim-cron:temettu-onarim", error, { index }); continue; }
+      temettuOnarilan++;
+    }
+  }
+
   // ---- 3) EKONOMIK TAKVIM (ForexFactory + Fed + TR kural ureteci) ----
   const ekoSayac: Sayac = { yeni: 0, guncellenen: 0 };
   const { olaylar, uyari } = await ekonomikTakvimTopla(new Date().getUTCFullYear());
@@ -192,7 +236,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     bilanco: { aciklandiIsaretlenen, snapshotYazilan: bilancoSnapshotYazilan, tetikAtlanan, ...frTeshis },
-    temettu: temettuSayac,
+    temettu: { ...temettuSayac, onarilan: temettuOnarilan },
     ekonomik: ekoSayac,
     hata,
     kaynakUyari,
