@@ -289,9 +289,14 @@ Alternatif uç denemeleri (`api/notification/{idx}`, `api/disclosure/{idx}`,
 
 ### Bilinen sınırlar / sonraki adımlar
 
-- **Şirket beyanlı planlanan bilanço tarihleri yok** (K-TK4, üç kez
-  doğrulandı). Takvim geriye/bugüne bakar, ileriye değil. İstenirse ikincil
-  kaynaklar (İş Yatırım/Fintables) ToS açısından yeniden değerlendirilmeli.
+- **Şirket beyanlı planlanan bilanço tarihleri yok** (K-TK4, DÖRT kez
+  doğrulandı: Haz–Ağu penceresi, Oca–Şub penceresi, KAP'ın public HTML sayfası,
+  bildirim ekleri `attachmentCount=0`). Takvim geriye/bugüne bakar, ileriye değil.
+  İkincil kaynaklar değerlendirildi → kullanılabilir kaynak YOK; ayrıntı:
+  `04-arastirma/bilanco-takvimi-ikincil-kaynak-degerlendirmesi.md`. Özet: tek
+  gerçek kaynak Matriks'in ticari anketi, GCM açıkça yeniden dağıtımı yasaklıyor,
+  Bigpara robots'ta `anthropic-ai: Disallow: /`, Fintables 403 veriyor. Öneri:
+  üçüncü taraf gerektirmeyen **yasal son tarih bandı** (SPK II-14.1).
 - **Ekonomik takvimde `beklenti`/`gerçekleşen` yalnız ForexFactory satırlarında** var;
   TR/Fed satırları tarih-saat taşıyor. Barış `FINNHUB_API_KEY` sağlarsa zenginleşir.
 - **TCMB PPK tarihleri kural üreteciyle** yazılıyor (sayfa JS-render, RSS/API yok).
