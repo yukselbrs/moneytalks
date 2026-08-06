@@ -63,7 +63,8 @@ export async function GET(req: NextRequest) {
   const snapshots: Record<string, SnapshotRow> = {};
   for (const s of (snapshotRes.data || []) as SnapshotRow[]) snapshots[s.ticker] = s;
 
-  const riskler = await fetchRiskOzetleri(appUrl, tickers);
+  // Kullanici istegi: risk zenginlestirmesi 20sn butceyle — dusen ticker karneyi engellemez.
+  const riskler = await fetchRiskOzetleri(appUrl, tickers, Date.now() + 20_000);
   const karne = karneHesapla(pozisyonlar as PortfoyRow[], snapshots, riskler, endeksHaftalik, (kapRes.data || []) as KapOlay[]);
 
   return NextResponse.json({

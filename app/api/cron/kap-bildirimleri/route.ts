@@ -14,8 +14,11 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY);
 // Timeout korumasi (onceki FUNCTION_INVOCATION_TIMEOUT/504 kok nedeni: seri detay cekimi).
 const KAYIT_BATCH = 24;      // her kosuda en fazla bu kadar bildirim islenir; kalan sonraki kosuya
 const DETAY_ESZAMAN = 8;     // ayni anda en fazla bu kadar detay cagrisi (WAF nezaketi)
-const OZET_BATCH_LIMIT = 5;
-const OZET_ESZAMAN = 2;      // ayni anda en fazla bu kadar AI ozet cagrisi
+// Girdi/cikti hizi dengesi: KAYIT_BATCH(24) x 4 kosu/saat = 96 bildirim/saat girer,
+// OZET_BATCH_LIMIT 5 iken 20/saat cikardi -> kuyruk suresiz buyuyordu (2240 birikti).
+// 10'a cikarildi (40/saat); yanittaki `ozetBekleyen` sapmayi gorunur tutar.
+const OZET_BATCH_LIMIT = 10;
+const OZET_ESZAMAN = 4;      // ayni anda en fazla bu kadar AI ozet cagrisi
 // Mail/bildirim yalniz son bu kadar saatteki bildirimler icin. Eski backfill (ilk doldurmada 5 gunluk
 // yigin) ozetlenip tabloya girer ama BAYAT mail spam'i gondermez — "haber geldiginde" = taze haber.
 const MAIL_TAZELIK_SAAT = 36;
@@ -120,7 +123,20 @@ type BekleyenOzet = {
   ham_detay: KapDetay;
 };
 
+// Kredi/kota/aglayla ilgili hatalar GECICIDIR — satiri olu isaretlemek yerine
+// 'yeni' birakip sonraki kosuda yeniden denenmeli. Icerik kaynakli hatalar (bozuk
+// govde, parse) kalicidir ve 'hata' olarak isaretlenir.
+function geciciHata(e: unknown): boolean {
+  const durum = (e as { status?: number })?.status;
+  if (durum === 429 || durum === 401 || durum === 403 || (typeof durum === "number" && durum >= 500)) return true;
+  const metin = String((e as { message?: string })?.message ?? e).toLowerCase();
+  return /credit balance|rate limit|overloaded|quota|timeout|timed out|econnreset|fetch failed|network/.test(metin);
+}
+
+let geciciAtlanan = 0;
+
 async function ozetleriUret(): Promise<number> {
+  geciciAtlanan = 0;
   const { data: bekleyenler } = await supabase
     .from("kap_bildirimleri")
     .select("id, disclosure_index, ticker, bildirim_tipi, ham_detay")
@@ -146,6 +162,11 @@ async function ozetleriUret(): Promise<number> {
       return true;
     } catch (e) {
       console.error(`KAP ozet hatasi (${bildirim.disclosure_index}):`, e);
+      // GECICI hatada 'hata' YAZMA: o satir bir daha hic denenmiyor. Anthropic
+      // kredisi bitince (400 "credit balance is too low") 706 bildirim kalici
+      // olarak olu isaretlendi — kredi gelse bile asla ozetlenmeyeceklerdi.
+      // Yalniz ICERIK kaynakli, tekrar denemekle duzelmeyecek hatalar 'hata' olur.
+      if (geciciHata(e)) { geciciAtlanan++; return false; }
       await supabase.from("kap_bildirimleri").update({ durum: "hata" }).eq("id", bildirim.id);
       return false;
     }
@@ -300,8 +321,20 @@ export async function GET(req: NextRequest) {
     .from("kap_bildirimleri")
     .select("id", { count: "exact", head: true })
     .eq("durum", "hata");
+  // Ozet kuyrugu: girdi hizi (KAYIT_BATCH) cikti hizindan (OZET_BATCH_LIMIT) buyukse
+  // suresiz buyur — bu sayac o sapmayi gorunur kilar.
+  const { count: bekleyenToplam } = await supabase
+    .from("kap_bildirimleri")
+    .select("id", { count: "exact", head: true })
+    .eq("durum", "yeni");
   const epostaGonderilen = await bildirimGonder();
 
   // hata = yalniz OPERASYONEL hatalar (KAP erisilemedi / liste cekilemedi). Workflow bunu kontrol eder.
-  return NextResponse.json({ yeniBildirim, ozetlenen, epostaGonderilen, ozetlenemeyenToplam: ozetlenemeyenToplam ?? 0, hata });
+  return NextResponse.json({
+    yeniBildirim, ozetlenen, epostaGonderilen,
+    ozetBekleyen: bekleyenToplam ?? 0,
+    geciciAtlanan,                      // >0 ise AI cagrisi gecici olarak basarisiz (kredi/kota/ag)
+    ozetlenemeyenToplam: ozetlenemeyenToplam ?? 0,
+    hata,
+  });
 }

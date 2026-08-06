@@ -72,21 +72,29 @@ export async function fetchEndeksHaftalik(): Promise<number | null> {
   }
 }
 
-export async function fetchRiskOzetleri(appUrl: string, tickers: string[]): Promise<Record<string, RiskOzet>> {
+// Risk skoru karnede ZENGINLESTIRMEDIR — eksik olursa karne yine uretilir (riskSkor null).
+// Bu yuzden sure butcesi var: /api/risk pahali (Yahoo + TradingView, 10 faktor) ve 25
+// ticker'i 5'erli sirayla cekmek Vercel'in 60sn limitini asiyordu (2 Agu'da 504
+// FUNCTION_INVOCATION_TIMEOUT). Butce dolunca elde ne varsa onunla devam edilir.
+export async function fetchRiskOzetleri(
+  appUrl: string, tickers: string[], sonTarihMs?: number,
+): Promise<Record<string, RiskOzet>> {
   const sonuc: Record<string, RiskOzet> = {};
   const hedefler = tickers.slice(0, RISK_FETCH_CAP);
+  const ES_ZAMANLI = 8;
 
-  for (let i = 0; i < hedefler.length; i += 5) {
-    const chunk = hedefler.slice(i, i + 5);
+  for (let i = 0; i < hedefler.length; i += ES_ZAMANLI) {
+    if (sonTarihMs && Date.now() > sonTarihMs) break;      // butce doldu — kismi sonucla devam
+    const chunk = hedefler.slice(i, i + ES_ZAMANLI);
     await Promise.all(chunk.map(async ticker => {
       try {
-        const res = await fetch(`${appUrl}/api/risk?ticker=${ticker}`);
+        const res = await fetch(`${appUrl}/api/risk?ticker=${ticker}`, { signal: AbortSignal.timeout(8000) });
         if (!res.ok) return;
         const data = await res.json();
         if (typeof data?.skor !== "number") return;
         sonuc[ticker] = { skor: data.skor, beta: typeof data?.meta?.beta === "number" ? data.meta.beta : null };
       } catch {
-        return;
+        return;   // tek ticker'in dusmesi karneyi engellemez
       }
     }));
   }

@@ -123,6 +123,7 @@ export async function GET(req: NextRequest) {
 
   const batchTickers = [...new Set(bekleyenler.flatMap(u => (kullaniciPozisyonlari.get(u) || []).map(p => p.ticker)))];
 
+  const baslangicMs = Date.now();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://parakonusur.com";
   const yediGunOnce = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -149,7 +150,9 @@ export async function GET(req: NextRequest) {
     }
   }
   const riskHedefleri = [...degerSiralamasi.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
-  const riskler = await fetchRiskOzetleri(appUrl, riskHedefleri);
+  // Risk cekimine 35sn butce: geri kalan sure e-posta gonderimine kaliyor.
+  // (Vercel maxDuration 60; 2 Agu'da bu adim tasip 504 vermisti.)
+  const riskler = await fetchRiskOzetleri(appUrl, riskHedefleri, baslangicMs + 35_000);
 
   const { data: profiller } = await supabase.from("profiles").select("id, email").in("id", bekleyenler);
   const emailMap = new Map((profiller || []).map((p: { id: string; email: string | null }) => [p.id, p.email]));
@@ -219,5 +222,5 @@ export async function GET(req: NextRequest) {
 
   if (dryRun) return NextResponse.json({ dry: true, hafta, kullanici: tumKullanicilar.length, batch: bekleyenler.length, ornekler: dryOrnekler });
 
-  return NextResponse.json({ kullanici: tumKullanicilar.length, gonderilen, kalan: tumKullanicilar.length - gonderilmisSet.size - bekleyenler.length, hata });
+  return NextResponse.json({ kullanici: tumKullanicilar.length, gonderilen, kalan: tumKullanicilar.length - gonderilmisSet.size - bekleyenler.length, riskCekilen: Object.keys(riskler).length, riskHedef: Math.min(riskHedefleri.length, 25), sure_ms: Date.now() - baslangicMs, hata });
 }
