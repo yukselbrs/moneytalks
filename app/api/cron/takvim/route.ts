@@ -5,6 +5,8 @@ import { hataYakala } from "@/lib/hata-yakala";
 import { temettuCek, temettuTutarTamamla, aciklananBilancolar, type FrTeshis } from "@/lib/takvim-kaynak";
 import { ekonomikTakvimTopla } from "@/lib/ekonomik-takvim-kaynak";
 import { bilancoSnapshotlariUret } from "@/lib/bilanco";
+import { yeniKotasyonOverlay } from "@/lib/hisse-evren";
+import bistSirketler from "@/data/bist-companies.json";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -83,9 +85,20 @@ export async function GET(req: NextRequest) {
   const frTeshis: FrTeshis = { toplam: 0, fr: 0, donemsiz: 0 };
   const aciklanan = await aciklananBilancolar(8, frTeshis);
   if (aciklanan === null) kaynakUyari.push("kap-finansal-rapor");
+  // KAP'a FR bildiren her kurum BIST HISSESI DEGIL: varlik kiralama sirketleri (DGRVK,
+  // BRGFK), faktoring (AKDFA, ALJF), tahvil ihraccilari... Bunlar takvime girerse
+  // (a) satirlarin %42'si kullaniciya anlamsiz oluyordu, (b) satir tiklamasi
+  // /hisse/[ticker] 404 veriyordu, (c) bilanco snapshot kuyrugunu kalici tikiyorlardi
+  // (hisse olmadiklari icin Is Yatirim'da karsiliklari yok). Hisse evrenine suzuluyor;
+  // overlay yeni kotasyonlari JSON sync'ini beklemeden kapsar.
+  const evren = new Set((bistSirketler as { ticker: string }[]).map((c) => c.ticker));
+  for (const o of await yeniKotasyonOverlay()) evren.add(o.ticker);
+  let evrenDisi = 0;
+
   const tetiklenecek = new Set<string>();
   for (const a of aciklanan ?? []) {
     if (!a.donem) continue;                      // donemi cozulemeyen bildirim takvime girmez
+    if (!evren.has(a.ticker)) { evrenDisi++; continue; }
     // Bekleyen satir varsa 'aciklandi'ya cevir; yoksa aciklanan raporun KENDISINI yaz.
     // (Beyan edilen planlanan tarihler KAP API'sinde gelmedigi icin takvimin birincil
     //  icerigi budur — fiilen aciklanmis, tarihi kesin raporlar.)
@@ -131,7 +144,7 @@ export async function GET(req: NextRequest) {
   const snapSet = new Set((snapVar ?? []).map((s) => s.ticker));
   const { data: takvimTicker } = await supabase
     .from("sirket_takvim_etkinlikleri").select("ticker").eq("event_type", "bilanco_aciklama");
-  for (const r of takvimTicker ?? []) if (!snapSet.has(r.ticker)) tetiklenecek.add(r.ticker);
+  for (const r of takvimTicker ?? []) if (!snapSet.has(r.ticker) && evren.has(r.ticker)) tetiklenecek.add(r.ticker);
 
   const TETIK_TAVAN = 20;
   const tetikLIstesi = [...tetiklenecek].slice(0, TETIK_TAVAN);
@@ -235,7 +248,7 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    bilanco: { aciklandiIsaretlenen, snapshotYazilan: bilancoSnapshotYazilan, tetikAtlanan, ...frTeshis },
+    bilanco: { aciklandiIsaretlenen, snapshotYazilan: bilancoSnapshotYazilan, tetikAtlanan, evrenDisi, ...frTeshis },
     temettu: { ...temettuSayac, onarilan: temettuOnarilan },
     ekonomik: ekoSayac,
     hata,

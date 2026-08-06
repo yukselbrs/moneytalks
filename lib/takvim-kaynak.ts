@@ -439,5 +439,15 @@ export async function aciklananBilancolar(gunGeri = 8, teshis?: FrTeshis): Promi
     if (teshis) teshis.fr++;
     out.push({ ticker, tarih: t, donem, donemBitis, index: item.disclosureIndex });
   }
-  return out;
+  // Ayni ticker+donem icin birden fazla FR bildirimi olabiliyor (duzeltme/revize rapor).
+  // Takvim "bilanco ilk ne zaman aciklandi" sorusunu yanitlar -> EN ERKEN tarih kazanir.
+  // Tekillestirmeden cron her kosuda ayni satiri farkli tarihlerle ust uste yaziyordu
+  // (aciklandiIsaretlenen her turda ayni sayida tekrarliyordu).
+  const enErken = new Map<string, AciklananRapor>();
+  for (const r of out) {
+    const k = `${r.ticker}|${r.donem}`;
+    const v = enErken.get(k);
+    if (!v || r.tarih < v.tarih) enErken.set(k, r);
+  }
+  return [...enErken.values()];
 }
