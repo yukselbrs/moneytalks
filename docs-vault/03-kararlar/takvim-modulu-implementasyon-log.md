@@ -241,12 +241,57 @@ ASELS/AYGAZ/TUPRS 2026/Q2 açıklamaları + KAP bildirim linkleri.
 3. **`/api/temettu` silindi** — Yahoo'dan GEÇMİŞ temettüleri çekiyordu, ileriye
    dönük takvimde yanlış kaynaktı.
 
+### Onarım turu — 6 Ağu 2026
+
+Kapanış sonrası açık kalan her madde tek tek ele alındı.
+
+**K-TK8: Takvimin %42'si BIST hissesi bile değildi.** KAP'a FR bildiren her
+kurum hisse değil: varlık kiralama şirketleri (DGRVK, BRGFK), faktoring
+(AKDFA, ALJF), tahvil ihraççıları. 200 ticker'ın 85'i bunlardı. Üç ayrı
+soruna yol açıyordu: (a) satırlar kullanıcıya anlamsız, (b) satır tıklaması
+`/hisse/[ticker]` 404, (c) İş Yatırım'da karşılıkları olmadığı için bilanço
+snapshot kuyruğunun **başını kalıcı tıkıyorlardı** — kuyruk hep aynı ilk 20'yi
+deniyor, hiçbiri yazılamıyor, arkadakiler sıra alamıyordu (`tetikAtlanan`
+99→72→65 diye takılıyordu). `bist-companies.json` + `yeniKotasyonOverlay`
+evrenine süzüldü, 83 çöp satır silindi. `tetikAtlanan` artık **0**.
+
+**K-TK9: Snapshot tetiklemesi kendini onarmıyordu.** Tetikleme yalnız "bu
+koşuda değişen satırlar"a bakıyordu; tavan (20) yüzünden atlananlar bir daha
+HİÇ denenmiyordu, çünkü satır bir kez yazıldıktan sonra imzası sabitleniyor.
+İlk koşuda 94 ticker atlandı, 66'sı kalıcı snapshot'sız kaldı. Artık takvimde
+satırı olup `bilanco_snapshots`'ta kaydı olmayan ticker'lar da kuyruğa
+ekleniyor — kuyruk koşu koşu eriyor.
+
+**K-TK10: FR tekilleştirme yoktu → cron idempotent değildi.** Aynı
+ticker+dönem için birden fazla FR bildirimi olabiliyor (düzeltme/revize
+rapor); cron her koşuda aynı satırı farklı tarihlerle üst üste yazıyordu.
+Takvim "bilanço İLK ne zaman açıklandı"yı yanıtladığı için en erken tarih
+kazanıyor. Art arda 3 koşu artık 1 / 0 / 0 yazıyor.
+
+**Temettü tutarları onarıldı.** 16 boş satır, saklanan `kap_disclosure_index`
+ile bildirimi yeniden çekip düzeltilmiş matris parser'ıyla çözüldü
+(`temettuGovdesiCoz` ayrı fonksiyona çıkarıldı: canlı yol ve geri-doldurma
+aynı parser'ı kullanır). **28 satırın 28'i dolu**, tutarlar iç tutarlı:
+`net = brüt × (1 − stopaj)` her satırda tam tutuyor (FROTO 3,64→3,094;
+TOASO 20→17; KCHOL stopaj=0 → net=brüt). Eski değerler yüzde sütunundan
+sızmıştı (NUHCM net=746 → 19,125). Ek sağlama: `brüt < net` imkânsız →
+ikisi de atılır.
+
+**K-TK4 üçüncü kez doğrulandı — bu bir dış sınır, kod hatası değil.**
+Planlanan bilanço tarihleri için üç bağımsız yol denendi: (1) Haz–Ağu
+penceresi 83 bildirim, (2) Oca–Şub penceresi 30 bildirim (SISE, ASELS,
+TCELL, TOASO, DOAS dahil — "yıllık takvim Ocak'ta yayınlanır" hipotezi),
+(3) KAP'ın kendi public `/tr/Bildirim/{index}` HTML sayfası. Üçünde de
+`Planlanan KAP'ta İlan Tarihi` başlığı var, **değer hücreleri boş**. Başlık
+taksonomi şablonundan geliyor; değerler bu uçtan hiç yayınlanmıyor.
+Alternatif uç denemeleri (`api/notification/{idx}`, `api/disclosure/{idx}`,
+`.../detail/`, `.../summary/`) hepsi 404.
+
 ### Bilinen sınırlar / sonraki adımlar
 
-- **Şirket beyanlı planlanan bilanço tarihleri yok** (K-TK4). İstenirse başka
-  bir uç keşfedilmeli; İş Yatırım/Fintables gibi ikincil kaynaklar ToS açısından
-  yeniden değerlendirilmeli.
-- **Eski temettü satırlarının tutarları boş** (K-TK7). 45 günlük pencere dışındalar.
+- **Şirket beyanlı planlanan bilanço tarihleri yok** (K-TK4, üç kez
+  doğrulandı). Takvim geriye/bugüne bakar, ileriye değil. İstenirse ikincil
+  kaynaklar (İş Yatırım/Fintables) ToS açısından yeniden değerlendirilmeli.
 - **Ekonomik takvimde `beklenti`/`gerçekleşen` yalnız ForexFactory satırlarında** var;
   TR/Fed satırları tarih-saat taşıyor. Barış `FINNHUB_API_KEY` sağlarsa zenginleşir.
 - **TCMB PPK tarihleri kural üreteciyle** yazılıyor (sayfa JS-render, RSS/API yok).
