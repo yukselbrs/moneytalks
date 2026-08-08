@@ -42,6 +42,30 @@ Bilanço sekmesine şirket başına **uydurma tarih** yazmak yerine, çeyrek ba�
 veri dürüst etiketlenir ("beyan edilen tarih değil, mevzuat son tarihi"). Fiilen açıklananlar
 zaten KAP FR'den kesin tarihle geliyor.
 
-**Karar Barış'ta:** (a) böyle bir band eklensin mi, (b) Matriks/aracı kurum lisansı
-düşünülsün mü. Lisans alınırsa mevcut şema hazır — `durum='bekleniyor'` satırları olarak
-girer, FR geldiğinde `aciklandi`ya döner.
+## UYGULANDI — 7 Ağu 2026
+
+Band eklendi: `lib/bilanco-son-tarih.ts` (saf fonksiyon, DB/ağ/üçüncü taraf gerektirmez,
+bayatlamaz). `/api/takvim?tip=bilanco` şirket satırlarıyla birleştirip döner.
+
+SPK II-14.1 bildirim süreleri — dönem sonundan itibaren:
+| Dönem | Konsolide olmayan | Konsolide |
+|---|---|---|
+| Ara dönem (Q1/Q2/Q3) | 30 gün | 40 gün |
+| Yıllık (Q4) | 60 gün | 70 gün |
+
+Hafta sonuna denk gelen son gün sonraki iş gününe kayar.
+
+**Doğrulama — üretilen tarihler kamuya duyurulan tarihlerle birebir:**
+- 2025/Q4 +60 → 1 Mart Pazar → **2 Mart 2026** ✓
+- 2025/Q4 +70 → **11 Mart 2026** ✓
+- 2026/Q2 +40 → 9 Ağu Pazar → **10 Ağustos 2026** ✓
+
+UI'da mor kenarlıklı, tüm genişliği kaplayan ayrı satır — hisse kodu/KAP linki yok,
+şirket satırıyla karıştırılamaz. İstatistikler ayrıldı (Açıklandı / Şirket / Son Gün).
+
+**Bilinen sınır:** resmî tatiller hesaba katılmıyor (dini bayramlar her yıl kayıyor),
+yalnız hafta sonu kaydırması var. Satırlar "yasal son gün" olarak etiketlendiği için
+şirket beyanıyla karıştırılamaz.
+
+**Açık kalan karar:** Matriks/aracı kurum lisansı düşünülürse şema hazır —
+`durum='bekleniyor'` satırları olarak girer, FR geldiğinde `aciklandi`ya döner.

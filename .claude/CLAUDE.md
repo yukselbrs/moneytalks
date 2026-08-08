@@ -42,7 +42,7 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 - `/api/cron/alarmlar` — Alarm tetikleme cron'u. Fiyat, yüzde, RSI bazlı kontrol + Resend email.
 - `/api/hesap-sil` — DELETE, Supabase Admin API. Bearer token zorunlu, sadece kendi hesabını silebilir.
 - `/api/halka-arz` + `/api/halka-arz/[kod]` — Halka Arz Takvimi liste/detay (halka_arzlar tablosu; aktif/geçmiş ayrımı).
-- `/api/takvim` — Birleşik takvim okuma ucu. `?tip=ekonomik|bilanco|temettu|halka-arz&from=&to=`. Dört sekmenin TEK giriş noktası.
+- `/api/takvim` — Birleşik takvim okuma ucu. `?tip=ekonomik|bilanco|temettu|halka-arz&from=&to=`. Dört sekmenin TEK giriş noktası. Bilanço tipi ayrıca `lib/bilanco-son-tarih.ts` ile SPK II-14.1 yasal son tarihlerini üretir (`tur:"son_tarih"`, saf fonksiyon — DB'ye yazılmaz).
 - `/api/cron/takvim` — Günde 3 kez (`23 4,11,18`): (1) KAP "Finansal Rapor" → bilanço takvimi + bilanço modülü tetikleme, (2) KAP "Kar Payı Dağıtımı" → temettü, (3) ekonomik takvim senkronu. Kaynak erişilemezliği `kaynakUyari` (işi kırmaz), yalnız DB yazma hatası `hata`.
 - `/api/cron/halka-arz` — Günde 5 kez: Ahlatcı duyuru sayfasından tespit + lifecycle (talep_toplaniyor→arz_tamamlandi→islem_goruyor; Yahoo fiyat sinyaliyle). islem_goruyor kodlar `lib/hisse-evren.ts` overlay'i ile JSON sync'ini beklemeden Hisseler'de görünür.
 - `/auth/callback` — OAuth SSR callback. Supabase SSR cookie yazımı (@supabase/ssr).
