@@ -39,7 +39,14 @@ type SirketOlayTemel = {
   stopajOrani: number | null; paraBirimi: string | null; odemeSekli: string | null;
   genelKurulTarihi: string | null; kapLink: string | null; link: string;
 };
-type BilancoOlay = SirketOlayTemel & { tip: "bilanco" };
+type BilancoOlay = SirketOlayTemel & {
+  tip: "bilanco";
+  // "son_tarih" satirlari SIRKETE AIT DEGILDIR: SPK II-14.1 yasal son gunudur
+  // (sirket beyanli planlanan tarih KAP'tan alinamiyor — bkz. takvim logu K-TK4).
+  tur?: "sirket" | "son_tarih";
+  baslik?: string;
+  kapsam?: "konsolide-olmayan" | "konsolide";
+};
 type TemettuOlay = SirketOlayTemel & { tip: "temettu" };
 type HalkaArzOlay = {
   tip: "halka-arz"; tarih: string; kod: string; sirketAdi: string; logoUrl: string | null;
@@ -168,9 +175,9 @@ function TakvimIcerik() {
           ]
         : sekme === "bilanco"
           ? [
-              { label: "Toplam", color: SEKME_RENK.bilanco, value: tumOlaylar.length },
-              { label: "Açıklandı", color: "#10B981", value: tumOlaylar.filter((e) => e.tip === "bilanco" && e.durum === "aciklandi").length },
-              { label: "Bekleniyor", color: "#F59E0B", value: tumOlaylar.filter((e) => e.tip === "bilanco" && e.durum === "bekleniyor").length },
+              { label: "Açıklandı", color: "#10B981", value: tumOlaylar.filter((e) => e.tip === "bilanco" && e.tur !== "son_tarih" && e.durum === "aciklandi").length },
+              { label: "Şirket", color: SEKME_RENK.bilanco, value: new Set(tumOlaylar.flatMap((e) => (e.tip === "bilanco" && e.tur !== "son_tarih" ? [e.ticker] : []))).size },
+              { label: "Son Gün", color: "#C4B5FD", value: tumOlaylar.filter((e) => e.tip === "bilanco" && e.tur === "son_tarih").length },
             ]
           : [
               { label: "Ödeme", color: SEKME_RENK.temettu, value: tumOlaylar.length },
@@ -274,7 +281,7 @@ function TakvimIcerik() {
                     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                       <div style={{ width: 8, height: 8, borderRadius: "50%", background: SEKME_RENK[sekme] }} />
                       <span style={{ fontSize: 11, color: "#475569" }}>
-                        {sekme === "bilanco" ? "Bilanço açıklaması" : sekme === "temettu" ? "Temettü ödemesi" : "Halka arz etkinliği"}
+                        {sekme === "bilanco" ? "Bilanço açıklaması + SPK yasal son günleri" : sekme === "temettu" ? "Temettü ödemesi" : "Halka arz etkinliği"}
                       </span>
                     </div>
                   )}
@@ -322,7 +329,7 @@ function TakvimIcerik() {
                 const t = new Date(e.tarih + "T00:00:00");
                 const baslik = e.tip === "ekonomik" ? e.baslik
                   : e.tip === "halka-arz" ? `${e.kod} · ${e.asama}`
-                  : e.tip === "bilanco" ? `${e.ticker} · ${e.donem ?? "bilanço"} bilançosu`
+                  : e.tip === "bilanco" ? (e.tur === "son_tarih" ? `${e.donem} · yasal son gün` : `${e.ticker} · ${e.donem ?? "bilanço"} bilançosu`)
                   : `${e.ticker} · temettü ödemesi`;
                 const altBilgi = e.tip === "ekonomik" ? (e.beklenti ? `Beklenti: ${e.beklenti}` : null)
                   : e.tip === "temettu" ? (e.netTutar !== null ? `Net ${formatCurrency(e.netTutar)}` : null)
@@ -358,7 +365,7 @@ function TakvimIcerik() {
 
             <p style={{ fontSize: 11, color: "#334155", lineHeight: 1.6 }}>
               Kaynaklar: KAP (bilanço/temettü), TCMB &amp; TÜİK &amp; Fed resmi takvimleri, ForexFactory.
-              Şirket beyanlı bilanço tarihleri değişebilir. Bu sayfa yatırım tavsiyesi değildir.
+              Bilanço satırları KAP'ta fiilen açıklanmış raporlardır; mor satırlar SPK II-14.1 yasal son günüdür (şirket beyanı değil). Bu sayfa yatırım tavsiyesi değildir.
             </p>
           </div>
         </div>
@@ -403,6 +410,12 @@ function GunDetay({ olaylar, sekme, isMobil, git }: {
                 <span style={{ fontSize: 11, fontWeight: 700, color: HA_DURUM[e.durum]?.renk ?? "#94A3B8", whiteSpace: "nowrap" }}>{HA_DURUM[e.durum]?.label ?? e.durum}</span>
               </div>
             ) : (
+              e.tip === "bilanco" && e.tur === "son_tarih" ? (
+              <div style={{ borderLeft: "2px solid #8B5CF6", paddingLeft: 10 }}>
+                <p style={{ fontSize: 12, color: "#C4B5FD", fontWeight: 700 }}>{e.donem}</p>
+                <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 2, overflowWrap: "anywhere" }}>{e.baslik}</p>
+              </div>
+              ) : (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                 <div>
                   <p style={{ fontSize: 13, color: "#3B82F6", fontWeight: 800 }}>{e.ticker}</p>
@@ -414,6 +427,7 @@ function GunDetay({ olaylar, sekme, isMobil, git }: {
                   ? <span style={{ fontSize: 13, color: "#10B981", fontWeight: 700, whiteSpace: "nowrap" }}>{e.netTutar !== null ? formatCurrency(e.netTutar) : "—"}</span>
                   : <span style={{ fontSize: 11, fontWeight: 700, color: e.durum === "aciklandi" ? "#10B981" : "#F59E0B", whiteSpace: "nowrap" }}>{e.durum === "aciklandi" ? "Açıklandı" : "Bekleniyor"}</span>}
               </div>
+              )
             )}
           </div>
         ))}
@@ -452,6 +466,11 @@ function GunDetay({ olaylar, sekme, isMobil, git }: {
                   <td style={{ padding: "10px 12px", textAlign: "center", color: "#64748B" }}>{e.onceki || "—"}</td>
                   <td style={{ padding: "10px 12px", textAlign: "center", color: e.gerceklesen ? "#10B981" : "#334155" }}>{e.gerceklesen || "—"}</td>
                 </>
+              ) : e.tip === "bilanco" && e.tur === "son_tarih" ? (
+                <td colSpan={5} style={{ padding: "10px 12px", background: "rgba(139,92,246,0.06)", borderLeft: "2px solid #8B5CF6" }}>
+                  <span style={{ color: "#C4B5FD", fontWeight: 700, fontSize: 12 }}>{e.donem}</span>
+                  <span style={{ color: "#94A3B8", marginLeft: 8 }}>{e.baslik}</span>
+                </td>
               ) : e.tip === "bilanco" ? (
                 <>
                   <td style={{ padding: "10px 12px", color: "#3B82F6", fontWeight: 700 }}>{e.ticker}</td>

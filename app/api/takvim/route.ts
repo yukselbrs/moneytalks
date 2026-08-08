@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { bilancoSonTarihleri } from "@/lib/bilanco-son-tarih";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -66,10 +67,29 @@ export async function GET(req: NextRequest) {
       .gte("tarih", from).lte("tarih", to)
       .order("tarih").order("ticker");
     if (error) return NextResponse.json({ events: [], hata: error.message });
+    // Bilanco sekmesine ILERIYE DONUK katman: SPK II-14.1 yasal son tarihleri.
+    // Sirket beyanli planlanan tarihler KAP'tan alinamadigi icin (K-TK4) sirket basina
+    // tahmin uretmiyoruz; mevzuatin kendisi gosteriliyor. Saf fonksiyon — DB'ye yazilmaz.
+    const sonTarihler = tip === "bilanco"
+      ? bilancoSonTarihleri(from, to).map((s) => ({
+          tarih: s.tarih,
+          ticker: null,
+          tur: "son_tarih" as const,
+          baslik: s.baslik,
+          kapsam: s.kapsam,
+          tarihKesin: true,
+          durum: "yasal_son_gun",
+          donem: s.donem,
+          donemBitis: s.donemBitis,
+          brutTutar: null, netTutar: null, stopajOrani: null, paraBirimi: null,
+          odemeSekli: null, genelKurulTarihi: null, kapLink: null, link: null,
+        }))
+      : [];
     return NextResponse.json({
-      events: (data ?? []).map((e) => ({
+      events: [...sonTarihler, ...(data ?? []).map((e) => ({
         tarih: e.tarih,
         ticker: e.ticker,
+        tur: "sirket" as const,
         tarihKesin: e.tarih_kesin,
         durum: e.durum,
         donem: e.donem,
@@ -82,7 +102,7 @@ export async function GET(req: NextRequest) {
         genelKurulTarihi: e.genel_kurul_tarihi,
         kapLink: e.kap_link,
         link: `/hisse/${e.ticker}`,
-      })),
+      }))].sort((a, b) => a.tarih.localeCompare(b.tarih)),
     });
   }
 
