@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import { siniflandir, ozetUret, baglamMetni, type KapDetay } from "@/lib/kap-ozet";
+import { siniflandir, ozetUret, baglamMetni, tokenSayaci, tokenSayaciSifirla, type KapDetay } from "@/lib/kap-ozet";
 import { kapSonIndex, kapListe, kapDetay, type KapListeOgesi } from "@/lib/kap-kaynak";
 
 export const maxDuration = 60;
@@ -137,6 +137,7 @@ let geciciAtlanan = 0;
 
 async function ozetleriUret(): Promise<number> {
   geciciAtlanan = 0;
+  tokenSayaciSifirla();
   const { data: bekleyenler } = await supabase
     .from("kap_bildirimleri")
     .select("id, disclosure_index, ticker, bildirim_tipi, ham_detay")
@@ -334,6 +335,7 @@ export async function GET(req: NextRequest) {
     yeniBildirim, ozetlenen, epostaGonderilen,
     ozetBekleyen: bekleyenToplam ?? 0,
     geciciAtlanan,                      // >0 ise AI cagrisi gecici olarak basarisiz (kredi/kota/ag)
+    token: { ...tokenSayaci },          // bu kosuda harcanan AI token'i (basarisiz denemeler dahil)
     ozetlenemeyenToplam: ozetlenemeyenToplam ?? 0,
     hata,
   });

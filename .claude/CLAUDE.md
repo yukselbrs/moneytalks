@@ -19,7 +19,7 @@ Production: parakonusur.com | AI model: claude-sonnet-4-6
 
 ## App Structure
 - `app/` — Next.js App Router sayfaları (dashboard, hisse/[ticker], hisseler, halka-arz/[kod], portfoy, analizler, alarmlar, izleme, haberler, blog, takvim, bildirimler, profile, pro, login, register, reset-password)
-- `/takvim` — dört sekmeli birleşik takvim (`?sekme=ekonomik|bilanco|temettu|halka-arz`). Sidebar'da tek "Takvim" öğesi; `/halka-arz` liste sayfası SEO için yaşıyor, sekmeden linkli.
+- `/takvim` — dört sekmeli birleşik takvim (`?sekme=ekonomik|bilanco|temettu|halka-arz`). Halka Arz HEM sidebar'da ayrı öğe HEM takvim sekmesi — ikisi de kalır. NAV_GROUPS indeks tabanlı: yeni nav öğesi SONA eklenir, araya girmek diğerlerini kaydırır.
 - `app/api/` — API route'ları
 - `app/api/cron/` — GitHub Actions ile tetiklenen cron job'lar
 - `components/` — Shared component'lar (AppShell, StockLogo, HisseChatbot, RiskProfilWidget)

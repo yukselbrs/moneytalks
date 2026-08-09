@@ -247,12 +247,22 @@ function jsonAyikla(raw: string): KapOzet | null {
   }
 }
 
+// Token muhasebesi: AI harcamasinin nereye gittigi olculemiyordu. ozetUret bir bildirim
+// icin 3 CAGRIYA kadar yapabiliyor (2 JSON ayristirma denemesi + 1 SPK yeniden denemesi);
+// basarisiz denemeler de token yakiyor ama DB'ye satir birakmiyordu. Cron yaniti bunu
+// raporlasin diye kosu basina toplaniyor.
+export const tokenSayaci = { cagri: 0, girdi: 0, cikti: 0 };
+export function tokenSayaciSifirla() { tokenSayaci.cagri = 0; tokenSayaci.girdi = 0; tokenSayaci.cikti = 0; }
+
 async function ozetCagir(prompt: string): Promise<string> {
   const message = await client.messages.create({
     model: MODEL,
     max_tokens: 1024,
     messages: [{ role: "user", content: prompt }],
   });
+  tokenSayaci.cagri += 1;
+  tokenSayaci.girdi += message.usage?.input_tokens ?? 0;
+  tokenSayaci.cikti += message.usage?.output_tokens ?? 0;
   return message.content[0]?.type === "text" ? message.content[0].text : "";
 }
 
