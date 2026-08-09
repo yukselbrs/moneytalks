@@ -23,6 +23,11 @@ const OZET_ESZAMAN = 4;      // ayni anda en fazla bu kadar AI ozet cagrisi
 // yigin) ozetlenip tabloya girer ama BAYAT mail spam'i gondermez — "haber geldiginde" = taze haber.
 const MAIL_TAZELIK_SAAT = 36;
 
+// AI ozetleme duraklatma anahtari (9 Agu 2026 — "ikinci bir emre kadar").
+// true iken hicbir Anthropic cagrisi yapilmaz; toplama/cursor/mail adimlari calisir.
+// Acmak icin tek islem: false yap.
+const OZET_DURAKLATILDI = true;
+
 // Sinirli-eszamanli map: items'i eszaman'lik gruplar halinde paralel isler.
 async function esZamanliIsle<T, R>(items: T[], eszaman: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const sonuclar: R[] = [];
@@ -137,7 +142,6 @@ let geciciAtlanan = 0;
 
 async function ozetleriUret(): Promise<number> {
   geciciAtlanan = 0;
-  tokenSayaciSifirla();
   const { data: bekleyenler } = await supabase
     .from("kap_bildirimleri")
     .select("id, disclosure_index, ticker, bildirim_tipi, ham_detay")
@@ -315,7 +319,17 @@ export async function GET(req: NextRequest) {
     await cursorGuncelle(sonIndex, enYuksekIndex);
   }
 
-  const ozetlenen = await ozetleriUret();
+  // Token/atlama sayaclari modul duzeyinde: her ISTEGIN basinda sifirlanmali, yoksa
+  // ozetleme atlandiginda onceki kosumun rakamlari raporlanir.
+  tokenSayaciSifirla();
+  geciciAtlanan = 0;
+
+  // === AI OZETLEME GECICI OLARAK DURDURULDU (9 Agu 2026, Baris talebi) ===
+  // "ikinci bir emre kadar". Devam icin: bu sabiti false yap, baska degisiklik gerekmez.
+  // YALNIZ AI adimi durur — toplama ve cursor calismaya devam eder, boylece KAP bildirimi
+  // KAYBEDILMEZ ve acildiginda kuyruk hazir olur. Ozetlenmis satirlar varsa mailleri gider.
+  // Duraklatma suresince AI token harcamasi SIFIR.
+  const ozetlenen = OZET_DURAKLATILDI ? 0 : await ozetleriUret();
   // Ozetlenemeyen (SPK filtresine takilan / bozuk) bildirim sayisi: GOZLEMLENEBILIRLIK amaclidir,
   // workflow'u KIRMAZ. Aksi halde tek bir kalici 'hata' satiri cron'u sonsuza dek 401/exit-1 yapardi.
   const { count: ozetlenemeyenToplam } = await supabase
@@ -333,6 +347,7 @@ export async function GET(req: NextRequest) {
   // hata = yalniz OPERASYONEL hatalar (KAP erisilemedi / liste cekilemedi). Workflow bunu kontrol eder.
   return NextResponse.json({
     yeniBildirim, ozetlenen, epostaGonderilen,
+    ozetDuraklatildi: OZET_DURAKLATILDI,   // true iken AI adimi atlanir, token harcanmaz
     ozetBekleyen: bekleyenToplam ?? 0,
     geciciAtlanan,                      // >0 ise AI cagrisi gecici olarak basarisiz (kredi/kota/ag)
     token: { ...tokenSayaci },          // bu kosuda harcanan AI token'i (basarisiz denemeler dahil)
