@@ -1,3 +1,4 @@
+import { BLOG_AKTIF } from "@/lib/ozellik-bayraklari";
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import bistHisseler from "@/data/bist-companies.json";
@@ -57,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/portfoy`, priority: 0.8 },
     { url: `${base}/izleme`, priority: 0.7 },
     { url: `${base}/haberler`, priority: 0.7 },
-    { url: `${base}/blog`, priority: 0.7 },
+    ...(BLOG_AKTIF ? [{ url: `${base}/blog`, priority: 0.7 }] : []),   // gizli: lib/ozellik-bayraklari
     // Takvim artik dort alt takvimin ana sayfasi — oncelik yukseltildi, sekmeler ayri URL.
     { url: `${base}/takvim`, priority: 0.9 },
     { url: `${base}/takvim?sekme=bilanco`, priority: 0.7 },

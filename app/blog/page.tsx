@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { BLOG_AKTIF } from "@/lib/ozellik-bayraklari";
 import AppShell from "@/components/AppShell";
 
 async function getPosts() {
@@ -18,6 +20,10 @@ async function getPosts() {
 }
 
 export default async function BlogPage() {
+  // Blog gecici olarak gizli (lib/ozellik-bayraklari: BLOG_AKTIF).
+  // Kod korunuyor; bayrak true olunca sayfa aynen geri gelir.
+  if (!BLOG_AKTIF) notFound();
+
   const posts = await getPosts()
 
   return (

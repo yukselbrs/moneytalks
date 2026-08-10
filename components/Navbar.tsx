@@ -5,12 +5,13 @@ import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
 import LogoIcon from "@/components/LogoIcon";
+import { BLOG_AKTIF } from "@/lib/ozellik-bayraklari";
 
 const navLinks = [
   { label: "Nasıl Çalışır", href: "/#nasil-calisir" },
   { label: "Özellikler", href: "/#ozellikler" },
   { label: "Kapsam", href: "/#kapsam" },
-  { label: "Blog", href: "/blog" },
+  ...(BLOG_AKTIF ? [{ label: "Blog", href: "/blog" }] : []),   // gizli: lib/ozellik-bayraklari
 ];
 
 export default function Navbar() {

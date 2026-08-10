@@ -7,6 +7,7 @@ import Image from "next/image";
 import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
 import { LS } from "@/lib/storage-keys";
+import { BLOG_AKTIF } from "@/lib/ozellik-bayraklari";
 
 const NAV_ITEMS = [
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: "Dashboard", href: "/dashboard" },
@@ -30,12 +31,19 @@ const NAV_ITEMS = [
 // 8:Blog 9:Takvim 10:Alarmlar 11:Bildirimler 12:PakoAI 13:VİOP 14:HalkaArz
 // Halka Arz HEM sidebar'da HEM /takvim?sekme=halka-arz sekmesinde — ikisi de kalir.
 // Yeni oge SONA eklenir: NAV_GROUPS indeks tabanli, araya girmek diger ogeleri kaydirir.
-const NAV_GROUPS: { label?: string; indices: number[] }[] = [
+const NAV_GROUPS_TUM: { label?: string; indices: number[] }[] = [
   { indices: [0] },
   { label: "PİYASA", indices: [3, 4, 14, 5, 6] },
   { label: "KİŞİSEL", indices: [1, 2, 9] },
   { label: "KEŞFET", indices: [8, 7, 13, 10] },
 ];
+
+// Kapali bolumler GRUP INDEKSINDEN elenir, NAV_ITEMS'tan DEGIL: diziden oge cikarmak
+// sonraki tum indeksleri kaydirip AppShell'i kirar (bu tuzaga daha once dusuldu).
+const GIZLI_INDEKSLER = new Set<number>([...(BLOG_AKTIF ? [] : [8])]);   // 8 = Blog
+const NAV_GROUPS = NAV_GROUPS_TUM
+  .map((g) => ({ ...g, indices: g.indices.filter((i) => !GIZLI_INDEKSLER.has(i)) }))
+  .filter((g) => g.indices.length > 0);
 
 function isNavActive(pathname: string, currentVarlik: string | null, href: string) {
   if (href === "/hisseler?varlik=fon") return pathname === "/hisseler" && currentVarlik === "fon";
@@ -60,7 +68,7 @@ function MoreMenu({ navItems, pathname, currentVarlik, handleLogout }: {
   handleLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const extraItems = navItems.filter(i => !["/dashboard","/hisseler","/izleme","/portfoy"].includes(i.href));
+  const extraItems = navItems.filter(i => !["/dashboard","/hisseler","/izleme","/portfoy"].includes(i.href) && !(!BLOG_AKTIF && i.href === "/blog"));
   return (
     <>
       <button onClick={() => setOpen(v => !v)} style={{

@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+import { BLOG_AKTIF } from "@/lib/ozellik-bayraklari";
 async function getPost(slug: string) {
   try {
     const { client } = await import('@/sanity/lib/client')
@@ -13,6 +15,10 @@ async function getPost(slug: string) {
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  // Blog yazisi gecici olarak gizli (lib/ozellik-bayraklari: BLOG_AKTIF).
+  // Kod korunuyor; bayrak true olunca sayfa aynen geri gelir.
+  if (!BLOG_AKTIF) notFound();
+
   const { slug } = await params
   const post = await getPost(slug)
 
