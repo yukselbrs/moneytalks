@@ -5,6 +5,15 @@
 // Asansor (long/short) ve Bugday (neden var) VIOP'tan AYNEN kullanilir — burada yalniz
 // forward'a OZGU iki metafor var: fiyat kilidi (B2), borsa-vs-OTC (B3), kopan el sikisma (B4).
 
+function Kisi({ x, renk = "#94A3B8" }: { x: number; renk?: string }) {
+  return (
+    <g transform={`translate(${x},58)`}>
+      <circle cy="-10" r="9" fill={renk} />
+      <path d="M-13 14 a13 13 0 0 1 26 0 z" fill={renk} />
+    </g>
+  );
+}
+
 // B2 — Fiyat kilidi: bugun ile vade arasinda, uzerinde sabit fiyat etiketi tasiyan cizgi.
 export function FiyatKilidiSVG({ aktif }: { aktif: boolean }) {
   return (
@@ -33,12 +42,6 @@ export function FiyatKilidiSVG({ aktif }: { aktif: boolean }) {
 
 // B3 — Borsa vs OTC: solda araya borsa giren yapi, sagda iki taraf arasinda dogrudan cizgi.
 export function BorsaOtcSVG({ aktif }: { aktif: boolean }) {
-  const Kisi = ({ x, renk = "#94A3B8" }: { x: number; renk?: string }) => (
-    <g transform={`translate(${x},58)`}>
-      <circle cy="-10" r="9" fill={renk} />
-      <path d="M-13 14 a13 13 0 0 1 26 0 z" fill={renk} />
-    </g>
-  );
   return (
     <svg viewBox="0 0 340 150" width="100%" style={{ maxWidth: 460 }} role="img"
       aria-label="VİOP'ta araya borsa girer, forward'da iki taraf doğrudan anlaşır">

@@ -62,10 +62,15 @@ function renderMarkdown(text: string) {
   return sections.map(s => ({ ...s, title: map[s.title] || s.title }));
 }
 
+function analizMetniGecerli(text: unknown) {
+  return typeof text === "string" && renderMarkdown(text).length > 0;
+}
+
 export default function HissePage({ params }: { params: Promise<{ ticker: string }> }) {
   const { ticker: tickerParam } = use(params);
   const ticker = tickerParam.toUpperCase();
   const [analiz, setAnaliz] = useState("");
+  const [analizHata, setAnalizHata] = useState<string | null>(null);
   const [analizTarih, setAnalizTarih] = useState<Date | null>(null);
   const [veri, setVeri] = useState<HisseVeri | null>(null);
   const [loading, setLoading] = useState(false);
@@ -168,9 +173,11 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     supabase.from("analizler").select("analiz,created_at").eq("user_id", session.user.id).eq("ticker", ticker).maybeSingle()
       .then(({ data }) => {
         if (canceled) return;
-        if (data?.analiz) {
-          setAnaliz(data.analiz);
-          if (data.created_at) setAnalizTarih(new Date(data.created_at));
+        const oncekiAnaliz = data?.analiz;
+        const oncekiAnalizTarih = data?.created_at;
+        if (analizMetniGecerli(oncekiAnaliz)) {
+          setAnaliz(oncekiAnaliz);
+          if (oncekiAnalizTarih) setAnalizTarih(new Date(oncekiAnalizTarih));
         }
       });
     supabase.from("portfoy").select("ticker,adet,maliyet").eq("user_id", session.user.id)
@@ -212,50 +219,61 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   }, [fetchGetiriler, ticker]);
 
   async function handleAnaliz() {
+    setAnalizHata(null);
     const cacheKey = LS.analiz(ticker);
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      const { analiz: cachedAnaliz, timestamp } = JSON.parse(cached);
-      if (Date.now() - timestamp < 2 * 60 * 60 * 1000) {
-        setAnaliz(cachedAnaliz);
-        setAnalizTarih(new Date(timestamp));
-        return;
+      try {
+        const { analiz: cachedAnaliz, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < 2 * 60 * 60 * 1000 && analizMetniGecerli(cachedAnaliz)) {
+          setAnaliz(cachedAnaliz);
+          setAnalizTarih(new Date(timestamp));
+          return;
+        }
+      } catch {
+        // Eski/bozuk cache'i sessizce temizleyip yeni analiz denemesi yap.
       }
+      localStorage.removeItem(cacheKey);
     }
     setLoading(true);
     setAnaliz("");
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      setAnaliz("Analiz oluşturmak için giriş yapmanız gerekir.");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setAnalizHata("Analiz oluşturmak için giriş yapmalısın.");
+        return;
+      }
+      const res = await fetch("/api/analiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ ticker }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(typeof data.error === "string" ? data.error : "Analiz alınamadı.");
+      }
+      if (!analizMetniGecerli(data.analiz)) {
+        throw new Error(typeof data.error === "string" ? data.error : "Analiz şu an oluşturulamadı. Lütfen biraz sonra tekrar dene.");
+      }
+      setAnaliz(data.analiz);
+      if (data.veri) setVeri(data.veri);
+      const now = Date.now();
+      setAnalizTarih(new Date(now));
+      localStorage.setItem(LS.analiz(ticker), JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: now }));
+      const entry = { ticker, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
+      const stored = localStorage.getItem(LS.RECENT);
+      const recent = stored ? JSON.parse(stored) : [];
+      const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
+      localStorage.setItem(LS.RECENT, JSON.stringify(updated));
+      await supabase.from("analizler").upsert(
+        { user_id: session.user.id, ticker, analiz: data.analiz, created_at: new Date(now).toISOString() },
+        { onConflict: "user_id,ticker" }
+      );
+    } catch (err) {
+      setAnalizHata(err instanceof Error ? err.message : "Analiz alınamadı.");
+    } finally {
       setLoading(false);
-      return;
     }
-    const res = await fetch("/api/analiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ ticker }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setAnaliz(data.error || "Analiz alınamadı.");
-      setLoading(false);
-      return;
-    }
-    setAnaliz(data.analiz);
-    if (data.veri) setVeri(data.veri);
-    const now = Date.now();
-    setAnalizTarih(new Date(now));
-    localStorage.setItem(LS.analiz(ticker), JSON.stringify({ analiz: data.analiz, veri: data.veri, timestamp: now }));
-    const entry = { ticker, time: new Date().toLocaleString("tr-TR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) };
-    const stored = localStorage.getItem(LS.RECENT);
-    const recent = stored ? JSON.parse(stored) : [];
-    const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
-    localStorage.setItem(LS.RECENT, JSON.stringify(updated));
-    // Supabase'e kaydet
-    if (session && data.analiz) {
-      await supabase.from("analizler").upsert({ user_id: session.user.id, ticker, analiz: data.analiz }, { onConflict: "user_id,ticker" });
-    }
-    setLoading(false);
   }
 
 
@@ -287,6 +305,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
   return (
     <AppShell>
     {izlemeHata && <Toast message={izlemeHata} ton="error" onClose={() => setIzlemeHata(null)} />}
+    {analizHata && <Toast message={analizHata} ton="error" onClose={() => setAnalizHata(null)} />}
     <div className="min-h-screen" style={{ background: "#0B1220", fontFamily: "var(--font-manrope, sans-serif)" }}>
 
 

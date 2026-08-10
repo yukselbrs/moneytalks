@@ -117,6 +117,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Saatte en fazla 10 analiz yapabilirsiniz. Lütfen daha sonra tekrar deneyin." }, { status: 429 });
   }
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: "AI analiz servisi yapılandırılmamış." }, { status: 503 });
+  }
+
   const veriMetni = veri
     ? `Guncel piyasa verisi:
 - Fiyat: ${formatCurrency(veri.fiyat)}
@@ -171,6 +175,6 @@ Kural: Fiyat ve hacim verilerini yorumla. Bilanco rasyolari verildiyse Finansal 
     return NextResponse.json({ analiz, veri });
   } catch (error) {
     console.error("Anthropic API error:", JSON.stringify(error, null, 2));
-    return NextResponse.json({ analiz: "Analiz su an kullanilabilir degil, lutfen tekrar deneyin." });
+    return NextResponse.json({ error: "Analiz şu an oluşturulamadı. Lütfen biraz sonra tekrar deneyin." }, { status: 503 });
   }
 }
