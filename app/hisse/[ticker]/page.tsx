@@ -238,14 +238,15 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
     setLoading(true);
     setAnaliz("");
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      const aktifSession = session ?? freshSession;
+      if (!aktifSession) {
         setAnalizHata("Analiz oluşturmak için giriş yapmalısın.");
         return;
       }
       const res = await fetch("/api/analiz", {
         method: "POST",
-        headers: { "Content-Type": "application/json", authorization: `Bearer ${session.access_token}` },
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${aktifSession.access_token}` },
         body: JSON.stringify({ ticker }),
       });
       const data = await res.json().catch(() => ({}));
@@ -266,7 +267,7 @@ export default function HissePage({ params }: { params: Promise<{ ticker: string
       const updated = [entry, ...recent.filter((r: { ticker: string }) => r.ticker !== ticker)].slice(0, 5);
       localStorage.setItem(LS.RECENT, JSON.stringify(updated));
       await supabase.from("analizler").upsert(
-        { user_id: session.user.id, ticker, analiz: data.analiz, created_at: new Date(now).toISOString() },
+        { user_id: aktifSession.user.id, ticker, analiz: data.analiz, created_at: new Date(now).toISOString() },
         { onConflict: "user_id,ticker" }
       );
     } catch (err) {

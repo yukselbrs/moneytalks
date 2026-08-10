@@ -39,10 +39,13 @@ export default function RegisterPage() {
       options: { data: { full_name: fullName, username } },
     });
     if (error) {
-      if (error.message.includes("already registered") || error.message.includes("already been registered")) {
+      const mesaj = typeof error.message === "string" ? error.message : "";
+      if (mesaj.includes("already registered") || mesaj.includes("already been registered")) {
         setError("Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.");
       } else {
-        setError("Kayıt sırasında hata oluştu: " + error.message);
+        setError(mesaj && mesaj !== "{}"
+          ? `Kayıt sırasında hata oluştu: ${mesaj}`
+          : "Kayıt tamamlanamadı. Lütfen farklı bir e-posta adresiyle tekrar deneyin.");
       }
       setLoading(false);
     } else {

@@ -8,6 +8,7 @@ import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
 import { LS } from "@/lib/storage-keys";
 import { BLOG_AKTIF } from "@/lib/ozellik-bayraklari";
+import { useSession } from "@/hooks/useSession";
 
 const NAV_ITEMS = [
   { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>, label: "Dashboard", href: "/dashboard" },
@@ -61,11 +62,12 @@ function VarlikSync({ onVarlik }: { onVarlik: (v: string | null) => void }) {
 }
 
 
-function MoreMenu({ navItems, pathname, currentVarlik, handleLogout }: {
+function MoreMenu({ navItems, pathname, currentVarlik, handleLogout, sessionVar }: {
   navItems: { icon: React.ReactNode; label: string; href: string }[];
   pathname: string;
   currentVarlik: string | null;
   handleLogout: () => void;
+  sessionVar: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const extraItems = navItems.filter(i => !["/dashboard","/hisseler","/izleme","/portfoy"].includes(i.href) && !(!BLOG_AKTIF && i.href === "/blog"));
@@ -105,13 +107,15 @@ function MoreMenu({ navItems, pathname, currentVarlik, handleLogout }: {
                 </Link>
               );
             })}
-            <button onClick={() => { setOpen(false); handleLogout(); }} style={{
-              display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10,
-              background: "none", border: "none", cursor: "pointer", color: "#64748B", width: "100%",
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              <span style={{ fontSize: 14, fontWeight: 500 }}>Çıkış Yap</span>
-            </button>
+            {sessionVar && (
+              <button onClick={() => { setOpen(false); handleLogout(); }} style={{
+                display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 10,
+                background: "none", border: "none", cursor: "pointer", color: "#64748B", width: "100%",
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 500 }}>Çıkış Yap</span>
+              </button>
+            )}
           </div>
         </>
       )}
@@ -135,11 +139,8 @@ function AvatarImage({ src, alt = "avatar" }: { src: string; alt?: string }) {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [fullName, setFullName] = useState("");
+  const { session } = useSession();
   const [tarihSaat, setTarihSaat] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [collapsed, setCollapsed] = useState(() =>
     typeof window !== "undefined" ? localStorage.getItem(LS.SB_COLLAPSED) === "1" : false
   );
@@ -179,34 +180,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setFullName(session.user.user_metadata?.full_name || "");
-        setUsername(session.user.user_metadata?.username || "");
-        setEmail(session.user.email || "");
-        setAvatarUrl(session.user.user_metadata?.avatar_url || "");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setFullName(session.user.user_metadata?.full_name || "");
-        setUsername(session.user.user_metadata?.username || "");
-        setEmail(session.user.email || "");
-        setAvatarUrl(session.user.user_metadata?.avatar_url || "");
-      }
-    });
-  }, []);
-
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push("/login");
   }
 
+  const fullName = session?.user.user_metadata?.full_name || "";
+  const username = session?.user.user_metadata?.username || "";
+  const email = session?.user.email || "";
+  const avatarUrl = session?.user.user_metadata?.avatar_url || "";
   const displayName = username || (email.includes("@") ? email.split("@")[0] : email);
   const initials = fullName
     ? fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -423,39 +405,54 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Bottom */}
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Link href="/profile" className="sb-item"
-            onMouseEnter={collapsed ? e => showTip(e, "Profil") : undefined}
-            onMouseLeave={collapsed ? () => setTip(null) : undefined}
-            style={{
-            textDecoration: "none", color: "#64748B",
-            justifyContent: collapsed ? "center" : undefined,
-            padding: collapsed ? "10px 0" : undefined,
-            gap: collapsed ? 0 : undefined,
-          }}>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#3B82F6", flexShrink: 0, overflow: "hidden" }}>
-              {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
-            </div>
-            {!collapsed && (
-              <>
-                <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 600 }}>Profil</span>
-                  <span style={{ color: "#64748B", fontSize: 10, fontWeight: 600, letterSpacing: "0.05em" }}>Beta</span>
+          {session ? (
+            <>
+              <Link href="/profile" className="sb-item"
+                onMouseEnter={collapsed ? e => showTip(e, "Profil") : undefined}
+                onMouseLeave={collapsed ? () => setTip(null) : undefined}
+                style={{
+                textDecoration: "none", color: "#64748B",
+                justifyContent: collapsed ? "center" : undefined,
+                padding: collapsed ? "10px 0" : undefined,
+                gap: collapsed ? 0 : undefined,
+              }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#3B82F6", flexShrink: 0, overflow: "hidden" }}>
+                  {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
                 </div>
-              </>
-            )}
-          </Link>
-          <button onClick={handleLogout} className="sb-item"
-            onMouseEnter={collapsed ? e => showTip(e, "Çıkış Yap") : undefined}
-            onMouseLeave={collapsed ? () => setTip(null) : undefined}
-            style={{
-            color: "#64748B", background: "none", border: "none",
-            justifyContent: collapsed ? "center" : undefined,
-            padding: collapsed ? "10px 0" : undefined,
-            gap: collapsed ? 0 : undefined,
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            {!collapsed && "Çıkış Yap"}
-          </button>
+                {!collapsed && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                    <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 600 }}>Profil</span>
+                    <span style={{ color: "#64748B", fontSize: 10, fontWeight: 600, letterSpacing: "0.05em" }}>Beta</span>
+                  </div>
+                )}
+              </Link>
+              <button onClick={handleLogout} className="sb-item"
+                onMouseEnter={collapsed ? e => showTip(e, "Çıkış Yap") : undefined}
+                onMouseLeave={collapsed ? () => setTip(null) : undefined}
+                style={{
+                color: "#64748B", background: "none", border: "none",
+                justifyContent: collapsed ? "center" : undefined,
+                padding: collapsed ? "10px 0" : undefined,
+                gap: collapsed ? 0 : undefined,
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                {!collapsed && "Çıkış Yap"}
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className="sb-item"
+              onMouseEnter={collapsed ? e => showTip(e, "Giriş Yap") : undefined}
+              onMouseLeave={collapsed ? () => setTip(null) : undefined}
+              style={{
+              textDecoration: "none", color: "#64748B",
+              justifyContent: collapsed ? "center" : undefined,
+              padding: collapsed ? "10px 0" : undefined,
+              gap: collapsed ? 0 : undefined,
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              {!collapsed && "Giriş Yap"}
+            </Link>
+          )}
         </div>
       </div>
 
@@ -478,10 +475,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               );
             })()}
             <span className="sb-topbar-date" style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>{tarihSaat}</span>
-            <span className="sb-topbar-username" style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
-            <Link href="/profile" className="sb-profile-avatar" aria-label="Profil">
-              {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
-            </Link>
+            {session ? (
+              <>
+                <span className="sb-topbar-username" style={{ fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{displayName}</span>
+                <Link href="/profile" className="sb-profile-avatar" aria-label="Profil">
+                  {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
+                </Link>
+              </>
+            ) : (
+              <Link href="/login" style={{ fontSize: 13, color: "#93C5FD", textDecoration: "none", fontWeight: 700 }}>Giriş yap</Link>
+            )}
           </div>
         </div>
         {children}
@@ -525,20 +528,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </Link>
           );
         })}
-        {/* Profil */}
-        <Link href="/profile" style={{
+        {/* Profil / Giriş */}
+        <Link href={session ? "/profile" : "/login"} style={{
           display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
           textDecoration: "none", padding: "6px 12px", borderRadius: 8, flex: 1,
-          color: pathname === "/profile" ? "#3B82F6" : "#475569",
-          borderBottom: pathname === "/profile" ? "2px solid #3B82F6" : "2px solid transparent",
+          color: (session ? pathname === "/profile" : pathname === "/login") ? "#3B82F6" : "#475569",
+          borderBottom: (session ? pathname === "/profile" : pathname === "/login") ? "2px solid #3B82F6" : "2px solid transparent",
         }}>
-          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: `1px solid ${pathname === "/profile" ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6", overflow: "hidden" }}>
-            {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
-          </div>
-          <span style={{ fontSize: 9, fontWeight: pathname === "/profile" ? 700 : 500 }}>Profil</span>
+          {session ? (
+            <div style={{ width: 22, height: 22, borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: `1px solid ${pathname === "/profile" ? "rgba(59,130,246,0.5)" : "rgba(59,130,246,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#3B82F6", overflow: "hidden" }}>
+              {avatarUrl ? <AvatarImage src={avatarUrl} /> : initials}
+            </div>
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          )}
+          <span style={{ fontSize: 9, fontWeight: (session ? pathname === "/profile" : pathname === "/login") ? 700 : 500 }}>{session ? "Profil" : "Giriş"}</span>
         </Link>
         {/* Daha Fazla */}
-        <MoreMenu navItems={navItems} pathname={pathname} currentVarlik={currentVarlik} handleLogout={handleLogout} />
+        <MoreMenu navItems={navItems} pathname={pathname} currentVarlik={currentVarlik} handleLogout={handleLogout} sessionVar={Boolean(session)} />
       </nav>
     </div>
   );
