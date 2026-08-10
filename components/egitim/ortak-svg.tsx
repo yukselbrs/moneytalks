@@ -32,10 +32,38 @@ export function AsansorSVG({ aktif, yon }: { aktif: boolean; yon: "long" | "shor
 }
 
 // Bugday ciftcisi (B10): dalgali piyasa cizgisi vs sabitlenmis sozlesme cizgisi.
+// Dalgali-vs-sabit cizgi: "belirsizlik vs sabitlenmis deger" metaforu.
+// VIOP/Forward bunu bugday basagiyla (BugdaySVG), Swap faiz ikonuyla kullanir —
+// cizim ve animasyon AYNI, yalniz soldaki ikon ve etiketler degisir.
+export function DalgaliSabitSVG({ aktif, ikon, ustEtiket, altEtiket, aria }: {
+  aktif: boolean;
+  ikon: React.ReactNode;
+  ustEtiket: string;
+  altEtiket: string;
+  aria: string;
+}) {
+  return (
+    <svg viewBox="0 0 320 150" width="100%" style={{ maxWidth: 440 }} role="img" aria-label={aria}>
+      {ikon}
+      {/* dalgali (belirsiz) seyir */}
+      <path d="M80 75 q 25 -34 50 -6 t 50 12 t 50 -30 t 60 16" fill="none" stroke="#EF4444" strokeWidth="2.5" strokeDasharray="340"
+        strokeDashoffset={aktif ? 0 : 340} style={{ transition: "stroke-dashoffset 1.6s ease 0.5s" }} />
+      <text x="298" y="60" fill="#F87171" fontSize="10" textAnchor="end">{ustEtiket}</text>
+      {/* sabitlenmis cizgi */}
+      <line x1="80" y1="106" x2="292" y2="106" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeDasharray="212"
+        strokeDashoffset={aktif ? 0 : 212} style={{ transition: "stroke-dashoffset 1.2s ease 1.4s" }} />
+      <text x="298" y="110" fill="#6EE7B7" fontSize="10" textAnchor="end">{altEtiket}</text>
+    </svg>
+  );
+}
+
+// VIOP/Forward'in kullandigi hali — cikti onceki BugdaySVG ile BIREBIR ayni.
 export function BugdaySVG({ aktif }: { aktif: boolean }) {
   return (
-    <svg viewBox="0 0 320 150" width="100%" style={{ maxWidth: 440 }} role="img" aria-label="Dalgalı piyasa fiyatına karşı sözleşmeyle sabitlenen fiyat">
-      {/* basak */}
+    <DalgaliSabitSVG aktif={aktif}
+      aria="Dalgalı piyasa fiyatına karşı sözleşmeyle sabitlenen fiyat"
+      ustEtiket="piyasa: sürpriz" altEtiket="sözleşme: sabit"
+      ikon={<>{/* basak */}
       <g transform="translate(30,96)" stroke="#F59E0B" strokeWidth="2.5" fill="none" strokeLinecap="round">
         <line x1="0" y1="40" x2="0" y2="-26" />
         {[-18, -8, 2, 12].map(y => (
@@ -44,15 +72,45 @@ export function BugdaySVG({ aktif }: { aktif: boolean }) {
             <path d={`M0 ${y} q 12 -4 15 -15`} />
           </g>
         ))}
+      </g></>} />
+  );
+}
+
+// B4 — Karsi taraf riski: el sikismanin bir ucu soluyor, bag kopuk cizgiye donuyor.
+// VIOP tarafinda araya "takas kurumu" kalkani girer — farki tek karede gosterir.
+export function KarsiTarafRiskiSVG({ aktif }: { aktif: boolean }) {
+  return (
+    <svg viewBox="0 0 320 150" width="100%" style={{ maxWidth: 440 }} role="img"
+      aria-label="Forward'da karşı taraf sözünü tutmazsa bağ kopar; VİOP'ta araya takas kurumu girer">
+      {/* ust: forward — bag kopuyor */}
+      <text x="18" y="18" fill="#FCD34D" fontSize="11" fontWeight="700">Forward</text>
+      <g transform="translate(0,44)">
+        <circle cx="52" cy="0" r="13" fill="#CBD5E1" />
+        <line x1="70" y1="0" x2="130" y2="0" stroke="#F59E0B" strokeWidth="3"
+          strokeDasharray="8 6" strokeDashoffset={aktif ? 30 : 0}
+          style={{ transition: "stroke-dashoffset 1.2s ease 0.5s" }} />
+        {/* kopus isareti */}
+        <text x="100" y="-8" textAnchor="middle" fill="#EF4444" fontSize="14"
+          style={{ opacity: aktif ? 1 : 0, transition: "opacity 0.4s ease 1.3s" }}>✕</text>
+        {/* karsi taraf soluyor */}
+        <circle cx="148" cy="0" r="13" fill="#CBD5E1"
+          style={{ opacity: aktif ? 0.18 : 1, transition: "opacity 1s ease 0.9s" }} />
+        <text x="176" y="5" fill="#94A3B8" fontSize="10.5">söz tutulmazsa…</text>
       </g>
-      {/* dalgali piyasa fiyati */}
-      <path d="M80 75 q 25 -34 50 -6 t 50 12 t 50 -30 t 60 16" fill="none" stroke="#EF4444" strokeWidth="2.5" strokeDasharray="340"
-        strokeDashoffset={aktif ? 0 : 340} style={{ transition: "stroke-dashoffset 1.6s ease 0.5s" }} />
-      <text x="298" y="60" fill="#F87171" fontSize="10" textAnchor="end">piyasa: sürpriz</text>
-      {/* sabitlenmis sozlesme cizgisi */}
-      <line x1="80" y1="106" x2="292" y2="106" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeDasharray="212"
-        strokeDashoffset={aktif ? 0 : 212} style={{ transition: "stroke-dashoffset 1.2s ease 1.4s" }} />
-      <text x="298" y="110" fill="#6EE7B7" fontSize="10" textAnchor="end">sözleşme: sabit</text>
+
+      {/* alt: VIOP — takas kurumu kalkani */}
+      <text x="18" y="98" fill="#60A5FA" fontSize="11" fontWeight="700">VİOP</text>
+      <g transform="translate(0,124)">
+        <circle cx="52" cy="0" r="13" fill="#CBD5E1" />
+        <line x1="70" y1="0" x2="88" y2="0" stroke="#60A5FA" strokeWidth="3" />
+        <g style={{ opacity: aktif ? 1 : 0, transform: aktif ? "scale(1)" : "scale(0.7)", transition: "all 0.5s ease 1.1s", transformOrigin: "100px 0" }}>
+          <path d="M100 -15 l12 5 v10 c0 8 -6 13 -12 15 c-6 -2 -12 -7 -12 -15 v-10 z"
+            fill="rgba(59,130,246,0.18)" stroke="#60A5FA" strokeWidth="2" />
+        </g>
+        <line x1="112" y1="0" x2="130" y2="0" stroke="#60A5FA" strokeWidth="3" />
+        <circle cx="148" cy="0" r="13" fill="#CBD5E1" />
+        <text x="176" y="5" fill="#94A3B8" fontSize="10.5">takas kurumu araya girer</text>
+      </g>
     </svg>
   );
 }

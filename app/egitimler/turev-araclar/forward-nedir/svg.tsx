@@ -2,8 +2,9 @@
 
 // "Forward Nedir?" metafor SVG'leri — VIOP Nedir ile ayni dil: saf SVG + CSS transition,
 // Lottie/yeni bagimlilik YOK, her animasyon `aktif` prop'uyla sahne girisinde tetiklenir.
-// Asansor (long/short) ve Bugday (neden var) VIOP'tan AYNEN kullanilir — burada yalniz
-// forward'a OZGU iki metafor var: fiyat kilidi (B2), borsa-vs-OTC (B3), kopan el sikisma (B4).
+// Asansor (long/short), Bugday (neden var) ve KarsiTarafRiski (B4) ORTAK kitten gelir
+// (components/egitim/ortak-svg.tsx) — Swap Nedir de ayni metaforlari kullaniyor.
+// Burada yalniz forward'a OZGU iki metafor var: fiyat kilidi (B2), borsa-vs-OTC (B3).
 
 function Kisi({ x, renk = "#94A3B8" }: { x: number; renk?: string }) {
   return (
@@ -71,41 +72,3 @@ export function BorsaOtcSVG({ aktif }: { aktif: boolean }) {
   );
 }
 
-// B4 — Karsi taraf riski: el sikismanin bir ucu soluyor, bag kopuk cizgiye donuyor.
-// VIOP tarafinda araya "takas kurumu" kalkani girer — farki tek karede gosterir.
-export function KarsiTarafRiskiSVG({ aktif }: { aktif: boolean }) {
-  return (
-    <svg viewBox="0 0 320 150" width="100%" style={{ maxWidth: 440 }} role="img"
-      aria-label="Forward'da karşı taraf sözünü tutmazsa bağ kopar; VİOP'ta araya takas kurumu girer">
-      {/* ust: forward — bag kopuyor */}
-      <text x="18" y="18" fill="#FCD34D" fontSize="11" fontWeight="700">Forward</text>
-      <g transform="translate(0,44)">
-        <circle cx="52" cy="0" r="13" fill="#CBD5E1" />
-        <line x1="70" y1="0" x2="130" y2="0" stroke="#F59E0B" strokeWidth="3"
-          strokeDasharray="8 6" strokeDashoffset={aktif ? 30 : 0}
-          style={{ transition: "stroke-dashoffset 1.2s ease 0.5s" }} />
-        {/* kopus isareti */}
-        <text x="100" y="-8" textAnchor="middle" fill="#EF4444" fontSize="14"
-          style={{ opacity: aktif ? 1 : 0, transition: "opacity 0.4s ease 1.3s" }}>✕</text>
-        {/* karsi taraf soluyor */}
-        <circle cx="148" cy="0" r="13" fill="#CBD5E1"
-          style={{ opacity: aktif ? 0.18 : 1, transition: "opacity 1s ease 0.9s" }} />
-        <text x="176" y="5" fill="#94A3B8" fontSize="10.5">söz tutulmazsa…</text>
-      </g>
-
-      {/* alt: VIOP — takas kurumu kalkani */}
-      <text x="18" y="98" fill="#60A5FA" fontSize="11" fontWeight="700">VİOP</text>
-      <g transform="translate(0,124)">
-        <circle cx="52" cy="0" r="13" fill="#CBD5E1" />
-        <line x1="70" y1="0" x2="88" y2="0" stroke="#60A5FA" strokeWidth="3" />
-        <g style={{ opacity: aktif ? 1 : 0, transform: aktif ? "scale(1)" : "scale(0.7)", transition: "all 0.5s ease 1.1s", transformOrigin: "100px 0" }}>
-          <path d="M100 -15 l12 5 v10 c0 8 -6 13 -12 15 c-6 -2 -12 -7 -12 -15 v-10 z"
-            fill="rgba(59,130,246,0.18)" stroke="#60A5FA" strokeWidth="2" />
-        </g>
-        <line x1="112" y1="0" x2="130" y2="0" stroke="#60A5FA" strokeWidth="3" />
-        <circle cx="148" cy="0" r="13" fill="#CBD5E1" />
-        <text x="176" y="5" fill="#94A3B8" fontSize="10.5">takas kurumu araya girer</text>
-      </g>
-    </svg>
-  );
-}

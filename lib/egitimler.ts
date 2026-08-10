@@ -41,6 +41,15 @@ export const EGITIM_KATEGORILERI: EgitimKategori[] = [
         sure: "~10 dk",
         hazir: true,
       },
+      {
+        // Sira ONEMLI: forward'dan SONRA gelir — Bolum 3 forward bilgisinin uzerine kuruluyor.
+        slug: "swap-nedir",
+        ad: "Swap Nedir?",
+        baslik: "Swap Nedir? — Nakit Akışı Takası ve Faiz Swap'ı",
+        ozet: "Swap'ın arka arkaya dizilmiş forward'lar olduğunu, faiz swap'ını ve karşı taraf riskini anlat.",
+        sure: "~10 dk",
+        hazir: true,
+      },
     ],
   },
 ];

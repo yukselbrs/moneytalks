@@ -2,8 +2,8 @@
 
 import EgitimUstBar from "@/components/egitim/UstBar";
 import { Sahne, Satir, Sayac, SoruKarti, IlerlemeRayi, IkizKart, useSahneAktif } from "@/components/egitim/parcalar";
-import { AsansorSVG, BugdaySVG } from "@/components/egitim/ortak-svg";
-import { FiyatKilidiSVG, BorsaOtcSVG, KarsiTarafRiskiSVG } from "./svg";
+import { AsansorSVG, BugdaySVG, KarsiTarafRiskiSVG } from "@/components/egitim/ortak-svg";
+import { FiyatKilidiSVG, BorsaOtcSVG } from "./svg";
 import dynamic from "next/dynamic";
 
 const Simulasyon = dynamic(() => import("./Simulasyon"), {
