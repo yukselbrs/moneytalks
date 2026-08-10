@@ -1,6 +1,6 @@
 # Eğitimler Menüsü + Forward Nedir — İmplementasyon Logu
 
-**Durum:** DEVAM EDİYOR · Başlangıç: 9 Ağu 2026
+**Durum:** TAMAMLANDI · 9 Ağu 2026
 Tek kaynak: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını okur.
 
 **Görev:** (1) Blog sekmesini gizle, (2) VİOP Nedir'i Eğitimler → Türev Araçlar altına taşı,
@@ -28,21 +28,21 @@ Tek kaynak: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını oku
 - [x] 3.6 sitemap
 - [x] 3.7 Tema uyumlu sekme UI'ı
 
-### FAZ 4 — VİOP Nedir'i taşı
+### FAZ 4 — VİOP Nedir'i taşı ✅
 - [x] 4.1 Birebir taşıma (yeniden yazım DEĞİL)
-- [ ] 4.2 Taşıma sonrası doğrulama
+- [x] 4.2 Taşıma sonrası doğrulama
 
-### FAZ 5 — Forward içerik planı
-- [ ] 5.1 `forward-nedir-icerik-plani.md` (VİOP planının formatında)
+### FAZ 5 — Forward içerik planı ✅
+- [x] 5.1 `forward-nedir-icerik-plani.md` (VİOP planının formatında)
 
-### FAZ 6 — Forward implementasyon
-- [ ] 6.1 Ortak component/animasyon reuse
-- [ ] 6.2 Yeni metafor SVG'leri (OTC, karşı taraf riski)
-- [ ] 6.3 Mobil + prefers-reduced-motion
-- [ ] 6.4 Disclaimer
+### FAZ 6 — Forward implementasyon ✅
+- [x] 6.1 Ortak component/animasyon reuse
+- [x] 6.2 Yeni metafor SVG'leri (OTC, karşı taraf riski)
+- [x] 6.3 Mobil + prefers-reduced-motion
+- [x] 6.4 Disclaimer
 
-### FAZ 7 — Test ve kapanış
-- [ ] 7.1-7.6
+### FAZ 7 — Test ve kapanış ✅
+- [x] 7.1-7.6
 
 ---
 
@@ -141,6 +141,60 @@ değiştirildi — alt sekme gezinmesi (FAZ 3.3 gereği) buradan geliyor.
 
 ---
 
+## FAZ 5-7 — FORWARD NEDİR EKLENDİ (9 Ağu 2026)
+
+İçerik planı: [[forward-nedir-icerik-plani]] — VİOP planının formatı birebir takip edildi.
+
+### Reuse oranı yüksek, sıfırdan yazım yok
+| Öğe | Kaynak |
+|---|---|
+| Sahne/Satır/Sayaç/SoruKartı/İlerlemeRayı/İkizKart | `components/egitim/parcalar.tsx` (ortak) |
+| `useSahneAktif` (rect-tabanlı) | ortak — IO'ya dönülmedi |
+| AsansorSVG (long/short), BugdaySVG (neden var) | `components/egitim/ortak-svg.tsx`'e taşındı, iki eğitim de kullanıyor |
+| Simülasyon deseni (useReducer + karne + lazy) | VİOP `Simulasyon.tsx` yapısı |
+| Sayfa iskeleti, CSS, disclaimer, üst bar | VİOP ile aynı |
+
+**Yalnız forward'a özgü yeni SVG'ler:** `FiyatKilidiSVG` (B2), `BorsaOtcSVG` (B3),
+`KarsiTarafRiskiSVG` (B4 — kopan el sıkışma + VİOP tarafında takas kurumu kalkanı).
+
+### Bölüm haritası: 11 → 7
+Forward'da teminat/kaldıraç/teminat tamamlama zinciri yok (teminat zorunlu değil), bu yüzden
+7 bölüm. Şablon aynı: tanıdık zemin → metafor → kavram → risk → yön → gerekçe → simülasyon.
+VİOP'un B7 "teminat tamamlama" konumuna forward'ın B4 "karşı taraf riski" oturdu.
+
+### Simülasyona forward'a özgü adım
+Akış: TARAF SEÇ → VADE GELDİ → *(karşı taraf zarardaysa)* KARŞI TARAF KARARI → KARNE.
+3. adım **yalnızca sen kârdayken** çıkar — karşı taraf riski ancak o zaman anlamlıdır.
+
+### Doğrulama (9 Ağu 2026)
+- Build yeşil, tsc temiz. Dört route derleniyor.
+- Route'lar: `/egitimler` `/egitimler/turev-araclar` + iki eğitim → 200. `/blog`, `/posts/[slug]` → 404.
+- `/viop-nedir` → **308** → `/egitimler/turev-araclar/viop-nedir` ✓
+- VİOP taşıma sonrası: hero, disclaimer, 11 noktalı ray, sekme şeridi — hepsi yerinde.
+- Forward simülasyonu uçtan uca tıklanarak doğrulandı:
+  nötr senaryo (100 ₺ → +0 ₺, karşı taraf adımı çıkmadı — doğru) ve
+  karşı taraf dalı (130 ₺ → +15.000 ₺ kâğıt üstü → "Kaçar" → **Gerçekleşen +0 ₺** + doğru ders).
+  Matematik doğrulandı: (130−100) × 500 = 15.000.
+- Mobil (375px): 7 bölüm render, ray gizli, İkizKart tek sütun, yatay taşma YOK.
+
+### Bilinen sınır (yeni değil, VİOP'ta da kayıtlı)
+Gömülü pane scroll'u sıfırlıyor (`window.scrollTo` sonrası `scrollY: 3`), bu yüzden
+**scroll-tetiklemeli sahne animasyonları pane'de doğrulanamıyor**. Doküman kaydırılabilir
+(5962px, iç konteyner yok, `overflow: hidden` yok) — sorun sayfada değil. VİOP kaydında
+aynı sınır "Faz 3 A.4 sendromu" olarak geçiyor. **Barış'ın bir kez gerçek Chrome'da her iki
+eğitimi de kaydırması önerilir.**
+
+---
+
 ## ŞU AN NEREDEYİM
 
-FAZ 0-4 bitti (4.2 doğrulaması hariç). Sıradaki: FAZ 4.2 canlı doğrulama + FAZ 5 içerik planı.
+**TAMAMLANDI.** Üç iş de bitti: Blog gizlendi (bayrakla, kod duruyor), VİOP Nedir
+Eğitimler → Türev Araçlar altına taşındı (301'li), Forward Nedir aynı yapıda eklendi.
+
+### Açık riskler
+1. **Gerçek tarayıcıda scroll turu yapılmadı** (yukarıdaki pane sınırı). Animasyonların
+   gerçek cihazda aktığı teyit edilmeli.
+2. **Forward içeriği hukuki gözden geçirmeden geçmedi** — VİOP'ta da aynı madde açıktı.
+   Disclaimer'lar yerinde ve SPK dili korundu, ama yayın öncesi Barış'ın okuması iyi olur.
+3. Blog geri açılınca sitemap'e `/blog` döner; blog yazıları (`/posts/[slug]`) zaten
+   sitemap'te değildi — istenirse ayrıca eklenmeli.
