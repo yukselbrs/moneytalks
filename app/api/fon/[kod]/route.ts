@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import {
   fetchLiveTefasSnapshot,
   fetchTefasFundHistory,
@@ -18,6 +19,53 @@ const historyCache = new Map<string, { rows: FonHistoryPoint[]; fetchedAt: numbe
 const historyPromises = new Map<string, Promise<FonHistoryPoint[]>>();
 const latestPointCache = new Map<string, FonHistoryPoint>();
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+function safeNumber(value: unknown) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string") {
+    const parsed = Number(value.replace(/\./g, "").replace(",", "."));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function normalize(row: Partial<FonSnapshotRow>): FonSnapshotRow {
+  return {
+    kod: row.kod || "",
+    unvan: row.unvan || "",
+    kategori: row.kategori ?? null,
+    fiyat: safeNumber(row.fiyat),
+    gunluk_getiri: safeNumber(row.gunluk_getiri),
+    getiri_1h: safeNumber(row.getiri_1h),
+    getiri_1a: safeNumber(row.getiri_1a),
+    getiri_3a: safeNumber(row.getiri_3a),
+    getiri_6a: safeNumber(row.getiri_6a),
+    getiri_1y: safeNumber(row.getiri_1y),
+    getiri_yb: safeNumber(row.getiri_yb),
+    getiri_3y: safeNumber(row.getiri_3y),
+    getiri_5y: safeNumber(row.getiri_5y),
+    risk_degeri: safeNumber(row.risk_degeri),
+    portfoy_buyukluk: safeNumber(row.portfoy_buyukluk),
+    kisi_sayisi: safeNumber(row.kisi_sayisi),
+    tedavuldeki_pay: safeNumber(row.tedavuldeki_pay),
+    yonetim_ucreti_yillik: safeNumber(row.yonetim_ucreti_yillik),
+    toplam_gider_orani: safeNumber(row.toplam_gider_orani),
+    tefas_durum: row.tefas_durum ?? null,
+    veri_tarihi: row.veri_tarihi ?? null,
+  };
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 async function getSnapshotRows() {
   if (snapshotCache && Date.now() - snapshotCache.fetchedAt < CACHE_TTL_MS) {
     return snapshotCache.rows;
@@ -33,6 +81,37 @@ async function getSnapshotRows() {
     snapshotCache = { rows, fetchedAt: Date.now() };
   }
   return snapshotCache?.rows ?? rows;
+}
+
+async function getSnapshotRow(kod: string): Promise<FonSnapshotRow | null> {
+  const cached = snapshotCache?.rows.find((row) => row.kod === kod);
+  if (cached && Date.now() - snapshotCache!.fetchedAt < CACHE_TTL_MS) return cached;
+
+  const { data, error } = await supabase
+    .from("fon_snapshots")
+    .select("*")
+    .eq("kod", kod)
+    .maybeSingle();
+  if (!error && data) return normalize(data as Partial<FonSnapshotRow>);
+
+  const liveRows = await withTimeout(getSnapshotRows(), 4500, [] as FonSnapshotRow[]);
+  return liveRows.find((row) => row.kod === kod) ?? null;
+}
+
+async function getCategoryRows(kategori: string | null): Promise<FonSnapshotRow[]> {
+  if (!kategori) return [];
+  const cachedRows = snapshotCache && Date.now() - snapshotCache.fetchedAt < CACHE_TTL_MS
+    ? snapshotCache.rows.filter((row) => row.kategori === kategori)
+    : null;
+  if (cachedRows) return cachedRows;
+
+  const { data, error } = await supabase
+    .from("fon_snapshots")
+    .select("*")
+    .eq("kategori", kategori)
+    .limit(5000);
+  if (error || !data) return [];
+  return data.map((row) => normalize(row as Partial<FonSnapshotRow>));
 }
 
 async function getHistoryRows(kod: string, range: string) {
@@ -183,14 +262,17 @@ export async function GET(
   const range = req.nextUrl.searchParams.get("range") || "1mo";
 
   try {
-    const history = await getHistoryRows(kod, range);
+    const [history, baseFon] = await Promise.all([
+      withTimeout(getHistoryRows(kod, range), 3500, [] as FonHistoryPoint[]),
+      getSnapshotRow(kod),
+    ]);
     const cachedLatestPoint = latestPointCache.get(kod);
     let recentHistory = history.length > 0 && isRecentHistoryPoint(history[history.length - 1]) ? history : [];
     if (recentHistory.length === 0 && range === "1mo") recentHistory = history;
-    if (recentHistory.length === 0 && range !== "1mo") recentHistory = await getHistoryRows(kod, "1mo");
+    if (recentHistory.length === 0 && range !== "1mo") {
+      recentHistory = await withTimeout(getHistoryRows(kod, "1mo"), 2000, [] as FonHistoryPoint[]);
+    }
     if (recentHistory.length === 0 && cachedLatestPoint) recentHistory = [cachedLatestPoint];
-    const snapshotRows = await getSnapshotRows();
-    const baseFon = snapshotRows.find((row) => row.kod === kod);
     const fon = baseFon ? withLatestKnownFields(withHistoryFallback(baseFon, recentHistory), [history, recentHistory]) : null;
     if (!fon) {
       return NextResponse.json({ error: "Fon bulunamadı" }, { status: 404 });
@@ -206,9 +288,7 @@ export async function GET(
       const orta = Math.floor(s.length / 2);
       return s.length % 2 ? s[orta] : (s[orta - 1] + s[orta]) / 2;
     };
-    const kategoriFonlari = fon.kategori
-      ? snapshotRows.filter(r => r.kategori === fon.kategori)
-      : [];
+    const kategoriFonlari = await withTimeout(getCategoryRows(fon.kategori), 1500, [] as FonSnapshotRow[]);
     const kategoriKiyas = kategoriFonlari.length >= 5 ? {
       fonSayisi: kategoriFonlari.length,
       medyanGiderOrani: medyan(kategoriFonlari.map(r => Number(r.toplam_gider_orani)).filter(v => Number.isFinite(v) && v > 0)),

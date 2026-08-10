@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import { karneHesapla, fetchEndeksHaftalik, fetchRiskOzetleri, haftaBaslangici, isoHaftaNo, EGITIM_ICERIKLERI, KAP_OLAY_LIMIT, type Karne, type KapOlay, type PortfoyRow, type SnapshotRow } from "@/lib/karne";
+import { karneHesapla, fetchEndeksHaftalik, fetchRiskOzetleri, haftaBaslangici, isoHaftaNo, EGITIM_ICERIKLERI, type Karne, type KapOlay, type PortfoyRow, type SnapshotRow } from "@/lib/karne";
 import { ENSTRUMAN_KODLARI } from "@/lib/enstruman-pricing";
 
 export const maxDuration = 60;

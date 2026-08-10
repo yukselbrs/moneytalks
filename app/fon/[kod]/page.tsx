@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useCallback, useEffect, useRef, useState } from "react";
+import FonLogo from "@/components/FonLogo";
 import {
   Area,
   AreaChart,
@@ -129,12 +130,8 @@ function formatTime(value: string | null | undefined) {
   return date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
 
-function FundAvatar({ kod }: { kod: string }) {
-  return (
-    <div style={{ width: 58, height: 58, borderRadius: 16, background: "linear-gradient(135deg, rgba(20,184,166,0.24), rgba(59,130,246,0.18))", border: "1px solid rgba(20,184,166,0.32)", color: "#CCFBF1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 850, letterSpacing: "-0.4px", flexShrink: 0 }}>
-      {kod.slice(0, 2)}
-    </div>
-  );
+function FundAvatar({ kod, unvan }: { kod: string; unvan: string }) {
+  return <FonLogo kod={kod} unvan={unvan} size={58} radius={16} />;
 }
 
 export default function FonPage({ params }: { params: Promise<{ kod: string }> }) {
@@ -268,7 +265,7 @@ export default function FonPage({ params }: { params: Promise<{ kod: string }> }
               <>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
                   <div style={{ display: "flex", gap: 15, minWidth: 0 }}>
-                    <FundAvatar kod={fon.kod} />
+                    <FundAvatar kod={fon.kod} unvan={fon.unvan} />
                     <div style={{ minWidth: 0 }}>
                       <p style={{ color: "#60A5FA", fontSize: 11, fontWeight: 750, letterSpacing: "0.11em", textTransform: "uppercase", margin: "0 0 7px" }}>TEFAS · Fon Detayı</p>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>

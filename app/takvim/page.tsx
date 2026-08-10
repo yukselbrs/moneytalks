@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -87,7 +88,7 @@ const TH = { padding: "8px 12px", fontSize: 12, fontWeight: 600, color: "#334155
 function TakvimIcerik() {
   const router = useRouter();
   const params = useSearchParams();
-  const bugun = new Date();
+  const bugun = useMemo(() => new Date(), []);
   const urlSekme = params.get("sekme");
   const sekme: SekmeId = SEKMELER.some((s) => s.id === urlSekme) ? (urlSekme as SekmeId) : "ekonomik";
 
@@ -306,9 +307,9 @@ function TakvimIcerik() {
               {sekme === "halka-arz" && (
                 // Takvim ay-kapsamli; arzlarin tam listesi (aktif + gecmis) ayri sayfada durur.
                 <div style={{ padding: "10px 16px", borderTop: "1px solid rgba(59,130,246,0.06)", textAlign: "center" }}>
-                  <a href="/halka-arz" style={{ fontSize: 12, color: "#60A5FA", textDecoration: "none", fontWeight: 600 }}>
+                  <Link href="/halka-arz" style={{ fontSize: 12, color: "#60A5FA", textDecoration: "none", fontWeight: 600 }}>
                     Tüm halka arzları listele →
-                  </a>
+                  </Link>
                 </div>
               )}
             </div>

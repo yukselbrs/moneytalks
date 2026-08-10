@@ -90,7 +90,7 @@ export default function Hero({ heroVideo }: HeroProps) {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-0">
           {/* Left: Text */}
-          <div className="flex-1 max-w-xl lg:max-w-2xl pt-16 lg:pt-0">
+          <div className="w-full min-w-0 flex-1 max-w-[calc(100vw-48px)] sm:max-w-xl lg:max-w-2xl pt-16 lg:pt-0">
             {/* Eyebrow */}
             <div className="animate-fade-up delay-100 inline-flex items-center gap-2 mb-8">
               <span
@@ -107,12 +107,13 @@ export default function Hero({ heroVideo }: HeroProps) {
 
             {/* Headline */}
             <h1
-              className="animate-fade-up delay-200 text-5xl lg:text-[72px] leading-[1.05] font-bold tracking-tight mb-6"
+              className="animate-fade-up delay-200 text-[44px] sm:text-5xl lg:text-[72px] leading-[1.05] font-bold tracking-normal mb-6"
               style={{ fontFamily: "var(--font-geist)" }}
             >
               <span style={{ color: "#F8FAFC" }}>Borsa artık</span>
               <br />
-              <span className="gradient-text">seninle konuşuyor.</span>
+              <span className="gradient-text block sm:inline">seninle</span>{" "}
+              <span className="gradient-text block sm:inline">konuşuyor.</span>
             </h1>
 
             {/* Subheadline */}
@@ -196,7 +197,7 @@ export default function Hero({ heroVideo }: HeroProps) {
           </div>
 
           {/* Right: Video */}
-          <div className="flex-1 flex items-center justify-center lg:justify-end">
+          <div className="w-full min-w-0 flex-1 flex items-center justify-center lg:justify-end">
             {prefersReducedMotion ? (
               <video
                 muted

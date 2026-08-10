@@ -19,7 +19,7 @@ export function useSahneAktif() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (azaltilmisHareket()) { setAktif(true); return; }
+    if (azaltilmisHareket()) { void Promise.resolve().then(() => setAktif(true)); return; }
     let bitti = false;
     const kontrol = () => {
       if (bitti || !el) return;
@@ -90,7 +90,7 @@ export function Sayac({ hedef, aktif, format, sure = 900, style }: {
   useEffect(() => {
     if (!aktif || basladi.current) return;
     basladi.current = true;
-    if (azaltilmisHareket()) { setDeger(hedef); return; }
+    if (azaltilmisHareket()) { void Promise.resolve().then(() => setDeger(hedef)); return; }
     const t0 = performance.now();
     let raf = 0;
     const tick = () => {

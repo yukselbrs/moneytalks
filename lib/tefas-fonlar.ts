@@ -89,7 +89,7 @@ export type FonHistoryPoint = {
   tedavuldeki_pay: number | null;
 };
 
-type HistoricalReturnFallback = {
+export type HistoricalReturnFallback = {
   gunluk_getiri: number | null;
   getiri_1h: number | null;
   getiri_1a: number | null;
@@ -112,17 +112,27 @@ function tefasHeaders() {
 
 async function tefasPost<T>(endpoint: string, payload: Record<string, unknown>): Promise<TefasResponse<T>> {
   let res: Response | null = null;
+  let lastError: unknown = null;
   for (let attempt = 0; attempt < 3; attempt++) {
-    res = await fetch(`${TEFAS_ROOT}${endpoint}`, {
-      method: "POST",
-      headers: tefasHeaders(),
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    });
+    try {
+      res = await fetch(`${TEFAS_ROOT}${endpoint}`, {
+        method: "POST",
+        headers: tefasHeaders(),
+        body: JSON.stringify(payload),
+        cache: "no-store",
+        signal: AbortSignal.timeout(8000),
+      });
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 650 * (attempt + 1)));
+      continue;
+    }
     if (res.ok || (res.status !== 429 && res.status !== 503)) break;
     await new Promise((resolve) => setTimeout(resolve, 650 * (attempt + 1)));
   }
-  if (!res) throw new Error(`TEFAS ${endpoint} HTTP error`);
+  if (!res) {
+    throw lastError instanceof Error ? lastError : new Error(`TEFAS ${endpoint} HTTP error`);
+  }
   if (!res.ok) throw new Error(`TEFAS ${endpoint} HTTP ${res.status}`);
   const body = await res.json() as TefasResponse<T>;
   if (body.errorCode || body.errorMessage) {
@@ -252,8 +262,7 @@ export async function fetchTefasManagementFees() {
   return body.resultList ?? [];
 }
 
-export async function fetchTefasSizeRows() {
-  const date = latestBusinessDay();
+export async function fetchTefasSizeRows(date = latestBusinessDay()) {
   const body = await tefasPost<TefasFundSize>("/api/funds/fonBuyuklukBazliBilgiGetir", {
     fonTipi: "YAT",
     fonKodu: null,
@@ -487,6 +496,85 @@ export async function fetchHistoricalReturnFallbacks(currentDate: string | null,
   return result;
 }
 
+function nextBusinessDay(date: Date) {
+  let cursor = addDays(date, 1);
+  while (cursor.getDay() === 0 || cursor.getDay() === 6) {
+    cursor = addDays(cursor, 1);
+  }
+  return cursor;
+}
+
+function inferSizePrice(row: TefasFundSize | undefined) {
+  const value = toNumber(row?.sonPortfoyDegeri);
+  const shares = toNumber(row?.sonPayAdedi);
+  return value !== null && shares !== null && shares > 0 ? value / shares : null;
+}
+
+// TEFAS'ta islem gormeyen (kapali) fonlar getiri ve genel fiyat endpoint'lerinde
+// yer almiyor; tek kaynaklari buyukluk endpoint'i. Bu fonksiyon anchor tarihlerde
+// buyukluk verisini cekip turetilmis fiyatlardan (deger/pay) donem getirisi hesaplar.
+export async function fetchClosedFundReturnFallbacks(currentSizeRows: TefasFundSize[]) {
+  const result = new Map<string, HistoricalReturnFallback>();
+  const closed = currentSizeRows.filter((row) => row.tefasDurum !== true && row.fonKodu);
+  if (closed.length === 0) return result;
+
+  const currentPrices = new Map<string, number>();
+  closed.forEach((row) => {
+    const price = inferSizePrice(row);
+    if (price !== null) currentPrices.set(row.fonKodu, price);
+  });
+  if (currentPrices.size === 0) return result;
+
+  const end = latestBusinessDay();
+  const anchors: Array<{ key: keyof HistoricalReturnFallback; target: Date; direction: "back" | "forward" }> = [
+    { key: "gunluk_getiri", target: previousBusinessDay(end), direction: "back" },
+    { key: "getiri_1h", target: addDays(end, -7), direction: "forward" },
+    { key: "getiri_1a", target: addMonths(end, -1), direction: "forward" },
+    { key: "getiri_3a", target: addMonths(end, -3), direction: "forward" },
+    { key: "getiri_6a", target: addMonths(end, -6), direction: "forward" },
+    { key: "getiri_yb", target: new Date(end.getFullYear(), 0, 1, 12), direction: "forward" },
+    { key: "getiri_1y", target: addMonths(end, -12), direction: "forward" },
+  ];
+
+  const anchorPrices = new Map<keyof HistoricalReturnFallback, Map<string, number>>();
+  for (const anchor of anchors) {
+    const prices = new Map<string, number>();
+    let cursor = latestBusinessDay(anchor.target);
+    // Anchor gunu tatile/veri bosluguna denk gelebilir; 4 is gunu kayarak dene.
+    for (let attempt = 0; attempt < 4 && prices.size === 0; attempt++) {
+      if (cursor >= end) break;
+      try {
+        const rows = await fetchTefasSizeRows(cursor);
+        rows.forEach((row) => {
+          if (!row.fonKodu) return;
+          const price = inferSizePrice(row);
+          if (price !== null) prices.set(row.fonKodu, price);
+        });
+      } catch {
+        // siradaki gunu dene
+      }
+      cursor = anchor.direction === "back" ? previousBusinessDay(cursor) : nextBusinessDay(cursor);
+      if (prices.size === 0) await sleep(650);
+    }
+    anchorPrices.set(anchor.key, prices);
+    await sleep(650);
+  }
+
+  currentPrices.forEach((currentPrice, kod) => {
+    result.set(kod, {
+      gunluk_getiri: percentChange(currentPrice, anchorPrices.get("gunluk_getiri")?.get(kod) ?? null),
+      getiri_1h: percentChange(currentPrice, anchorPrices.get("getiri_1h")?.get(kod) ?? null),
+      getiri_1a: percentChange(currentPrice, anchorPrices.get("getiri_1a")?.get(kod) ?? null),
+      getiri_3a: percentChange(currentPrice, anchorPrices.get("getiri_3a")?.get(kod) ?? null),
+      getiri_6a: percentChange(currentPrice, anchorPrices.get("getiri_6a")?.get(kod) ?? null),
+      getiri_yb: percentChange(currentPrice, anchorPrices.get("getiri_yb")?.get(kod) ?? null),
+      getiri_1y: percentChange(currentPrice, anchorPrices.get("getiri_1y")?.get(kod) ?? null),
+    });
+  });
+
+  return result;
+}
+
 export function mergeTefasSnapshot(
   generalRows: TefasFundGeneral[],
   returnRows: TefasFundReturn[],
@@ -527,7 +615,7 @@ export function mergeTefasSnapshot(
     const shareCount = toNumber(size?.sonPayAdedi);
     const inferredPrice = sizeValue !== null && shareCount !== null && shareCount > 0 ? sizeValue / shareCount : null;
     const tefasDurum = ret?.tefasDurum ?? size?.tefasDurum ?? null;
-    const isClosedTefas = tefasDurum === false;
+    const isClosedTefas = tefasDurum !== true;
     const hist = historicalReturns.get(kod);
     const dailyReturn = toNumber(daily?.getiriOrani) ?? toNumber(size?.netGetiriOrani) ?? percentChange(toNumber(latest?.fiyat), toNumber(previous?.fiyat));
 
@@ -568,6 +656,11 @@ export async function fetchLiveTefasSnapshot() {
   await sleep(800);
   const historicalReturns = await fetchHistoricalReturnFallbacks(general.date, general.rows)
     .catch(() => new Map<string, HistoricalReturnFallback>());
+  const closedReturns = await fetchClosedFundReturnFallbacks(sizeRows)
+    .catch(() => new Map<string, HistoricalReturnFallback>());
+  closedReturns.forEach((value, kod) => {
+    if (!historicalReturns.has(kod)) historicalReturns.set(kod, value);
+  });
   return mergeTefasSnapshot(general.rows, returns, management, sizeRows, dailyRows, historicalReturns);
 }
 

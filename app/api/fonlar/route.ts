@@ -195,6 +195,9 @@ export async function GET(req: NextRequest) {
     const rows = (await getRows(forceLive))
       .filter((row) => {
         if (tefasFilter === "tumu") return true;
+        // Yalnizca kesin kapali (false) olanlar "kapali"ya girer; durumu
+        // bilinmeyen (null) fonlar acik tarafinda kalir ki iki sekme
+        // arasinda fon kaybolmasin / cop birikmesin.
         if (tefasFilter === "kapali") return row.tefas_durum !== true;
         return row.tefas_durum === true;
       })

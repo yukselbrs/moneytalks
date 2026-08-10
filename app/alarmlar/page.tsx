@@ -104,7 +104,7 @@ export default function AlarmlarPage() {
   }, []);
 
   useEffect(() => {
-    fetchAlarmlar();
+    void Promise.resolve().then(fetchAlarmlar);
   }, [fetchAlarmlar]);
 
   const fiyatAlarmlar = alarmlar.filter(a => a.tip === "fiyat");

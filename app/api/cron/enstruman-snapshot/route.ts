@@ -47,10 +47,23 @@ export async function GET(req: NextRequest) {
   const madenSatirlar = satirlar.filter(s => s.tur === "maden");
   if (madenSatirlar.length) {
     const { error: legacyHata } = await supabase.from("maden_snapshots").upsert(
-      madenSatirlar.map(s => {
-        const { tur: _tur, getiri_6a: _g6a, getiri_5y: _g5y, ...legacy } = s;
-        return { ...legacy, updated_at: simdi };
-      })
+      madenSatirlar.map(s => ({
+        kod: s.kod,
+        ad: s.ad,
+        birim: s.birim,
+        para_birimi: s.para_birimi,
+        fiyat: s.fiyat,
+        degisim_yuzde: s.degisim_yuzde,
+        gunluk_yuksek: s.gunluk_yuksek,
+        gunluk_dusuk: s.gunluk_dusuk,
+        getiri_1h: s.getiri_1h,
+        getiri_1a: s.getiri_1a,
+        getiri_3a: s.getiri_3a,
+        getiri_1y: s.getiri_1y,
+        kaynak: s.kaynak,
+        usdtry_kur: s.usdtry_kur,
+        updated_at: simdi,
+      }))
     );
     if (legacyHata) {
       hata++;

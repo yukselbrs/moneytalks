@@ -3,7 +3,8 @@ import { Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import StockLogo from "@/components/StockLogo";
-import { ArrowDownAZ, BadgePercent, ChevronDown, Search, Shield, SlidersHorizontal, TrendingUp, Users, Wallet, X } from "lucide-react";
+import FonLogo from "@/components/FonLogo";
+import { BadgePercent, ChevronDown, Search, Shield, SlidersHorizontal, TrendingUp, Users, Wallet, X } from "lucide-react";
 import { tickerRenk } from "@/lib/utils";
 
 type IsiHisse = {
@@ -100,13 +101,6 @@ const FON_TEFAS_FILTERS = [
   { key: "tumu", label: "Tümü" },
 ] as const;
 
-const SORT_DEFAULT_DIR: Record<string, "asc" | "desc"> = {
-  alfabetik: "asc",
-  dusus: "asc",
-  risk: "asc",
-  ucret: "asc",
-};
-
 const TABLO_BASLIKLARI = [
   { label: "#", align: "left" },
   { label: "HİSSE", align: "left" },
@@ -188,25 +182,17 @@ function HisselerContent() {
     router.replace(`/hisseler?${params.toString()}`);
   }, [router, searchParams]);
 
-  const updateSort = useCallback((nextSort: string, nextDir: "asc" | "desc" | null = null) => {
-    updateParams({
-      sort: nextSort === "alfabetik" ? null : nextSort,
-      dir: nextSort === "alfabetik" ? null : nextDir,
-      page: "1",
-    });
-  }, [updateParams]);
-
   const handleHeaderSort = useCallback((sortKey: string) => {
     if (sort !== sortKey || sortDir === null) {
-      updateSort(sortKey, "desc");
+      updateParams({ sort: sortKey, dir: "desc", page: "1" });
       return;
     }
     if (sortDir === "desc") {
-      updateSort(sortKey, "asc");
+      updateParams({ sort: sortKey, dir: "asc", page: "1" });
       return;
     }
-    updateSort("alfabetik");
-  }, [sort, sortDir, updateSort]);
+    updateParams({ sort: "alfabetik", dir: null, page: "1" });
+  }, [sort, sortDir, updateParams]);
 
   useEffect(() => {
     setArama(q);
@@ -298,14 +284,12 @@ function HisselerContent() {
   const fonKapali = varlik === "fon" && aktifTefasFilter === "kapali";
   const siralamaOptions = fonKapali ? FON_KAPALI_SIRALAMA_OPTIONS : varlik === "fon" ? FON_SIRALAMA_OPTIONS : SIRALAMA_OPTIONS;
   const aktifSiralama = siralamaOptions.find((s) => s.key === sort);
-  const effectiveSortDir = sort === "alfabetik" ? null : sortDir ?? SORT_DEFAULT_DIR[sort] ?? "desc";
   const aktifSiralamaMetni = aktifSiralama
-    ? `${aktifSiralama.label}${effectiveSortDir ? ` ${effectiveSortDir === "desc" ? "azalan" : "artan"}` : ""}`
+    ? `${aktifSiralama.label}${sortDir ? ` ${sortDir === "desc" ? "azalan" : "artan"}` : ""}`
     : "A-Z";
   const fonGetiriSortlari = fonKapali ? ["gun", "1wk", "1mo", "3mo", "6mo"] : ["gun", "1mo", "3mo", "6mo", "1y"];
   const fonMetricTabs = varlik === "fon"
     ? [
-        { key: "alfabetik", label: "A-Z", icon: ArrowDownAZ, activeKeys: ["alfabetik"] },
         { key: "gun", label: "Getiri", icon: TrendingUp, activeKeys: fonGetiriSortlari },
         { key: "buyukluk", label: "Büyüklük", icon: Wallet, activeKeys: ["buyukluk"] },
         { key: "kisi", label: "Yatırımcı", icon: Users, activeKeys: ["kisi"] },
@@ -538,7 +522,7 @@ function HisselerContent() {
                   <select
                     className="fon-select"
                     value={siralamaOptions.some((s) => s.key === sort) ? sort : "alfabetik"}
-                    onChange={(event) => updateSort(event.target.value)}
+                    onChange={(event) => updateParams({ sort: event.target.value, dir: null, page: "1" })}
                     style={{ paddingLeft: 38 }}
                   >
                     {siralamaOptions.map((option) => (
@@ -552,11 +536,11 @@ function HisselerContent() {
                   <button
                     type="button"
                     className="fon-direction-btn"
-                      onClick={() => updateParams({ dir: effectiveSortDir === "asc" ? "desc" : "asc", page: "1" })}
-                      aria-label="Sıralama yönünü değiştir"
-                    >
-                    <span>{effectiveSortDir === "asc" ? "Artan" : "Azalan"}</span>
-                    <span style={{ color: "#60A5FA", fontSize: 15 }}>{effectiveSortDir === "asc" ? "↑" : "↓"}</span>
+                    onClick={() => updateParams({ dir: sortDir === "asc" ? "desc" : "asc", page: "1" })}
+                    aria-label="Sıralama yönünü değiştir"
+                  >
+                    <span>{sortDir === "asc" ? "Artan" : "Azalan"}</span>
+                    <span style={{ color: "#60A5FA", fontSize: 15 }}>{sortDir === "asc" ? "↑" : "↓"}</span>
                   </button>
                 )}
               </div>
@@ -574,7 +558,7 @@ function HisselerContent() {
                     <button
                       key={tab.key}
                       type="button"
-                      onClick={() => updateSort(tab.key)}
+                      onClick={() => updateParams({ sort: tab.key, dir: null, page: "1" })}
                       className={`fon-metric-tab ${active ? "fon-metric-tab-active" : ""}`}
                       aria-pressed={active}
                     >
@@ -591,7 +575,7 @@ function HisselerContent() {
                 {siralamaOptions.map(s => (
                   <button
                     key={s.key}
-                    onClick={() => updateSort(s.key)}
+                    onClick={() => updateParams({ sort: s.key, dir: null, page: "1" })}
                     className={`sort-btn ${sort === s.key ? "sort-btn-active" : "sort-btn-inactive"}`}
                   >
                     {s.label}
@@ -771,9 +755,7 @@ function HisselerContent() {
                     style={{ display: "grid", gridTemplateColumns: tabloGrid, gap: 6, padding: "12px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", alignItems: "center", background: "transparent", cursor: "pointer" }}>
                     <span className="col-no" style={{ fontSize: 11, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                      <div style={{ width: 26, height: 26, borderRadius: 7, background: "linear-gradient(135deg, rgba(20,184,166,0.18), rgba(59,130,246,0.1))", border: "1px solid rgba(20,184,166,0.22)", display: "flex", alignItems: "center", justifyContent: "center", color: "#99F6E4", fontSize: 10, fontWeight: 800, flexShrink: 0 }}>
-                        {fon.kod.slice(0, 2)}
-                      </div>
+                      <FonLogo kod={fon.kod} unvan={fon.unvan} size={26} radius={7} />
                       <div style={{ minWidth: 0 }}>
                         <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9", margin: 0, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{fon.kod}</p>
                         <p style={{ fontSize: 10.5, color: "#94A3B8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1, lineHeight: 1.2 }}>{fon.unvan}</p>
@@ -819,9 +801,7 @@ function HisselerContent() {
                   style={{ display: "grid", gridTemplateColumns: tabloGrid, gap: 6, padding: "11px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", alignItems: "center", background: "transparent", cursor: "pointer" }}>
                   <span className="col-no" style={{ fontSize: 11, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                    <div style={{ width: 26, height: 26, borderRadius: 7, background: "linear-gradient(135deg, rgba(20,184,166,0.22), rgba(59,130,246,0.14))", border: "1px solid rgba(20,184,166,0.26)", display: "flex", alignItems: "center", justifyContent: "center", color: "#99F6E4", fontSize: 10, fontWeight: 800, flexShrink: 0 }}>
-                      {fon.kod.slice(0, 2)}
-                    </div>
+                    <FonLogo kod={fon.kod} unvan={fon.unvan} size={26} radius={7} />
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9", margin: 0, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{fon.kod}</p>
                       <p style={{ fontSize: 10.5, color: "#94A3B8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1, lineHeight: 1.2 }}>{fon.unvan}</p>

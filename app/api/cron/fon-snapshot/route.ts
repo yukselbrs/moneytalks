@@ -3,10 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
 import {
+  type HistoricalReturnFallback,
   type TefasFundGeneral,
   type TefasFundManagement,
   type TefasFundReturn,
   type TefasFundSize,
+  fetchClosedFundReturnFallbacks,
+  fetchHistoricalReturnFallbacks,
   fetchLatestTefasGeneral,
   fetchTefasDailyReturns,
   fetchTefasManagementFees,
@@ -16,7 +19,8 @@ import {
 } from "@/lib/tefas-fonlar";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// Historical fallback fetch'leri (5 aralik + bekleme) 60 sn'yi asabilir.
+export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 const supabase = createClient(
@@ -38,12 +42,27 @@ export async function GET(req: NextRequest) {
       fetchTefasSizeRows().catch(() => [] as TefasFundSize[]),
       fetchTefasDailyReturns().catch(() => [] as TefasFundReturn[]),
     ]);
-    const snapshots = mergeTefasSnapshot(generalRows, returns, management, sizeRows, dailyRows)
-      .filter((row) => row.tefas_durum !== false);
+    // getiri_1h ve ret'te olmayan fonlarin donem getirileri bu fallback'ten gelir.
+    // Bu olmadan Supabase snapshot'inda 1H kolonu tumden bos kaliyordu.
+    const historicalReturns = await fetchHistoricalReturnFallbacks(date, generalRows)
+      .catch(() => new Map<string, HistoricalReturnFallback>());
 
+    // Kapali fonlar getiri/genel endpoint'lerinde yok; buyukluk verisinden
+    // turetilmis fiyat gecmisiyle getirilerini hesapla.
+    const closedReturns = await fetchClosedFundReturnFallbacks(sizeRows)
+      .catch(() => new Map<string, HistoricalReturnFallback>());
+    closedReturns.forEach((value, kod) => {
+      if (!historicalReturns.has(kod)) historicalReturns.set(kod, value);
+    });
+
+    // NOT: kapali fonlar (tefas_durum === false) bilerek dahil ediliyor;
+    // /api/fonlar "kapali" filtresi bu satirlara ihtiyac duyuyor.
+    const snapshots = mergeTefasSnapshot(generalRows, returns, management, sizeRows, dailyRows, historicalReturns);
+
+    const upsertStartedAt = new Date().toISOString();
     if (snapshots.length > 0) {
       const { error } = await supabase.from("fon_snapshots").upsert(
-        snapshots.map((row) => ({ ...row, updated_at: new Date().toISOString() }))
+        snapshots.map((row) => ({ ...row, updated_at: upsertStartedAt }))
       );
       if (error) {
         if (error.code === "PGRST205" || error.message.includes("fon_snapshots")) {
@@ -67,6 +86,12 @@ export async function GET(req: NextRequest) {
           { status: 500 }
         );
       }
+    }
+
+    // Delist olan fonlar tabloda bayat kalmasin: bu turdaki upsert'in
+    // dokunmadigi satirlari sil. Yalnizca saglikli (genis) snapshot'ta calisir.
+    if (snapshots.length >= 1500) {
+      await supabase.from("fon_snapshots").delete().lt("updated_at", upsertStartedAt);
     }
 
     return NextResponse.json({

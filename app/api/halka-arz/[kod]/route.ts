@@ -11,6 +11,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ kod: string }> }) {
   const { kod } = await params;
   const temiz = kod.trim().toUpperCase();
@@ -31,8 +38,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ kod
   const now = new Date();
   const bugun = { yil: now.getUTCFullYear(), ay: now.getUTCMonth() + 1 };
   const [isyOzet, piyasaDegeri] = await Promise.all([
-    isyOzetFinansal(temiz, bugun),
-    tvPiyasaDegeri(temiz),
+    withTimeout(isyOzetFinansal(temiz, bugun), 4500, null),
+    withTimeout(tvPiyasaDegeri(temiz), 3500, null),
   ]);
 
   if (!isyOzet) return NextResponse.json({ arz: data });

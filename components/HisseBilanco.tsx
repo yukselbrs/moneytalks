@@ -60,7 +60,7 @@ function KartTablo({ baslik, birim, kolonlar, satirlar }: { baslik: string; biri
   );
 }
 
-function Cerceve({ birim, sag, children, kaynak }: { birim: string; sag: string; children: React.ReactNode; kaynak: string }) {
+function Cerceve({ sag, children, kaynak }: { sag: string; children: React.ReactNode; kaynak: string }) {
   return (
     <section style={{ marginTop: 26 }}>
       <style>{`
@@ -88,8 +88,9 @@ export default function HisseBilanco({ ticker }: { ticker: string }) {
 
   useEffect(() => {
     let iptal = false;
-    setYuklendi(false); setIsy(null); setTv(null);
-    (async () => {
+    void Promise.resolve().then(async () => {
+      if (iptal) return;
+      setYuklendi(false); setIsy(null); setTv(null);
       try {
         const j = await fetch(`/api/finansal/${ticker}`).then((r) => r.json());
         if (iptal) return;
@@ -100,7 +101,7 @@ export default function HisseBilanco({ ticker }: { ticker: string }) {
         const j2 = await fetch(`/api/bilanco/${ticker}`).then((r) => r.json());
         if (!iptal) { setTv(j2?.bilanco ?? null); setYuklendi(true); }
       } catch { if (!iptal) setYuklendi(true); }
-    })();
+    });
     return () => { iptal = true; };
   }, [ticker]);
 
@@ -125,7 +126,7 @@ export default function HisseBilanco({ ticker }: { ticker: string }) {
     ];
     if (![...gelirSatirlar, ...bilancoSatirlar].some((s) => s.yeni !== null || s.eski !== null)) return null;
     return (
-      <Cerceve birim="" sag={isy.para_birimi}
+      <Cerceve sag={isy.para_birimi}
         kaynak="Kaynak: İş Yatırım (finansal tablolar). Değerler Bin ₺ ve son açıklanan finansal rapora dayanır; fiyat verisinden bağımsızdır. Gelir tablosu geçen yıl aynı dönemle, bilanço önceki yıl sonuyla karşılaştırılır. Bilgilendirme amaçlıdır; yatırım tavsiyesi değildir.">
         <KartTablo baslik="Özet Gelir Tablosu" birim="Bin ₺" kolonlar={[isy.donem, isy.gelirGecenYil]} satirlar={gelirSatirlar} />
         <KartTablo baslik="Özet Bilanço" birim="Bin ₺" kolonlar={[isy.donem, isy.bilancoOnceki]} satirlar={bilancoSatirlar} />
@@ -151,7 +152,7 @@ export default function HisseBilanco({ ticker }: { ticker: string }) {
     ];
     if (![...gelirSatirlar, ...bilancoSatirlar].some((sat) => sat.yeni !== null || sat.eski !== null)) return null;
     return (
-      <Cerceve birim="" sag="TRY"
+    <Cerceve sag="TRY"
         kaynak="Kaynak: TradingView (finansal tablolar). Değerler Bin ₺ ve son açıklanan finansal rapora dayanır. Gelir tablosu geçen yıl aynı çeyrekle, bilanço önceki çeyrekle karşılaştırılır. Bilgilendirme amaçlıdır; yatırım tavsiyesi değildir.">
         <KartTablo baslik="Özet Gelir Tablosu" birim="Bin ₺" kolonlar={["Son Çeyrek", "Geçen Yıl"]} satirlar={gelirSatirlar} />
         <KartTablo baslik="Özet Bilanço" birim="Bin ₺" kolonlar={["Son Çeyrek", "Önceki"]} satirlar={bilancoSatirlar} />

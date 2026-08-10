@@ -35,10 +35,6 @@ function trBugun(): string {
   return new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
-function yuzdeFmt(v: number): string {
-  return `${v > 0 ? "+" : ""}%${Math.abs(v).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`.replace("+%", "+%").replace(v < 0 ? "%" : "≠", "−%");
-}
-
 function yuzdeMetin(v: number | null): string {
   if (v === null) return "—";
   const s = Math.abs(v).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

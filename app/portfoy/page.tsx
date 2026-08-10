@@ -360,13 +360,6 @@ export default function PortfoyPage() {
     requestAnimationFrame(tick);
   }, [toplamGuncel]);
 
-  const riskRenk = (skor: string) => {
-    if (skor === "Çok Düşük" || skor === "Düşük") return "text-emerald-400 bg-emerald-400/10";
-    if (skor === "Yüksek") return "text-red-400 bg-red-400/10";
-    if (skor === "Orta-Üstü") return "text-orange-400 bg-orange-400/10";
-    return "text-yellow-400 bg-yellow-400/10";
-  };
-
   const sortTikla = (kolon: "kz" | "kzYuzde" | "gunluk" | "guncel") => {
     if (sortKolon === kolon) setSortYon(y => y === "desc" ? "asc" : "desc");
     else { setSortKolon(kolon); setSortYon("desc"); }
