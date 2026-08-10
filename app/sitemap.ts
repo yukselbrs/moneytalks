@@ -3,6 +3,7 @@ import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import bistHisseler from "@/data/bist-companies.json";
 import { ENSTRUMANLAR } from "@/lib/enstruman-pricing";
+import { EGITIM_KATEGORILERI, tumEgitimler } from "@/lib/egitimler";
 
 type BistEntry = { ticker: string };
 
@@ -52,7 +53,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/doviz-maden`, priority: 0.9 },
     { url: `${base}/halka-arz`, priority: 0.9 },
     { url: `${base}/hisseler?varlik=fon`, priority: 0.8 },
-    { url: `${base}/viop-nedir`, priority: 0.8 },
+    // Egitimler — config'ten uretilir (lib/egitimler.ts). /viop-nedir 301 ile buraya gelir.
+    { url: `${base}/egitimler`, priority: 0.8 },
+    ...EGITIM_KATEGORILERI.map((k) => ({ url: `${base}/egitimler/${k.slug}`, priority: 0.7 })),
+    ...tumEgitimler().map((e) => ({ url: `${base}${e.yol}`, priority: 0.8 })),
     { url: `${base}/kap`, priority: 0.9 },
     { url: `${base}/analizler`, priority: 0.8 },
     { url: `${base}/portfoy`, priority: 0.8 },

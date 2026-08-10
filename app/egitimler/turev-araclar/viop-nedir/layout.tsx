@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "VİOP Nedir? Kaldıraç, Teminat ve Long/Short — Basit Anlatım | ParaKonuşur",
   description:
     "VİOP'u sıfırdan, THYAO örneğiyle anlatan interaktif rehber: teminat, kaldıraç, teminat tamamlama çağrısı, long/short ve mini simülasyon. Eğitim amaçlıdır; yatırım tavsiyesi değildir.",
-  alternates: { canonical: "/viop-nedir" },
+  alternates: { canonical: "/egitimler/turev-araclar/viop-nedir" },
   openGraph: {
     title: "VİOP Nedir? — İnteraktif Basit Anlatım",
     description: "Kaldıraç, teminat ve long/short'u 11 adımda, animasyonlu hikayeyle öğren.",

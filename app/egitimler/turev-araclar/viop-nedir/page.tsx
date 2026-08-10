@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { Sahne, Satir, Sayac, SoruKarti, IlerlemeRayi, IkizKart, useSahneAktif } from "./parcalar";
+import EgitimUstBar from "@/components/egitim/UstBar";
+import { Sahne, Satir, Sayac, SoruKarti, IlerlemeRayi, IkizKart, useSahneAktif } from "@/components/egitim/parcalar";
 import { KaporaHalkaSVG, DireksiyonSVG, TeminatKartSVG, SuBardagiSVG, AsansorSVG, BugdaySVG } from "./svg";
 import dynamic from "next/dynamic";
 
@@ -272,11 +272,8 @@ export default function ViopNedirPage() {
         }
       `}</style>
 
-      {/* ust bar */}
-      <header style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(11,18,32,0.85)", backdropFilter: "blur(10px)", borderBottom: "1px solid rgba(59,130,246,0.12)", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-        <Link href="/" style={{ fontSize: 14, fontWeight: 800, color: "#F1F5F9", textDecoration: "none" }}>para<span style={{ color: "#3B82F6" }}>konusur</span></Link>
-        <span style={{ fontSize: 11, color: "#64748B" }}>Eğitim içeriği · yatırım tavsiyesi değildir</span>
-      </header>
+      {/* ust bar — kategori sekmeleri ortak bilesenden (lib/egitimler config'i) */}
+      <EgitimUstBar kategoriSlug="turev-araclar" />
 
       <IlerlemeRayi bolumler={BOLUMLER} />
 

@@ -19,17 +19,17 @@ Tek kaynak: yeni oturum önce en alttaki **ŞU AN NEREDEYİM** paragrafını oku
 - [x] 2.2 Referans veren tüm linkler
 - [x] 2.3 Bulgular loga
 
-### FAZ 3 — Eğitimler menüsü + Türev Araçlar kategorisi
-- [ ] 3.1 Nav'a "Eğitimler" öğesi
-- [ ] 3.2 Genişletilebilir kategori config'i
-- [ ] 3.3 Türev Araçlar altında iki alt sekme
-- [ ] 3.4 Route şeması
-- [ ] 3.5 Eski URL → yeni URL 301 + iç linkler
-- [ ] 3.6 sitemap
-- [ ] 3.7 Tema uyumlu sekme UI'ı
+### FAZ 3 — Eğitimler menüsü + Türev Araçlar kategorisi ✅
+- [x] 3.1 Nav'a "Eğitimler" öğesi
+- [x] 3.2 Genişletilebilir kategori config'i
+- [x] 3.3 Türev Araçlar altında iki alt sekme
+- [x] 3.4 Route şeması
+- [x] 3.5 Eski URL → yeni URL 301 + iç linkler
+- [x] 3.6 sitemap
+- [x] 3.7 Tema uyumlu sekme UI'ı
 
 ### FAZ 4 — VİOP Nedir'i taşı
-- [ ] 4.1 Birebir taşıma (yeniden yazım DEĞİL)
+- [x] 4.1 Birebir taşıma (yeniden yazım DEĞİL)
 - [ ] 4.2 Taşıma sonrası doğrulama
 
 ### FAZ 5 — Forward içerik planı
@@ -107,6 +107,40 @@ Build yeşil; `/blog` ve `/posts/[slug]` route olarak derleniyor ama çalışma 
 
 ---
 
+## FAZ 3 + 4 — MENÜ KURULDU, VİOP TAŞINDI (9 Ağu 2026)
+
+### Route şeması
+```
+/egitimler                                   kategori listesi (AppShell'li)
+/egitimler/turev-araclar                     kategori sayfası, eğitim kartları
+/egitimler/turev-araclar/viop-nedir          taşındı (git mv, geçmiş korundu)
+/egitimler/turev-araclar/forward-nedir       FAZ 6'da
+/viop-nedir  →  308 kalıcı yönlendirme (next.config.ts)
+```
+
+### Genişletilebilirlik — `lib/egitimler.ts` TEK kaynak
+Kategori/eğitim listesi config'ten geliyor. Yeni kategori eklemek için **yalnız bu dizi**
+değişir; nav, kategori sayfası, sekme şeridi ve sitemap otomatik beslenir. `hazir: false`
+işaretli eğitim kartta "Yakında" rozetiyle çıkar, route'u olmaz.
+
+### Nav — indeks kayması yine önlendi
+Yeni öğe **eklenmedi**: mevcut "VİOP Nedir?" (indeks 13) → "Eğitimler" (`/egitimler`)
+olarak yerinde dönüştürüldü. Böylece `NAV_GROUPS` indeksleri ve `navItems[0/3/6/1]`
+doğrudan erişimleri hiç etkilenmedi.
+
+### Ortak kit ayrıştırıldı
+`app/viop-nedir/parcalar.tsx` → `components/egitim/parcalar.tsx`. İçerik/davranış **birebir**
+aynı, sadece konum değişti — Forward Nedir de aynı kiti kullanacak. Yeni ortak bileşenler:
+`components/egitim/UstBar.tsx` (sticky logo + kategori sekmeleri, config'ten) ve
+`components/egitim/Kartlar.tsx` (kategori/eğitim kartları).
+
+### VİOP sayfasında tek değişiklik
+Sayfanın kendi sticky header'ı `<EgitimUstBar kategoriSlug="turev-araclar" />` ile
+değiştirildi — alt sekme gezinmesi (FAZ 3.3 gereği) buradan geliyor.
+**İçerik, animasyon, sahne mantığı, SVG'ler, simülasyon: hiçbirine dokunulmadı.**
+
+---
+
 ## ŞU AN NEREDEYİM
 
-FAZ 0, 1, 2 bitti. Sıradaki: FAZ 3 (Eğitimler menüsü + Türev Araçlar kategorisi).
+FAZ 0-4 bitti (4.2 doğrulaması hariç). Sıradaki: FAZ 4.2 canlı doğrulama + FAZ 5 içerik planı.

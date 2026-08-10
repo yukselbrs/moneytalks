@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     // permanent -> 308 (Google kalici yonlendirme olarak isler, 301 esdegeri).
     return [
       { source: "/maden/:path*", destination: "/doviz-maden/:path*", permanent: true },
+      // "VİOP Nedir?" Egitimler > Turev Araclar altina tasindi (9 Agu 2026).
+      // Sayfa sitemap'te priority 0.8 ile indeksliydi; kalici yonlendirme sart.
+      { source: "/viop-nedir", destination: "/egitimler/turev-araclar/viop-nedir", permanent: true },
     ];
   },
   async headers() {

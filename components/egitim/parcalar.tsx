@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-// "VIOP Nedir?" sahne altyapisi — plan: viop-nedir-teknik-plan.md
-// Sifir yeni bagimlilik: IntersectionObserver + CSS transitions + rAF sayac.
-// Tek dosya sapmasi (plan ayri dosyalar diyordu): yerel kucuk parcalar, kesinti dayanikliligi icin birlikte.
+// EGITIM sahne altyapisi — TUM interaktif egitimlerin ortak kiti.
+// Once app/viop-nedir/parcalar.tsx idi; Forward Nedir de ayni kiti kullandigi icin
+// components/egitim/ altina tasindi (icerik/davranis birebir ayni, sadece konum degisti).
+// Plan: viop-nedir-teknik-plan.md · Sifir yeni bagimlilik: saf CSS transition + rAF sayac.
 
 export function azaltilmisHareket(): boolean {
   if (typeof window === "undefined") return false;

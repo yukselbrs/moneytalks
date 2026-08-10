@@ -2,7 +2,7 @@
 
 import { useReducer } from "react";
 import Link from "next/link";
-import { Sayac } from "./parcalar";
+import { Sayac } from "@/components/egitim/parcalar";
 import { SuBardagiSVG } from "./svg";
 
 // B11 mini simulasyon — akis semasi: viop-nedir-icerik-plani.md (SEC → ZAR_AT → sonuc → cagri karari → karne).
