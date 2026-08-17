@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimitHit } from "@/lib/rate-limit";
+import { istekIpAdresi } from "@/lib/rate-limit";
 import { Resend } from "resend";
 
 let resend: Resend | null = null;
@@ -112,11 +114,26 @@ ParaKonusur Ekibi
 ---
 Bu e-postayı parakonusur.com erken erişim listesine kayıt olduğunuz için alıyorsunuz.`;
 
+// Herkese acik ve HER ISTEKTE e-posta gonderiyor (Resend) — limitsiz birakmak
+// spam + maliyet riski. IP basina 5 kayit / 10 dk yeterli: gercek kullanici bir kez kaydolur.
+const REQ_PENCERE_SN = 600;
+const REQ_MAKS = 5;
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = istekIpAdresi(req.headers);
+    const { allowed } = await rateLimitHit(`waitlist:${ip}`, REQ_PENCERE_SN, REQ_MAKS);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Çok fazla deneme yaptınız. Lütfen birkaç dakika sonra tekrar deneyin." },
+        { status: 429 }
+      );
+    }
+
     const { email } = await req.json();
 
-    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    // Uzunluk siniri: regex uzun dizelerde pahali, ayrica DB/Resend'e sismis girdi gitmesin.
+    const valid = typeof email === "string" && email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if (!valid) {
       return NextResponse.json(
         { error: "Gecerli bir e-posta adresi girin." },
