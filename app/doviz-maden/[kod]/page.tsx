@@ -92,6 +92,19 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
   const doviz = e?.tur === "doviz";
   const bayat = e?.updated_at ? Date.now() - new Date(e.updated_at).getTime() > 60 * 60 * 1000 : false;
 
+  // Grafik basligindaki yuzde SECILI ARALIGA ait olmali. Ham degisim_yuzde yalniz 1g'de
+  // dogru; her aralikta gecilirse aylik/yillik grafik gunluk degisimi gosterir (ve grafik
+  // rengi de ondan turedigi icin yon yanlis cikar). Hisse sayfasiyla ayni desen.
+  // null donmesi zararsiz: HisseGrafik grafigin kendi ilk->son farkina duser.
+  const grafikDegisim = (() => {
+    if (!e) return null;
+    if (range === "1d") return e.degisim_yuzde;
+    const aralikGetirisi: Record<string, number | null> = {
+      "1wk": e.getiri_1h, "1mo": e.getiri_1a, "3mo": e.getiri_3a, "1y": e.getiri_1y,
+    };
+    return aralikGetirisi[range] ?? null;
+  })();
+
   return (
     <AppShell>
       <div className="min-h-screen dot-grid" style={{ background: "#0B1220" }}>
@@ -134,7 +147,7 @@ export default function DovizMadenDetay({ params }: { params: Promise<{ kod: str
 
               <div className="card-glass mt-4 rounded-xl p-5">
                 <h2 className="mb-3 text-sm font-semibold text-slate-200">{doviz ? "Kur Grafiği" : "Fiyat Grafiği"}</h2>
-                <HisseGrafik grafik={veri.grafik} grafikRange={range} setGrafikRange={setRange} fetchGrafik={(r: string) => setRange(r)} grafikDegisim={e.degisim_yuzde} gunlukDusuk={e.gunluk_dusuk} gunlukYuksek={e.gunluk_yuksek} />
+                <HisseGrafik grafik={veri.grafik} grafikRange={range} setGrafikRange={setRange} fetchGrafik={(r: string) => setRange(r)} grafikDegisim={grafikDegisim} gunlukDusuk={e.gunluk_dusuk} gunlukYuksek={e.gunluk_yuksek} />
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-6">

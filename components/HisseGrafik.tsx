@@ -25,6 +25,13 @@ type ChartTooltipProps = {
 type Props = {
   grafik: GrafikPoint[];
   grafikRange: string;
+  /**
+   * SECILI ARALIGA ait degisim yuzdesi — cagiran taraf grafikRange her degistiginde
+   * bunu da guncellemek ZORUNDA. Ham gunluk degisim gecilirse aylik/yillik grafikte
+   * gunluk deger gorunur ve grafik rengi de bundan turedigi icin yon yanlis cikar
+   * (18 Agu 2026'da doviz-maden detayinda yasandi).
+   * null gecmek guvenli: bilesen grafigin kendi ilk->son farkini hesaplar.
+   */
   grafikDegisim: number | null;
   gunlukDusuk?: number | null;
   gunlukYuksek?: number | null;
