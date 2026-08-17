@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { jsonLdGuvenli } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
   title: "VİOP Nedir? Kaldıraç, Teminat ve Long/Short — Basit Anlatım | ParaKonuşur",
@@ -25,7 +26,7 @@ const jsonLd = {
 export default function ViopNedirLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdGuvenli(jsonLd) }} />
       {children}
     </>
   );

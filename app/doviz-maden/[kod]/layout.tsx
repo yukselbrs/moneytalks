@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { enstrumanBul, enstrumanParaBirimi } from "@/lib/enstruman-pricing";
+import { jsonLdGuvenli } from "@/lib/json-ld";
 
 export async function generateMetadata({ params }: { params: Promise<{ kod: string }> }): Promise<Metadata> {
   const { kod } = await params;
@@ -35,7 +36,7 @@ export default async function DovizMadenDetayLayout({ children, params }: { chil
   };
   return (
     <>
-      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
+      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdGuvenli(jsonLd) }} />}
       {children}
     </>
   );

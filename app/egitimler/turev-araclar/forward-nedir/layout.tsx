@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { jsonLdGuvenli } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
   title: "Forward Nedir? Tezgâh Üstü (OTC) Anlaşma ve Karşı Taraf Riski | ParaKonuşur",
@@ -25,7 +26,7 @@ const jsonLd = {
 export default function ForwardNedirLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdGuvenli(jsonLd) }} />
       {children}
     </>
   );

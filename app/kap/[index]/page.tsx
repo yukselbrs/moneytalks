@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { TIP_ETIKET, type KapBildirimTipi } from "@/lib/kap-ozet";
 import StockLogo from "@/components/StockLogo";
+import { jsonLdGuvenli } from "@/lib/json-ld";
 
 export const revalidate = 1800;
 
@@ -83,7 +84,7 @@ export default async function KapBildirimPage({ params }: { params: Promise<{ in
 
   return (
     <div className="dot-grid min-h-screen bg-[#0B1220] text-slate-100">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdGuvenli(jsonLd) }} />
       <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-12">
         <nav className="mb-6 text-xs text-slate-500">
           <Link href="/" className="hover:text-slate-300">Ana Sayfa</Link>

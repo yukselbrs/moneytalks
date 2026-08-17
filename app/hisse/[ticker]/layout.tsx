@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import bistHisseler from "@/data/bist-companies.json";
 import { seoPilotMu } from "@/lib/seo-pilot-hisseler";
+import { jsonLdGuvenli } from "@/lib/json-ld";
 
 type BistEntry = { ticker: string; ad: string };
 
@@ -49,7 +50,7 @@ export default async function HisseLayout(
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdGuvenli(jsonLd) }} />
       {children}
     </>
   );

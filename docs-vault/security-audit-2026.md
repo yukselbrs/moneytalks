@@ -9,13 +9,14 @@
 |---|---|---|---|
 | 🔴 KRİTİK | 0 | 0 | **0** |
 | 🟠 YÜKSEK | 1 | 1 | **0** |
-| 🟡 ORTA | 0 | 0 | 0 |
+| 🟡 ORTA | 1 | 1 | **0** |
 | 🔵 DÜŞÜK | 0 | 0 | 0 |
 
 *(Önceki denetimde kapatılanlar dahil değil: 2 BLOCKER + 3 MAJOR — bkz. launch-checklist)*
 
 ### ⚠️ Launch öncesi mutlaka kapatılmalı
-Şu an bu listede **madde yok**. Denetim tamamlanınca güncellenecek.
+Şu an bu listede **madde yok** — bulunan 2 açık (B1 YÜKSEK, B2 ORTA) kapatıldı.
+Denetim tamamlanınca güncellenecek.
 
 ---
 
@@ -68,8 +69,40 @@ Tüm `app/api/**/route.ts` tarandı. Sınıflandırma:
 
 ---
 
-## FAZ 3 — Input validation 🔄
-- [ ] Test edilmedi.
+## FAZ 3 — Input validation 🔄 (kısmi)
+
+- [x] **3.1 `waitlist`** · 254 karakter üst sınırı + tip kontrolü eklendi (B1 ile birlikte).
+- [x] **3.2 `analiz`** · ticker allow-list ile çözülüyor (bkz. FAZ 7.1).
+- [x] **3.3 XSS — `dangerouslySetInnerHTML` taraması** · Kod tabanında 6 kullanım, **hepsi JSON-LD**.
+  Kullanıcı içeriği doğrudan HTML olarak render edilmiyor. Ama bkz. **B2**.
+- [ ] **3.4 Alarm/portföy form alanları (negatif fiyat, aşırı büyük sayı)** · Test edilmedi.
+- [ ] **3.5 SQL injection** · Supabase client parametrize; ham SQL taraması yapılmadı.
+
+---
+
+## 🟡 BULGU B2 — JSON-LD'de `</script>` kaçışı (ORTA, KAPANDI)
+
+**Sorun:** `/kap/[index]` sayfası JSON-LD'ye `description: ozet_tek_cumle ?? konu` koyuyordu ve
+`JSON.stringify` ile `<script>` etiketinin içine gömüyordu. **`JSON.stringify` `<` ve `>` karakterlerini
+kaçırmaz** — içerikte `</script>` geçse tarayıcının HTML ayrıştırıcısı script'i erken kapatır,
+sonrası HTML olarak yorumlanır → depolanmış XSS.
+
+**Kanıt:**
+```
+JSON.stringify({d:"</script><script>alert(1)</script>"})
+  -> {"d":"</script><script>alert(1)</script>"}     // dizi AYNEN duruyor
+```
+
+**Neden gerçek bir vektör:** o alan bizim yazdığımız metin değil — ya **AI özeti** ya da KAP'tan gelen
+**şirket-beyanlı `konu`** metni. Sömürülme olasılığı düşük (KAP güvenilir kaynak, Claude çıktısı
+kısıtlı) ama sınıf iyi bilinen ve düzeltmesi tek satır.
+
+**Düzeltme:** `lib/json-ld.ts` → `jsonLdGuvenli()`; `<` ve `>` unicode kaçışına çevriliyor.
+JSON geçerliliği bozulmuyor (ayrıştırıcı `\u003c` dizisini `<` olarak okur), HTML ayrıştırıcısı
+etiket göremiyor. **6 JSON-LD kullanımının hepsinde** uygulandı (kap, hisse, doviz-maden, 3 eğitim).
+
+**Doğrulama:** `/kap/1633009` → 200; JSON-LD hâlâ geçerli JSON (`JSON.parse` geçiyor),
+ham çıktıda `<` karakteri **yok**. `/hisse/THYAO`, `/doviz-maden/usd-try`, eğitim sayfaları 200.
 
 ---
 
@@ -92,14 +125,34 @@ Tüm `app/api/**/route.ts` tarandı. Sınıflandırma:
 
 ---
 
-## FAZ 5 — RLS 🔄
-- [ ] Test edilmedi (önceki denetimde çapraz-kullanıcı izolasyonu geçmişti; tablo tablo politika okuması yapılmadı).
+## FAZ 5 — RLS ✅ FİİLEN DOĞRULANDI
+
+Politikanın "var olmasına" güvenilmedi — **anon key ile gerçek istek atıldı.**
+
+- [x] **5.1 Anon OKUMA — özel tablolar** · 12 tablonun **hepsinden 0 satır**:
+  `profiles` `portfoy` `alarmlar` `watchlist` `bildirimler` `analizler` `risk_profil`
+  `chatbot_usage` `rate_limits` `waitlist` `kap_bildirim_gonderim` `kap_cursor`
+- [x] **5.2 Anon OKUMA — public tablolar** · 8 tablo normal okunuyor (site bozulmadı):
+  `hisse_snapshots` `kap_bildirimleri` `halka_arzlar` `ekonomik_takvim`
+  `sirket_takvim_etkinlikleri` `bilanco_snapshots` `fon_snapshots` `enstruman_snapshots`
+- [x] **5.3 Anon YAZMA** · *Okumanın engellenmesi yazmanın engellendiği anlamına gelmez* — ayrıca test edildi.
+  9 tabloya INSERT denemesi: **hepsi 401 `new row violates row-level security policy`**.
+  Public tablolarda anon UPDATE/DELETE: **0 satır etkilendi**.
+- [x] **5.4 Service role yalnız server** · FAZ 1.2 ile doğrulandı (bundle'da 0 dosya).
 
 ## FAZ 6 — JWT / token 🔄
 - [ ] Test edilmedi.
 
-## FAZ 7 — Prompt injection 🔄
-- [ ] Test edilmedi.
+## FAZ 7 — Prompt injection ✅ (kod denetimi)
+
+- [x] **7.1 `/api/analiz` — serbest metin YOK** · `body.ticker` → `tickerCozOverlayli()` ile
+  BIST evrenine karşı çözülüyor; çözülemezse **400**. Keyfi metin prompt'a giremiyor.
+  (Görev metnindeki FAZ 7.5 tam olarak bunu istiyordu: önceden tanımlı ID'lerle çalışma.)
+- [x] **7.2 Chatbot — doğru mimari** · `anthropic.messages.create({ system: systemPrompt, messages: [...] })`.
+  Sistem talimatı **ayrı parametre**, kullanıcı içeriği rol'lü mesajda — string birleştirme YOK.
+  Bu, prompt injection'a karşı doğru yapısal ayrım.
+- [x] **7.3 SPK çıktı filtresi** · `icerikGuvenli()` yasaklı ifade tararsa yeniden denenir, yine geçmezse hata.
+- [x] **7.4 AI çıktısı XSS — BULGU B2 (aşağıda)** · 🟡 **ORTA — KAPANDI**
 
 ## FAZ 8 — AI-coded sitelerde yaygın 3 açık 🔄
 - [ ] Araştırma yapılmadı.
@@ -108,10 +161,10 @@ Tüm `app/api/**/route.ts` tarandı. Sınıflandırma:
 
 ## ŞU AN NEREDEYİM
 
-FAZ 0, 1 ve 4 (kod denetimi) tamamlandı. FAZ 2 kısmi: endpoint envanteri çıkarıldı,
-bulunan tek boşluk (`waitlist`) kapatıldı.
+**Tamamlanan:** FAZ 0, 1 (secrets), 4 (IDOR), 5 (RLS — fiili anon testi), 7 (prompt injection).
+**Kısmi:** FAZ 2 (envanter + B1 kapatıldı), FAZ 3 (XSS taraması + 2 alan doğrulandı).
 
-**Bu oturumda 1 YÜKSEK bulundu ve kapatıldı. KRİTİK açık yok.**
+**Bu denetimde 1 YÜKSEK + 1 ORTA bulundu, ikisi de kapatıldı. KRİTİK açık yok.**
 
-Sıradaki: FAZ 2.3-2.4 → FAZ 3 (input validation) → FAZ 5 (RLS tablo tablo) →
-FAZ 6 (JWT) → FAZ 7 (prompt injection) → FAZ 8 (araştırma) → FAZ 9 (kapanış).
+Sıradaki: FAZ 2.3-2.4 (Supabase Auth limitleri, public okuma yükü) → FAZ 3.4-3.5
+(form validasyonu, ham SQL) → FAZ 6 (JWT/token) → FAZ 8 (araştırma) → FAZ 9 (kapanış).
