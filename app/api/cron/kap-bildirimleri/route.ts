@@ -139,8 +139,12 @@ function geciciHata(e: unknown): boolean {
 }
 
 let geciciAtlanan = 0;
+let butceBitti = false;
 
-async function ozetleriUret(): Promise<number> {
+// Ozetleme sure BUTCELI: duraklatma kalkinca kosu 60sn Vercel limitini asip 504
+// FUNCTION_INVOCATION_TIMEOUT verdi (10 ozet + toplama + mail birlikte sigmadi).
+// Butce dolunca kalan bildirimler 'yeni' kalir ve sonraki kosuda islenir — veri kaybi yok.
+async function ozetleriUret(sonTarihMs: number): Promise<number> {
   geciciAtlanan = 0;
   const { data: bekleyenler } = await supabase
     .from("kap_bildirimleri")
@@ -153,6 +157,7 @@ async function ozetleriUret(): Promise<number> {
 
   // Ozetleme sinirli-eszamanli (seri 5 AI cagrisi timeout'a yaklasiyordu).
   const sonuclar = await esZamanliIsle(bekleyenler as BekleyenOzet[], OZET_ESZAMAN, async (bildirim) => {
+    if (Date.now() > sonTarihMs) { butceBitti = true; return false; }   // butce doldu, kalani sonraki kosuya
     try {
       const { ozetTekCumle, ozetNeDemek } = await ozetUret(bildirim.ham_detay, bildirim.bildirim_tipi as Parameters<typeof ozetUret>[1]);
       await supabase
@@ -302,6 +307,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const baslangicMs = Date.now();
   let hata = 0;
   const guncelIndex = await kapSonIndex();
   if (!guncelIndex) {
@@ -329,7 +335,9 @@ export async function GET(req: NextRequest) {
   // YALNIZ AI adimi durur — toplama ve cursor calismaya devam eder, boylece KAP bildirimi
   // KAYBEDILMEZ ve acildiginda kuyruk hazir olur. Ozetlenmis satirlar varsa mailleri gider.
   // Duraklatma suresince AI token harcamasi SIFIR.
-  const ozetlenen = OZET_DURAKLATILDI ? 0 : await ozetleriUret();
+  // Ozetlemeye 34sn butce: kalan sure toplama + mail + sayim adimlarina kaliyor.
+  butceBitti = false;
+  const ozetlenen = OZET_DURAKLATILDI ? 0 : await ozetleriUret(baslangicMs + 34_000);
   // Ozetlenemeyen (SPK filtresine takilan / bozuk) bildirim sayisi: GOZLEMLENEBILIRLIK amaclidir,
   // workflow'u KIRMAZ. Aksi halde tek bir kalici 'hata' satiri cron'u sonsuza dek 401/exit-1 yapardi.
   const { count: ozetlenemeyenToplam } = await supabase
@@ -350,8 +358,10 @@ export async function GET(req: NextRequest) {
     ozetDuraklatildi: OZET_DURAKLATILDI,   // true iken AI adimi atlanir, token harcanmaz
     ozetBekleyen: bekleyenToplam ?? 0,
     geciciAtlanan,                      // >0 ise AI cagrisi gecici olarak basarisiz (kredi/kota/ag)
+    butceBitti,                         // true ise sure butcesi doldu, kalan bildirimler sonraki kosuda
     token: { ...tokenSayaci },          // bu kosuda harcanan AI token'i (basarisiz denemeler dahil)
     ozetlenemeyenToplam: ozetlenemeyenToplam ?? 0,
     hata,
+    sure_ms: Date.now() - baslangicMs,
   });
 }
