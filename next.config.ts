@@ -22,6 +22,18 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // CSP — YALNIZ sifir-risk direktifler. script-src bilincli olarak YOK:
+          // Next.js inline script/style uretiyor, kisitlamak icin nonce altyapisi gerekir
+          // (mimari degisiklik, launch oncesi riskli). Asagidakiler hicbir mevcut davranisi
+          // bozmadan gercek kazanc saglar:
+          //   object-src 'none'      -> Flash/plugin tabanli enjeksiyon yolu kapali
+          //   base-uri 'self'        -> <base> enjeksiyonuyla goreli URL kacirma kapali
+          //   frame-ancestors 'none' -> clickjacking (X-Frame-Options'in modern karsiligi)
+          //   form-action 'self'     -> enjekte edilen formun disariya POST etmesi kapali
+          {
+            key: "Content-Security-Policy",
+            value: "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+          },
         ],
       },
     ];

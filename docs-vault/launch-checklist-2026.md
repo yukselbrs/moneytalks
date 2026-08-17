@@ -60,7 +60,13 @@
 
 ---
 
-## FAZ 5 — GÜVENLİK (öncelikli) 🔄
+## FAZ 5 — GÜVENLİK (öncelikli) ✅
+
+> **17 Ağu 2026 — KAPSAMLI GÜVENLİK DENETİMİ TAMAMLANDI** → [[security-audit-2026]]
+> 8 kategori incelendi. **1 YÜKSEK + 3 ORTA bulundu, hepsi kapatıldı. KRİTİK açık: 0.**
+> Temiz çıkanlar: secrets (git geçmişi dahil), IDOR, RLS (fiili anon okuma+yazma testi),
+> prompt injection, CORS, hata sızıntısı, halüsinasyon bağımlılık, SQL enjeksiyonu.
+> Barış aksiyonu kalan 2 madde: Supabase Auth rate limit ayarları + leaked-password koruması.
 
 - [x] **5.1 RLS çapraz-kullanıcı izolasyonu (fiili test)** · **Geçti** · İki gerçek hesap: A, B'nin `portfoy`/`alarmlar`/`watchlist`/`bildirimler`/`analizler`/`risk_profil` satırlarını **göremiyor/silemiyor**; `user_id=eq.B` zorlamasında da boş; app API'leri sahte token'a 401. **Sızıntı yok.**
 - [x] **5.1b Anon e-posta sızıntısı** · 🔴 **BLOCKER — KAPANDI** (`efeaa3b`) · `get_email_by_username` anon'a GRANT'liydi → **girişsiz herkes kullanıcı adından e-posta okuyabiliyordu** (KVKK + phishing). Giriş `/api/giris` ile sunucuya taşındı (e-posta istemciye dönmez, 10/5dk IP limiti, aynı genel hata mesajı). 4/4 anon RPC artık 401.

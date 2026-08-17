@@ -1,6 +1,6 @@
 # ParaKonuşur — Güvenlik Denetimi 2026
 
-**Başlangıç:** 17 Ağu 2026 · **Durum:** DEVAM EDİYOR
+**Başlangıç:** 17 Ağu 2026 · **Durum:** TAMAMLANDI (kalan 2 madde Barış aksiyonu)
 Önceki denetim: [[launch-checklist-2026]] FAZ 5 (25 Tem) — **tekrar edilmedi, üzerine inşa edildi.**
 
 ## 🔒 GÜVENLİK DURUMU
@@ -9,14 +9,18 @@
 |---|---|---|---|
 | 🔴 KRİTİK | 0 | 0 | **0** |
 | 🟠 YÜKSEK | 1 | 1 | **0** |
-| 🟡 ORTA | 1 | 1 | **0** |
+| 🟡 ORTA | 2 | 2 | **0** |
 | 🔵 DÜŞÜK | 0 | 0 | 0 |
 
 *(Önceki denetimde kapatılanlar dahil değil: 2 BLOCKER + 3 MAJOR — bkz. launch-checklist)*
 
 ### ⚠️ Launch öncesi mutlaka kapatılmalı
-Şu an bu listede **madde yok** — bulunan 2 açık (B1 YÜKSEK, B2 ORTA) kapatıldı.
-Denetim tamamlanınca güncellenecek.
+**Kod tarafında açık madde YOK.** Bulunan 3 açığın (B1 YÜKSEK, B2 + B3 ORTA) hepsi kapatıldı.
+
+Kalan 2 madde **Barış'ın panelden yapması gereken** kontroller — kod değişikliği değil:
+1. **Supabase Auth rate limit ayarları** (kayıt / şifre sıfırlama). Bu akışlar client'tan
+   doğrudan Supabase'e gidiyor, bizim route'umuz yok → limit Supabase panelinde.
+2. **Leaked-password protection** (launch checklist M-6, 1 dakikalık ayar).
 
 ---
 
@@ -69,14 +73,17 @@ Tüm `app/api/**/route.ts` tarandı. Sınıflandırma:
 
 ---
 
-## FAZ 3 — Input validation 🔄 (kısmi)
+## FAZ 3 — Input validation ✅
 
 - [x] **3.1 `waitlist`** · 254 karakter üst sınırı + tip kontrolü eklendi (B1 ile birlikte).
 - [x] **3.2 `analiz`** · ticker allow-list ile çözülüyor (bkz. FAZ 7.1).
 - [x] **3.3 XSS — `dangerouslySetInnerHTML` taraması** · Kod tabanında 6 kullanım, **hepsi JSON-LD**.
   Kullanıcı içeriği doğrudan HTML olarak render edilmiyor. Ama bkz. **B2**.
-- [ ] **3.4 Alarm/portföy form alanları (negatif fiyat, aşırı büyük sayı)** · Test edilmedi.
-- [ ] **3.5 SQL injection** · Supabase client parametrize; ham SQL taraması yapılmadı.
+- [x] **3.4 Alarm/portföy form alanları** · `alarmlar` **örnek düzeyde** (allow-list, enum,
+  aralık, NaN). `portfoy` **açıktı** → **B4** ile kapatıldı.
+- [x] **3.5 SQL injection** · Ham SQL **yok**. Yalnız 2 RPC çağrısı var, ikisi de parametreli:
+  `username_musait(uname)` ve `rate_limit_hit(p_key, p_window_seconds, p_max)`. Diğer tüm
+  erişim Supabase client query builder üzerinden (parametrize).
 
 ---
 
@@ -140,8 +147,84 @@ Politikanın "var olmasına" güvenilmedi — **anon key ile gerçek istek atıl
   Public tablolarda anon UPDATE/DELETE: **0 satır etkilendi**.
 - [x] **5.4 Service role yalnız server** · FAZ 1.2 ile doğrulandı (bundle'da 0 dosya).
 
-## FAZ 6 — JWT / token 🔄
-- [ ] Test edilmedi.
+## FAZ 6 — JWT / token ✅
+
+- [x] **6.1/6.3 Token deposu — cookie, localStorage DEĞİL** · `components/lib/supabase.ts`
+  `createBrowserClient` (@supabase/ssr) kullanıyor → oturum **cookie'de**. Kodda yorumla
+  belgelenmiş: önceki `createClient` localStorage kullanıyordu ve OAuth cookie'siyle iki ayrı
+  oturum deposu oluşuyordu; birleştirilmiş. Görevdeki "localStorage ise XSS riski" maddesi
+  **bu projede geçerli değil**.
+- [x] **6.2 Alg confusion / `none` algoritması** · **Bize uygulanamaz**: JWT'yi kendimiz
+  doğrulamıyoruz. `jsonwebtoken` bağımlılığı yok, manuel decode yok — `supabase.auth.getUser(token)`
+  doğrulamayı Supabase sunucusuna yaptırıyor.
+- [x] **6.5 Logout** · `supabase.auth.signOut()` üç noktada (Navbar, AppShell, profil).
+- [ ] **6.4 Token ömrü / refresh rotasyonu / şifre sıfırlama token'ı** · Supabase yönetiminde,
+  **panelden doğrulanmalı** (Barış aksiyonu).
+
+## FAZ 8 — AI-coded sitelerde yaygın açıklar ✅
+
+Araştırma (2026 kaynakları): AI üretimi kodun %38'i açık içeriyor, örneklerin **%86'sı XSS'e
+karşı savunmasız**, %19,7'si **var olmayan paket adı** (slopsquatting) içeriyor, CRUD
+uygulamalarında model **yetkilendirme kontrolünü tamamen atlıyor**.
+Kaynaklar: OX Security · CSA Labs · Georgia Tech Vibe Security Radar · SecurityWeek.
+
+Bu üçü ParaKonuşur'a en uygun olanlar olduğu için seçildi (körü körüne kopyalanmadı):
+
+- [x] **A8-1 XSS (%86)** · ParaKonuşur'da **gerçekten bulundu** → bkz. B2. Ek olarak CSP
+  eksikliği tespit edildi → **B3** ile kapatıldı.
+- [x] **A8-2 Broken access control / IDOR** · CRUD ağırlıklı ve service role (RLS bypass)
+  kullanan bir yapı — tam risk profili. **Denetlendi, temiz** (bkz. FAZ 4).
+- [x] **A8-3 Halüsinasyon bağımlılık (%19,7)** · 26 bağımlılığın **hepsi** npm registry'de
+  kayıtlı — var olmayan paket adı **YOK**. Slopsquatting riski yok.
+- [x] **A8-4 CORS wildcard** · `Access-Control-Allow-Origin` başlığı hiç dönmüyor →
+  cross-origin okuma tarayıcı tarafından engelleniyor ✓
+- [x] **A8-5 Production hata sızıntısı** · Test edilen uçlar temiz Türkçe mesaj dönüyor
+  (`Giriş gerekli`, `Geçersiz ticker`, `bilinmeyen tip`) — stack trace / iç yol / SQL yok ✓
+
+---
+
+## 🟡 BULGU B3 — CSP yokluğu (ORTA, KAPANDI)
+
+**Sorun:** Güvenlik başlıkları vardı (HSTS, X-Frame-Options, nosniff, Referrer-Policy,
+Permissions-Policy) ama **Content-Security-Policy yoktu**. B2 gerçek bir XSS vektörü
+olduğu ve araştırma XSS'i AI kodunun en yaygın açığı olarak gösterdiği için savunma
+katmanı gerekiyordu.
+
+**Düzeltme (bilinçli olarak dar kapsamlı):**
+`object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'`
+
+**`script-src` BİLEREK eklenmedi:** Next.js inline script/style üretiyor; kısıtlamak için
+nonce altyapısı gerekir — bu mimari bir değişiklik ve launch'a günler kala siteyi bozma
+riski taşır. Eklenen dört direktif hiçbir mevcut davranışı bozmadan gerçek kazanç sağlıyor.
+**Öneri:** launch sonrası nonce tabanlı `script-src` eklenmeli.
+
+**Doğrulama:** build yeşil; `/`, `/dashboard`, `/hisseler`, `/takvim`, `/login`,
+`/kap/1633009`, `/hisse/THYAO`, eğitim sayfası → **hepsi 200**.
+
+---
+
+## 🟡 BULGU B4 — `/api/portfoy` girdi doğrulaması yok (ORTA, KAPANDI)
+
+**Sorun:** POST yalnız truthiness bakıyordu (`if (!ticker || !adet || !maliyet)`).
+Aynı kod tabanında `alarmlar` doğru yapıyordu (allow-list + enum + aralık + NaN) —
+`portfoy` istisnaydı. Kanıtlanan davranış:
+
+| Girdi | Eski sonuç |
+|---|---|
+| `adet: -5` | kabul → negatif pozisyon |
+| `adet: "abc"` | kabul → DB'ye **NaN** |
+| `adet: 1e308` | kabul |
+| `maliyet: -99` | kabul |
+| `ticker: 123` | `.toUpperCase()` → **yakalanmamış 500** |
+| `ticker: "'; DROP TABLE…"` | kabul → çöp satır (SQL enjeksiyonu değil, sorgular parametrize) |
+
+**Düzeltme:** `alarmlar` standardına çekildi — tip kontrolü, `Number.isFinite`, pozitif +
+üst sınır (`adet ≤ 1e9`, `maliyet ≤ 1e7`), ticker biçim/uzunluk kontrolü. DELETE de aynı
+tip kontrolüyle korundu (aynı 500 riski oradaydı). Gövde `JSON.parse` hatası artık 400.
+
+**Doğrulama:** yedi kötü girdi vakasının **hepsi 400**; geçerli hisse (`THYAO, 100, 330.5`)
+ve **kesirli fon adedi** (`AFA, 12.3456, 1.05`) kabul ediliyor — fon desteği bozulmadı.
+Auth akışı sağlam: auth'suz ve sahte token'lı istekler hâlâ **401**.
 
 ## FAZ 7 — Prompt injection ✅ (kod denetimi)
 
@@ -161,10 +244,27 @@ Politikanın "var olmasına" güvenilmedi — **anon key ile gerçek istek atıl
 
 ## ŞU AN NEREDEYİM
 
-**Tamamlanan:** FAZ 0, 1 (secrets), 4 (IDOR), 5 (RLS — fiili anon testi), 7 (prompt injection).
-**Kısmi:** FAZ 2 (envanter + B1 kapatıldı), FAZ 3 (XSS taraması + 2 alan doğrulandı).
+**TAMAMLANDI.** Sekiz kategorinin hepsi incelendi.
 
-**Bu denetimde 1 YÜKSEK + 1 ORTA bulundu, ikisi de kapatıldı. KRİTİK açık yok.**
+**Bulunan: 1 YÜKSEK + 3 ORTA. Hepsi kapatıldı. KRİTİK açık YOK.**
 
-Sıradaki: FAZ 2.3-2.4 (Supabase Auth limitleri, public okuma yükü) → FAZ 3.4-3.5
-(form validasyonu, ham SQL) → FAZ 6 (JWT/token) → FAZ 8 (araştırma) → FAZ 9 (kapanış).
+| # | Bulgu | Seviye | Durum |
+|---|---|---|---|
+| B1 | `/api/waitlist` limitsiz (spam + e-posta maliyeti) | 🟠 YÜKSEK | ✅ |
+| B2 | JSON-LD'de `</script>` kaçışı (depolanmış XSS) | 🟡 ORTA | ✅ |
+| B3 | CSP yok | 🟡 ORTA | ✅ |
+| B4 | `/api/portfoy` girdi doğrulaması yok | 🟡 ORTA | ✅ |
+
+**Temiz çıkanlar:** secrets (kaynak + build + git geçmişi), IDOR/sahiplik, RLS (fiili anon
+okuma+yazma testi), prompt injection, CORS, hata sızıntısı, halüsinasyon bağımlılık, SQL
+enjeksiyonu, token deposu (cookie).
+
+### Düzeltilmeyenler ve gerekçeleri
+1. **Nonce tabanlı `script-src` CSP** — mimari değişiklik, launch'a günler kala riskli.
+   Dar kapsamlı CSP ile kısmi koruma sağlandı (B3). **Öneri: launch sonrası.**
+2. **Supabase Auth rate limit + leaked-password koruması** — panel ayarı, kod değil.
+   **Barış aksiyonu.**
+3. **FAZ 2.4 public okuma uçlarında yük testi** — güvenlik açığı değil, kapasite konusu;
+   yük testi ayrı bir çalışma. 23 uç auth'suz ama hepsi public piyasa verisi.
+4. **FAZ 4.5 iki hesapla fiili çapraz erişim testi** — 25 Tem'de yapıldı ve geçti; kod deseni
+   değişmediği için tekrar edilmedi (prod'a test kullanıcısı açmamak için).
