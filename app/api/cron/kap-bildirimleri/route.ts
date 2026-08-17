@@ -23,10 +23,10 @@ const OZET_ESZAMAN = 4;      // ayni anda en fazla bu kadar AI ozet cagrisi
 // yigin) ozetlenip tabloya girer ama BAYAT mail spam'i gondermez — "haber geldiginde" = taze haber.
 const MAIL_TAZELIK_SAAT = 36;
 
-// AI ozetleme duraklatma anahtari (9 Agu 2026 — "ikinci bir emre kadar").
+// AI ozetleme duraklatma anahtari. 9 Agu 2026'da gecici olarak kapatilmis,
+// AYNI GUN Baris'in talimatiyla yeniden acildi. Kapatmak icin tek islem: true yap.
 // true iken hicbir Anthropic cagrisi yapilmaz; toplama/cursor/mail adimlari calisir.
-// Acmak icin tek islem: false yap.
-const OZET_DURAKLATILDI = true;
+const OZET_DURAKLATILDI = false;
 
 // Sinirli-eszamanli map: items'i eszaman'lik gruplar halinde paralel isler.
 async function esZamanliIsle<T, R>(items: T[], eszaman: number, fn: (item: T) => Promise<R>): Promise<R[]> {
