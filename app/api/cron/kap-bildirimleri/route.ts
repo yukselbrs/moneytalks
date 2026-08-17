@@ -12,7 +12,8 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 // Timeout korumasi (onceki FUNCTION_INVOCATION_TIMEOUT/504 kok nedeni: seri detay cekimi).
-const KAYIT_BATCH = 24;      // her kosuda en fazla bu kadar bildirim islenir; kalan sonraki kosuya
+const KAYIT_BATCH = 16;      // her kosuda en fazla bu kadar bildirim islenir; kalan sonraki kosuya
+                             // (24 iken toplama tek basina ~13sn suruyordu — 60sn butcesinde cok yer kapliyordu)
 const DETAY_ESZAMAN = 8;     // ayni anda en fazla bu kadar detay cagrisi (WAF nezaketi)
 // Girdi/cikti hizi dengesi: KAYIT_BATCH(24) x 4 kosu/saat = 96 bildirim/saat girer,
 // OZET_BATCH_LIMIT 5 iken 20/saat cikardi -> kuyruk suresiz buyuyordu (2240 birikti).
@@ -317,6 +318,7 @@ export async function GET(req: NextRequest) {
   const sonIndex = await fetchSonIndex(guncelIndex);
   const { liste: yeniListe, hata: listeHata } = await fetchYeniBildirimler(sonIndex, guncelIndex);
   if (listeHata) hata++;
+  const tListe = Date.now() - baslangicMs;
 
   let yeniBildirim = 0;
   if (yeniListe.length) {
@@ -324,6 +326,7 @@ export async function GET(req: NextRequest) {
     yeniBildirim = kaydedilen;
     await cursorGuncelle(sonIndex, enYuksekIndex);
   }
+  const tToplama = Date.now() - baslangicMs;
 
   // Token/atlama sayaclari modul duzeyinde: her ISTEGIN basinda sifirlanmali, yoksa
   // ozetleme atlandiginda onceki kosumun rakamlari raporlanir.
@@ -335,9 +338,13 @@ export async function GET(req: NextRequest) {
   // YALNIZ AI adimi durur — toplama ve cursor calismaya devam eder, boylece KAP bildirimi
   // KAYBEDILMEZ ve acildiginda kuyruk hazir olur. Ozetlenmis satirlar varsa mailleri gider.
   // Duraklatma suresince AI token harcamasi SIFIR.
-  // Ozetlemeye 34sn butce: kalan sure toplama + mail + sayim adimlarina kaliyor.
+  // Ozetlemeye 28sn butce. Olculen faz sureleri (yerel, 24'luk parti):
+  //   liste 1,6sn · toplama 12,8sn · ozet 26,6sn · mail 3,4sn = 42,7sn
+  // Vercel yerelden yavas (soguk baslama + ag) ve 60sn'de kesiliyor -> 504.
+  // Parti 16'ya, butce 28sn'ye cekildi; toplam ~33sn yerelde, Vercel'de guvenli pay kaliyor.
   butceBitti = false;
-  const ozetlenen = OZET_DURAKLATILDI ? 0 : await ozetleriUret(baslangicMs + 34_000);
+  const ozetlenen = OZET_DURAKLATILDI ? 0 : await ozetleriUret(baslangicMs + 28_000);
+  const tOzet = Date.now() - baslangicMs;
   // Ozetlenemeyen (SPK filtresine takilan / bozuk) bildirim sayisi: GOZLEMLENEBILIRLIK amaclidir,
   // workflow'u KIRMAZ. Aksi halde tek bir kalici 'hata' satiri cron'u sonsuza dek 401/exit-1 yapardi.
   const { count: ozetlenemeyenToplam } = await supabase
@@ -351,6 +358,7 @@ export async function GET(req: NextRequest) {
     .select("id", { count: "exact", head: true })
     .eq("durum", "yeni");
   const epostaGonderilen = await bildirimGonder();
+  const tMail = Date.now() - baslangicMs;
 
   // hata = yalniz OPERASYONEL hatalar (KAP erisilemedi / liste cekilemedi). Workflow bunu kontrol eder.
   return NextResponse.json({
@@ -359,6 +367,7 @@ export async function GET(req: NextRequest) {
     ozetBekleyen: bekleyenToplam ?? 0,
     geciciAtlanan,                      // >0 ise AI cagrisi gecici olarak basarisiz (kredi/kota/ag)
     butceBitti,                         // true ise sure butcesi doldu, kalan bildirimler sonraki kosuda
+    faz: { liste: tListe, toplama: tToplama, ozet: tOzet, mail: tMail, toplam: Date.now() - baslangicMs },
     token: { ...tokenSayaci },          // bu kosuda harcanan AI token'i (basarisiz denemeler dahil)
     ozetlenemeyenToplam: ozetlenemeyenToplam ?? 0,
     hata,
