@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import AlarmModal from "@/components/AlarmModal";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { supabase } from "@/components/lib/supabase";
+import { useSession } from "@/hooks/useSession";
 import StockLogo from "@/components/StockLogo";
 import { EnstrumanIkon } from "@/components/EnstrumanIkon";
 import { ENSTRUMANLAR } from "@/lib/enstruman-pricing";
@@ -51,10 +52,14 @@ export default function AlarmlarPage() {
   const [alarmlar, setAlarmlar] = useState<Alarm[]>([]);
   const [fiyatlar, setFiyatlar] = useState<Record<string, { fiyat: string; degisim: string; yukselis: boolean }>>({});
   const isMobil = useMediaQuery("(max-width: 767px)");
+  const { session, sessionHazir } = useSession();
+  const girisGerekli = sessionHazir && !session;
 
   const fetchAlarmlar = useCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      setAlarmlar([]);
+      return;
+    }
     const res = await fetch("/api/alarmlar", { headers: { authorization: `Bearer ${session.access_token}` } });
     const data = await res.json();
     if (!Array.isArray(data)) return;
@@ -101,7 +106,7 @@ export default function AlarmlarPage() {
         setFiyatlar(prev => ({ ...prev, ...ek }));
       }).catch(() => {});
     }
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     void Promise.resolve().then(fetchAlarmlar);
@@ -115,14 +120,20 @@ export default function AlarmlarPage() {
   const devreDisiSayi = alarmlar.filter(a => a.durum === "devre_disi").length;
 
   const [tipSecModalAcik, setTipSecModalAcik] = useState(false);
-  const openModal = (tip: AlarmModalTip) => { setModalTip(tip); setModalAcik(true); };
-  const openTipSec = () => setTipSecModalAcik(true);
+  const openModal = (tip: AlarmModalTip) => {
+    if (!session) return;
+    setModalTip(tip);
+    setModalAcik(true);
+  };
+  const openTipSec = () => {
+    if (!session) return;
+    setTipSecModalAcik(true);
+  };
 
   const toggleDurum = async (id: string | number) => {
     const mevcut = alarmlar.find(a => a.id === id);
     if (!mevcut) return;
     const yeniDurum = mevcut.durum === "aktif" ? "devre_disi" : "aktif";
-    const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     const res = await fetch("/api/alarmlar", {
       method: "PATCH",
@@ -134,7 +145,6 @@ export default function AlarmlarPage() {
   };
 
   const silAlarm = async (id: string | number) => {
-    const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     const res = await fetch("/api/alarmlar", {
       method: "DELETE",
@@ -230,12 +240,15 @@ export default function AlarmlarPage() {
     haberAlarmlar;
 
   const emptyTitle =
+    girisGerekli ? "Alarm oluşturmak için giriş yapmalısın" :
     sekme === "Haber & Duyurular" ? "Haber alarmı özelliği yakında" :
     filtreli.length === 0 && alarmlar.length > 0 ? "Bu kategoride alarm yok" :
     "Henüz alarm oluşturmadınız";
 
   const emptyDesc =
-    sekme === "Haber & Duyurular"
+    girisGerekli
+      ? "Fiyat, gösterge ve haber alarmlarını hesabına bağlı olarak kaydediyoruz."
+      : sekme === "Haber & Duyurular"
       ? "KAP duyuruları ve piyasa haberleri için alarm özelliği yakında aktif olacak."
       : "Fiyat hedeflerinize ulaşıldığında bildirim almak için alarm oluşturun.";
 
@@ -260,19 +273,24 @@ export default function AlarmlarPage() {
       <div className="card-glass animate-fade-up" style={{ borderRadius: 12, overflow: "hidden", animationDelay: "0.2s" }}>
         <p style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase", padding: "14px 16px", borderBottom: "1px solid rgba(59,130,246,0.06)", margin: 0 }}>Hızlı İşlemler</p>
         {HIZLI.map((h, i) => (
-          <div
+          <Link
             key={h.baslik}
-            onClick={() => openModal(h.tip)}
-            style={{ padding: "12px 16px", borderBottom: i < HIZLI.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+            href={girisGerekli ? "/login" : "#"}
+            onClick={e => {
+              if (girisGerekli) return;
+              e.preventDefault();
+              openModal(h.tip);
+            }}
+            style={{ padding: "12px 16px", borderBottom: i < HIZLI.length - 1 ? "1px solid rgba(59,130,246,0.04)" : "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", textDecoration: "none" }}
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.04)"; }}
             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: h.renk + "22", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{h.ikon}</div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>{h.baslik}</p>
-              <p style={{ fontSize: 11, color: "#475569", margin: "2px 0 0" }}>{h.aciklama}</p>
+              <p style={{ fontSize: 11, color: "#475569", margin: "2px 0 0", lineHeight: 1.4, overflowWrap: "anywhere" }}>{h.aciklama}</p>
             </div>
             <span style={{ color: "#334155" }}>›</span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
@@ -284,11 +302,19 @@ export default function AlarmlarPage() {
         <main style={{ maxWidth: isMobil ? "100%" : 1400, width: "100%", margin: "0 auto", padding: isMobil ? "16px 14px" : "24px 24px", overflowX: "hidden", boxSizing: "border-box" }}>
           <div className="animate-fade-up" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F8FAFC", margin: 0 }}>Alarmlar</h1>
-            <button
-              onClick={() => openModal("fiyat_seviye")}
-              style={{ padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
-              + Alarm Ekle
-            </button>
+            {girisGerekli ? (
+              <Link
+                href="/login"
+                style={{ padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", textDecoration: "none" }}>
+                Giriş Yap
+              </Link>
+            ) : (
+              <button
+                onClick={() => openModal("fiyat_seviye")}
+                style={{ padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer" }}>
+                + Alarm Ekle
+              </button>
+            )}
           </div>
           <p style={{ fontSize: 13, color: "#475569", marginBottom: 20 }}>Fiyat, gösterge ve haber alarmlarınızı yönetin.</p>
 
@@ -316,8 +342,14 @@ export default function AlarmlarPage() {
                   <div style={{ padding: "48px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
                     <div style={{ fontSize: 36 }}>{sekme === "Haber & Duyurular" ? "📰" : "🔔"}</div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", margin: 0 }}>{emptyTitle}</p>
-                    <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{emptyDesc}</p>
-                    {sekme !== "Haber & Duyurular" && (
+                    <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.6, width: "100%", maxWidth: isMobil ? 280 : 420, margin: 0, overflowWrap: "anywhere" }}>{emptyDesc}</p>
+                    {girisGerekli ? (
+                      <Link
+                        href="/login"
+                        style={{ marginTop: 4, padding: "9px 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", textDecoration: "none" }}>
+                        Giriş Yap
+                      </Link>
+                    ) : sekme !== "Haber & Duyurular" && (
                       <button
                         onClick={() => sekme === "Gösterge Alarmları" ? openModal("gosterge") : sekme === "Fiyat Alarmları" ? openModal("fiyat_seviye") : openTipSec()}
                         style={{ marginTop: 4, padding: "9px 20px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" }}>

@@ -5,9 +5,8 @@
 // Asansor, DalgaliSabit ve KarsiTarafRiski ORTAK kitten gelir (components/egitim/ortak-svg.tsx).
 // Burada yalniz swap'a OZGU uc metafor var: ev takasi (B2), forward dizisi (B3), faiz swap'i (B4).
 
-// B2 — Ev takasi: iki ev, sure boyunca karsilikli yer degistirir.
-export function EvTakasiSVG({ aktif }: { aktif: boolean }) {
-  const Ev = ({ x, etiket, renk }: { x: number; etiket: string; renk: string }) => (
+function Ev({ x, etiket, renk }: { x: number; etiket: string; renk: string }) {
+  return (
     <g transform={`translate(${x},70)`}>
       <path d="M-22 4 L0 -16 L22 4 z" fill="none" stroke={renk} strokeWidth="2.5" strokeLinejoin="round" />
       <rect x="-16" y="4" width="32" height="24" rx="2" fill="none" stroke={renk} strokeWidth="2.5" />
@@ -15,6 +14,10 @@ export function EvTakasiSVG({ aktif }: { aktif: boolean }) {
       <text y="48" textAnchor="middle" fill="#64748B" fontSize="11">{etiket}</text>
     </g>
   );
+}
+
+// B2 — Ev takasi: iki ev, sure boyunca karsilikli yer degistirir.
+export function EvTakasiSVG({ aktif }: { aktif: boolean }) {
   return (
     <svg viewBox="0 0 320 140" width="100%" style={{ maxWidth: 440 }} role="img"
       aria-label="İki ev altı aylığına karşılıklı takas ediliyor, süre bitince geri dönüyor">
