@@ -15,7 +15,7 @@
 
 ## KAP cron mimarisi (2026-07-04)
 
-- Route: `app/api/cron/kap-bildirimleri/route.ts`. Akış: cursor oku → yeni bildirim listesi çek → FON hariç detay çek + sınıflandır + kaydet → cursor güncelle → durum='yeni' olanlardan en fazla 5'i özetle (`lib/kap-ozet.ts`, paralel yazılan modül — sözleşme: `[[kap-ozet-sozlesmesi]]`) → durum='ozetlendi' olanlardan en fazla 5'i `watchlist` üzerinden eşleşen kullanıcılara gönder (idempotency: `kap_bildirim_gonderim` insert-then-check).
+- Route: `app/api/cron/kap-bildirimleri/route.ts`. Akış: cursor oku → yeni bildirim listesi çek → FON hariç detay çek + sınıflandır + kaydet → cursor güncelle → durum='yeni' olanlardan en fazla 5'i özetle (`lib/kap-ozet.ts`, paralel yazılan modül — sözleşme: `[[#kap-ozet-sozlesmesi]]`) → durum='ozetlendi' olanlardan en fazla 5'i `watchlist` üzerinden eşleşen kullanıcılara gönder (idempotency: `kap_bildirim_gonderim` insert-then-check).
 - `watchlist` tablosunda ticker tekil kolon (array değil) — bildirimin `tickerlar[]` dizisiyle eşleşme `.in("ticker", tickerlar)` ile yapılıyor, GIN array-overlap sorgusu `kap_bildirimleri` tarafında SEO/listeleme için var ama watchlist eşleşmesinde gerekmiyor.
 - Batch limiti 5/run seçildi çünkü `maxDuration = 60` var ve özet üretimi (Claude çağrısı) + e-posta gönderimi zaman alıyor; birikim sonraki 15dk'lık cron çalıştırmasında erir — tek run'da tüm birikimi işlemeye çalışmak timeout riski taşır.
 - ADR: `docs-vault/03-kararlar/kap-tercumani-supabase-semasi.md` (şema tarafı, supabase-schema agent'ı yazdı).

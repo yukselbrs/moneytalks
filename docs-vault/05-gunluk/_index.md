@@ -1,3 +1,6 @@
+---
+aliases: [05-gunluk]
+---
 # 05-gunluk — Günlük Notlar
 
 Günlük çalışma logları ve oturum notları burada tutulur.
