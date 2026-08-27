@@ -235,11 +235,13 @@ function applyLiveReturnMetrics(
   const last = history[history.length - 1]?.fiyat ?? fon.fiyat;
   const previous = history.length >= 2 ? history[history.length - 2]?.fiyat ?? null : null;
   const historyDaily = pct(last, previous);
+  const historyWeekly = pct(last, pointAt(history, 5));
 
   return {
     ...fon,
     kategori: ret?.fonTurAciklama ?? fon.kategori,
     gunluk_getiri: safeNumber(daily?.getiriOrani) ?? historyDaily ?? fon.gunluk_getiri,
+    getiri_1h: historyWeekly ?? fon.getiri_1h,
     getiri_1a: safeNumber(ret?.getiri1a) ?? fon.getiri_1a,
     getiri_3a: safeNumber(ret?.getiri3a) ?? fon.getiri_3a,
     getiri_6a: safeNumber(ret?.getiri6a) ?? fon.getiri_6a,
