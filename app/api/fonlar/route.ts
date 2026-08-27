@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import {
   fetchLatestTefasGeneral,
+  fetchTefasFundHistory,
   fetchLiveTefasSnapshot,
   fetchTefasDailyReturns,
   fetchTefasGeneralRange,
@@ -36,6 +37,7 @@ let rowsCache: { rows: FonSnapshotRow[]; fetchedAt: number; forceLive: boolean }
 let rowsPromise: Promise<FonSnapshotRow[]> | null = null;
 let livePatchCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
 let livePatchPromise: Promise<FonSnapshotRow[] | null> | null = null;
+const weeklyReturnCache = new Map<string, { value: number | null; fetchedAt: number }>();
 
 const fetchCachedLiveTefasSnapshot = unstable_cache(
   async () => fetchLiveTefasSnapshot(),
@@ -222,6 +224,27 @@ function patchFromRows(
   };
 }
 
+async function getWeeklyReturnFromHistory(kod: string) {
+  const key = kod.toLocaleUpperCase("tr-TR");
+  const cached = weeklyReturnCache.get(key);
+  if (cached && Date.now() - cached.fetchedAt < ROWS_CACHE_TTL_MS) return cached.value;
+
+  const history = await withTimeout(fetchTefasFundHistory(key, "1wk").catch(() => []), 4000, []);
+  const last = history[history.length - 1]?.fiyat ?? null;
+  const anchor = history.length > 0 ? history[Math.max(0, history.length - 1 - 5)]?.fiyat ?? null : null;
+  const value = pct(last, anchor);
+  weeklyReturnCache.set(key, { value, fetchedAt: Date.now() });
+  return value;
+}
+
+async function patchVisibleWeeklyReturns(rows: FonSnapshotRow[], shouldPatch: boolean) {
+  if (!shouldPatch || rows.length === 0 || rows.length > 5) return rows;
+  return Promise.all(rows.map(async (row) => {
+    const weekly = await getWeeklyReturnFromHistory(row.kod);
+    return weekly === null ? row : { ...row, getiri_1h: weekly };
+  }));
+}
+
 async function refreshRowsWithLiveTefas(rows: FonSnapshotRow[]) {
   if (livePatchCache && Date.now() - livePatchCache.fetchedAt < ROWS_CACHE_TTL_MS) {
     return livePatchCache.rows;
@@ -370,7 +393,9 @@ export async function GET(req: NextRequest) {
     });
 
     const from = (page - 1) * SAYFA_BOYUTU;
-    const items = sorted.slice(from, from + SAYFA_BOYUTU).map(formatRow);
+    const pageRows = sorted.slice(from, from + SAYFA_BOYUTU);
+    const patchedPageRows = await patchVisibleWeeklyReturns(pageRows, q.length >= 2);
+    const items = patchedPageRows.map(formatRow);
     const response = NextResponse.json({ items, total: sorted.length, page, pageSize: SAYFA_BOYUTU });
     response.headers.set("Cache-Control", "no-store");
     return response;
