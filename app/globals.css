@@ -18,9 +18,18 @@
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
   --text-dim: #475569;
+  --blue-sky: #93C5FD;
   --border: rgba(59, 130, 246, 0.12);
   --border-card: rgba(59, 130, 246, 0.1);
   --border-hover: rgba(59, 130, 246, 0.3);
+  --border-input: rgba(59, 130, 246, 0.15);
+  --border-focus: rgba(59, 130, 246, 0.45);
+  --border-danger: rgba(239, 68, 68, 0.4);
+  --border-neutral: rgba(255, 255, 255, 0.06);
+  --border-neutral-soft: rgba(255, 255, 255, 0.05);
+  --surface-glass: rgba(11, 18, 32, 0.8);
+  --surface-overlay: rgba(11, 18, 32, 0.7);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --text-xs: 12px;
   --text-sm: 14px;
   --text-base: 16px;
@@ -255,6 +264,62 @@ body {
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ══ Landing v2 ════════════════════════════════════════
+   Yalniz "/" ana sayfasi. Sinif adlari lp- onekli.
+   Kirilimlar CSS media query ile — JS ile genislik olcmek
+   mount aninda pencere yerlesmeden calisip durumu yanlis
+   latch'liyor (handoff notu). */
+
+@keyframes lp-dot   { 0%, 100% { opacity: .45; transform: scale(1); } 50% { opacity: 1; transform: scale(1.4); } }
+@keyframes lp-beam  { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes lp-halo  { 0%, 100% { opacity: .35; transform: scale(1); } 50% { opacity: .75; transform: scale(1.08); } }
+@keyframes lp-blink { 0%, 45% { opacity: 1; } 55%, 100% { opacity: 0; } }
+
+.lp-dot   { animation: lp-dot 2s ease-in-out infinite; }
+.lp-beam  { animation: lp-beam 3.4s ease-in-out infinite; }
+.lp-halo  { animation: lp-halo 3.4s ease-in-out infinite; }
+.lp-caret { animation: lp-blink 1.1s steps(1) infinite; }
+.lp-tape  { animation: ticker-left 44s linear infinite; }
+
+/* Kart hover — .card-glass'in golgesi landing'de daha genis */
+.lp-card {
+  transition: border-color 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+.lp-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 0 24px rgba(59, 130, 246, 0.14), 0 0 52px rgba(59, 130, 246, 0.05);
+}
+
+.lp-chip {
+  transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+.lp-chip:hover { color: #E2E8F0; border-color: var(--border-hover); }
+
+.lp-row { transition: background 180ms var(--ease); }
+.lp-row:hover { background: rgba(255, 255, 255, 0.05); }
+
+.lp-link { transition: color 180ms var(--ease); }
+.lp-link:hover { color: #60A5FA; }
+
+.lp-input {
+  transition: border-color 180ms var(--ease), background 180ms var(--ease);
+}
+.lp-input:focus {
+  border-color: var(--border-focus);
+  background: rgba(59, 130, 246, 0.075);
+}
+
+/* !important sart: bu ogelerin grid/display degerleri inline style ile geliyor
+   (React), inline stil normal kural onceligini yener. Prototip de ayni nedenle
+   !important kullaniyor. */
+@media (max-width: 899px)  { .lp-navlinks { display: none !important; } }
+@media (max-width: 1080px) { .lp-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+@media (max-width: 560px)  { .lp-grid-4, .lp-grid-2 { grid-template-columns: minmax(0, 1fr) !important; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-tape { animation: none !important; }
 }
 
 /* ── Reduced motion ────────────────────────────────── */

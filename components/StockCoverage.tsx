@@ -1,128 +1,177 @@
-const tickers = [
-  "THYAO", "GARAN", "AKBNK", "EREGL", "SISE", "KCHOL", "SAHOL", "BIMAS",
-  "ASELS", "TUPRS", "TOASO", "FROTO", "PGSUS", "KOZAA", "KRDMD", "VESTL",
-  "TCELL", "TTKOM", "ARCLK", "DOHOL", "PETKM", "YKBNK", "HALKB", "VAKBN",
-  "ISCTR", "EKGYO", "TAVHL", "LOGO", "MGROS", "SOKM", "ULKER", "NETAS",
+"use client";
+
+import { useEffect, useState, type ReactNode } from "react";
+import { ArrowLeftRight, BarChart3, GraduationCap, Layers } from "lucide-react";
+import { Bolum, BolumBasligi, CamKart, IkonPlaka, useReveal } from "@/components/landing/parcalar";
+import { hareketAzaltilmis } from "@/lib/landing-hareket";
+import { formatNumber } from "@/lib/formatters";
+
+const IKON = { size: 24, strokeWidth: 1.5 } as const;
+
+const CIPLER = [
+  "THYAO", "GARAN", "ASELS", "EREGL", "SISE",
+  "AKBNK", "KCHOL", "TUPRS", "USD/TRY", "GRAM ALTIN",
 ];
 
-const stats = [
-  { value: "600+", label: "Hisse Kapsamı", type: "numeric" as const },
-  { value: "Gerçek Zamanlı", label: "Veri Akışı", type: "text" as const },
-  { value: "7/24", label: "Kesintisiz İzleme", type: "numeric" as const },
-];
+/** 0 -> hedef, 1400ms, cubic ease-out. Gorunur olunca baslar. */
+function Sayac({ hedef }: { hedef: number }) {
+  const { ref, stil, gorunur } = useReveal<HTMLSpanElement>(0);
+  const [deger, setDeger] = useState(0);
 
-const row1 = [...tickers, ...tickers];
-const row2 = [...tickers.slice(16), ...tickers.slice(0, 16), ...tickers.slice(16), ...tickers.slice(0, 16)];
+  useEffect(() => {
+    if (!gorunur) return;
+    if (hareketAzaltilmis()) {
+      setDeger(hedef);
+      return;
+    }
+    let kare = 0;
+    const t0 = performance.now();
+    const adim = (simdi: number) => {
+      const p = Math.min(1, (simdi - t0) / 1400);
+      setDeger(Math.round(hedef * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) kare = requestAnimationFrame(adim);
+    };
+    kare = requestAnimationFrame(adim);
+    return () => cancelAnimationFrame(kare);
+  }, [gorunur, hedef]);
+
+  return (
+    <span ref={ref} data-reveal style={{ ...stil, fontVariantNumeric: "tabular-nums" }}>
+      {formatNumber(deger, { maximumFractionDigits: 0 })}
+    </span>
+  );
+}
+
+function KapsamKarti({
+  gecikme,
+  ikon,
+  etiket,
+  aciklama,
+}: {
+  gecikme: number;
+  ikon: ReactNode;
+  etiket: ReactNode;
+  aciklama: string;
+}) {
+  const { ref, stil } = useReveal<HTMLDivElement>(gecikme);
+  return (
+    <div ref={ref} data-reveal style={{ ...stil, display: "flex" }}>
+      <CamKart style={{ width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            textAlign: "center",
+            alignItems: "center",
+          }}
+        >
+          <IkonPlaka>{ikon}</IkonPlaka>
+          <div
+            style={{
+              fontFamily: "var(--font-geist)",
+              fontSize: 16,
+              fontWeight: 600,
+              color: "#F1F5F9",
+              marginTop: 14,
+            }}
+          >
+            {etiket}
+          </div>
+          <div style={{ fontSize: 12, lineHeight: 1.55, color: "#64748B", marginTop: 8, maxWidth: "26ch" }}>
+            {aciklama}
+          </div>
+        </div>
+      </CamKart>
+    </div>
+  );
+}
 
 export default function StockCoverage() {
+  const cipler = useReveal<HTMLDivElement>(300);
+
   return (
-    <section id="kapsam" className="relative py-28 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="h-px mb-28" style={{ background: "rgba(59,130,246,0.08)" }} />
-
-        {/* Heading */}
-        <div className="text-center mb-20">
-          <p
-            className="text-[10px] tracking-[0.3em] font-medium mb-4"
-            style={{ color: "#60A5FA", fontFamily: "var(--font-manrope)" }}
-          >
-            KAPSAM
-          </p>
-          <h2
-            className="text-4xl lg:text-5xl font-bold tracking-tight mb-5"
-            style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
-          >
-            600&apos;den fazla BIST hissesi.
-            <br />
-            <span className="gradient-text">Kesintisiz kapsam.</span>
-          </h2>
-        </div>
-      </div>
-
-      {/* Ticker rows — full bleed */}
-      <div className="relative mb-20">
-        {/* Fade edges */}
-        <div
-          className="absolute left-0 top-0 bottom-0 w-48 z-20 pointer-events-none"
-          style={{ background: "linear-gradient(90deg, #0F172A, transparent)" }}
+    <Bolum id="kapsam">
+      <BolumBasligi
+        rozet="KAPSAM"
+        baslik="Tek platformda dört kapsam"
+        lede="Her enstrüman aynı hattan geçer, aynı damgayı taşır. Aradığınız kod listede yoksa söyleyin, ekleriz."
+        ledeGenislik="58ch"
+      />
+      {/* auto-fit KULLANILMAZ — 3+1 yetim satir olusur. */}
+      <div
+        className="lp-grid-4"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,minmax(0,1fr))",
+          gap: 24,
+          width: "100%",
+          marginBottom: 36,
+        }}
+      >
+        <KapsamKarti
+          gecikme={0}
+          ikon={<BarChart3 {...IKON} />}
+          etiket={
+            <>
+              <Sayac hedef={600} />
+              <span style={{ color: "#3B82F6" }}>+</span> BIST hissesi
+            </>
+          }
+          aciklama="Borsa İstanbul'da işlem gören hisselerin tamamına yakını."
         />
-        <div
-          className="absolute right-0 top-0 bottom-0 w-48 z-20 pointer-events-none"
-          style={{ background: "linear-gradient(-90deg, #0F172A, transparent)" }}
+        <KapsamKarti
+          gecikme={80}
+          ikon={<Layers {...IKON} />}
+          etiket="Fonlar"
+          aciklama="Yatırım fonları, portföy dağılımı ve getiri geçmişiyle."
         />
-
-        {/* Row 1 */}
-        <div className="flex overflow-hidden mb-3">
-          <div className="ticker-track flex gap-3 whitespace-nowrap">
-            {row1.map((ticker, i) => (
-              <span
-                key={`r1-${i}`}
-                className="inline-flex items-center px-4 py-2 rounded-lg text-xs font-medium tracking-widest"
-                style={{
-                  background: "rgba(11,18,32,0.8)",
-                  border: "1px solid rgba(59,130,246,0.1)",
-                  color: "#475569",
-                  fontFamily: "var(--font-manrope)",
-                }}
-              >
-                {ticker}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Row 2 — reverse direction */}
-        <div className="flex overflow-hidden">
-          <div className="ticker-track-slow flex gap-3 whitespace-nowrap">
-            {row2.map((ticker, i) => (
-              <span
-                key={`r2-${i}`}
-                className="inline-flex items-center px-4 py-2 rounded-lg text-xs font-medium tracking-widest"
-                style={{
-                  background: "rgba(11,18,32,0.8)",
-                  border: "1px solid rgba(59,130,246,0.08)",
-                  color: "#334155",
-                  fontFamily: "var(--font-manrope)",
-                }}
-              >
-                {ticker}
-              </span>
-            ))}
-          </div>
-        </div>
+        <KapsamKarti
+          gecikme={160}
+          ikon={<ArrowLeftRight {...IKON} />}
+          etiket="Döviz ve Kıymetli Madenler"
+          aciklama="USD, EUR ve gram altın dahil kur ve maden verileri."
+        />
+        <KapsamKarti
+          gecikme={240}
+          ikon={<GraduationCap {...IKON} />}
+          etiket="İnteraktif eğitimler"
+          aciklama="Türev ürünler: VİOP, opsiyon ve vadeli işlem dersleri."
+        />
       </div>
 
-      {/* Stats */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map(({ value, label, type }) => (
-            <div
-              key={label}
-              className="card-glass rounded-2xl p-8 text-center"
-            >
-              <div
-                className={
-                  type === "numeric"
-                    ? "text-4xl lg:text-5xl font-bold mb-3 gradient-text"
-                    : "text-2xl font-medium mb-3"
-                }
-                style={{
-                  fontFamily: type === "numeric" ? "var(--font-geist)" : "var(--font-manrope)",
-                  ...(type === "text" ? { color: "#F8FAFC" } : {}),
-                }}
-              >
-                {value}
-              </div>
-              <div
-                className="text-sm tracking-wider uppercase"
-                style={{ color: "#475569", fontFamily: "var(--font-manrope)" }}
-              >
-                {label}
-              </div>
-            </div>
-          ))}
-        </div>
+      <div
+        ref={cipler.ref}
+        data-reveal
+        style={{
+          ...cipler.stil,
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          justifyContent: "center",
+          maxWidth: 860,
+        }}
+      >
+        {CIPLER.map((c) => (
+          <span
+            key={c}
+            className="lp-chip"
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#94A3B8",
+              background: "rgba(59,130,246,0.06)",
+              border: "1px solid rgba(59,130,246,0.10)",
+              borderRadius: 8,
+              padding: "7px 11px",
+              letterSpacing: "0.04em",
+            }}
+          >
+            {c}
+          </span>
+        ))}
+        <span style={{ fontSize: 12, color: "#334155", padding: "7px 11px" }}>+ 588 enstrüman</span>
       </div>
-    </section>
+    </Bolum>
   );
 }

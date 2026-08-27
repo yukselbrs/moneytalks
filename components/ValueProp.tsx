@@ -1,78 +1,58 @@
-import { Zap, Target, Radio } from "lucide-react";
+"use client";
 
-const pillars = [
+import { FileText, Radio, Target } from "lucide-react";
+import { Bolum, BolumBasligi, OzellikKarti, useReveal } from "@/components/landing/parcalar";
+
+const IKON = { size: 24, strokeWidth: 1.5 } as const;
+
+const KARTLAR = [
   {
-    icon: Zap,
-    title: "Gecikmeli Veriyle Analiz",
-    description: "Yapay zekâ motoru, BIST hisselerini 15 dakika gecikmeli fiyat verisiyle anlaşılır hale getirir.",
+    ikon: <FileText {...IKON} />,
+    baslik: "Sade Türkçe özet",
+    aciklama: "Terim yığını yok. Hangi veriye dayandığı cümlenin içinde durur.",
   },
   {
-    icon: Target,
-    title: "Anlaşılır İçgörüler",
-    description: "Karmaşık veriyi okunabilir özetlere dönüştürür. Risk ve teknik görünümü daha hızlı kavramanızı sağlar.",
+    ikon: <Target {...IKON} />,
+    baslik: "Yönsüz risk ölçüsü",
+    aciklama: "Beş bant, tek ölçü. Getiri tahmini değil, belirsizliğin ölçüsü.",
   },
   {
-    icon: Radio,
-    title: "Derin Kapsam",
-    description: "600'den fazla BIST hissesini takip eder. Veri kapsamını ve gecikme bilgisini açıkça gösterir.",
+    ikon: <Radio {...IKON} />,
+    baslik: "Damgalı veri",
+    aciklama: "Her sayının yanında gecikme bilgisi ve kaynağı görünür.",
   },
 ];
 
+function Kart({ indeks }: { indeks: number }) {
+  const { ref, stil } = useReveal<HTMLDivElement>(indeks * 80);
+  const k = KARTLAR[indeks];
+  return (
+    <div ref={ref} data-reveal style={stil}>
+      <OzellikKarti ikon={k.ikon} baslik={k.baslik} aciklama={k.aciklama} />
+    </div>
+  );
+}
+
 export default function ValueProp() {
   return (
-    <section className="relative py-28 px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Heading */}
-        <div className="text-center mb-16">
-          <p
-            className="text-[10px] tracking-[0.3em] font-medium mb-4"
-            style={{ color: "#60A5FA", fontFamily: "var(--font-manrope)" }}
-          >
-            PLATFORM
-          </p>
-          <h2
-            className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-5"
-            style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
-          >
-            Tek platformda finansal zekâ
-          </h2>
-          <p
-            className="text-lg max-w-xl mx-auto"
-            style={{ color: "#64748B", fontFamily: "var(--font-manrope)" }}
-          >
-            Karmaşık piyasa verisini anlamlı içgörülere dönüştürüyoruz.
-          </p>
-        </div>
-
-        {/* Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {pillars.map(({ icon: Icon, title, description }) => (
-            <div
-              key={title}
-              className="card-glass rounded-2xl p-8 group"
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300"
-                style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)" }}
-              >
-                <Icon size={24} strokeWidth={1.5} color="#60A5FA" />
-              </div>
-              <h3
-                className="text-lg font-bold mb-3"
-                style={{ color: "#F8FAFC", fontFamily: "var(--font-geist)" }}
-              >
-                {title}
-              </h3>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "#64748B", fontFamily: "var(--font-manrope)" }}
-              >
-                {description}
-              </p>
-            </div>
-          ))}
-        </div>
+    <Bolum id="nedir" dolgu="clamp(80px,14vh,150px)">
+      <BolumBasligi
+        rozet="TANITIM"
+        baslik="ParaKonuşur nedir?"
+        lede="600'den fazla BIST enstrümanını değerlendiren bir analiz motoru. Sonucu grafik yığını değil, okunabilir bir paragraf ve bir risk bandı olarak verir."
+      />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(min(280px,100%),1fr))",
+          gap: 24,
+          width: "100%",
+        }}
+      >
+        {KARTLAR.map((k, i) => (
+          <Kart key={k.baslik} indeks={i} />
+        ))}
       </div>
-    </section>
+    </Bolum>
   );
 }

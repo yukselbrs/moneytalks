@@ -1,75 +1,95 @@
 "use client";
 
+import Link from "next/link";
 import LogoIcon from "@/components/LogoIcon";
+
+const LINKLER = [
+  { etiket: "Gizlilik Politikası", href: "/gizlilik" },
+  { etiket: "Kullanım Şartları", href: "/kullanim-sartlari" },
+  { etiket: "KVKK", href: "/kvkk" },
+  { etiket: "Risk Uyarısı", href: "/risk-uyarisi" },
+  { etiket: "İletişim", href: "mailto:hello@parakonusur.com" },
+];
 
 export default function Footer() {
   return (
     <footer
-      className="relative border-t px-6 lg:px-8 py-16"
-      style={{ borderColor: "rgba(59,130,246,0.08)", background: "#0B1220" }}
+      style={{
+        position: "relative",
+        zIndex: 1,
+        borderTop: "1px solid rgba(59,130,246,0.08)",
+        padding: "clamp(44px,7vh,72px) clamp(20px,3vw,36px) clamp(32px,5vh,48px)",
+      }}
     >
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <LogoIcon size={32} aria-label="" />
-            <div className="flex flex-col leading-none">
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 32,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <LogoIcon size={44} aria-label="" />
+            <span style={{ display: "flex", flexDirection: "column" }}>
               <span
-                className="text-[15px] font-medium"
-                style={{ color: "#F8FAFC", fontFamily: "var(--font-manrope)" }}
+                style={{
+                  fontFamily: "var(--font-geist)",
+                  fontSize: 22,
+                  fontWeight: 600,
+                  color: "#F8FAFC",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.1,
+                }}
               >
-                parakonusur
-                <span style={{ color: "#3B82F6" }}>.com</span>
+                parakonusur<span style={{ color: "#3B82F6" }}>.com</span>
               </span>
               <span
-                className="text-[9px] tracking-[0.28em] mt-1"
-                style={{ color: "#334155", fontFamily: "var(--font-manrope)" }}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 500,
+                  letterSpacing: "0.30em",
+                  color: "#334155",
+                  marginTop: 6,
+                }}
               >
                 AI STOCK INTELLIGENCE / BIST
               </span>
-            </div>
-          </div>
+            </span>
+          </Link>
 
-          {/* Links */}
-          <nav className="flex flex-wrap gap-6">
-            {[
-              { label: "Gizlilik Politikası", href: "/gizlilik" },
-              { label: "Kullanım Şartları", href: "/kullanim-sartlari" },
-              { label: "KVKK", href: "/kvkk" },
-              { label: "Risk Uyarısı", href: "/risk-uyarisi" },
-              { label: "İletişim", href: "mailto:hello@parakonusur.com" },
-            ].map(({ label, href }) => (
-              <a
-                key={label}
-                href={href}
-                className="text-xs transition-colors duration-200"
-                style={{ color: "#475569", fontFamily: "var(--font-manrope)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#94A3B8")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#475569")}
-              >
-                {label}
+          <nav style={{ display: "flex", flexWrap: "wrap", gap: "clamp(18px,2.4vw,34px)" }}>
+            {LINKLER.map((l) => (
+              <a key={l.etiket} href={l.href} className="lp-link" style={{ fontSize: 13, color: "#64748B" }}>
+                {l.etiket}
               </a>
             ))}
           </nav>
         </div>
 
-        <div className="h-px mt-10 mb-8" style={{ background: "rgba(59,130,246,0.06)" }} />
+        <div style={{ height: 1, background: "rgba(59,130,246,0.08)", margin: "clamp(28px,4vh,44px) 0" }} />
 
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <p
-            className="text-xs shrink-0"
-            style={{ color: "#334155", fontFamily: "var(--font-manrope)" }}
-          >
-            <span suppressHydrationWarning>© {new Date().getFullYear()} ParaKonusur.com — Tüm hakları saklıdır.</span>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 32,
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+          }}
+        >
+          <p style={{ fontSize: 12, color: "#334155", margin: 0 }}>
+            <span suppressHydrationWarning>
+              © {new Date().getFullYear()} parakonusur.com — Tüm hakları saklıdır.
+            </span>
           </p>
-          <p
-            className="text-[10px] max-w-lg"
-            style={{ color: "#64748B", fontFamily: "var(--font-manrope)", lineHeight: "1.6" }}
-          >
-            ParaKonusur bir yatırım danışmanlığı hizmeti sunmamaktadır. Platform üzerinden
-            sağlanan tüm analiz, gösterge özeti ve içerikler yalnızca bilgilendirme amaçlıdır ve
-            yatırım tavsiyesi niteliği taşımaz. Yatırım kararları yatırımcının kendi risk ve
-            tercihlerine bağlıdır. Geçmiş performans gelecek getirilerin garantisi değildir.
+          <p style={{ fontSize: 12, lineHeight: 1.65, color: "#475569", margin: 0, maxWidth: "64ch" }}>
+            ParaKonuşur bir yatırım danışmanlığı hizmeti sunmamaktadır. Platform üzerinden sağlanan tüm
+            analiz, gösterge özeti ve içerikler yalnızca bilgilendirme amaçlıdır ve yatırım tavsiyesi
+            niteliği taşımaz. Yatırım kararları yatırımcının kendi risk ve tercihlerine bağlıdır. Geçmiş
+            performans gelecek getirilerin garantisi değildir.
           </p>
         </div>
       </div>

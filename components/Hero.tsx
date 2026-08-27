@@ -1,227 +1,245 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import LogoIcon from "@/components/LogoIcon";
+import { KayitButonu, useHareketCanvas } from "@/components/landing/parcalar";
 
-interface HeroProps {
-  heroVideo: string;
+const KODLAR = [
+  "THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "TUPRS",
+  "BIMAS", "SASA", "ISCTR", "XU100", "USD/TRY", "EUR/TRY", "GRAM ALTIN",
+];
+
+/** Giris animasyonu: 160ms taban + ogenin kendi ofseti. */
+function girisStili(acik: boolean, gecikme: number): CSSProperties {
+  return {
+    opacity: acik ? 1 : 0,
+    transform: acik ? "none" : "translateY(24px)",
+    filter: acik ? "none" : "blur(7px)",
+    transition:
+      `opacity 850ms var(--ease) ${160 + gecikme}ms,` +
+      `transform 950ms var(--ease) ${160 + gecikme}ms,` +
+      `filter 850ms var(--ease) ${160 + gecikme}ms`,
+  };
 }
 
-export default function Hero({ heroVideo }: HeroProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const rafRef = useRef<number | null>(null);
-
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false
+function KodSeridi({ gizli }: { gizli?: boolean }) {
+  return (
+    <div
+      aria-hidden={gizli || undefined}
+      style={{ display: "flex", alignItems: "center", gap: 30, padding: "12px 15px" }}
+    >
+      {KODLAR.map((kod, i) => (
+        <span
+          key={`${kod}-${i}`}
+          style={{ fontSize: 11, fontWeight: 700, color: "#E2E8F0", letterSpacing: "0.05em", whiteSpace: "nowrap" }}
+        >
+          {kod}
+        </span>
+      ))}
+    </div>
   );
+}
+
+export default function Hero() {
+  const araziRef = useHareketCanvas("terrain");
+  const [acik, setAcik] = useState(false);
+  const [tekrar, setTekrar] = useState(1);
+  const yariRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    // rAF DEGIL: gizli sekmede rAF hic calismaz ve hero kalici gorunmez kalirdi.
+    // Zamanlayici kisitli da olsa calisir, stil opacity:1'e yerlesir.
+    const z = window.setTimeout(() => setAcik(true), 0);
+    return () => window.clearTimeout(z);
   }, []);
 
+  // Kesintisiz dongu icin her yari viewport'tan genis olmali; aksi halde
+  // -%50 kaydirmada bosluk gorunur. Birim genisligi mevcut tekrardan turetilir,
+  // boylece font yuklendikten sonra da kendini duzeltir.
   useEffect(() => {
-    if (!videoRef.current || !sectionRef.current || prefersReducedMotion) return;
-    const video = videoRef.current;
-    const section = sectionRef.current;
-    video.pause();
-
-    const updateFrame = () => {
-      if (!video.duration) return;
-      const rect = section.getBoundingClientRect();
-      const sectionHeight = Math.max(1, section.offsetHeight - window.innerHeight);
-      const progress = Math.min(Math.max(-rect.top / sectionHeight, 0), 1);
-      const targetTime = progress * video.duration;
-      if (Math.abs(video.currentTime - targetTime) > 0.04) {
-        video.currentTime = targetTime;
-      }
+    const hesapla = () => {
+      const el = yariRef.current;
+      if (!el) return;
+      const birim = el.scrollWidth / tekrar;
+      if (!birim) return;
+      const gerekli = Math.max(1, Math.ceil((window.innerWidth * 1.15) / birim));
+      if (gerekli !== tekrar) setTekrar(gerekli);
     };
+    hesapla();
+    window.addEventListener("resize", hesapla, { passive: true });
+    return () => window.removeEventListener("resize", hesapla);
+  }, [tekrar]);
 
-    const onScroll = () => {
-      if (rafRef.current) return;
-      rafRef.current = requestAnimationFrame(() => {
-        updateFrame();
-        rafRef.current = null;
-      });
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    updateFrame();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [prefersReducedMotion]);
+  const yari = Array.from({ length: tekrar });
 
   return (
     <section
-      ref={sectionRef}
-      className="relative w-full flex items-start justify-center"
-      style={{ minHeight: "100vh", paddingTop: "64px" }}
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        padding: "132px clamp(20px,3vw,36px) 0",
+        overflow: "hidden",
+      }}
     >
-      <div className="grain relative w-full min-h-screen flex items-center overflow-hidden">
-        {/* Background glow */}
+      <canvas
+        ref={araziRef}
+        aria-hidden="true"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
+      />
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          background: "radial-gradient(ellipse 55% 40% at 50% 12%,rgba(30,64,175,0.20) 0%,transparent 70%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: "38%",
+          pointerEvents: "none",
+          background: "linear-gradient(180deg,transparent,rgba(15,23,42,0.75) 62%,var(--bg-primary) 100%)",
+        }}
+      />
+
+      <div
+        style={{
+          ...girisStili(acik, 0),
+          position: "relative",
+          zIndex: 3,
+          display: "flex",
+          alignItems: "center",
+          gap: 9,
+          padding: "7px 14px 7px 11px",
+          border: "1px solid rgba(59,130,246,0.18)",
+          borderRadius: 999,
+          background: "var(--surface-overlay)",
+          marginBottom: "clamp(22px,4vh,38px)",
+        }}
+      >
+        <span className="lp-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#60A5FA", flex: "none" }} />
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", color: "#93C5FD", textAlign: "center" }}>
+          BIST, FONLAR, DÖVİZ VE KIYMETLİ MADEN VERİLERİ
+        </span>
+      </div>
+
+      <h1
+        style={{
+          position: "relative",
+          zIndex: 3,
+          textAlign: "center",
+          fontFamily: "var(--font-geist)",
+          fontSize: "clamp(36px,6.6vw,92px)",
+          fontWeight: 800,
+          // 1.08'in altina inilmez — Turkce alt uzantilar (s, c, g) kirpilir.
+          lineHeight: 1.08,
+          letterSpacing: "-0.045em",
+          margin: "0 0 clamp(16px,2.6vh,26px)",
+          maxWidth: "20ch",
+          paddingBottom: "0.06em",
+        }}
+      >
+        <span style={{ ...girisStili(acik, 90), display: "block", color: "#F8FAFC" }}>Borsa artık</span>
+        <span className="gradient-text" style={{ ...girisStili(acik, 180), display: "block" }}>
+          seninle konuşuyor
+        </span>
+      </h1>
+
+      <p
+        style={{
+          ...girisStili(acik, 270),
+          position: "relative",
+          zIndex: 3,
+          textAlign: "center",
+          fontSize: "clamp(14px,1.2vw,18px)",
+          lineHeight: 1.6,
+          color: "#94A3B8",
+          maxWidth: "56ch",
+          margin: "0 0 clamp(24px,4vh,38px)",
+        }}
+      >
+        Bilanço satırı, haber başlığı, teknik gösterge. Pako AI hepsini tek geçişte okur; çıktısı bir
+        özet ve yönsüz bir risk notudur. Yön tarifi vermez.
+      </p>
+
+      <div style={{ ...girisStili(acik, 360), position: "relative", zIndex: 3 }}>
+        <KayitButonu boyut="lg" okIsareti />
+      </div>
+
+      <div
+        aria-hidden="true"
+        style={{
+          ...girisStili(acik, 480),
+          position: "relative",
+          zIndex: 3,
+          marginTop: "clamp(28px,5vh,58px)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="lp-beam"
           style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 60% 50%, rgba(30,64,175,0.18) 0%, transparent 70%)",
+            width: 2,
+            height: "clamp(40px,7vh,96px)",
+            background: "linear-gradient(180deg,transparent,rgba(147,197,253,0.55))",
           }}
         />
-        {/* Secondary depth glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse 50% 40% at 15% 85%, rgba(139,92,246,0.07) 0%, transparent 70%)",
-          }}
-        />
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(96,165,250,1) 1px, transparent 1px), linear-gradient(90deg, rgba(96,165,250,1) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-0">
-          {/* Left: Text */}
-          <div className="w-full min-w-0 flex-1 max-w-[calc(100vw-48px)] sm:max-w-xl lg:max-w-2xl pt-16 lg:pt-0">
-            {/* Eyebrow */}
-            <div className="animate-fade-up delay-100 inline-flex items-center gap-2 mb-8">
-              <span
-                className="animate-pulse-dot inline-block w-2 h-2 rounded-full"
-                style={{ background: "#60A5FA" }}
-              />
-              <span
-                className="text-[10px] tracking-[0.3em] font-medium"
-                style={{ color: "#60A5FA", fontFamily: "var(--font-manrope)" }}
-              >
-                15 DK GECİKMELİ · BIST VERİSİ
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h1
-              className="animate-fade-up delay-200 text-[44px] sm:text-5xl lg:text-[72px] leading-[1.05] font-bold tracking-normal mb-6"
-              style={{ fontFamily: "var(--font-geist)" }}
-            >
-              <span style={{ color: "#F8FAFC" }}>Borsa artık</span>
-              <br />
-              <span className="gradient-text block sm:inline">seninle</span>{" "}
-              <span className="gradient-text block sm:inline">konuşuyor.</span>
-            </h1>
-
-            {/* Subheadline */}
-            <p
-              className="animate-fade-up delay-300 text-[17px] leading-relaxed mb-10 max-w-[520px]"
-              style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
-            >
-              Yapay zekâ destekli analiz motorumuz, BIST hisselerini 15 dakika gecikmeli
-              fiyat verisiyle değerlendirir. Finansal veriyi, piyasa duyarlılığını ve teknik
-              göstergeleri birleştirip anlaşılır bir bilgi özeti sunar.
-            </p>
-
-            {/* CTAs */}
-            <div className="animate-fade-up delay-400 flex flex-col sm:flex-row gap-4 mb-12">
-              <a
-                href="/register"
-                className="inline-flex items-center justify-center px-6 py-3.5 rounded-full text-sm font-semibold transition-all duration-300"
-                style={{
-                  background: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
-                  color: "#F8FAFC",
-                  fontFamily: "var(--font-manrope)",
-                  boxShadow:
-                    "0 0 0 1px rgba(59,130,246,0.4), 0 8px 32px rgba(30,64,175,0.3)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.boxShadow =
-                    "0 0 30px rgba(59,130,246,0.5), 0 0 0 1px rgba(96,165,250,0.5)";
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.boxShadow =
-                    "0 0 0 1px rgba(59,130,246,0.4), 0 8px 32px rgba(30,64,175,0.3)";
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                }}
-              >
-                Ücretsiz Kayıt Ol →
-              </a>
-              <a
-                href="#nasil-calisir"
-                className="inline-flex items-center justify-center px-6 py-3.5 rounded-full text-sm font-medium transition-all duration-300"
-                style={{
-                  color: "#94A3B8",
-                  border: "1px solid rgba(59,130,246,0.25)",
-                  fontFamily: "var(--font-manrope)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "#F8FAFC";
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "rgba(59,130,246,0.5)";
-                  (e.currentTarget as HTMLElement).style.background =
-                    "rgba(59,130,246,0.06)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "#94A3B8";
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "rgba(59,130,246,0.25)";
-                  (e.currentTarget as HTMLElement).style.background = "transparent";
-                }}
-              >
-                Nasıl çalışır?
-              </a>
-            </div>
-
-            {/* Trust strip */}
-            <div className="animate-fade-up delay-500">
-              <div className="h-px mb-6" style={{ background: "rgba(59,130,246,0.12)" }} />
-              <div className="flex flex-wrap gap-6">
-                {["600+ BIST HİSSE", "15 DK GECİKMELİ VERİ", "YATIRIM TAVSİYESİ DEĞİLDİR"].map(
-                  (item) => (
-                    <span
-                      key={item}
-                      className="text-[10px] tracking-[0.22em] font-medium"
-                      style={{ color: "#475569", fontFamily: "var(--font-manrope)" }}
-                    >
-                      {item}
-                    </span>
-                  )
-                )}
-              </div>
-            </div>
+        <div style={{ position: "relative", width: "clamp(58px,7vw,84px)", height: "clamp(58px,7vw,84px)" }}>
+          <div
+            className="lp-halo"
+            style={{
+              position: "absolute",
+              inset: -30,
+              borderRadius: "50%",
+              background: "radial-gradient(circle,rgba(59,130,246,0.30) 0%,transparent 70%)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: 20,
+              boxShadow: "0 0 28px rgba(59,130,246,0.35), 0 0 64px rgba(59,130,246,0.12)",
+            }}
+          >
+            <LogoIcon size={84} aria-label="" style={{ width: "100%", height: "100%" }} />
           </div>
+        </div>
+      </div>
 
-          {/* Right: Video */}
-          <div className="w-full min-w-0 flex-1 flex items-center justify-center lg:justify-end">
-            {prefersReducedMotion ? (
-              <video
-                muted
-                playsInline
-                preload="metadata"
-                poster="/parakonusur_hero_poster.jpg"
-                className="w-full max-w-lg rounded-2xl"
-                style={{ border: "1px solid rgba(59,130,246,0.15)" }}
-              >
-                <source src={heroVideo} type="video/mp4" />
-              </video>
-            ) : (
-              <video
-                ref={videoRef}
-                muted
-                playsInline
-                preload="auto"
-                poster="/parakonusur_hero_poster.jpg"
-                className="w-full max-w-lg rounded-2xl"
-                style={{ border: "1px solid rgba(59,130,246,0.15)" }}
-              >
-                <source src={heroVideo} type="video/mp4" />
-              </video>
-            )}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 3,
+          width: "100vw",
+          marginTop: "auto",
+          borderTop: "1px solid rgba(59,130,246,0.10)",
+          background: "rgba(15,23,42,0.6)",
+          overflow: "hidden",
+        }}
+      >
+        <div className="lp-tape" style={{ display: "flex", width: "max-content" }}>
+          <div ref={yariRef} style={{ display: "flex" }}>
+            {yari.map((_, i) => (
+              <KodSeridi key={i} />
+            ))}
+          </div>
+          <div style={{ display: "flex" }} aria-hidden="true">
+            {yari.map((_, i) => (
+              <KodSeridi key={i} gizli />
+            ))}
           </div>
         </div>
       </div>

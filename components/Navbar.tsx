@@ -2,230 +2,133 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/components/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
+import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
-import { BLOG_AKTIF } from "@/lib/ozellik-bayraklari";
+import { KayitButonu } from "@/components/landing/parcalar";
 
-const navLinks = [
-  { label: "Nasıl Çalışır", href: "/#nasil-calisir" },
-  { label: "Özellikler", href: "/#ozellikler" },
-  { label: "Kapsam", href: "/#kapsam" },
-  ...(BLOG_AKTIF ? [{ label: "Blog", href: "/blog" }] : []),   // gizli: lib/ozellik-bayraklari
-];
+const BOLUM_LINKLERI = [
+  { etiket: "Nedir", href: "#nedir", renk: "#CBD5E1" },
+  { etiket: "Nasıl çalışır", href: "#nasil", renk: "#94A3B8" },
+  { etiket: "Kapsam", href: "#kapsam", renk: "#94A3B8" },
+] as const;
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ email?: string; user_metadata?: { full_name?: string } } | null>(null);
+  const [kaydi, setKaydi] = useState(false);
+  const [girisli, setGirisli] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    let kare = 0;
+    const kaydirmayiOku = () => {
+      if (kare) return;
+      kare = requestAnimationFrame(() => {
+        kare = 0;
+        // Ayni degerde React render'i atlar — her scroll olayinda yeniden render yok.
+        setKaydi(window.scrollY > 30);
+      });
+    };
+    window.addEventListener("scroll", kaydirmayiOku, { passive: true });
+    kaydirmayiOku();
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) { setUser(session.user); if (pathname === "/") router.push("/dashboard"); }
+      if (!session) return;
+      setGirisli(true);
+      if (pathname === "/") router.push("/dashboard");
     });
-    const { data: authListener } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+    const { data: dinleyici } = supabase.auth.onAuthStateChange((_olay, session) => {
+      setGirisli(Boolean(session));
     });
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      authListener.subscription.unsubscribe();
+      cancelAnimationFrame(kare);
+      window.removeEventListener("scroll", kaydirmayiOku);
+      dinleyici.subscription.unsubscribe();
     };
   }, [pathname, router]);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    setUser(null);
-    window.location.href = "/";
-  }
-
-  const fullName = user?.user_metadata?.full_name || "";
-  const initials = fullName
-    ? fullName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : (user?.email?.slice(0, 2).toUpperCase() || "");
-  const logoHref = user ? "/dashboard" : "/";
-
   return (
-    <header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+    <nav
       style={{
-        background: scrolled || user ? "rgba(11,18,32,0.92)" : "transparent",
-        backdropFilter: scrolled || user ? "blur(16px)" : "none",
-        borderBottom: scrolled || user ? "1px solid rgba(59,130,246,0.1)" : "1px solid transparent",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        zIndex: 40,
+        display: "flex",
+        alignItems: "center",
+        background: kaydi ? "rgba(11,18,32,0.92)" : "transparent",
+        backdropFilter: kaydi ? "blur(16px)" : "none",
+        borderBottom: `1px solid ${kaydi ? "rgba(59,130,246,0.12)" : "transparent"}`,
+        transition: "background 260ms var(--ease), border-color 260ms var(--ease)",
       }}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href={logoHref} className="flex items-center gap-3 group">
-          <LogoIcon size={36} />
-          <div className="flex flex-col leading-none">
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 1280,
+          margin: "0 auto",
+          padding: "0 clamp(24px,3vw,32px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 20,
+        }}
+      >
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <LogoIcon size={34} aria-label="" />
+          <span style={{ display: "flex", flexDirection: "column" }}>
             <span
-              className="text-[15px] font-medium tracking-tight"
-              style={{ color: "#F8FAFC", fontFamily: "var(--font-manrope)" }}
+              style={{
+                fontFamily: "var(--font-geist)",
+                fontSize: 17,
+                fontWeight: 600,
+                color: "#F8FAFC",
+                letterSpacing: "-0.02em",
+                lineHeight: 1.1,
+              }}
             >
-              parakonusur
-              <span style={{ color: "#3B82F6" }}>.com</span>
+              parakonusur<span style={{ color: "#3B82F6" }}>.com</span>
             </span>
-            <span className="text-[9px] tracking-[0.28em] mt-0.5" style={{ color: "#475569" }}>
-              AI STOCK INTELLIGENCE
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 500,
+                letterSpacing: "0.22em",
+                color: "#475569",
+                marginTop: 4,
+              }}
+            >
+              AI STOCK INTELLIGENCE / BIST
             </span>
-          </div>
+          </span>
         </Link>
 
-        {/* Desktop center: navLinks sadece logout durumunda */}
-        {!user && (
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium transition-colors duration-200"
-                style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-
-        {/* Desktop right: kullanıcı durumuna göre */}
-        <div className="hidden md:flex items-center gap-3">
-          {user ? (
-            <>
-              <Link
-                href="/profile"
-                className="flex items-center gap-2"
-                style={{ textDecoration: "none" }}
-                aria-label="Profil"
-              >
-                <div
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: "50%",
-                    background: "rgba(59,130,246,0.15)",
-                    border: "1px solid rgba(59,130,246,0.25)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: "#3B82F6",
-                    fontFamily: "var(--font-manrope)",
-                  }}
-                >
-                  {initials}
-                </div>
-                <span className="text-sm" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>
-                  {user.email}
-                </span>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded-full text-sm font-medium"
-                style={{ color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)", background: "transparent", fontFamily: "var(--font-manrope)", cursor: "pointer" }}
-              >
-                Çıkış Yap
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="px-4 py-2 text-sm font-medium" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>Giriş Yap</Link>
-              <Link href="/register" className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)", boxShadow: "0 0 0 1px rgba(59,130,246,0.3)" }}>Ücretsiz Kayıt Ol</Link>
-            </>
-          )}
-        </div>
-
-        <button
-          className="md:hidden p-2"
-          style={{ color: "#94A3B8" }}
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Menü"
-        >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            {menuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            )}
-          </svg>
-        </button>
-      </div>
-
-      {menuOpen ? (
-        <div
-          className="md:hidden px-6 pb-6 pt-2 flex flex-col gap-4"
-          style={{ background: "rgba(11,18,32,0.98)", borderBottom: "1px solid rgba(59,130,246,0.1)" }}
-        >
-          {!user && navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-sm font-medium py-1"
-              style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
-              onClick={() => setMenuOpen(false)}
-            >
-              {link.label}
-            </Link>
+        <div className="lp-navlinks" style={{ display: "flex", alignItems: "center", gap: 26 }}>
+          {BOLUM_LINKLERI.map((l) => (
+            <a key={l.href} href={l.href} className="lp-link" style={{ fontSize: 13, color: l.renk }}>
+              {l.etiket}
+            </a>
           ))}
-          {user ? (
-            <>
-              <Link
-                href="/profile"
-                className="flex items-center gap-2 py-1"
-                style={{ textDecoration: "none" }}
-                onClick={() => setMenuOpen(false)}
-              >
-                <div
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "50%",
-                    background: "rgba(59,130,246,0.15)",
-                    border: "1px solid rgba(59,130,246,0.25)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: "#3B82F6",
-                    fontFamily: "var(--font-manrope)",
-                  }}
-                >
-                  {initials}
-                </div>
-                <span className="text-sm" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}>
-                  {user.email}
-                </span>
-              </Link>
-              <Link
-                href="/dashboard"
-                className="text-sm font-medium py-1"
-                style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }}
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <button
-                onClick={() => { setMenuOpen(false); handleLogout(); }}
-                className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium"
-                style={{ color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)", background: "transparent", fontFamily: "var(--font-manrope)", cursor: "pointer" }}
-              >
-                Çıkış Yap
-              </button>
-            </>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {girisli ? (
+            <Link href="/dashboard" className="lp-link" style={{ fontSize: 13, color: "#94A3B8" }}>
+              Dashboard
+            </Link>
           ) : (
             <>
-              <Link href="/login" className="text-sm font-medium py-1" style={{ color: "#94A3B8", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Giriş Yap</Link>
-              <Link href="/register" className="inline-flex justify-center items-center px-4 py-2.5 rounded-full text-sm font-medium" style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#F8FAFC", fontFamily: "var(--font-manrope)" }} onClick={() => setMenuOpen(false)}>Ücretsiz Kayıt Ol</Link>
+              <Link href="/login" className="lp-link" style={{ fontSize: 13, color: "#94A3B8" }}>
+                Giriş Yap
+              </Link>
+              <KayitButonu boyut="sm" />
             </>
           )}
         </div>
-      ) : null}
-    </header>
+      </div>
+    </nav>
   );
 }
