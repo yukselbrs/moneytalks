@@ -13,6 +13,7 @@ import {
 } from "@/lib/tefas-fonlar";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 const supabase = createClient(
@@ -228,14 +229,21 @@ async function refreshRowsWithLiveTefas(rows: FonSnapshotRow[]) {
   if (livePatchPromise) return livePatchPromise;
 
   livePatchPromise = (async () => {
-    const [general, returns, daily] = await Promise.all([
+    const [generalResult, returnsResult, dailyResult] = await Promise.allSettled([
       fetchLatestTefasGeneral(3),
       fetchTefasReturns(),
       fetchTefasDailyReturns(),
     ]);
+    const general = generalResult.status === "fulfilled" ? generalResult.value : { date: null, rows: [] as TefasFundGeneral[] };
+    const returns = returnsResult.status === "fulfilled" ? returnsResult.value : [] as TefasFundReturn[];
+    const daily = dailyResult.status === "fulfilled" ? dailyResult.value : [] as TefasFundReturn[];
     const generalDate = general.date ? new Date(`${general.date}T12:00:00`) : null;
     const weekRows = generalDate
-      ? await fetchTefasGeneralRange(addDays(generalDate, -7), generalDate).catch(() => [] as TefasFundGeneral[])
+      ? await withTimeout(
+        fetchTefasGeneralRange(addDays(generalDate, -7), generalDate).catch(() => [] as TefasFundGeneral[]),
+        5000,
+        [] as TefasFundGeneral[],
+      )
       : [];
     const generalMap = new Map(general.rows.map((row) => [row.fonKodu, row]));
     const weekMap = generalDate ? pickWeekAnchors(weekRows, addDays(generalDate, -7)) : new Map<string, TefasFundGeneral>();
@@ -302,7 +310,7 @@ async function loadRows(forceLive: boolean) {
     }
     if (hasUsableSnapshot(rows)) {
       if (hasFreshSnapshot(rows)) return rows;
-      const refreshedRows = await withTimeout(refreshRowsWithLiveTefas(rows), 6500, rows);
+      const refreshedRows = await withTimeout(refreshRowsWithLiveTefas(rows), 12000, rows);
       return refreshedRows ?? rows;
     }
   }
