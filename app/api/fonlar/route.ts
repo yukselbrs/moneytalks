@@ -241,7 +241,7 @@ async function refreshRowsWithLiveTefas(rows: FonSnapshotRow[]) {
     const weekRows = generalDate
       ? await withTimeout(
         fetchTefasGeneralRange(addDays(generalDate, -7), generalDate).catch(() => [] as TefasFundGeneral[]),
-        5000,
+        15000,
         [] as TefasFundGeneral[],
       )
       : [];
@@ -310,7 +310,7 @@ async function loadRows(forceLive: boolean) {
     }
     if (hasUsableSnapshot(rows)) {
       if (hasFreshSnapshot(rows)) return rows;
-      const refreshedRows = await withTimeout(refreshRowsWithLiveTefas(rows), 12000, rows);
+      const refreshedRows = await withTimeout(refreshRowsWithLiveTefas(rows), 25000, rows);
       return refreshedRows ?? rows;
     }
   }
