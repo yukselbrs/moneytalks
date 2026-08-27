@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
-import { fetchLiveTefasSnapshot, type FonSnapshotRow } from "@/lib/tefas-fonlar";
+import {
+  fetchLatestTefasGeneral,
+  fetchLiveTefasSnapshot,
+  fetchTefasDailyReturns,
+  fetchTefasGeneralRange,
+  fetchTefasReturns,
+  type FonSnapshotRow,
+  type TefasFundGeneral,
+  type TefasFundReturn,
+} from "@/lib/tefas-fonlar";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,6 +33,8 @@ const MIN_SNAPSHOT_ROWS = 1500;
 let liveFallbackCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
 let rowsCache: { rows: FonSnapshotRow[]; fetchedAt: number; forceLive: boolean } | null = null;
 let rowsPromise: Promise<FonSnapshotRow[]> | null = null;
+let livePatchCache: { rows: FonSnapshotRow[]; fetchedAt: number } | null = null;
+let livePatchPromise: Promise<FonSnapshotRow[] | null> | null = null;
 
 const fetchCachedLiveTefasSnapshot = unstable_cache(
   async () => fetchLiveTefasSnapshot(),
@@ -125,6 +136,129 @@ function hasUsableSnapshot(rows: FonSnapshotRow[]) {
   return pricedRows >= 900 && returnRows >= 900;
 }
 
+function latestBusinessDayIso(date = new Date()) {
+  const istanbulNow = new Date(date.toLocaleString("en-US", { timeZone: "Europe/Istanbul" }));
+  while (istanbulNow.getDay() === 0 || istanbulNow.getDay() === 6) {
+    istanbulNow.setDate(istanbulNow.getDate() - 1);
+  }
+  const year = istanbulNow.getFullYear();
+  const month = String(istanbulNow.getMonth() + 1).padStart(2, "0");
+  const day = String(istanbulNow.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function latestSnapshotDate(rows: FonSnapshotRow[]) {
+  return rows.reduce<string | null>((latest, row) => {
+    const value = row.veri_tarihi;
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return latest;
+    return latest === null || value > latest ? value : latest;
+  }, null);
+}
+
+function hasFreshSnapshot(rows: FonSnapshotRow[]) {
+  const latest = latestSnapshotDate(rows);
+  return latest !== null && latest >= latestBusinessDayIso();
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
+function addDays(date: Date, days: number) {
+  const copy = new Date(date);
+  copy.setDate(copy.getDate() + days);
+  return copy;
+}
+
+function pct(current: number | null, previous: number | null) {
+  if (current === null || previous === null || previous === 0) return null;
+  return ((current - previous) / previous) * 100;
+}
+
+function pickWeekAnchors(rows: TefasFundGeneral[], target: Date) {
+  const targetIso = target.toISOString().slice(0, 10);
+  const picked = new Map<string, TefasFundGeneral>();
+  rows.forEach((row) => {
+    if (!row.fonKodu || !row.tarih || safeNumber(row.fiyat) === null || row.tarih < targetIso) return;
+    const current = picked.get(row.fonKodu);
+    if (!current || row.tarih < current.tarih) picked.set(row.fonKodu, row);
+  });
+  return picked;
+}
+
+function patchFromRows(
+  row: FonSnapshotRow,
+  general: TefasFundGeneral | undefined,
+  weekAnchor: TefasFundGeneral | undefined,
+  ret: TefasFundReturn | undefined,
+  daily: TefasFundReturn | undefined,
+): FonSnapshotRow {
+  const currentPrice = safeNumber(general?.fiyat) ?? row.fiyat;
+  const weekReturn = pct(currentPrice, safeNumber(weekAnchor?.fiyat));
+  return {
+    ...row,
+    unvan: general?.fonUnvan || ret?.fonUnvan || row.unvan,
+    kategori: ret?.fonTurAciklama ?? row.kategori,
+    fiyat: currentPrice,
+    gunluk_getiri: safeNumber(daily?.getiriOrani) ?? row.gunluk_getiri,
+    getiri_1h: weekReturn ?? row.getiri_1h,
+    getiri_1a: safeNumber(ret?.getiri1a) ?? row.getiri_1a,
+    getiri_3a: safeNumber(ret?.getiri3a) ?? row.getiri_3a,
+    getiri_6a: safeNumber(ret?.getiri6a) ?? row.getiri_6a,
+    getiri_1y: safeNumber(ret?.getiri1y) ?? row.getiri_1y,
+    getiri_yb: safeNumber(ret?.getiriyb) ?? row.getiri_yb,
+    getiri_3y: safeNumber(ret?.getiri3y) ?? row.getiri_3y,
+    getiri_5y: safeNumber(ret?.getiri5y) ?? row.getiri_5y,
+    risk_degeri: safeNumber(ret?.riskDegeri) ?? row.risk_degeri,
+    portfoy_buyukluk: safeNumber(general?.portfoyBuyukluk) ?? row.portfoy_buyukluk,
+    kisi_sayisi: safeNumber(general?.kisiSayisi) ?? row.kisi_sayisi,
+    tedavuldeki_pay: safeNumber(general?.tedPaySayisi) ?? row.tedavuldeki_pay,
+    tefas_durum: ret?.tefasDurum ?? row.tefas_durum,
+    veri_tarihi: general?.tarih ?? row.veri_tarihi,
+  };
+}
+
+async function refreshRowsWithLiveTefas(rows: FonSnapshotRow[]) {
+  if (livePatchCache && Date.now() - livePatchCache.fetchedAt < ROWS_CACHE_TTL_MS) {
+    return livePatchCache.rows;
+  }
+  if (livePatchPromise) return livePatchPromise;
+
+  livePatchPromise = (async () => {
+    const [general, returns, daily] = await Promise.all([
+      fetchLatestTefasGeneral(3),
+      fetchTefasReturns(),
+      fetchTefasDailyReturns(),
+    ]);
+    const generalDate = general.date ? new Date(`${general.date}T12:00:00`) : null;
+    const weekRows = generalDate
+      ? await fetchTefasGeneralRange(addDays(generalDate, -7), generalDate).catch(() => [] as TefasFundGeneral[])
+      : [];
+    const generalMap = new Map(general.rows.map((row) => [row.fonKodu, row]));
+    const weekMap = generalDate ? pickWeekAnchors(weekRows, addDays(generalDate, -7)) : new Map<string, TefasFundGeneral>();
+    const returnMap = new Map(returns.map((row) => [row.fonKodu, row]));
+    const dailyMap = new Map(daily.map((row) => [row.fonKodu, row]));
+    const refreshed = rows.map((row) => patchFromRows(
+      row,
+      generalMap.get(row.kod),
+      weekMap.get(row.kod),
+      returnMap.get(row.kod),
+      dailyMap.get(row.kod),
+    ));
+    livePatchCache = { rows: refreshed, fetchedAt: Date.now() };
+    return refreshed;
+  })()
+    .catch(() => null)
+    .finally(() => {
+      livePatchPromise = null;
+    });
+
+  return livePatchPromise;
+}
+
 async function getRows(forceLive: boolean) {
   if (rowsCache && rowsCache.forceLive === forceLive && Date.now() - rowsCache.fetchedAt < ROWS_CACHE_TTL_MS) {
     return rowsCache.rows;
@@ -166,7 +300,11 @@ async function loadRows(forceLive: boolean) {
       rows.push(...batch.map((row) => normalize(row as Partial<FonSnapshotRow>)));
       if (batch.length < SUPABASE_PAGE_SIZE) break;
     }
-    if (hasUsableSnapshot(rows)) return rows;
+    if (hasUsableSnapshot(rows)) {
+      if (hasFreshSnapshot(rows)) return rows;
+      const refreshedRows = await withTimeout(refreshRowsWithLiveTefas(rows), 6500, rows);
+      return refreshedRows ?? rows;
+    }
   }
 
   if (liveFallbackCache && Date.now() - liveFallbackCache.fetchedAt < LIVE_CACHE_TTL_MS) {

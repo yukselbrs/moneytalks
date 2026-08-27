@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import {
   fetchLiveTefasSnapshot,
+  fetchTefasDailyReturns,
   fetchTefasFundHistory,
+  fetchTefasReturns,
   type FonHistoryPoint,
   type FonSnapshotRow,
+  type TefasFundReturn,
 } from "@/lib/tefas-fonlar";
 import { getFonPortfoy } from "@/lib/fon-portfoy";
 
@@ -18,6 +21,8 @@ let snapshotPromise: Promise<FonSnapshotRow[]> | null = null;
 const historyCache = new Map<string, { rows: FonHistoryPoint[]; fetchedAt: number }>();
 const historyPromises = new Map<string, Promise<FonHistoryPoint[]>>();
 const latestPointCache = new Map<string, FonHistoryPoint>();
+let returnMetricsCache: { returns: TefasFundReturn[]; daily: TefasFundReturn[]; fetchedAt: number } | null = null;
+let returnMetricsPromise: Promise<{ returns: TefasFundReturn[]; daily: TefasFundReturn[] }> | null = null;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -96,6 +101,26 @@ async function getSnapshotRow(kod: string): Promise<FonSnapshotRow | null> {
 
   const liveRows = await withTimeout(getSnapshotRows(), 4500, [] as FonSnapshotRow[]);
   return liveRows.find((row) => row.kod === kod) ?? null;
+}
+
+async function getReturnMetrics() {
+  if (returnMetricsCache && Date.now() - returnMetricsCache.fetchedAt < CACHE_TTL_MS) {
+    return returnMetricsCache;
+  }
+  if (!returnMetricsPromise) {
+    returnMetricsPromise = Promise.all([
+      fetchTefasReturns(),
+      fetchTefasDailyReturns(),
+    ])
+      .then(([returns, daily]) => {
+        returnMetricsCache = { returns, daily, fetchedAt: Date.now() };
+        return { returns, daily };
+      })
+      .finally(() => {
+        returnMetricsPromise = null;
+      });
+  }
+  return returnMetricsPromise;
 }
 
 async function getCategoryRows(kategori: string | null): Promise<FonSnapshotRow[]> {
@@ -200,6 +225,33 @@ function returnsFromHistory(fon: FonSnapshotRow, history: FonHistoryPoint[]) {
   };
 }
 
+function applyLiveReturnMetrics(
+  fon: FonSnapshotRow,
+  metrics: { returns: TefasFundReturn[]; daily: TefasFundReturn[] } | null,
+  history: FonHistoryPoint[],
+) {
+  const ret = metrics?.returns.find((row) => row.fonKodu === fon.kod);
+  const daily = metrics?.daily.find((row) => row.fonKodu === fon.kod);
+  const last = history[history.length - 1]?.fiyat ?? fon.fiyat;
+  const previous = history.length >= 2 ? history[history.length - 2]?.fiyat ?? null : null;
+  const historyDaily = pct(last, previous);
+
+  return {
+    ...fon,
+    kategori: ret?.fonTurAciklama ?? fon.kategori,
+    gunluk_getiri: safeNumber(daily?.getiriOrani) ?? historyDaily ?? fon.gunluk_getiri,
+    getiri_1a: safeNumber(ret?.getiri1a) ?? fon.getiri_1a,
+    getiri_3a: safeNumber(ret?.getiri3a) ?? fon.getiri_3a,
+    getiri_6a: safeNumber(ret?.getiri6a) ?? fon.getiri_6a,
+    getiri_1y: safeNumber(ret?.getiri1y) ?? fon.getiri_1y,
+    getiri_yb: safeNumber(ret?.getiriyb) ?? fon.getiri_yb,
+    getiri_3y: safeNumber(ret?.getiri3y) ?? fon.getiri_3y,
+    getiri_5y: safeNumber(ret?.getiri5y) ?? fon.getiri_5y,
+    risk_degeri: safeNumber(ret?.riskDegeri) ?? fon.risk_degeri,
+    tefas_durum: ret?.tefasDurum ?? fon.tefas_durum,
+  };
+}
+
 function returnForRange(range: string, returns: Record<string, number | null>) {
   if (range === "1wk") return returns["1h"];
   if (range === "1mo") return returns["1a"];
@@ -273,7 +325,14 @@ export async function GET(
       recentHistory = await withTimeout(getHistoryRows(kod, "1mo"), 2000, [] as FonHistoryPoint[]);
     }
     if (recentHistory.length === 0 && cachedLatestPoint) recentHistory = [cachedLatestPoint];
-    const fon = baseFon ? withLatestKnownFields(withHistoryFallback(baseFon, recentHistory), [history, recentHistory]) : null;
+    const liveMetrics = await withTimeout<Awaited<ReturnType<typeof getReturnMetrics>> | null>(getReturnMetrics(), 2500, null);
+    const fon = baseFon
+      ? applyLiveReturnMetrics(
+          withLatestKnownFields(withHistoryFallback(baseFon, recentHistory), [history, recentHistory]),
+          liveMetrics,
+          recentHistory,
+        )
+      : null;
     if (!fon) {
       return NextResponse.json({ error: "Fon bulunamadı" }, { status: 404 });
     }
