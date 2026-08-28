@@ -6,6 +6,7 @@ import { ahlatciArzlari, yahooIslemSinyali } from "@/lib/halka-arz-kaynak";
 import { kodSlugHaritasi, halkaArzFinansalCek } from "@/lib/halka-arz-finansal";
 import { isyCarpanlar, isyOzetFinansal } from "@/lib/isyatirim-finansal";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
+import { ertelenenHalkaArzMi } from "@/lib/halka-arz-ertelenen";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -55,6 +56,7 @@ export async function GET(req: NextRequest) {
 
   // 1) Kaynak -> tablo (insert/update). Statik evrende zaten olan kodlar gecmis arzdir; yeni kayit acilmaz.
   for (const arz of kaynak ?? []) {
+    if (ertelenenHalkaArzMi(arz.kod)) continue;
     const var_ = mevcut.get(arz.kod);
     const kaynakDurum = arz.aktif ? "talep_toplaniyor" : "arz_tamamlandi";
     if (!var_) {
@@ -113,6 +115,7 @@ export async function GET(req: NextRequest) {
 
   // 2) Talep penceresi kapananlar: talep_toplaniyor -> arz_tamamlandi.
   for (const r of mevcut.values()) {
+    if (ertelenenHalkaArzMi(r.kod)) continue;
     if (r.durum === "talep_toplaniyor" && r.talep_bitis && r.talep_bitis < bugun) {
       const { error } = await supabase.from("halka_arzlar")
         .update({ durum: "arz_tamamlandi", updated_at: new Date().toISOString() })
@@ -126,6 +129,7 @@ export async function GET(req: NextRequest) {
   //    Statik evren disindaki kod hisseler menusunde overlay ile aninda gorunur (lib/hisse-evren).
   const sinyalDetay: Record<string, string> = {};
   for (const r of mevcut.values()) {
+    if (ertelenenHalkaArzMi(r.kod)) continue;
     if (r.durum !== "arz_tamamlandi") continue;
     const sinyal = await yahooIslemSinyali(r.kod);
     sinyalDetay[r.kod] = sinyal.detay;
@@ -145,6 +149,7 @@ export async function GET(req: NextRequest) {
   const simdi = new Date();
   const bugunIsy = { yil: simdi.getUTCFullYear(), ay: simdi.getUTCMonth() + 1 };
   for (const kod of mevcut.keys()) {
+    if (ertelenenHalkaArzMi(kod)) continue;
     const slug = slugHarita.get(kod);
     if (!slug) continue;
     try {

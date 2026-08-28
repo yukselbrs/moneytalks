@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { ertelenenHalkaArzMi } from "@/lib/halka-arz-ertelenen";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export async function GET() {
     console.error("halka-arz liste HATA:", error.message);
     return NextResponse.json({ aktif: [], gecmis: [] });
   }
-  const rows = data ?? [];
+  const rows = (data ?? []).filter((r) => !ertelenenHalkaArzMi(r.kod));
   return NextResponse.json({
     aktif: rows.filter((r) => r.durum !== "islem_goruyor"),
     gecmis: rows.filter((r) => r.durum === "islem_goruyor"),

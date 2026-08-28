@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { ertelenenHalkaArzMi } from "@/lib/halka-arz-ertelenen";
 import { bilancoSonTarihleri } from "@/lib/bilanco-son-tarih";
 
 export const runtime = "nodejs";
@@ -113,7 +114,7 @@ export async function GET(req: NextRequest) {
       .order("talep_baslangic", { ascending: false, nullsFirst: false });
     if (error) return NextResponse.json({ events: [], hata: error.message });
     const events = [];
-    for (const a of data ?? []) {
+    for (const a of (data ?? []).filter((row) => !ertelenenHalkaArzMi(row.kod))) {
       for (const { alan, etiket } of HA_ASAMA) {
         const tarih = a[alan];
         if (!tarih || tarih < from || tarih > to) continue;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isyCarpanlar, isyOzetFinansal } from "@/lib/isyatirim-finansal";
 import { tvPiyasaDegeri } from "@/lib/halka-arz-finansal";
+import { ertelenenHalkaArzMi } from "@/lib/halka-arz-ertelenen";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ kod
   const { kod } = await params;
   const temiz = kod.trim().toUpperCase();
   if (!/^[A-Z0-9]{2,10}$/.test(temiz)) return NextResponse.json({ arz: null }, { status: 400 });
+  if (ertelenenHalkaArzMi(temiz)) return NextResponse.json({ arz: null });
   const { data, error } = await supabase
     .from("halka_arzlar")
     .select("*")
