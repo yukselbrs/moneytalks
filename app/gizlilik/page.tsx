@@ -67,7 +67,7 @@ export default function GizlilikPage() {
         <p>Bu gizlilik politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler olması durumunda kayıtlı e-posta adresinize bildirim göndeririz. Güncel politikayı bu sayfadan takip edebilirsiniz.</p>
       </Section>
       <Section title="9. İletişim">
-        <p>Gizlilik politikamıza ilişkin sorularınız için hello@parakonusur.com adresine ulaşabilirsiniz.</p>
+        <p>Gizlilik politikamıza ilişkin sorularınız için support@parakonusur.com adresine ulaşabilirsiniz.</p>
       </Section>
     </PageWrapper>
   );

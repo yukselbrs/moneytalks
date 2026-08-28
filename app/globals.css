@@ -315,6 +315,28 @@ body {
    (React), inline stil normal kural onceligini yener. Prototip de ayni nedenle
    !important kullaniyor. */
 @media (max-width: 899px)  { .lp-navlinks { display: none !important; } }
+
+/* Dar ekranda navbar tasiyordu: logo kilidi 179px (asil suclu alt satir),
+   sag grup 174px, toplam kullanilabilir genisligi 46px asiyordu. */
+.lp-cta-kisa { display: none; }
+@media (max-width: 560px) {
+  .lp-nav-pad      { padding-left: 16px !important; padding-right: 16px !important; }
+  .lp-nav-tag      { display: none !important; }
+  .lp-nav-wordmark { font-size: 15px !important; }
+  .lp-nav-sag      { gap: 10px !important; }
+  .lp-cta-uzun     { display: none; }
+  .lp-cta-kisa     { display: inline; }
+}
+@media (max-width: 440px) {
+  .lp-nav-wordmark { font-size: 14px !important; }
+  .lp-nav-sag      { gap: 8px !important; }
+}
+/* Yalniz cok dar cihazlarda (<=350px) marka yazisi dusuyor, isaret kaliyor —
+   iki eylemi de (giris + kayit) ayakta tutmanin tek yolu. 375px'te wordmark
+   rahat siginiyor, orada dusurmek gereksiz marka kaybi olurdu. */
+@media (max-width: 350px) {
+  .lp-nav-wordmark, .lp-nav-tag { display: none !important; }
+}
 @media (max-width: 1080px) { .lp-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
 @media (max-width: 560px)  { .lp-grid-4, .lp-grid-2 { grid-template-columns: minmax(0, 1fr) !important; } }
 

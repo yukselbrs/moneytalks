@@ -27,7 +27,7 @@ export default function KVKKPage() {
   return (
     <PageWrapper title="KVKK Aydınlatma Metni" subtitle="Son güncelleme: Mayıs 2026">
       <Section title="1. Veri Sorumlusu">
-        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu sıfatıyla Barış Yüksel ve Kaan İlgin (bundan sonra "ParaKonuşur" veya "Biz" olarak anılacaktır) tarafından kişisel verileriniz aşağıda açıklanan amaçlar doğrultusunda işlenmektedir. İletişim: hello@parakonusur.com</p>
+        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu sıfatıyla Barış Yüksel ve Kaan İlgin (bundan sonra "ParaKonuşur" veya "Biz" olarak anılacaktır) tarafından kişisel verileriniz aşağıda açıklanan amaçlar doğrultusunda işlenmektedir. İletişim: support@parakonusur.com</p>
       </Section>
       <Section title="2. İşlenen Kişisel Veriler">
         <ul style={{ paddingLeft: 20, marginTop: 8 }}>
@@ -79,7 +79,7 @@ export default function KVKKPage() {
         </ul>
       </Section>
       <Section title="8. Başvuru Yöntemi">
-        <p>Haklarınıza ilişkin taleplerinizi hello@parakonusur.com adresine e-posta göndererek veya profil sayfanızdaki "Hesabı Sil" seçeneğini kullanarak iletebilirsiniz. Talepler 30 gün içinde yanıtlanacaktır.</p>
+        <p>Haklarınıza ilişkin taleplerinizi support@parakonusur.com adresine e-posta göndererek veya profil sayfanızdaki "Hesabı Sil" seçeneğini kullanarak iletebilirsiniz. Talepler 30 gün içinde yanıtlanacaktır.</p>
       </Section>
     </PageWrapper>
   );

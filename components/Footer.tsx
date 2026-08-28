@@ -8,7 +8,7 @@ const LINKLER = [
   { etiket: "Kullanım Şartları", href: "/kullanim-sartlari" },
   { etiket: "KVKK", href: "/kvkk" },
   { etiket: "Risk Uyarısı", href: "/risk-uyarisi" },
-  { etiket: "İletişim", href: "mailto:hello@parakonusur.com" },
+  { etiket: "İletişim", href: "mailto:support@parakonusur.com" },
 ];
 
 export default function Footer() {

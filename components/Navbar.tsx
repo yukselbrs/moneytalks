@@ -66,6 +66,7 @@ export default function Navbar() {
       }}
     >
       <div
+        className="lp-nav-pad"
         style={{
           width: "100%",
           maxWidth: 1280,
@@ -77,10 +78,11 @@ export default function Navbar() {
           gap: 20,
         }}
       >
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <LogoIcon size={34} aria-label="" />
-          <span style={{ display: "flex", flexDirection: "column" }}>
+          <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
             <span
+              className="lp-nav-wordmark"
               style={{
                 fontFamily: "var(--font-geist)",
                 fontSize: 17,
@@ -88,11 +90,13 @@ export default function Navbar() {
                 color: "#F8FAFC",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.1,
+                whiteSpace: "nowrap",
               }}
             >
               parakonusur<span style={{ color: "#3B82F6" }}>.com</span>
             </span>
             <span
+              className="lp-nav-tag"
               style={{
                 fontSize: 9,
                 fontWeight: 500,
@@ -114,17 +118,17 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div className="lp-nav-sag" style={{ display: "flex", alignItems: "center", gap: 14, flex: "none" }}>
           {girisli ? (
-            <Link href="/dashboard" className="lp-link" style={{ fontSize: 13, color: "#94A3B8" }}>
+            <Link href="/dashboard" className="lp-link" style={{ fontSize: 13, color: "#94A3B8", whiteSpace: "nowrap" }}>
               Dashboard
             </Link>
           ) : (
             <>
-              <Link href="/login" className="lp-link" style={{ fontSize: 13, color: "#94A3B8" }}>
+              <Link href="/login" className="lp-link" style={{ fontSize: 13, color: "#94A3B8", whiteSpace: "nowrap" }}>
                 Giriş Yap
               </Link>
-              <KayitButonu boyut="sm" />
+              <KayitButonu boyut="sm" mobilMetin="Kayıt Ol" />
             </>
           )}
         </div>

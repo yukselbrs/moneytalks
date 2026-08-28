@@ -64,7 +64,7 @@ export default function KullanimSartlariPage() {
         <p>Bu kullanım şartları Türkiye Cumhuriyeti hukukuna tabidir. Uyuşmazlıklarda İstanbul Mahkemeleri ve İcra Müdürlükleri yetkilidir.</p>
       </Section>
       <Section title="11. İletişim">
-        <p>Kullanım şartlarına ilişkin sorularınız için hello@parakonusur.com adresine ulaşabilirsiniz.</p>
+        <p>Kullanım şartlarına ilişkin sorularınız için support@parakonusur.com adresine ulaşabilirsiniz.</p>
       </Section>
     </PageWrapper>
   );

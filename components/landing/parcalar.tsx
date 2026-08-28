@@ -368,10 +368,13 @@ export function KayitButonu({
   boyut = "md",
   okIsareti = false,
   metin = "Ücretsiz Kayıt Ol",
+  mobilMetin,
 }: {
   boyut?: keyof typeof BOYUT;
   okIsareti?: boolean;
   metin?: string;
+  /** Verilirse 560px altinda bunun yerine bu metin gosterilir (CSS ile). */
+  mobilMetin?: string;
 }) {
   const manyetikRef = useManyetik();
   const o = BOYUT[boyut];
@@ -394,7 +397,14 @@ export function KayitButonu({
           boxShadow: "0 0 0 1px rgba(59,130,246,0.4), 0 8px 32px rgba(30,64,175,0.3)",
         }}
       >
-        {metin}
+        {mobilMetin ? (
+          <>
+            <span className="lp-cta-uzun">{metin}</span>
+            <span className="lp-cta-kisa">{mobilMetin}</span>
+          </>
+        ) : (
+          metin
+        )}
         {okIsareti && <span aria-hidden="true">→</span>}
       </Link>
     </div>

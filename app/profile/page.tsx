@@ -141,7 +141,7 @@ export default function ProfilePage() {
       await supabase.auth.signOut();
       router.push("/");
     } catch {
-      setError("Hesap silinemedi. Lütfen hello@parakonusur.com adresine yazın.");
+      setError("Hesap silinemedi. Lütfen support@parakonusur.com adresine yazın.");
       setSilmeLoading(false);
     }
   }
