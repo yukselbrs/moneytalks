@@ -319,7 +319,8 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
   useEffect(() => {
     fetch(`/api/halka-arz/${kod}`)
       .then((r) => r.json())
-      .then((d) => { setArz(d.arz); if (d.arz) document.title = `${d.arz.kod} Halka Arz | ParaKonuşur`; })
+      .then((d) => { setArz(d.arz);  })
+      .catch(() => setArz(null))
       .finally(() => setYuklendi(true));
   }, [kod]);
 
@@ -397,7 +398,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
           )}
 
           <div style={{ display: "flex", gap: 6, margin: "20px 0 16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            {([["bilgi", "Arz Bilgileri"], ["sirket", "Şirket Bilgileri"], ["forum", "Forum"]] as const).map(([k, l]) => (
+            {([["bilgi", "Arz Bilgileri"], ["sirket", "Şirket Bilgileri"], ["forum", "Forum · Yakında"]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setSekme(k)}
                 style={{ background: "none", border: "none", cursor: "pointer", padding: "9px 14px", fontSize: 13, fontWeight: 700, color: sekme === k ? "#F8FAFC" : "#64748B", borderBottom: sekme === k ? "2px solid #3B82F6" : "2px solid transparent", marginBottom: -1 }}>
                 {l}

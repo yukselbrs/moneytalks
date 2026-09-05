@@ -1,3 +1,4 @@
+import { safeAnalysis } from "@/lib/ai-output";
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
@@ -96,6 +97,7 @@ export async function POST(req: NextRequest) {
   let body: { kod?: unknown };
   try {
     body = await req.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Geçersiz istek");
   } catch {
     return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
   }
@@ -111,7 +113,7 @@ export async function POST(req: NextRequest) {
   // Once paylasimli cache: taze sonuc varsa Sonnet'e gitmeden don (rate limit de tuketilmez).
   const { data: cache } = await supabaseAdmin.from("enstruman_analiz_cache").select("analiz, created_at").eq("kod", kod).maybeSingle();
   if (cache && Date.now() - new Date(cache.created_at).getTime() < CACHE_MS) {
-    return NextResponse.json({ analiz: cache.analiz, cached: true, created_at: cache.created_at });
+    return NextResponse.json({ analiz: safeAnalysis(cache.analiz), cached: true, created_at: cache.created_at });
   }
 
   // Hisse analiziyle ORTAK kota: kullanici basina toplam 10 AI analiz/saat.
@@ -144,7 +146,7 @@ export async function POST(req: NextRequest) {
       max_tokens: 4000,
       messages: [{ role: "user", content: promptOlustur(tanim, veriBlogu(tanim, snapshot, profil, seri)) }],
     });
-    const analiz = message.content.flatMap(b => (b.type === "text" ? [b.text] : [])).join("");
+    const analiz = safeAnalysis(message.content.flatMap(b => (b.type === "text" ? [b.text] : [])).join(""));
     if (analiz) {
       await supabaseAdmin.from("enstruman_analiz_cache").upsert({ kod, analiz, model: MODEL, created_at: new Date().toISOString() });
     }

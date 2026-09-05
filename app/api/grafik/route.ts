@@ -31,12 +31,15 @@ export async function GET(req: NextRequest) {
     "1y": "1wk",
     "5y": "1mo",
   };
-  const interval = intervalMap[range] || "1d";
+  if (!/^[A-Za-z0-9.=-]{1,20}$/.test(ticker) || !Object.hasOwn(intervalMap, range)) {
+    return NextResponse.json({ error: "Geçersiz grafik parametresi" }, { status: 400 });
+  }
+  const interval = intervalMap[range];
 
   try {
     const symbol = ticker.endsWith(".IS") || ticker.endsWith("=X") ? ticker : `${ticker}.IS`;
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
-    const res = await fetch(url, { cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" } });
+    const res = await fetch(url, { cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(12000) });
     const data = await res.json();
     const result = data?.chart?.result?.[0];
     if (!result) return NextResponse.json({ error: "veri yok" }, { status: 404 });
@@ -58,18 +61,19 @@ export async function GET(req: NextRequest) {
     };
 
     let points = timestamps.map((t: number, i: number) => ({
+      timestamp: t * 1000,
       tarih: formatTarih(t),
       fiyat: priceSeries[i] ? parseFloat(priceSeries[i].toFixed(2)) : null,
     })).filter((p: {tarih: string; fiyat: number | null}) => p.fiyat !== null);
 
     if (range === "1d" && prevClose && points.length > 0) {
-      points = [{ tarih: "Önceki Kapanış", fiyat: parseFloat(prevClose.toFixed(2)) }, ...points];
+      points = [{ timestamp: (timestamps[0] - 1) * 1000, tarih: "Önceki Kapanış", fiyat: parseFloat(prevClose.toFixed(2)) }, ...points];
     }
 
     // Tatil/hafta sonu: 1d boş dönüyorsa son 5 günden son işlem gününü çek
     if (points.length === 0 && range === "1d") {
       const url5d = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=5d`;
-      const res5d = await fetch(url5d, { cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" } });
+      const res5d = await fetch(url5d, { cache: "no-store", headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(12000) });
       const data5d = await res5d.json();
       const result5d = data5d?.chart?.result?.[0];
       if (result5d) {
@@ -95,11 +99,12 @@ export async function GET(req: NextRequest) {
           }
           if (sonGecerliGun) {
             points = ts5d.map((t: number, i: number) => ({
+              timestamp: t * 1000,
               tarih: saat(t),
               fiyat: cl5d[i] ? parseFloat(cl5d[i].toFixed(2)) : null,
               gk: gunKey(t),
             })).filter((p: {tarih: string; fiyat: number | null; gk: string}) => p.fiyat !== null && p.gk === sonGecerliGun)
-              .map((p: {tarih: string; fiyat: number; gk: string}) => ({ tarih: p.tarih, fiyat: p.fiyat }));
+              .map((p: {timestamp: number; tarih: string; fiyat: number; gk: string}) => ({ timestamp: p.timestamp, tarih: p.tarih, fiyat: p.fiyat }));
           }
         }
       }

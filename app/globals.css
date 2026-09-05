@@ -356,3 +356,24 @@ body {
     animation: none !important;
   }
 }
+
+/* Launch: consistent keyboard navigation and legible working surfaces. */
+:root { --text-muted: #94a3b8; --text-dim: #94a3b8; }
+:focus-visible { outline: 2px solid #60a5fa; outline-offset: 4px; }
+button:not(:disabled), a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:disabled { cursor: not-allowed; }
+input, select, textarea { font-size: max(1rem, 16px); }
+.skip-link { position: fixed; top: 12px; left: 12px; z-index: 1000; transform: translateY(-200%); border-radius: 8px; background: #2563eb; color: white; padding: 12px 20px; font-weight: 700; }
+.skip-link:focus { transform: translateY(0); }
+.sb-nav-item { min-height: 44px; }
+.sb-nav-item[aria-current="page"] { box-shadow: inset 3px 0 #60a5fa; }
+.sb-main { background: #090f1c; }
+.sb-main main { min-width: 0; }
+.sb-main h1 { letter-spacing: -.035em; }
+.sb-main table { font-variant-numeric: tabular-nums; }
+.sb-main table thead { color: #a7b6cc; }
+.card-glass, .dash-surface { box-shadow: 0 8px 28px rgb(0 0 0 / 12%); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

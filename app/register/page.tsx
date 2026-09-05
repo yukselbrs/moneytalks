@@ -138,7 +138,7 @@ export default function RegisterPage() {
             </div>
 
             <div style={{ display: "flex", gap: 20 }}>
-              {["256-bit SSL şifreleme", "KVKK uyumlu", "Ücretsiz plan"].map((t) => (
+              {["HTTPS bağlantı", "Gizlilik politikası", "Ücretsiz plan"].map((t) => (
                 <div key={t} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                   <span style={{ color: "#3B82F6", fontSize: 12 }}>✓</span>
                   <span style={{ fontSize: 11, color: "#475569" }}>{t}</span>
@@ -163,37 +163,37 @@ export default function RegisterPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div>
-                <label style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Ad Soyad</label>
+                <label htmlFor="register-fullName" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Ad Soyad</label>
                 <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 12px", height: 42 }}>
-                  <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Adın Soyadın"
+                  <input id="register-fullName" autoComplete="name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Adın Soyadın"
                     style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Kullanıcı Adı</label>
+                <label htmlFor="register-username" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Kullanıcı Adı</label>
                 <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 12px", height: 42 }}>
-                  <input type="text" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} required placeholder="kullanici_adi"
+                  <input id="register-username" autoComplete="username" type="text" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} required placeholder="kullanici_adi"
                     style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
                 </div>
               </div>
             </div>
 
             <div>
-              <label style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>E-posta</label>
+              <label htmlFor="register-email" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>E-posta</label>
               <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 14px", height: 42 }}>
                 <span style={{ color: "#475569" }}>✉</span>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com"
+                <input id="register-email" autoComplete="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com"
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
               </div>
             </div>
 
             <div>
-              <label style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Şifre</label>
+              <label htmlFor="register-password" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Şifre</label>
               <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 14px", height: 42 }}>
                 <span style={{ color: "#475569" }}>🔒</span>
-                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••••"
+                <input id="register-password" autoComplete="new-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••••"
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                <button type="button" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}
                   style={{ background: "none", border: "none", cursor: "pointer", color: "#475569" }}>
                   {showPassword ? "🙈" : "👁"}
                 </button>
@@ -202,7 +202,7 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>
+              <div role="alert" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>
                 <p style={{ fontSize: 12, color: "#EF4444" }}>{error}</p>
               </div>
             )}

@@ -28,6 +28,8 @@ function esitDagitimMi(value: string | null): boolean {
 }
 
 export function halkaArzDagitimHesabi(arz: DagitimGirdisi): DagitimHesabi | null {
+  // Tahsisat, oransal dağıtımı kişi başına eşit dağıtıma dönüştürmez.
+  if (arz.dagitim_yontemi && !esitDagitimMi(arz.dagitim_yontemi)) return null;
   let toplamPay = arz.pay_miktari;
   let toplamPayTuretildi = false;
   if (toplamPay === null && arz.buyukluk !== null && arz.fiyat !== null && arz.fiyat > 0) {

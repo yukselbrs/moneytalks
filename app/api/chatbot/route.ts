@@ -3,6 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import { requireUser } from "@/lib/auth";
+import { reserveChatMessage } from "@/lib/chat-quota";
+import { safeAnalysis } from "@/lib/ai-output";
 import { rateLimitHit } from "@/lib/rate-limit";
 import { getMacroRiskSnapshot } from "@/lib/macro-risk";
 import { kapSonIndex, kapListe, kapDetay } from "@/lib/kap-kaynak";
@@ -2626,12 +2628,15 @@ export async function POST(req: NextRequest) {
       .single(),
   ]);
 
+  if (usageRes.error && usageRes.error.code !== "PGRST116") {
+    return NextResponse.json({ error: "Mesaj kotası şu an kontrol edilemiyor." }, { status: 503 });
+  }
   const mevcutSayi = usageRes.data?.mesaj_sayisi ?? 0;
   const profile = profileRes.data as { is_pro?: boolean | null; pro_until?: string | null } | null;
   const proAktif = profile?.is_pro === true && (
     !profile.pro_until || new Date(profile.pro_until).getTime() > Date.now()
   );
-  const BYPASS_EMAILS = (process.env.CHATBOT_BYPASS_EMAILS ?? "").split(",").map(e => e.trim());
+  const BYPASS_EMAILS = (process.env.CHATBOT_BYPASS_EMAILS ?? "").split(",").map(e => e.trim()).filter(Boolean);
   const limitAtlandi = proAktif || BYPASS_EMAILS.includes(user.email ?? "");
   const GUNLUK_LIMIT = 3;
 
@@ -2655,10 +2660,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Geçersiz istek gövdesi." }, { status: 400 });
   }
   const { messages, ticker, portfoy } = body as { messages?: unknown; ticker?: string; portfoy?: unknown };
-  const chatMessages = (Array.isArray(messages) ? messages : []) as ChatMessage[];
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 24 || messages.some(m => !m || !["user", "assistant"].includes(m.role) || typeof m.content !== "string" || m.content.length > 8000) || JSON.stringify(messages).length > 32000 || (ticker !== undefined && (typeof ticker !== "string" || !/^[A-Z0-9.]{2,12}$/.test(ticker)))) {
+    return NextResponse.json({ error: "Mesaj biçimi veya uzunluğu uygun değil." }, { status: 400 });
+  }
+  if (portfoy !== undefined && (!Array.isArray(portfoy) || portfoy.length > 100 || portfoy.some(p => !p || typeof p !== "object" || typeof p.ticker !== "string" || !/^[A-Z0-9.]{2,12}$/.test(p.ticker) || !Number.isFinite(p.adet) || p.adet <= 0 || !Number.isFinite(p.maliyet) || p.maliyet < 0))) {
+    return NextResponse.json({ error: "Geçersiz portföy." }, { status: 400 });
+  }
+  const chatMessages = messages as ChatMessage[];
   const sonMesaj = sonKullaniciMesaji(chatMessages);
   if (!sonMesaj.trim()) {
     return NextResponse.json({ error: "Mesaj boş. En az bir kullanıcı mesajı gönderin." }, { status: 400 });
+  }
+  let ayrilanHak = mevcutSayi;
+  if (!limitAtlandi) {
+    try {
+      const reserved = await reserveChatMessage(supabaseAdmin, user.id, bugun, GUNLUK_LIMIT);
+      if (reserved === null) return NextResponse.json({ error: "gunluk_limit", mesaj: "Günlük 3 mesaj hakkınız doldu. Haklar 03.00’te yenilenir.", kullanilanHak: GUNLUK_LIMIT, toplamHak: GUNLUK_LIMIT }, { status: 429 });
+      ayrilanHak = reserved;
+    } catch {
+      return NextResponse.json({ error: "Mesaj kotası şu an kontrol edilemiyor. Lütfen tekrar deneyin." }, { status: 503 });
+    }
   }
   const mesajTickerlari = tickerAdaylari(sonMesaj, ticker);
   const aktifTicker = ticker || mesajTickerlari[0];
@@ -2722,6 +2743,7 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       };
 
+      try {
       for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
         const toolResp = await anthropic.messages.create({
           model: "claude-sonnet-4-6",
@@ -2777,7 +2799,7 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
             const d = event.delta as { type: string; text?: string };
             if (d.type === "text_delta" && d.text) {
               fullText += d.text;
-              send({ type: "delta", text: d.text });
+              // Ham model çıktısı doğrulanmadan istemciye gönderilmez.
             }
           }
         }
@@ -2795,7 +2817,7 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
       // SPK post-processing
       const ilkReply = cevabiTemizle(fullText);
       const ilkQualityFlags = kaliteBayraklari(ilkReply, intent);
-      const reply = cevabiGuvenliDileCevir(ilkReply, ilkQualityFlags);
+      const reply = safeAnalysis(cevabiGuvenliDileCevir(ilkReply, ilkQualityFlags));
       const qualityFlags = Array.from(new Set([...ilkQualityFlags, ...kaliteBayraklari(reply, intent)]));
       const engellendi = qualityFlags.includes("yasakli_ifade");
 
@@ -2804,17 +2826,8 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
           type: "replace",
           text: `Bu soruyu yanıtlamak için yeterli bilgiye sahip değilim. Lütfen lisanslı bir yatırım danışmanına başvurun.\n\n${YATIRIM_TAVSIYESI_UYARISI}`,
         });
-      } else if (reply !== fullText) {
+      } else {
         send({ type: "replace", text: reply });
-      }
-
-      // Pro / bypass kullanıcılarda sayacı arttırma
-      if (!engellendi && !limitAtlandi) {
-        if (mevcutSayi === 0) {
-          await supabaseAdmin.from("chatbot_usage").insert({ user_id: user.id, gun: bugun, mesaj_sayisi: 1 });
-        } else {
-          await supabaseAdmin.from("chatbot_usage").update({ mesaj_sayisi: mevcutSayi + 1 }).eq("user_id", user.id).eq("gun", bugun);
-        }
       }
 
       chatbotTelemetryLogla({
@@ -2832,11 +2845,15 @@ ${niyetPromptu(intent)}${aktifTicker ? `\nAktif bağlam: ${aktifTicker}` : ""}`;
 
       send({
         type: "done",
-        kalanHak: limitAtlandi ? null : Math.max(0, GUNLUK_LIMIT - mevcutSayi - 1),
+        kalanHak: limitAtlandi ? null : Math.max(0, GUNLUK_LIMIT - ayrilanHak),
         pro: limitAtlandi,
         alarmTaslak,
       });
       controller.close();
+      } catch {
+        send({ type: "error", text: "Yanıt oluşturulamadı. Lütfen biraz sonra tekrar deneyin." });
+        controller.close();
+      }
     },
   });
 

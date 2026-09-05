@@ -19,7 +19,7 @@ const KARTLAR = [
   {
     ikon: <Radio {...IKON} />,
     baslik: "Damgalı veri",
-    aciklama: "Her sayının yanında gecikme bilgisi ve kaynağı görünür.",
+    aciklama: "Fiyat gecikmesi ve kullanılan kaynaklar açıkça belirtilir.",
   },
 ];
 

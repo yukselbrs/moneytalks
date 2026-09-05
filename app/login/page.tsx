@@ -80,7 +80,7 @@ export default function LoginPage() {
   const features = [
     { title: "Akıllı Analizler", desc: "Yapay zeka destekli analizler ile potansiyel fırsatları keşfedin." },
     { title: "Gecikmeli Veri Şeffaflığı", desc: "Piyasa verilerinde gecikme bilgisini görün, analizleri bu bağlamla okuyun." },
-    { title: "Güvenli ve Kişisel", desc: "Verileriniz en üst düzey güvenlik önlemleriyle korunur." },
+    { title: "Güvenli ve Kişisel", desc: "Portföyünüz ve takip listeniz hesabınıza özel tutulur." },
   ];
 
   return (
@@ -151,7 +151,7 @@ export default function LoginPage() {
           </div>
 
           <div style={{ display: "flex", gap: 16, marginTop: 24, flexWrap: "wrap" }}>
-            {["256-bit SSL şifreleme", "KVKK uyumlu", "Verileriniz güvende"].map((t) => (
+            {["HTTPS bağlantı", "Gizlilik politikası", "Kişisel takip alanı"].map((t) => (
               <div key={t} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <span style={{ color: "#3B82F6", fontSize: 12 }}>✓</span>
                 <span style={{ fontSize: 11, color: "#5D6B80" }}>{t}</span>
@@ -174,21 +174,21 @@ export default function LoginPage() {
           <form className="login-form" onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 15, width: "100%", minWidth: 0 }}>
 
             <div>
-              <label style={{ fontSize: 12, color: "#A8B4C6", fontWeight: 600, display: "block", marginBottom: 8 }}>E-posta veya kullanıcı adı</label>
+              <label htmlFor="login-email" style={{ fontSize: 12, color: "#A8B4C6", fontWeight: 600, display: "block", marginBottom: 8 }}>E-posta veya kullanıcı adı</label>
               <div className="login-field" style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.035)", border: "1px solid rgba(59,130,246,0.18)", borderRadius: 10, padding: "0 14px", height: 44, width: "100%", boxSizing: "border-box" }}>
                 <span style={{ color: "#65748A" }}>✉</span>
-                <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com veya kullanici_adi"
+                <input id="login-email" autoComplete="username" type="text" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com veya kullanici_adi"
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#F1F5F9", minWidth: 0 }} />
               </div>
             </div>
 
             <div>
-              <label style={{ fontSize: 12, color: "#A8B4C6", fontWeight: 600, display: "block", marginBottom: 8 }}>Şifre</label>
+              <label htmlFor="login-password" style={{ fontSize: 12, color: "#A8B4C6", fontWeight: 600, display: "block", marginBottom: 8 }}>Şifre</label>
               <div className="login-field" style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.035)", border: "1px solid rgba(59,130,246,0.18)", borderRadius: 10, padding: "0 14px", height: 44, width: "100%", boxSizing: "border-box" }}>
                 <span style={{ color: "#65748A" }}>🔒</span>
-                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••••"
+                <input id="login-password" autoComplete="current-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••••"
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#F1F5F9", minWidth: 0 }} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                <button type="button" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}
                   style={{ background: "none", border: "none", cursor: "pointer", color: "#65748A", padding: 0, lineHeight: 1 }}>
                   {showPassword ? "🙈" : "👁"}
                 </button>
@@ -209,7 +209,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>
+              <div role="alert" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>
                 <p style={{ fontSize: 12, color: "#EF4444" }}>{error}</p>
               </div>
             )}

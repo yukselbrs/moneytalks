@@ -55,7 +55,7 @@ export default function KayitCTA() {
               maxWidth: "20ch",
             }}
           >
-            Kayıt ol, hepsi ücretsiz.
+            Piyasayı anlamaya başla.
           </h2>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: "#94A3B8", margin: "0 auto 30px", maxWidth: "48ch" }}>
             600+ enstrüman, AI özet raporları ve risk notları. Kart bilgisi istemiyoruz, deneme süresi

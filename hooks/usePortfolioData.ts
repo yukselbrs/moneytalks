@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/lib/supabase";
+import { portfolioQuotes } from "@/lib/portfolio-quotes";
+import { weightedRisk } from "@/lib/portfolio-math";
 
 export interface PortfoyItem {
   id: string;
@@ -29,14 +31,6 @@ export interface FiyatMap {
 
 export type PortfoyRiskSkor = { skor: number; seviye: string; yukleniyor: boolean } | null;
 
-function fiyatDegeriOku(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value !== "string") return null;
-  const normalized = value.includes(",") ? value.replace(/\./g, "").replace(",", ".") : value;
-  const parsed = parseFloat(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 export function usePortfolioData() {
   const router = useRouter();
   const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
@@ -49,36 +43,11 @@ export function usePortfolioData() {
   const prevFiyatlarRef = useRef<FiyatMap>({});
 
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
-    // 3 kaynak: hisse -> /api/fiyatlar, doviz/maden -> /api/doviz-maden, fon -> fon_snapshots.
-    const hisseTickers = items.filter((p) => !hisseHarici(p)).map((p) => p.ticker.trim()).filter(Boolean).join(",");
-    const fonKodlar = items.filter(fonPozisyonMu).map((p) => p.ticker.trim()).filter(Boolean);
-    const enstrumanVar = items.some(enstrumanPozisyonMu);
-    if (!hisseTickers && !enstrumanVar && !fonKodlar.length) return {};
+    if (!items.length) return {};
     if (!sessiz) setFiyatlarYenileniyor(true);
     try {
-      const map: FiyatMap = {};
-      const [hisseJson, enstrumanJson, fonRes] = await Promise.all([
-        hisseTickers ? fetch("/api/fiyatlar?extra=" + hisseTickers).then((r) => r.json()) : Promise.resolve({}),
-        enstrumanVar ? fetch("/api/doviz-maden", { cache: "no-store" }).then((r) => r.json()) : Promise.resolve(null),
-        fonKodlar.length ? supabase.from("fon_snapshots").select("kod, fiyat, gunluk_getiri").in("kod", fonKodlar) : Promise.resolve({ data: [] }),
-      ]);
-      Object.entries(hisseJson).forEach(([ticker, val]) => {
-        if (!val) return;
-        const v = val as { fiyat?: unknown; degisim?: unknown };
-        const fiyat = fiyatDegeriOku(v.fiyat);
-        const degisim = fiyatDegeriOku(v.degisim);
-        if (fiyat === null) return;
-        map[ticker] = { fiyat, degisim: degisim ?? 0 };
-      });
-      for (const item of enstrumanJson?.items || []) {
-        if (typeof item.fiyat !== "number") continue;
-        map[item.kod] = { fiyat: item.fiyat, degisim: typeof item.degisim_yuzde === "number" ? item.degisim_yuzde : 0 };
-      }
-      for (const f of ((fonRes as { data?: { kod: string; fiyat: number | null; gunluk_getiri: number | null }[] })?.data ?? [])) {
-        if (typeof f.fiyat !== "number") continue;
-        map[f.kod] = { fiyat: f.fiyat, degisim: typeof f.gunluk_getiri === "number" ? f.gunluk_getiri : 0 };
-      }
-      setFiyatlar((prev) => ({ ...prev, ...map }));
+      const map = await portfolioQuotes(items);
+      setFiyatlar(map);
       setSonFiyatGuncelleme(new Date());
       return map;
     } catch (e) {
@@ -114,20 +83,17 @@ export function usePortfolioData() {
           data.filter((p: PortfoyItem) => !hisseHarici(p)).map(async (p: { ticker: string; adet: number; maliyet: number }) => {
             try {
               const r = await fetch(`/api/risk?ticker=${p.ticker.trim()}`);
+              if (!r.ok) throw new Error("Risk verisi alınamadı");
               const rj = await r.json();
-              const fiyat = map[p.ticker.trim()]?.fiyat || p.maliyet;
+              const fiyat = map[p.ticker.trim()]?.fiyat ?? 0;
               const deger = p.adet * fiyat;
-              return { skor: rj.skor || 0, deger };
-            } catch { return { skor: 35, deger: p.adet * p.maliyet }; }
+              return { skor: typeof rj.skor === "number" ? rj.skor : null, deger };
+            } catch { return { skor: null, deger: p.adet * p.maliyet }; }
           })
         );
         if (!riskSonuclari.length) { setPortfoyRiskSkor(null); return; }
-        const toplamDeger = riskSonuclari.reduce((a, b) => a + b.deger, 0);
-        const agirlikliSkor = toplamDeger > 0
-          ? riskSonuclari.reduce((a, b) => a + (b.skor * b.deger / toplamDeger), 0)
-          : riskSonuclari.reduce((a, b) => a + b.skor, 0) / riskSonuclari.length;
-        const seviye = agirlikliSkor >= 60 ? "Yüksek" : agirlikliSkor >= 35 ? "Orta" : "Düşük";
-        setPortfoyRiskSkor({ skor: Math.round(agirlikliSkor), seviye, yukleniyor: false });
+        const risk = weightedRisk(riskSonuclari);
+        setPortfoyRiskSkor(risk ? { ...risk, yukleniyor: false } : null);
       } catch (e) { console.error("Fiyat fetch HATA:", e); }
     } finally { setYükleniyor(false); }
   }, [fiyatlariYenile, router]);

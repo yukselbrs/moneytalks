@@ -1,3 +1,4 @@
+import { safeAnalysis } from "@/lib/ai-output";
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
   let body: { ticker?: unknown; veriOnly?: unknown; kisaYorum?: unknown };
   try {
     body = await req.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Geçersiz istek");
   } catch {
     return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
   }
@@ -102,10 +104,8 @@ export async function POST(req: NextRequest) {
   const ticker = await tickerCozOverlayli(body.ticker);
   if (!ticker) return NextResponse.json({ error: "Geçersiz ticker" }, { status: 400 });
 
-  const veri = await getHisseVerisi(ticker);
-
   if (body.veriOnly === true) {
-    return NextResponse.json({ veri });
+    return NextResponse.json({ veri: await getHisseVerisi(ticker) });
   }
 
   const auth = await requireUser(req, supabaseAuth);
@@ -121,6 +121,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "AI analiz servisi yapılandırılmamış." }, { status: 503 });
   }
 
+  const veri = await getHisseVerisi(ticker);
   const veriMetni = veri
     ? `Guncel piyasa verisi:
 - Fiyat: ${formatCurrency(veri.fiyat)}
@@ -171,7 +172,7 @@ Kural: Fiyat ve hacim verilerini yorumla. Bilanco rasyolari verildiyse Finansal 
       ]
     });
 
-    const analiz = message.content.flatMap(b => (b.type === "text" ? [b.text] : [])).join("");
+    const analiz = safeAnalysis(message.content.flatMap(b => (b.type === "text" ? [b.text] : [])).join(""));
     return NextResponse.json({ analiz, veri });
   } catch (error) {
     console.error("Anthropic API error:", JSON.stringify(error, null, 2));

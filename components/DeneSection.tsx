@@ -83,7 +83,6 @@ export default function DeneSection() {
     sorgula("THYAO");
     return () => window.clearTimeout(hataZamani.current);
     // Yalniz mount'ta bir kez — varsayilan kart icerigi.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const artis = (sonuc?.degisimYuzde ?? 0) >= 0;

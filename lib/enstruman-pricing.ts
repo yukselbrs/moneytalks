@@ -236,7 +236,7 @@ export async function enstrumanSnapshotlariUret(): Promise<{ satirlar: Enstruman
 }
 
 // Detay sayfasi grafigi: {tarih, fiyat}[] — HisseGrafik bileseninin bekledigi sekil.
-export async function enstrumanGrafik(kod: string, range: string): Promise<{ tarih: string; fiyat: number }[]> {
+export async function enstrumanGrafik(kod: string, range: string): Promise<{ timestamp: number; tarih: string; fiyat: number }[]> {
   const e = enstrumanBul(kod);
   if (!e) return [];
   const interval = range === "1d" ? "15m" : range === "1wk" ? "1h" : range === "1y" ? "1wk" : "1d";
@@ -254,7 +254,7 @@ export async function enstrumanGrafik(kod: string, range: string): Promise<{ tar
     return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });
   };
 
-  const points: { tarih: string; fiyat: number }[] = [];
+  const points: { timestamp: number; tarih: string; fiyat: number }[] = [];
   for (let i = 0; i < chart.timestamp.length; i++) {
     const c = chart.closes[i];
     if (c === null || c === undefined || c <= 0) continue;
@@ -264,7 +264,7 @@ export async function enstrumanGrafik(kod: string, range: string): Promise<{ tar
       if (!k) continue;
       fiyat = (c / TROY_ONS_GRAM) * k;
     }
-    points.push({ tarih: fmt(chart.timestamp[i]), fiyat: parseFloat(fiyat.toFixed(4)) });
+    points.push({ timestamp: chart.timestamp[i] * 1000, tarih: fmt(chart.timestamp[i]), fiyat: parseFloat(fiyat.toFixed(4)) });
   }
   return points;
 }

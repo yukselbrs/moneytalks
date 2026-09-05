@@ -139,8 +139,8 @@ function useDaktilo(metin: string) {
   useEffect(() => {
     if (!gorunur) return;
     if (hareketAzaltilmis()) {
-      setYazilan(metin);
-      return;
+      const frame = requestAnimationFrame(() => setYazilan(metin));
+      return () => cancelAnimationFrame(frame);
     }
     let i = 0;
     let zamanlayici = 0;
@@ -158,7 +158,7 @@ function useDaktilo(metin: string) {
       setYazilan(metin.slice(0, i));
       zamanlayici = window.setTimeout(adim, 18 + Math.random() * 26);
     };
-    adim();
+    zamanlayici = window.setTimeout(adim, 0);
     return () => window.clearTimeout(zamanlayici);
   }, [metin, gorunur]);
 

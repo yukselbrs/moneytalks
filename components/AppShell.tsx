@@ -93,7 +93,7 @@ function MoreMenu({ navItems, pathname, currentVarlik, handleLogout, sessionVar 
             backdropFilter: "blur(16px)", padding: "12px 16px 16px",
             display: "flex", flexDirection: "column", gap: 2,
           }}>
-            <p style={{ fontSize: 10, color: "#334155", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>Diğer</p>
+            <p style={{ fontSize: 10, color: "#94A3B8", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>Diğer</p>
             {extraItems.map(item => {
               const isActive = isNavActive(pathname, currentVarlik, item.href);
               return (
@@ -292,7 +292,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div key={gi}>
               {gi > 0 && <div className="sb-nav-sep" />}
               {!collapsed && group.label && (
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#2D3F55", letterSpacing: "0.1em", textTransform: "uppercase", padding: "10px 12px 4px" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", letterSpacing: "0.1em", textTransform: "uppercase", padding: "10px 12px 4px" }}>
                   {group.label}
                 </div>
               )}
@@ -304,6 +304,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     key={item.label}
                     href={item.href}
                     className="sb-nav-item"
+                    aria-current={isActive ? "page" : undefined}
                     aria-label={item.label}
                     onMouseEnter={collapsed ? e => showTip(e, item.label) : undefined}
                     onMouseLeave={collapsed ? () => setTip(null) : undefined}
@@ -456,8 +457,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
+      <a href="#main-content" className="skip-link">İçeriğe geç</a>
       {/* Main content */}
-      <div className="sb-main dot-grid" style={{ marginLeft: SB_W, width: `calc(100vw - ${SB_W}px)`, maxWidth: `calc(100vw - ${SB_W}px)`, flex: "0 0 auto", display: "flex", flexDirection: "column", transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1), width 0.22s cubic-bezier(0.4,0,0.2,1)", overflowX: "hidden" }}>
+      <div id="main-content" tabIndex={-1} className="sb-main" style={{ marginLeft: SB_W, width: `calc(100vw - ${SB_W}px)`, maxWidth: `calc(100vw - ${SB_W}px)`, flex: "0 0 auto", display: "flex", flexDirection: "column", transition: "margin-left 0.22s cubic-bezier(0.4,0,0.2,1), width 0.22s cubic-bezier(0.4,0,0.2,1)", overflowX: "hidden" }}>
         {/* Topbar */}
         <div className="sb-topbar" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(8,15,30,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 40 }}>
           <Link href="/" className="sb-topbar-logo">

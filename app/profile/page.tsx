@@ -77,7 +77,7 @@ export default function ProfilePage() {
       if (checkError) { setError("Kullanıcı adı kontrol edilemedi."); return; }
       if (musait === false) { setError("Bu kullanıcı adı zaten alınmış."); return; }
     }
-    const { error: profileError } = await supabase.from("profiles").upsert({ id: user.id, username: cleanUsername || null, full_name: fullName });
+    const { error: profileError } = await supabase.from("profiles").update({ username: cleanUsername || null, full_name: fullName }).eq("id", user.id);
     if (profileError) {
       if (profileError.code === "23505") { setError("Bu kullanıcı adı zaten alınmış."); return; }
       setError(profileError.message); return;

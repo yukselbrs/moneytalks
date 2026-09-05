@@ -21,8 +21,8 @@ function Sayac({ hedef }: { hedef: number }) {
   useEffect(() => {
     if (!gorunur) return;
     if (hareketAzaltilmis()) {
-      setDeger(hedef);
-      return;
+      const frame = requestAnimationFrame(() => setDeger(hedef));
+      return () => cancelAnimationFrame(frame);
     }
     let kare = 0;
     const t0 = performance.now();
@@ -88,7 +88,7 @@ function KapsamKarti({
 }
 
 export default function StockCoverage() {
-  const cipler = useReveal<HTMLDivElement>(300);
+  const { ref: ciplerRef, stil: ciplerStil } = useReveal<HTMLDivElement>(300);
 
   return (
     <Bolum id="kapsam">
@@ -141,10 +141,10 @@ export default function StockCoverage() {
       </div>
 
       <div
-        ref={cipler.ref}
+        ref={ciplerRef}
         data-reveal
         style={{
-          ...cipler.stil,
+          ...ciplerStil,
           display: "flex",
           flexWrap: "wrap",
           gap: 8,

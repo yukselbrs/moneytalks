@@ -125,8 +125,8 @@ export function useReveal<T extends HTMLElement>(gecikme = 0) {
     const el = ref.current;
     if (!el) return;
     if (hareketAzaltilmis()) {
-      setDurum("acik");
-      return;
+      const frame = requestAnimationFrame(() => setDurum("acik"));
+      return () => cancelAnimationFrame(frame);
     }
 
     const esikAltinda = () => {
@@ -136,11 +136,11 @@ export function useReveal<T extends HTMLElement>(gecikme = 0) {
 
     // Zaten gorunuyorsa hic gizleme — ilk ekranda titreme olmaz.
     if (esikAltinda()) {
-      setDurum("acik");
-      return;
+      const frame = requestAnimationFrame(() => setDurum("acik"));
+      return () => cancelAnimationFrame(frame);
     }
 
-    setDurum("gizli");
+    const frame = requestAnimationFrame(() => setDurum("gizli"));
     let bitti = false;
     const kontrol = () => {
       if (bitti || !esikAltinda()) return;
@@ -152,6 +152,7 @@ export function useReveal<T extends HTMLElement>(gecikme = 0) {
     window.addEventListener("scroll", kontrol, { passive: true });
     window.addEventListener("resize", kontrol, { passive: true });
     return () => {
+      cancelAnimationFrame(frame);
       window.removeEventListener("scroll", kontrol);
       window.removeEventListener("resize", kontrol);
     };
@@ -424,20 +425,20 @@ export function BolumBasligi({
   lede: string;
   ledeGenislik?: string;
 }) {
-  const r = useReveal<HTMLDivElement>(0);
-  const b = useReveal<HTMLHeadingElement>(60);
-  const l = useReveal<HTMLParagraphElement>(120);
+  const { ref: rozetRef, stil: rozetStil } = useReveal<HTMLDivElement>(0);
+  const { ref: baslikRef, stil: baslikStil } = useReveal<HTMLHeadingElement>(60);
+  const { ref: ledeRef, stil: ledeStil } = useReveal<HTMLParagraphElement>(120);
 
   return (
     <>
-      <div ref={r.ref} data-reveal style={{ ...r.stil, marginBottom: 26 }}>
+      <div ref={rozetRef} data-reveal style={{ ...rozetStil, marginBottom: 26 }}>
         <Rozet metin={rozet} />
       </div>
       <h2
-        ref={b.ref}
+        ref={baslikRef}
         data-reveal
         style={{
-          ...b.stil,
+          ...baslikStil,
           textAlign: "center",
           fontFamily: "var(--font-geist)",
           fontSize: "clamp(30px,4.4vw,60px)",
@@ -452,10 +453,10 @@ export function BolumBasligi({
         {baslik}
       </h2>
       <p
-        ref={l.ref}
+        ref={ledeRef}
         data-reveal
         style={{
-          ...l.stil,
+          ...ledeStil,
           textAlign: "center",
           fontSize: 15,
           lineHeight: 1.65,

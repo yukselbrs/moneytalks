@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { portfolioQuotes } from "@/lib/portfolio-quotes";
 import { supabase } from "@/components/lib/supabase";
 
 type PortfolioSummary = {
@@ -16,20 +17,12 @@ type PortfolioSummary = {
 
 type PortfolioRow = {
   ticker: string;
+  tur?: string;
   adet: number;
   maliyet: number;
 };
 
 const PORTFOLIO_SUMMARY_POLL_MS = 30000;
-
-function piyasaSayisiOku(value: unknown): number | null {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value !== "string") return null;
-  const cleaned = value.replace("%", "").trim();
-  const normalized = cleaned.includes(",") ? cleaned.replace(/\./g, "").replace(",", ".") : cleaned;
-  const parsed = parseFloat(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
-}
 
 export function usePortfolioSummary() {
   const [portfoyOzet, setPortfoyOzet] = useState<PortfolioSummary | null>(null);
@@ -40,7 +33,7 @@ export function usePortfolioSummary() {
     try {
       const { data: portfoyData, error: dbError } = await supabase
         .from("portfoy")
-        .select("ticker, adet, maliyet");
+        .select("ticker, adet, maliyet, tur");
 
       if (dbError) throw dbError;
 
@@ -51,10 +44,13 @@ export function usePortfolioSummary() {
         return;
       }
 
-      const tickers = portfoyData.map((p: PortfolioRow) => p.ticker.trim()).join(",");
-      const fiyatResponse = await fetch("/api/fiyatlar?extra=" + tickers);
-      if (!fiyatResponse.ok) throw new Error(`fiyatlar ${fiyatResponse.status}`);
-      const fiyatJson = await fiyatResponse.json();
+      const fiyatJson = await portfolioQuotes(portfoyData);
+      if (portfoyData.some((p: PortfolioRow) => !fiyatJson[p.ticker.trim()])) {
+        setPortfoyOzet(null);
+        setPollingActive(true);
+        setError("Bazı pozisyonların fiyatı alınamadı. Toplam değer hesaplanamıyor.");
+        return;
+      }
       let toplamMaliyet = 0;
       let toplamGuncel = 0;
       let gunlukPL = 0;
@@ -65,8 +61,8 @@ export function usePortfolioSummary() {
         toplamMaliyet += maliyet;
         const fiyatStr = fiyatJson[p.ticker.trim()]?.fiyat;
         const degisimStr = fiyatJson[p.ticker.trim()]?.degisim;
-        const fiyat = piyasaSayisiOku(fiyatStr) ?? p.maliyet;
-        const degisim = piyasaSayisiOku(degisimStr) ?? 0;
+        const fiyat = fiyatStr;
+        const degisim = degisimStr;
         const oncekiFiyat = degisim !== -100 ? fiyat / (1 + degisim / 100) : fiyat;
         toplamGuncel += p.adet * fiyat;
         oncekiToplam += p.adet * oncekiFiyat;
@@ -80,7 +76,7 @@ export function usePortfolioSummary() {
       const hisseDagilim = portfoyData
         .map((p: PortfolioRow, idx: number) => {
           const fiyatStr = fiyatJson[p.ticker.trim()]?.fiyat;
-          const fiyat = piyasaSayisiOku(fiyatStr) ?? p.maliyet;
+          const fiyat = fiyatStr;
           return { ticker: p.ticker.trim(), deger: p.adet * fiyat, yuzde: 0, renk: renkler[idx % renkler.length] };
         })
         .sort((a: { deger: number }, b: { deger: number }) => b.deger - a.deger)
@@ -91,6 +87,7 @@ export function usePortfolioSummary() {
       setError(null);
     } catch (error) {
       console.error("Portfoy ozet hatasi:", error);
+      setPortfoyOzet(null);
       setError("Portföy özeti yenilenemedi.");
     }
   }, []);

@@ -1,248 +1,78 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import LogoIcon from "@/components/LogoIcon";
-import { KayitButonu, useHareketCanvas } from "@/components/landing/parcalar";
+import Link from "next/link";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Check, Layers3 } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const KODLAR = [
-  "THYAO", "GARAN", "ASELS", "EREGL", "SISE", "AKBNK", "KCHOL", "TUPRS",
-  "BIMAS", "SASA", "ISCTR", "XU100", "USD/TRY", "EUR/TRY", "GRAM ALTIN",
-];
-
-/** Giris animasyonu: 160ms taban + ogenin kendi ofseti. */
-function girisStili(acik: boolean, gecikme: number): CSSProperties {
-  return {
-    opacity: acik ? 1 : 0,
-    transform: acik ? "none" : "translateY(24px)",
-    filter: acik ? "none" : "blur(7px)",
-    transition:
-      `opacity 850ms var(--ease) ${160 + gecikme}ms,` +
-      `transform 950ms var(--ease) ${160 + gecikme}ms,` +
-      `filter 850ms var(--ease) ${160 + gecikme}ms`,
-  };
-}
-
-function KodSeridi({ gizli }: { gizli?: boolean }) {
-  return (
-    <div
-      aria-hidden={gizli || undefined}
-      style={{ display: "flex", alignItems: "center", gap: 30, padding: "12px 15px" }}
-    >
-      {KODLAR.map((kod, i) => (
-        <span
-          key={`${kod}-${i}`}
-          style={{ fontSize: 11, fontWeight: 700, color: "#E2E8F0", letterSpacing: "0.05em", whiteSpace: "nowrap" }}
-        >
-          {kod}
-        </span>
-      ))}
-    </div>
-  );
-}
+type Quote = { fiyat: string; degisim: string };
+const COMPANIES = [{ kod: "THYAO", ad: "Türk Hava Yolları" }, { kod: "GARAN", ad: "Garanti BBVA" }, { kod: "ASELS", ad: "Aselsan" }];
 
 export default function Hero() {
-  const araziRef = useHareketCanvas("terrain");
-  const [acik, setAcik] = useState(false);
-  const [tekrar, setTekrar] = useState(1);
-  const yariRef = useRef<HTMLDivElement>(null);
-
+  const [quotes, setQuotes] = useState<Record<string, Quote | null>>({});
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   useEffect(() => {
-    // rAF DEGIL: gizli sekmede rAF hic calismaz ve hero kalici gorunmez kalirdi.
-    // Zamanlayici kisitli da olsa calisir, stil opacity:1'e yerlesir.
-    const z = window.setTimeout(() => setAcik(true), 0);
-    return () => window.clearTimeout(z);
+    const controller = new AbortController();
+    async function load() {
+      try {
+        const response = await fetch("/api/fiyatlar", { signal: controller.signal });
+        if (!response.ok) throw new Error("Fiyat alınamadı");
+        const data = await response.json();
+        setQuotes(data);
+        setState(COMPANIES.some(c => data[c.kod]) ? "ready" : "error");
+      } catch {
+        if (!controller.signal.aborted) setState("error");
+      }
+    }
+    void load();
+    return () => controller.abort();
   }, []);
-
-  // Kesintisiz dongu icin her yari viewport'tan genis olmali; aksi halde
-  // -%50 kaydirmada bosluk gorunur. Birim genisligi mevcut tekrardan turetilir,
-  // boylece font yuklendikten sonra da kendini duzeltir.
-  useEffect(() => {
-    const hesapla = () => {
-      const el = yariRef.current;
-      if (!el) return;
-      const birim = el.scrollWidth / tekrar;
-      if (!birim) return;
-      const gerekli = Math.max(1, Math.ceil((window.innerWidth * 1.15) / birim));
-      if (gerekli !== tekrar) setTekrar(gerekli);
-    };
-    hesapla();
-    window.addEventListener("resize", hesapla, { passive: true });
-    return () => window.removeEventListener("resize", hesapla);
-  }, [tekrar]);
-
-  const yari = Array.from({ length: tekrar });
-
   return (
-    <section
-      style={{
-        position: "relative",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        padding: "132px clamp(20px,3vw,36px) 0",
-        overflow: "hidden",
-      }}
-    >
-      <canvas
-        ref={araziRef}
-        aria-hidden="true"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          background: "radial-gradient(ellipse 55% 40% at 50% 12%,rgba(30,64,175,0.20) 0%,transparent 70%)",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: "38%",
-          pointerEvents: "none",
-          background: "linear-gradient(180deg,transparent,rgba(15,23,42,0.75) 62%,var(--bg-primary) 100%)",
-        }}
-      />
-
-      <div
-        style={{
-          ...girisStili(acik, 0),
-          position: "relative",
-          zIndex: 3,
-          display: "flex",
-          alignItems: "center",
-          gap: 9,
-          padding: "7px 14px 7px 11px",
-          border: "1px solid rgba(59,130,246,0.18)",
-          borderRadius: 999,
-          background: "var(--surface-overlay)",
-          marginBottom: "clamp(22px,4vh,38px)",
-        }}
-      >
-        <span className="lp-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#60A5FA", flex: "none" }} />
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.22em", color: "#93C5FD", textAlign: "center" }}>
-          BIST, FONLAR, DÖVİZ VE KIYMETLİ MADEN VERİLERİ
-        </span>
-      </div>
-
-      <h1
-        style={{
-          position: "relative",
-          zIndex: 3,
-          textAlign: "center",
-          fontFamily: "var(--font-geist)",
-          fontSize: "clamp(36px,6.6vw,92px)",
-          fontWeight: 800,
-          // 1.08'in altina inilmez — Turkce alt uzantilar (s, c, g) kirpilir.
-          lineHeight: 1.08,
-          letterSpacing: "-0.045em",
-          margin: "0 0 clamp(16px,2.6vh,26px)",
-          maxWidth: "20ch",
-          paddingBottom: "0.06em",
-        }}
-      >
-        <span style={{ ...girisStili(acik, 90), display: "block", color: "#F8FAFC" }}>Borsa artık</span>
-        <span className="gradient-text" style={{ ...girisStili(acik, 180), display: "block" }}>
-          seninle konuşuyor
-        </span>
-      </h1>
-
-      <p
-        style={{
-          ...girisStili(acik, 270),
-          position: "relative",
-          zIndex: 3,
-          textAlign: "center",
-          fontSize: "clamp(14px,1.2vw,18px)",
-          lineHeight: 1.6,
-          color: "#94A3B8",
-          maxWidth: "56ch",
-          margin: "0 0 clamp(24px,4vh,38px)",
-        }}
-      >
-        Bilanço satırı, haber başlığı, teknik gösterge. Pako AI hepsini tek geçişte okur; çıktısı bir
-        özet ve yönsüz bir risk notudur. Yön tarifi vermez.
-      </p>
-
-      <div style={{ ...girisStili(acik, 360), position: "relative", zIndex: 3 }}>
-        <KayitButonu boyut="lg" okIsareti />
-      </div>
-
-      <div
-        aria-hidden="true"
-        style={{
-          ...girisStili(acik, 480),
-          position: "relative",
-          zIndex: 3,
-          marginTop: "clamp(28px,5vh,58px)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <div
-          className="lp-beam"
-          style={{
-            width: 2,
-            height: "clamp(40px,7vh,96px)",
-            background: "linear-gradient(180deg,transparent,rgba(147,197,253,0.55))",
-          }}
-        />
-        <div style={{ position: "relative", width: "clamp(58px,7vw,84px)", height: "clamp(58px,7vw,84px)" }}>
-          <div
-            className="lp-halo"
-            style={{
-              position: "absolute",
-              inset: -30,
-              borderRadius: "50%",
-              background: "radial-gradient(circle,rgba(59,130,246,0.30) 0%,transparent 70%)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderRadius: 20,
-              boxShadow: "0 0 28px rgba(59,130,246,0.35), 0 0 64px rgba(59,130,246,0.12)",
-            }}
-          >
-            <LogoIcon size={84} aria-label="" style={{ width: "100%", height: "100%" }} />
+    <section className="launch-hero relative z-10 mx-auto max-w-[1280px] px-6 pb-20 pt-36 lg:px-10 lg:pb-28 lg:pt-44">
+      <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+        <div>
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/5 px-3 py-2 text-xs font-semibold tracking-wide text-blue-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" aria-hidden="true" /> TÜRKİYE PİYASALARI, DAHA ANLAŞILIR
+          </div>
+          <h1 className="font-[family-name:var(--font-geist)] text-[clamp(2.7rem,5.8vw,5.3rem)] font-semibold leading-[1.06] tracking-[-0.055em] text-slate-50">
+            Veriyi gör.<br />Bağlamı anla.<br /><span className="text-blue-400">Kararı sen ver.</span>
+          </h1>
+          <p className="mt-7 max-w-lg text-base leading-7 text-slate-300 lg:text-lg lg:leading-8">
+            Hisseler, fonlar, döviz ve halka arzlar tek çalışma alanında. Pako AI ile bilanço ve haberleri sade Türkçe oku; portföyünü ve risklerini birlikte izle.
+          </p>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-blue-500 px-6 py-3 text-base font-bold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-400">Ücretsiz hesap aç <ArrowRight size={18} /></Link>
+            <Link href="/hisseler" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-600/60 bg-slate-900/40 px-6 py-3 text-base font-semibold text-slate-200 transition hover:border-slate-400">Piyasaları keşfet</Link>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-400">
+            <span className="inline-flex items-center gap-1.5"><Check size={14} /> Kart bilgisi gerekmez</span>
+            <span className="inline-flex items-center gap-1.5"><Check size={14} /> Pako AI: günlük 3 mesaj</span>
+          </div>
+        </div>
+        <div className="relative">
+          <div aria-hidden="true" className="pointer-events-none absolute -inset-8 rounded-full bg-blue-500/10 blur-3xl" />
+          <div className="relative overflow-hidden rounded-2xl border border-slate-600/40 bg-[#0c1525] shadow-2xl shadow-black/30">
+            <div className="flex items-center justify-between border-b border-slate-700/50 px-6 py-5">
+              <div className="flex items-center gap-2.5 text-sm font-semibold text-slate-100"><BarChart3 size={18} className="text-blue-400" /> Piyasaya bir bakış</div>
+              <span className="rounded-md border border-slate-600/40 px-2 py-1 text-xs text-slate-400">BIST</span>
+            </div>
+            <div className="flex justify-between px-6 pb-2 pt-5 text-xs font-medium uppercase tracking-wider text-slate-400"><span>Hisse</span><span>Fiyat / Günlük değişim</span></div>
+            <div aria-busy={state === "loading"}>
+              {COMPANIES.map(c => {
+                const q = quotes[c.kod];
+                const change = Number(q?.degisim);
+                const up = change >= 0;
+                return <Link key={c.kod} href={`/hisse/${c.kod}`} className="group flex items-center justify-between gap-4 border-b border-slate-700/30 px-6 py-5 transition hover:bg-slate-800/50">
+                  <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/15 bg-blue-400/5 text-xs font-bold text-blue-200">{c.kod.slice(0,3)}</span><div><p className="text-sm font-bold text-slate-100">{c.kod}</p><p className="mt-0.5 text-xs text-slate-400">{c.ad}</p></div></div>
+                  <div className="text-right tabular-nums"><p className="text-base font-semibold text-slate-100">{q ? `${q.fiyat} ₺` : "—"}</p><p className={`mt-1 flex items-center justify-end gap-1 text-xs font-medium ${q ? up ? "text-emerald-400" : "text-rose-400" : "text-slate-400"}`}>{q ? <>{up ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{change.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: "always" })}%</> : state === "loading" ? "Yükleniyor" : "Veri alınamadı"}</p></div>
+                </Link>;
+              })}
+            </div>
+            <div className="p-6"><div className="mb-3 flex items-center gap-2 text-xs font-bold tracking-wide text-blue-300"><Layers3 size={15} /> FİYATIN ÖTESİNİ OKU</div><p className="text-sm leading-6 text-slate-300">Şirketin bilançosu, KAP bildirimleri ve teknik görünümü aynı sayfada. Kaynakları incele, ardından sorunu Pako’ya sor.</p><Link href="/hisse/THYAO" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-300 hover:text-blue-200">Hisse detayını incele <ArrowRight size={16} /></Link></div>
+            <div className="border-t border-slate-700/40 bg-slate-950/30 px-6 py-3 text-xs leading-5 text-slate-400">Yahoo Finance · 15 dakika gecikmeli. Piyasa kapalıyken son işlem verisi gösterilir.</div>
           </div>
         </div>
       </div>
-
-      <div
-        style={{
-          position: "relative",
-          zIndex: 3,
-          width: "100vw",
-          marginTop: "auto",
-          borderTop: "1px solid rgba(59,130,246,0.10)",
-          background: "rgba(15,23,42,0.6)",
-          overflow: "hidden",
-        }}
-      >
-        <div className="lp-tape" style={{ display: "flex", width: "max-content" }}>
-          <div ref={yariRef} style={{ display: "flex" }}>
-            {yari.map((_, i) => (
-              <KodSeridi key={i} />
-            ))}
-          </div>
-          <div style={{ display: "flex" }} aria-hidden="true">
-            {yari.map((_, i) => (
-              <KodSeridi key={i} gizli />
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className="mt-16 grid grid-cols-2 gap-5 border-t border-slate-700/40 pt-7 text-sm text-slate-400 sm:grid-cols-4"><span><strong className="mb-1 block text-base font-semibold text-slate-200">600+ hisse</strong>BIST kapsamı</span><span><strong className="mb-1 block text-base font-semibold text-slate-200">Kaynaklı veri</strong>Fiyat, bilanço, KAP</span><span><strong className="mb-1 block text-base font-semibold text-slate-200">Kişisel takip</strong>Portföy ve alarmlar</span><Link href="/veri-kaynaklari" className="group"><strong className="mb-1 block text-base font-semibold text-slate-200 group-hover:text-blue-300">Şeffaf metodoloji ↗</strong>Kapsamı ve sınırları oku</Link></div>
     </section>
   );
 }

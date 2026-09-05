@@ -192,7 +192,7 @@ export default function PortfoyPage() {
   const isMobil = useMediaQuery("(max-width: 767px)");
   const [acikHisse, setAcikHisse] = useState<string | null>(null);
   const [getiriModu, setGetiriModu] = useState<"daily" | "total">("total");
-  const { grafik, grafikAralik, grafikYukleniyor, setGrafikAralik } = usePortfolioGrafik(portfoy);
+  const { grafik, grafikAralik, grafikYukleniyor, grafikHata, setGrafikAralik } = usePortfolioGrafik(portfoy);
   const [grafikAcik, setGrafikAcik] = useState(false);
   const [radarAcik, setRadarAcik] = useState(false);
   const [sortKolon, setSortKolon] = useState<"kz" | "kzYuzde" | "gunluk" | "guncel" | null>(null);
@@ -325,15 +325,16 @@ export default function PortfoyPage() {
   };
 
   const toplamMaliyet = portfoy.reduce((acc, p) => acc + p.adet * p.maliyet, 0);
+  const fiyatlarTam = portfoy.every(p => Boolean(fiyatlar[p.ticker]?.fiyat));
   const toplamGuncel = portfoy.reduce((acc, p) => {
     const f = fiyatlar[p.ticker]?.fiyat;
-    return acc + (f ? p.adet * f : p.adet * p.maliyet);
+    return acc + (f ? p.adet * f : 0);
   }, 0);
   const toplamPL = toplamGuncel - toplamMaliyet;
   const toplamPLYuzde = toplamMaliyet > 0 ? (toplamPL / toplamMaliyet) * 100 : 0;
   const oncekiToplam = portfoy.reduce((acc, p) => {
     const fiyat = fiyatlar[p.ticker]?.fiyat;
-    if (!fiyat) return acc + p.adet * p.maliyet;
+    if (!fiyat) return acc;
     const degisim = fiyatlar[p.ticker]?.degisim ?? 0;
     const oncekiFiyat = degisim !== -100 ? fiyat / (1 + degisim / 100) : fiyat;
     return acc + p.adet * oncekiFiyat;
@@ -345,7 +346,7 @@ export default function PortfoyPage() {
   const aktifPozitif = aktifPL >= 0;
 
   useEffect(() => {
-    if (toplamGuncel === 0) return;
+    if (!fiyatlarTam || toplamGuncel === 0) return;
     const start = prevDegerRef.current;
     const end = toplamGuncel;
     const duration = 700;
@@ -358,7 +359,7 @@ export default function PortfoyPage() {
       else prevDegerRef.current = end;
     };
     requestAnimationFrame(tick);
-  }, [toplamGuncel]);
+  }, [toplamGuncel, fiyatlarTam]);
 
   const sortTikla = (kolon: "kz" | "kzYuzde" | "gunluk" | "guncel") => {
     if (sortKolon === kolon) setSortYon(y => y === "desc" ? "asc" : "desc");
@@ -480,16 +481,17 @@ export default function PortfoyPage() {
                 <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
                 <div className="flex items-baseline gap-2 mb-1">
                   <p className="portfolio-number text-white" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1 }}>
-                    {formatNumber(displayDeger, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {fiyatlarTam ? formatNumber(displayDeger, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}
                   </p>
                   <span className="text-slate-500 font-bold text-xl">₺</span>
                 </div>
+                {!fiyatlarTam && <p role="status" className="my-3 text-sm text-amber-300">Bazı fiyatlar alınamadı. Toplam değer ve getiri, tüm fiyatlar geldiğinde hesaplanacak.</p>}
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`portfolio-number text-sm font-bold ${aktifPozitif ? "text-emerald-400" : "text-red-400"}`}>
-                    {formatSignedCurrency(aktifPL)}
+                    {fiyatlarTam ? formatSignedCurrency(aktifPL) : "—"}
                   </span>
                   <span className={`portfolio-number text-xs font-semibold ${aktifPozitif ? "text-emerald-600" : "text-red-600"}`}>
-                    ({formatPercent(aktifPLYuzde, { signDisplay: "always" })})
+                    ({fiyatlarTam ? formatPercent(aktifPLYuzde, { signDisplay: "always" }) : "—"})
                   </span>
                   <div className="inline-flex rounded-lg border border-slate-700/60 bg-slate-900/60 p-0.5 ml-1">
                     {[{ key: "daily" as const, label: "Günlük" }, { key: "total" as const, label: "Toplam" }].map(m => (
@@ -565,7 +567,7 @@ export default function PortfoyPage() {
                   </span>
                 </div>
               </div>
-              {toplamGuncel > 0 && (
+              {fiyatlarTam && toplamGuncel > 0 && (
                 <div className="hidden lg:flex items-center gap-5 pl-6 ml-6 border-l border-slate-800 self-stretch">
                   <div style={{ width: 120, height: 120, flexShrink: 0 }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -604,7 +606,7 @@ export default function PortfoyPage() {
           </div>
         )}
 
-        {portfoy.length > 0 && (() => {
+        {portfoy.length > 0 && fiyatlarTam && (() => {
           const rows = portfoy.map((item) => {
             const pl = plHesapla(item);
             const gunluk = gunlukHesapla(item);
@@ -736,6 +738,8 @@ export default function PortfoyPage() {
                   </div>
                 )}
               </div>
+              {grafikAcik && <p className="mt-2 text-xs leading-relaxed text-slate-400">Mevcut pozisyonların geçmiş fiyatlarla hesaplanan değişimi. İşlem tarihçesi, nakit akışları ve komisyonlar dahil değildir.</p>}
+              {grafikAcik && grafikHata && <p role="status" className="mt-3 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3 text-sm text-amber-200">{grafikHata}</p>}
               {grafikAcik && (grafikYukleniyor && grafik.length === 0 ? (
                 <div className="h-28 flex items-center justify-center text-slate-600 text-xs animate-pulse mt-3">Yükleniyor...</div>
               ) : grafik.length > 1 ? (() => {
@@ -1045,13 +1049,13 @@ export default function PortfoyPage() {
                   <tr style={{ borderTop: "1px solid rgba(59,130,246,0.15)", background: "linear-gradient(90deg, rgba(59,130,246,0.06) 0%, rgba(139,92,246,0.04) 100%)" }}>
                     <td className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.6)" }} colSpan={6}>Toplam</td>
                     <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {formatSignedCurrency(gunlukPL)}
+                      {fiyatlarTam ? formatSignedCurrency(gunlukPL) : "—"}
                     </td>
                     <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] ${toplamPL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {formatSignedCurrency(toplamPL)}
+                      {fiyatlarTam ? formatSignedCurrency(toplamPL) : "—"}
                     </td>
                     <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] hidden sm:table-cell ${toplamPLYuzde >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {formatPercent(toplamPLYuzde, { signDisplay: "always" })}
+                      {fiyatlarTam ? formatPercent(toplamPLYuzde, { signDisplay: "always" }) : "—"}
                     </td>
                     <td className="px-3 py-2.5" />
                   </tr>

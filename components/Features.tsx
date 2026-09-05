@@ -48,7 +48,7 @@ export default function Features() {
       <BolumBasligi
         rozet="ÖZELLİKLER"
         baslik="İhtiyacınız olan her analiz aracı"
-        lede="Hepsi kayıt olan herkese açık. Ek paket, ek ücret yok."
+        lede="Piyasa takibi ve temel araçlar ücretsiz. Pako AI için günlük 3 mesaj, hisse ve döviz analizlerinde toplam 10 analiz/saat sınırı uygulanır."
         ledeGenislik="56ch"
       />
       {/* auto-fit KULLANILMAZ — 4 kart 3 sutuna dusup tek karti yetim birakir. */}
