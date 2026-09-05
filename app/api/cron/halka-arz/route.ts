@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { hataYakala } from "@/lib/hata-yakala";
-import { ahlatciArzlari, yahooIslemSinyali } from "@/lib/halka-arz-kaynak";
+import { halkaArzKaynaklari, yahooIslemSinyali } from "@/lib/halka-arz-kaynak";
 import { kodSlugHaritasi, halkaArzFinansalCek } from "@/lib/halka-arz-finansal";
 import { isyCarpanlar, isyOzetFinansal } from "@/lib/isyatirim-finansal";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
@@ -38,10 +38,11 @@ export async function GET(req: NextRequest) {
   // kalir, sonraki kosu tekrar dener. `hata` yalnizca gercek DB yazma basarisizliklarinda artar.
   let kaynakUyari = 0;
 
-  const kaynak = await ahlatciArzlari();
-  if (kaynak === null) {
-    kaynakUyari = 1;
-    hataYakala("halka-arz-cron:kaynak", new Error("Ahlatci listesi cekilemedi (gecici — is kirmizi yapilmaz)"));
+  const kaynakSonucu = await halkaArzKaynaklari();
+  const kaynak = kaynakSonucu.arzlar;
+  kaynakUyari = kaynakSonucu.uyarilar.length;
+  for (const kaynakAdi of kaynakSonucu.uyarilar) {
+    hataYakala("halka-arz-cron:kaynak", new Error(`${kaynakAdi} listesi cekilemedi (gecici — is kirmizi yapilmaz)`));
   }
 
   const { data: mevcutData, error: okumaHatasi } = await supabase
@@ -74,8 +75,10 @@ export async function GET(req: NextRequest) {
         dagitim_yontemi: arz.dagitim_yontemi,
         iskonto_orani: arz.iskonto_orani,
         halka_aciklik_orani: arz.halka_aciklik_orani,
+        pazar: arz.pazar,
+        arz_sekli: arz.arz_sekli,
         araci_kurumlar: arz.araci_kurumlar,
-        kaynak: "araci",
+        kaynak: arz.kaynak,
         kaynak_linkleri: { araci_sayfa: arz.kaynak_link },
       });
       if (error) { hata = 1; hataYakala("halka-arz-cron:insert", error, { kod: arz.kod }); }
@@ -102,6 +105,8 @@ export async function GET(req: NextRequest) {
     if (arz.dagitim_yontemi) guncelleme.dagitim_yontemi = arz.dagitim_yontemi;
     if (arz.iskonto_orani !== null) guncelleme.iskonto_orani = arz.iskonto_orani;
     if (arz.halka_aciklik_orani !== null) guncelleme.halka_aciklik_orani = arz.halka_aciklik_orani;
+    if (arz.pazar) guncelleme.pazar = arz.pazar;
+    if (arz.arz_sekli) guncelleme.arz_sekli = arz.arz_sekli;
     if (arz.araci_kurumlar.length) guncelleme.araci_kurumlar = arz.araci_kurumlar;
     if (var_.durum === "talep_toplaniyor" && kaynakDurum === "arz_tamamlandi") {
       guncelleme.durum = "arz_tamamlandi";
