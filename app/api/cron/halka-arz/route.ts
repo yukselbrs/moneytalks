@@ -78,6 +78,12 @@ export async function GET(req: NextRequest) {
         pazar: arz.pazar,
         arz_sekli: arz.arz_sekli,
         araci_kurumlar: arz.araci_kurumlar,
+        fon_kullanim_yeri: arz.fon_kullanim_yeri,
+        tahsisat_gruplari: arz.tahsisat_gruplari,
+        dagitim_tahminleri: arz.dagitim_tahminleri,
+        fiyat_istikrari: arz.fiyat_istikrari,
+        satmama_taahhudu: arz.satmama_taahhudu,
+        sirket_aciklama: arz.sirket_aciklama,
         kaynak: arz.kaynak,
         kaynak_linkleri: { araci_sayfa: arz.kaynak_link },
       });
@@ -108,6 +114,12 @@ export async function GET(req: NextRequest) {
     if (arz.pazar) guncelleme.pazar = arz.pazar;
     if (arz.arz_sekli) guncelleme.arz_sekli = arz.arz_sekli;
     if (arz.araci_kurumlar.length) guncelleme.araci_kurumlar = arz.araci_kurumlar;
+    if (arz.fon_kullanim_yeri) guncelleme.fon_kullanim_yeri = arz.fon_kullanim_yeri;
+    if (arz.tahsisat_gruplari?.length) guncelleme.tahsisat_gruplari = arz.tahsisat_gruplari;
+    if (arz.dagitim_tahminleri?.length) guncelleme.dagitim_tahminleri = arz.dagitim_tahminleri;
+    if (arz.fiyat_istikrari) guncelleme.fiyat_istikrari = arz.fiyat_istikrari;
+    if (arz.satmama_taahhudu) guncelleme.satmama_taahhudu = arz.satmama_taahhudu;
+    if (arz.sirket_aciklama) guncelleme.sirket_aciklama = arz.sirket_aciklama;
     if (var_.durum === "talep_toplaniyor" && kaynakDurum === "arz_tamamlandi") {
       guncelleme.durum = "arz_tamamlandi";
       var_.durum = "arz_tamamlandi";

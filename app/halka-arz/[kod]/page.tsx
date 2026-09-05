@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
+import { halkaArzDagitimHesabi } from "@/lib/halka-arz-dagitim";
 
 type Arz = {
   kod: string;
@@ -90,12 +91,6 @@ function sayiMetni(v: number | null, sonek = ""): string {
   return `${v.toLocaleString("tr-TR")}${sonek}`;
 }
 
-function parseOran(value: number | string): number | null {
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  const parsed = Number(value.replace("%", "").replace(",", "."));
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 function katilimMetni(value: number): string {
   if (value >= 1_000_000) {
     return `${(value / 1_000_000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} milyon kişi`;
@@ -178,11 +173,9 @@ function BasvuruYerleriBlok({ basvuruYerleri }: { basvuruYerleri: string }) {
 
 function DagitimTahminAraci({ arz }: { arz: Arz }) {
   const [katilim, setKatilim] = useState(500_000);
-  const bireyselGrup = arz.tahsisat_gruplari?.find((t) => t.grup.toLocaleLowerCase("tr").includes("bireysel"));
-  const bireyselOran = bireyselGrup ? parseOran(bireyselGrup.oran) : null;
-  const dagitilacakLot = arz.pay_miktari !== null && bireyselOran !== null
-    ? Math.floor(arz.pay_miktari * bireyselOran / 100)
-    : null;
+  const hesap = halkaArzDagitimHesabi(arz);
+  const dagitilacakLot = hesap?.dagitilacakPay ?? null;
+  const bireyselOran = hesap?.bireyselOran ?? null;
   const tahminiLot = dagitilacakLot !== null ? Math.floor(dagitilacakLot / katilim) : null;
   const tahminiTutar = tahminiLot !== null && arz.fiyat !== null ? tahminiLot * arz.fiyat : null;
   const min = 100_000;
@@ -192,14 +185,28 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
 
   if (dagitilacakLot === null || tahminiLot === null) {
     return (
-      <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahminleri">
+      <BilgiBlok baslik="Katılıma Göre Olası Dağıtım Tahmini">
+        <p style={{ margin: 0, fontSize: 12, color: "#94A3B8", lineHeight: 1.6 }}>
+          {arz.dagitim_yontemi
+            ? "Bu arzda kişi başına sabit lot, yalnızca katılımcı sayısıyla hesaplanamıyor. Dağıtım yatırımcı talep tutarlarına göre belirlenecek."
+            : "Hesaplama için pay miktarı ve dağıtım yöntemi henüz açıklanmadı."}
+        </p>
+        <input
+          aria-label="Katılım sayısı — hesaplama verisi bekleniyor"
+          type="range"
+          min={0}
+          max={100}
+          value={0}
+          disabled
+          readOnly
+          style={{ width: "100%", margin: "16px 0 4px", opacity: 0.35, cursor: "not-allowed" }}
+        />
         {arz.dagitim_tahminleri?.map((t, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 0", borderTop: i ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 0", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
             <span style={{ fontSize: 12.5, color: "#CBD5E1" }}>{t.katilim}</span>
             <span style={{ fontSize: 12.5, fontWeight: 800, color: "#E2E8F0", fontVariantNumeric: "tabular-nums" }}>{t.tahmin}</span>
           </div>
         ))}
-        <p style={{ margin: "9px 0 0", fontSize: 10.5, color: "#475569" }}>Tahminler katılım büyüklüğüne bağlı varsayımlardır; kesin dağıtım arz sonuçlarıyla açıklanır.</p>
       </BilgiBlok>
     );
   }
@@ -279,7 +286,7 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
           {[
             { l: "Tahmini Lot", v: `${tahminiLot.toLocaleString("tr-TR")} Lot`, vurgu: true },
             { l: "Yaklaşık Tutar", v: tahminiTutar !== null ? tlKisa(tahminiTutar) : "—", vurgu: true },
-            { l: "Bireysel Tahsis", v: bireyselOran !== null ? `%${bireyselOran.toLocaleString("tr-TR")}` : "—" },
+            { l: hesap?.varsayim === "ust_sinir" ? "Hesaplama Payı" : "Bireysel Tahsis", v: bireyselOran !== null ? `%${bireyselOran.toLocaleString("tr-TR")}` : "—" },
             { l: "Dağıtıma Esas Lot", v: `${dagitilacakLot.toLocaleString("tr-TR")} Lot` },
           ].map((c) => (
             <div key={c.l} style={{ padding: "13px 12px 4px 0", minHeight: 58 }}>
@@ -290,7 +297,12 @@ function DagitimTahminAraci({ arz }: { arz: Arz }) {
         </div>
 
         <p style={{ margin: "11px 0 0", fontSize: 10.5, color: "#475569", lineHeight: 1.5 }}>
-          Hesaplama bireysel yatırımcı tahsisatı üzerinden yaklaşık yapılır; kesin dağıtım arz sonuçlarıyla açıklanır.
+          {hesap?.varsayim === "ust_sinir"
+            ? "Tahsisat bilgisi eksik olduğu için toplam arz payı üzerinden üst sınır tahmini gösterilir; kesin dağıtım daha düşük olabilir."
+            : hesap?.varsayim === "esit_dagitim"
+              ? "Bireysel tahsis oranı ayrıca açıklanmadığı için toplam arz payı üzerinden yaklaşık hesaplanır; kesin dağıtım daha düşük olabilir."
+              : "Hesaplama açıklanan bireysel yatırımcı tahsisatı üzerinden yaklaşık yapılır; kesin dağıtım arz sonuçlarıyla açıklanır."}
+          {hesap?.toplamPayTuretildi ? " Toplam pay, halka arz büyüklüğünün fiyata bölünmesiyle türetilmiştir." : ""}
         </p>
       </BilgiBlok>
     </>
@@ -385,7 +397,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
           )}
 
           <div style={{ display: "flex", gap: 6, margin: "20px 0 16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            {([["bilgi", "Halka Arz Bilgileri"], ["sirket", "Şirket Hakkında"], ["forum", "Forum"]] as const).map(([k, l]) => (
+            {([["bilgi", "Arz Bilgileri"], ["sirket", "Şirket Bilgileri"], ["forum", "Forum"]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setSekme(k)}
                 style={{ background: "none", border: "none", cursor: "pointer", padding: "9px 14px", fontSize: 13, fontWeight: 700, color: sekme === k ? "#F8FAFC" : "#64748B", borderBottom: sekme === k ? "2px solid #3B82F6" : "2px solid transparent", marginBottom: -1 }}>
                 {l}
@@ -400,11 +412,24 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
             </div>
           ) : sekme === "sirket" ? (
             <div style={{ display: "grid", gap: 12 }}>
-              {arz.sirket_aciklama && (
-                <BilgiBlok baslik="Şirket Hakkında">
-                  <p style={{ margin: 0, fontSize: 13, color: "#CBD5E1", lineHeight: 1.7 }}>{arz.sirket_aciklama}</p>
-                </BilgiBlok>
-              )}
+              <BilgiBlok baslik="Şirket Bilgileri">
+                <p style={{ margin: 0, fontSize: 13, color: arz.sirket_aciklama ? "#CBD5E1" : "#94A3B8", lineHeight: 1.7 }}>
+                  {arz.sirket_aciklama || `${arz.sirket_adi} için ayrıntılı faaliyet özeti henüz kaynağa eklenmedi.`}
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginTop: 14, paddingTop: 13, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                  {[
+                    { l: "BIST Kodu", v: arz.kod },
+                    { l: "Pazar", v: arz.pazar || "—" },
+                    { l: "Halka Açıklık", v: arz.halka_aciklik_orani !== null ? `%${arz.halka_aciklik_orani.toLocaleString("tr-TR")}` : "—" },
+                    { l: "Aracı Kurum", v: arz.araci_kurumlar[0] || "—" },
+                  ].map((c) => (
+                    <div key={c.l}>
+                      <p style={{ margin: 0, fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: "0.3px", textTransform: "uppercase" }}>{c.l}</p>
+                      <p style={{ margin: "4px 0 0", fontSize: 12.5, fontWeight: 700, color: "#E2E8F0", lineHeight: 1.4 }}>{c.v}</p>
+                    </div>
+                  ))}
+                </div>
+              </BilgiBlok>
 
               {(arz.fk !== null || arz.pddd !== null) && (
                 <div className="card-glass" style={{ borderRadius: 14, padding: "16px 18px" }}>
@@ -456,11 +481,6 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
                 );
               })()}
 
-              {!arz.sirket_aciklama && !arz.finansal_ozet && arz.fk === null && arz.pddd === null && (
-                <BilgiBlok baslik="Şirket Hakkında">
-                  <p style={{ margin: 0, fontSize: 13, color: "#94A3B8", lineHeight: 1.7 }}>Bu halka arz için şirket özeti henüz eklenmedi.</p>
-                </BilgiBlok>
-              )}
             </div>
           ) : (
             <div style={{ display: "grid", gap: 12 }}>
@@ -498,9 +518,7 @@ export default function HalkaArzDetayPage({ params }: { params: Promise<{ kod: s
                 </BilgiBlok>
               )}
 
-              {Array.isArray(arz.dagitim_tahminleri) && arz.dagitim_tahminleri.length > 0 && (
-                <DagitimTahminAraci arz={arz} />
-              )}
+              <DagitimTahminAraci arz={arz} />
 
               {(arz.fiyat_istikrari || arz.satmama_taahhudu) && (
                 <BilgiBlok baslik="Taahhütler">

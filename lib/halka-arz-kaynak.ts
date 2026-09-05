@@ -22,6 +22,12 @@ export type KaynakArz = {
   pazar: string | null;
   arz_sekli: string | null;
   araci_kurumlar: string[];
+  fon_kullanim_yeri: string | null;
+  tahsisat_gruplari: Array<{ grup: string; oran: number }> | null;
+  dagitim_tahminleri: Array<{ katilim: string; tahmin: string }> | null;
+  fiyat_istikrari: string | null;
+  satmama_taahhudu: string | null;
+  sirket_aciklama: string | null;
   kaynak: "ahlatci" | "halkarz";
   kaynak_link: string;
 };
@@ -148,6 +154,12 @@ function aktifKartlar(html: string): KaynakArz[] {
       pazar: null,
       arz_sekli: null,
       araci_kurumlar: [],
+      fon_kullanim_yeri: null,
+      tahsisat_gruplari: null,
+      dagitim_tahminleri: null,
+      fiyat_istikrari: null,
+      satmama_taahhudu: null,
+      sirket_aciklama: null,
       kaynak: "ahlatci",
       kaynak_link: baslikM[1].startsWith("http") ? baslikM[1] : AHLATCI + baslikM[1],
     };
@@ -202,6 +214,12 @@ function tamamlananTablosu(html: string, enFazla: number): KaynakArz[] {
       pazar: null,
       arz_sekli: null,
       araci_kurumlar: konsorsiyum && konsorsiyum !== "-" ? konsorsiyum.split(/\s*[,·]\s*/).filter(Boolean) : [],
+      fon_kullanim_yeri: null,
+      tahsisat_gruplari: null,
+      dagitim_tahminleri: null,
+      fiyat_istikrari: null,
+      satmama_taahhudu: null,
+      sirket_aciklama: null,
       kaynak: "ahlatci",
       kaynak_link: detayHref ? AHLATCI + detayHref : AHLATCI + "/halka-arz",
     });
@@ -252,15 +270,57 @@ function halkarzTabloCiftleri(html: string): Map<string, string> {
   return map;
 }
 
-function halkarzEkAlan(html: string, baslik: string): string | null {
+function halkarzEkAlanHtml(html: string, baslik: string): string | null {
   for (const li of html.match(/<li[^>]*>[\s\S]*?<\/li>/gi) ?? []) {
     const h5 = htmlTemizle(li.match(/<h5[^>]*>([\s\S]*?)<\/h5>/i)?.[1] ?? "");
     if (h5.toLocaleLowerCase("tr") !== baslik.toLocaleLowerCase("tr")) continue;
     // Kaynak dipnotlarindaki yil/sayfa numaralari (%20 + Sayfa 132 gibi) sayisal alana sizmasin.
     const icerik = li.match(/<p[^>]*>([\s\S]*?)<\/p>/i)?.[1] ?? "";
-    return htmlTemizle(icerik.replace(/<small[^>]*>[\s\S]*?<\/small>/gi, "")) || null;
+    return icerik.replace(/<small[^>]*>[\s\S]*?<\/small>/gi, "") || null;
   }
   return null;
+}
+
+function halkarzEkAlan(html: string, baslik: string): string | null {
+  return htmlTemizle(halkarzEkAlanHtml(html, baslik) ?? "") || null;
+}
+
+function halkarzEkAlanSatirlari(html: string, baslik: string): string[] {
+  const icerik = halkarzEkAlanHtml(html, baslik);
+  if (!icerik) return [];
+  return icerik
+    .replace(/<br\s*\/?\s*>/gi, "\n")
+    .split("\n")
+    .map((satir) => htmlTemizle(satir).replace(/^[-–•]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function halkarzTahsisatGruplari(html: string): Array<{ grup: string; oran: number }> | null {
+  const gruplar = halkarzEkAlanSatirlari(html, "Tahsisat Grupları").flatMap((satir) => {
+    const m = satir.match(/(?:[\d.]+\s*Lot\s*)?\(%\s*([\d.,]+)\)\s*(.+)$/i);
+    const oran = trSayi(m?.[1]);
+    return m && oran !== null ? [{ grup: m[2].trim(), oran }] : [];
+  });
+  return gruplar.length ? gruplar : null;
+}
+
+function halkarzDagitimTahminleri(html: string): Array<{ katilim: string; tahmin: string }> | null {
+  const tahminler = halkarzEkAlanSatirlari(html, "Dağıtılacak Pay Miktarı (Olası) *").flatMap((satir) => {
+    const m = satir.match(/^(.+?\bkatılım)\s*~\s*(.+)$/i);
+    return m ? [{ katilim: m[1].trim(), tahmin: `~ ${m[2].replace(/\.$/, "").trim()}` }] : [];
+  });
+  return tahminler.length ? tahminler : null;
+}
+
+function halkarzSirketAciklamasi(html: string): string | null {
+  const bolum = html.match(/<summary[^>]*>[\s\S]*?Şirket Hakkında[\s\S]*?<\/summary>\s*<div[^>]*class=["'][^"']*\bacc-body\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1];
+  if (!bolum) return null;
+  const sehir = htmlTemizle(bolum.match(/class=["'][^"']*\bshc-city\b[^"']*["'][^>]*>([\s\S]*?)<\//i)?.[1] ?? "")
+    .replace(/^Şehir\s*:\s*/i, "");
+  const kurulus = htmlTemizle(bolum.match(/class=["'][^"']*\bshc-founded\b[^"']*["'][^>]*>([\s\S]*?)<\//i)?.[1] ?? "")
+    .replace(/^Kuruluş Tarihi\s*:\s*/i, "");
+  const bilgiler = [sehir ? `Şehir: ${sehir}` : "", kurulus ? `Kuruluş tarihi: ${kurulus}` : ""].filter(Boolean);
+  return bilgiler.length ? bilgiler.join(" · ") : null;
 }
 
 function arzSekliMetni(s: string | null): string | null {
@@ -302,6 +362,12 @@ export function halkarzListeKartlari(html: string, bugun = new Date().toISOStrin
       pazar: null,
       arz_sekli: null,
       araci_kurumlar: [],
+      fon_kullanim_yeri: null,
+      tahsisat_gruplari: null,
+      dagitim_tahminleri: null,
+      fiyat_istikrari: null,
+      satmama_taahhudu: null,
+      sirket_aciklama: null,
       kaynak: "halkarz",
       kaynak_link: baslikM[1].startsWith("http") ? baslikM[1] : HALKARZ + baslikM[1],
     });
@@ -326,6 +392,12 @@ export function halkarzDetayAlanlariUygula(arz: KaynakArz, html: string): void {
   arz.iskonto_orani = trSayi(halkarzEkAlan(html, "Halka Arz İskontosu")) ?? arz.iskonto_orani;
   arz.buyukluk = trTutar(halkarzEkAlan(html, "Halka Arz Büyüklüğü")) ?? arz.buyukluk;
   arz.arz_sekli = arzSekliMetni(halkarzEkAlan(html, "Halka Arz Şekli")) ?? arz.arz_sekli;
+  arz.fon_kullanim_yeri = halkarzEkAlanSatirlari(html, "Fonun Kullanım Yeri").join("\n") || arz.fon_kullanim_yeri;
+  arz.tahsisat_gruplari = halkarzTahsisatGruplari(html) ?? arz.tahsisat_gruplari;
+  arz.dagitim_tahminleri = halkarzDagitimTahminleri(html) ?? arz.dagitim_tahminleri;
+  arz.fiyat_istikrari = halkarzEkAlan(html, "Fiyat İstikrarı") ?? arz.fiyat_istikrari;
+  arz.satmama_taahhudu = halkarzEkAlan(html, "Satmama Taahhüdü") ?? arz.satmama_taahhudu;
+  arz.sirket_aciklama = halkarzSirketAciklamasi(html) ?? arz.sirket_aciklama;
 }
 
 export async function halkarzArzlari(): Promise<KaynakArz[] | null> {
@@ -355,6 +427,12 @@ function yedekAlanlariUygula(birincil: KaynakArz, yedek: KaynakArz): KaynakArz {
     pazar: birincil.pazar ?? yedek.pazar,
     arz_sekli: birincil.arz_sekli ?? yedek.arz_sekli,
     araci_kurumlar: birincil.araci_kurumlar.length ? birincil.araci_kurumlar : yedek.araci_kurumlar,
+    fon_kullanim_yeri: birincil.fon_kullanim_yeri ?? yedek.fon_kullanim_yeri,
+    tahsisat_gruplari: birincil.tahsisat_gruplari ?? yedek.tahsisat_gruplari,
+    dagitim_tahminleri: birincil.dagitim_tahminleri ?? yedek.dagitim_tahminleri,
+    fiyat_istikrari: birincil.fiyat_istikrari ?? yedek.fiyat_istikrari,
+    satmama_taahhudu: birincil.satmama_taahhudu ?? yedek.satmama_taahhudu,
+    sirket_aciklama: birincil.sirket_aciklama ?? yedek.sirket_aciklama,
   };
 }
 

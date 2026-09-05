@@ -32,9 +32,16 @@ const detayHtml = `
     <tr><td><em>Pazar : </em></td><td><strong>Yıldız Pazar</strong></td></tr>
   </table>
   <li><h5>Halka Arz Şekli</h5><p>- Sermaye Artırımı : 62.500.000 Lot<br>- Ortak Satışı : 25.000.000 Lot<br><small>SPK Bülteni, 2026/56.</small></p></li>
+  <li><h5>Fonun Kullanım Yeri</h5><p>- %20-30 Yeni yatırımlar.<br>- %25-35 İşletme sermayesi.<br><small>İzahname, Sayfa 311.</small></p></li>
+  <li><h5>Tahsisat Grupları</h5><p>- 35.000.000 Lot (%40) Yurt İçi Bireysel Yatırımcı<br>- 30.625.000 Lot (%35) Yurt İçi Kurumsal Yatırımcı<br><small>İzahname, Sayfa 292.</small></p></li>
+  <li><h5>Dağıtılacak Pay Miktarı (Olası) *</h5><p>- 150 Bin katılım ~ 233 Lot (5946 TL).<br>- 500 Bin katılım ~ 70 Lot (1786 TL).<br><small>* Bireysel Yatırımcı Grubu.</small></p></li>
+  <li><h5>Fiyat İstikrarı</h5><p>- 15 gün.<br><small>İzahname, Sayfa 307.</small></p></li>
+  <li><h5>Satmama Taahhüdü</h5><p>- 1 Yıl, İhraççı.<br>- 1 Yıl, Ortaklar.<br><small>İzahname, Sayfa 309.</small></p></li>
   <li><h5>Halka Açıklık</h5><p>- %28.<br><small>İzahname, Sayfa 249.</small></p></li>
   <li><h5>Halka Arz İskontosu</h5><p>- %20.<br><small>Fiyat Tespit Raporu, Sayfa 132.</small></p></li>
-  <li><h5>Halka Arz Büyüklüğü</h5><p>～ 2,2 Milyar TL.</p></li>`;
+  <li><h5>Halka Arz Büyüklüğü</h5><p>～ 2,2 Milyar TL.</p></li>
+  <summary class="acc-header">Şirket Hakkında</summary>
+  <div class="acc-body"><h2>Net Global</h2><p>Sanayi ve teknoloji yatırımları alanında faaliyet gösterir.</p><span class="shc-city">Şehir : Sivas</span><span class="shc-founded">Kuruluş Tarihi : 07.05.2004</span></div>`;
 
 describe("Halkarz halka arz kaynagi", () => {
   it("yalniz devam eden/yaklasan liste kartlarini ISO tarihlerle okur", () => {
@@ -64,6 +71,18 @@ describe("Halkarz halka arz kaynagi", () => {
       pazar: "Yıldız Pazar",
       arz_sekli: "Sermaye Artırımı + Ortak Satışı",
       araci_kurumlar: ["Tacirler Yatırım Menkul Değerler A.Ş."],
+      fon_kullanim_yeri: "%20-30 Yeni yatırımlar.\n%25-35 İşletme sermayesi.",
+      tahsisat_gruplari: [
+        { grup: "Yurt İçi Bireysel Yatırımcı", oran: 40 },
+        { grup: "Yurt İçi Kurumsal Yatırımcı", oran: 35 },
+      ],
+      dagitim_tahminleri: [
+        { katilim: "150 Bin katılım", tahmin: "~ 233 Lot (5946 TL)" },
+        { katilim: "500 Bin katılım", tahmin: "~ 70 Lot (1786 TL)" },
+      ],
+      fiyat_istikrari: "- 15 gün.",
+      satmama_taahhudu: "- 1 Yıl, İhraççı. - 1 Yıl, Ortaklar.",
+      sirket_aciklama: "Şehir: Sivas · Kuruluş tarihi: 07.05.2004",
     });
   });
 
