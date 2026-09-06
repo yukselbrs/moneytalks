@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
-import LogoIcon from "@/components/LogoIcon";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import AuthShell from "@/components/AuthShell";
+import { ArrowRight, Eye, EyeOff, Mail } from "lucide-react";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -17,7 +17,6 @@ export default function RegisterPage() {
   const [sozlesmeOnay, setSozlesmeOnay] = useState(false);
   const [modalIcerik, setModalIcerik] = useState<{baslik: string; icerik: string} | null>(null);
   const [success, setSuccess] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   function validatePassword(pw: string) {
     if (pw.length < 6) return "Şifre en az 6 karakter olmalıdır.";
@@ -58,27 +57,45 @@ export default function RegisterPage() {
 
   const GIZLILIK = `Gizlilik Politikası\n\nTopladığımız Veriler\nKayıt sırasında ad, soyad ve e-posta adresinizi alırız. Portföy ve izleme listesi oluşturduğunuzda ilgili hisse bilgilerini saklarız. IP adresi, tarayıcı türü ve oturum bilgileri teknik altyapımız tarafından otomatik olarak kaydedilebilir.\n\nVerilerin Kullanımı\nVerileriniz hesabınızı yönetmek, yapay zeka destekli analiz hizmetlerini sunmak, güvenliği sağlamak ve yasal yükümlülükleri yerine getirmek amacıyla kullanılır.\n\nVeri Güvenliği\nVerileriniz Supabase altyapısında şifrelenmiş olarak saklanmaktadır. Şifreler hiçbir zaman düz metin olarak tutulmaz.\n\nÜçüncü Taraflar\nSupabase, Vercel, Anthropic ve Resend hizmetleri kullanılmaktadır. Bu sağlayıcıların kendi gizlilik politikaları mevcuttur.\n\nVeri Silme\nHesabınızı sildiğinizde kişisel verileriniz 30 gün içinde kalıcı olarak silinir.\n\nİletişim\nsupport@parakonusur.com`;
 
-  if (success) {
-    return (
-      <div style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
-        <div style={{ textAlign: "center", maxWidth: 420 }}>
-          <div style={{ width: 64, height: 64, borderRadius: "50%", margin: "0 auto 20px", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>✉</div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#F1F5F9", marginBottom: 12 }}>E-postanı doğrula</h1>
-          <p style={{ fontSize: 14, color: "#64748B", lineHeight: 1.7, marginBottom: 24 }}>{email} adresine doğrulama linki gönderdik.</p>
-          <Link href="/login" style={{ fontSize: 13, color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Giriş sayfasına dön →</Link>
-        </div>
-      </div>
-    );
-  }
-
-  const benefits = [
-    { title: "Ücretsiz Başla", desc: "Kredi kartı gerekmez. Hemen analiz yapmaya başlayın." },
-    { title: "600+ BIST Hissesi", desc: "Tüm Borsa İstanbul hisselerini tek platformdan takip edin." },
-    { title: "Yapay Zeka Destekli", desc: "Her hisse için anında AI analizi ve risk değerlendirmesi alın." },
-  ];
-
+  const fieldClass = "h-[52px] w-full min-w-0 rounded-lg border border-slate-600/70 bg-white/[0.025] px-4 text-base text-slate-100 placeholder:text-slate-500 focus:border-blue-400";
   return (
-    <div style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "16px" : "24px" }}>
+    <AuthShell>
+      <section aria-labelledby="register-title" className="order-1 mx-auto w-full max-w-[464px] min-w-0 lg:order-2">
+        {success ? (
+          <div role="status">
+            <Mail size={32} className="mb-6 text-blue-400" aria-hidden="true" />
+            <h2 id="register-title" className="font-[family-name:var(--font-geist)] text-3xl font-medium tracking-tight">E-postanı doğrula.</h2>
+            <p className="mt-4 break-words text-base leading-7 text-slate-300">{email} adresine doğrulama linki gönderdik. Hesabını etkinleştirmek için e-postanı kontrol et.</p>
+            <p className="mt-3 text-sm leading-6 text-slate-400">E-postayı göremiyorsan spam klasörüne de bakabilirsin.</p>
+            <Link href="/login" className="mt-8 inline-flex min-h-[52px] items-center gap-3 rounded-lg bg-blue-600 px-6 font-semibold text-white hover:bg-blue-500">Giriş sayfasına dön <ArrowRight size={20} /></Link>
+          </div>
+        ) : (
+          <>
+            <p className="mb-3 text-xs tracking-[0.16em] text-slate-300">ÜCRETSİZ HESAP OLUŞTUR</p>
+            <h2 id="register-title" className="font-[family-name:var(--font-geist)] text-[30px] font-medium leading-tight tracking-tight sm:text-[34px]">Büyük resmi görmeye başla.</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-400">Kişisel çalışma alanını oluştur. Kart bilgisi gerekmez.</p>
+            <form onSubmit={handleRegister} aria-busy={loading} className="mt-8 flex flex-col gap-5">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-4">
+                <div className="min-w-0"><label htmlFor="register-fullName" className="mb-2 block text-sm text-slate-200">Ad soyad</label><input id="register-fullName" name="name" autoComplete="name" value={fullName} onChange={e => setFullName(e.target.value)} required placeholder="Adın soyadın" className={fieldClass} /></div>
+                <div className="min-w-0"><label htmlFor="register-username" className="mb-2 block text-sm text-slate-200">Kullanıcı adı</label><input id="register-username" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} required placeholder="kullanici_adi" className={fieldClass} /></div>
+              </div>
+              <div><label htmlFor="register-email" className="mb-2 block text-sm text-slate-200">E-posta</label><input id="register-email" name="email" autoComplete="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="ornek@email.com" className={fieldClass} /></div>
+              <div>
+                <label htmlFor="register-password" className="mb-2 block text-sm text-slate-200">Şifre</label>
+                <div className="relative"><input id="register-password" name="password" autoComplete="new-password" aria-describedby="password-help" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required minLength={6} placeholder="••••••••••••" className={`${fieldClass} pr-14`} /><button type="button" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-1 flex w-11 items-center justify-center rounded-md text-slate-300 hover:text-white">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
+                <p id="password-help" className="mt-2 text-xs leading-5 text-slate-400">En az 6 karakter, 1 büyük harf ve 1 rakam.</p>
+              </div>
+              {error && <p role="alert" className="rounded-lg border border-red-400/25 bg-red-400/5 px-4 py-3 text-sm leading-6 text-red-300">{error}</p>}
+              <div className="flex items-start gap-3">
+                <input type="checkbox" id="sozlesme" checked={sozlesmeOnay} onChange={e => setSozlesmeOnay(e.target.checked)} className="mt-1 h-[18px] w-[18px] shrink-0 accent-blue-500" />
+                <label htmlFor="sozlesme" className="text-xs leading-6 text-slate-400"><button type="button" onClick={() => setModalIcerik({ baslik: "Kullanım Şartları", icerik: "kullanim" })} className="text-blue-400 hover:text-blue-300">Kullanım Şartları</button> ve <button type="button" onClick={() => setModalIcerik({ baslik: "Gizlilik Politikası", icerik: "gizlilik" })} className="text-blue-400 hover:text-blue-300">Gizlilik Politikası</button>’nı okudum ve kabul ediyorum. Platformun yatırım tavsiyesi niteliği taşımadığını anlıyorum.</label>
+              </div>
+              <button type="submit" disabled={loading || !sozlesmeOnay} className="relative flex min-h-[54px] items-center justify-center rounded-lg bg-blue-600 px-12 text-base font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50">{loading ? "Hesap oluşturuluyor…" : "Ücretsiz hesap oluştur"}<ArrowRight size={22} className="absolute right-5" aria-hidden="true" /></button>
+            </form>
+            <p className="mt-7 text-center text-sm text-slate-300">Zaten hesabın var mı? <Link href="/login" className="text-blue-400 hover:text-blue-300">Giriş yap</Link></p>
+          </>
+        )}
+      </section>
       {modalIcerik && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }} onClick={() => setModalIcerik(null)}>
           <div style={{ background: "#0F1829", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 16, maxWidth: 560, width: "100%", maxHeight: "75vh", display: "flex", flexDirection: "column" }} onClick={e => e.stopPropagation()}>
@@ -99,136 +116,6 @@ export default function RegisterPage() {
           </div>
         </div>
       )}
-      <div style={{ width: "100%", maxWidth: isMobile ? 480 : 960, display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(59,130,246,0.12)", boxShadow: "0 0 80px rgba(59,130,246,0.07)" }}>
-
-        {/* SOL KOLON - sadece desktop */}
-        {!isMobile && (
-          <div style={{ background: "linear-gradient(160deg, #0F1C2E 0%, #0B1220 100%)", padding: "52px 44px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid rgba(59,130,246,0.08)" }}>
-
-            <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
-              <LogoIcon size={32} />
-              <span style={{ fontSize: 18, fontWeight: 700, color: "#F1F5F9" }}>
-                para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#334155" }}>.com</span>
-              </span>
-            </Link>
-
-            <div style={{ margin: "48px 0 36px" }}>
-              <div style={{ display: "inline-block", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "#10B981", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 20, padding: "4px 14px", marginBottom: 20 }}>ÜCRETSİZ</div>
-              <h1 style={{ fontSize: 32, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, letterSpacing: "-0.8px", marginBottom: 12 }}>
-                Yatırım yolculuğuna<br />
-                <span style={{ color: "#3B82F6" }}>hemen başla.</span>
-              </h1>
-              <p style={{ fontSize: 14, color: "#64748B", lineHeight: 1.7 }}>
-                Dakikalar içinde hesabını oluştur, yapay zeka destekli BIST analizlerine anında eriş.
-              </p>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 36 }}>
-              {benefits.map((b) => (
-                <div key={b.title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0, background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ color: "#10B981", fontSize: 14 }}>✓</span>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0", marginBottom: 3 }}>{b.title}</p>
-                    <p style={{ fontSize: 12, color: "#64748B", lineHeight: 1.6 }}>{b.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", gap: 20 }}>
-              {["HTTPS bağlantı", "Gizlilik politikası", "Ücretsiz plan"].map((t) => (
-                <div key={t} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <span style={{ color: "#3B82F6", fontSize: 12 }}>✓</span>
-                  <span style={{ fontSize: 11, color: "#475569" }}>{t}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* SAĞ KOLON - form */}
-        <div style={{ background: "#0F1829", padding: isMobile ? "36px 24px" : "52px 44px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-
-          <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", margin: "0 auto 14px", background: "linear-gradient(135deg, rgba(30,64,175,0.3), rgba(59,130,246,0.3))", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <LogoIcon size={28} />
-            </div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: "#F1F5F9", marginBottom: 4 }}>Hesap oluştur</h2>
-            <p style={{ fontSize: 13, color: "#64748B" }}>Ücretsiz başla, istediğin zaman yükselt.</p>
-          </div>
-
-          <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <div>
-                <label htmlFor="register-fullName" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Ad Soyad</label>
-                <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 12px", height: 42 }}>
-                  <input id="register-fullName" autoComplete="name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Adın Soyadın"
-                    style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="register-username" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Kullanıcı Adı</label>
-                <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 12px", height: 42 }}>
-                  <input id="register-username" autoComplete="username" type="text" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} required placeholder="kullanici_adi"
-                    style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="register-email" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>E-posta</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 14px", height: 42 }}>
-                <span style={{ color: "#475569" }}>✉</span>
-                <input id="register-email" autoComplete="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com"
-                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="register-password" style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500, display: "block", marginBottom: 6 }}>Şifre</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(59,130,246,0.15)", borderRadius: 10, padding: "0 14px", height: 42 }}>
-                <span style={{ color: "#475569" }}>🔒</span>
-                <input id="register-password" autoComplete="new-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••••"
-                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#E2E8F0" }} />
-                <button type="button" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "#475569" }}>
-                  {showPassword ? "🙈" : "👁"}
-                </button>
-              </div>
-              <p style={{ fontSize: 11, color: "#475569", marginTop: 5 }}>En az 6 karakter, 1 büyük harf ve 1 rakam içermelidir.</p>
-            </div>
-
-            {error && (
-              <div role="alert" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>
-                <p style={{ fontSize: 12, color: "#EF4444" }}>{error}</p>
-              </div>
-            )}
-
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-              <input type="checkbox" id="sozlesme" checked={sozlesmeOnay} onChange={e => setSozlesmeOnay(e.target.checked)}
-                style={{ marginTop: 2, cursor: "pointer", accentColor: "#3B82F6", width: 15, height: 15, flexShrink: 0 }} />
-              <label htmlFor="sozlesme" style={{ fontSize: 12, color: "#64748B", lineHeight: 1.6, cursor: "pointer" }}>
-                <button type="button" onClick={() => setModalIcerik({ baslik: "Kullanım Şartları", icerik: "kullanim" })} style={{ background: "none", border: "none", padding: 0, color: "#3B82F6", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Kullanım Şartları</button>
-                {" "}ve{" "}
-                <button type="button" onClick={() => setModalIcerik({ baslik: "Gizlilik Politikası", icerik: "gizlilik" })} style={{ background: "none", border: "none", padding: 0, color: "#3B82F6", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Gizlilik Politikası</button>
-                {"'"}nı okudum ve kabul ediyorum. Platformun yatırım tavsiyesi niteliği taşımadığını anlıyorum.
-              </label>
-            </div>
-            <button type="submit" disabled={loading || !sozlesmeOnay}
-              style={{ height: 44, background: (loading || !sozlesmeOnay) ? "#1E3A6E" : "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: (loading || !sozlesmeOnay) ? "not-allowed" : "pointer", marginTop: 4, opacity: !sozlesmeOnay ? 0.6 : 1 }}>
-              {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
-            </button>
-          </form>
-
-          <p style={{ textAlign: "center", fontSize: 12, color: "#475569", marginTop: 20 }}>
-            Zaten hesabın var mı?{" "}
-            <Link href="/login" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 600 }}>Giriş yap</Link>
-          </p>
-        </div>
-      </div>
-    </div>
+    </AuthShell>
   );
 }
