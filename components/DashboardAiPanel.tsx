@@ -81,7 +81,7 @@ export default function DashboardAiPanel({ aiPanel, onAnalyze }: Props) {
         <div style={{ position: "absolute", top: "50%", left: "50%", width: "200%", height: "200%", marginTop: "-100%", marginLeft: "-100%", background: "conic-gradient(from 0deg, transparent 0deg, transparent 140deg, rgba(139,92,246,0.45) 160deg, rgba(167,139,250,0.65) 175deg, rgba(139,92,246,0.45) 190deg, transparent 210deg, transparent 360deg)", animation: "border-spin 10s linear infinite" }} />
       </div>
 
-    <div style={{ background: "#0B1220", borderRadius: 9, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280, position: "relative", overflow: "hidden", zIndex: 1 }}>
+    <div className="h-full" style={{ background: "#0B1220", borderRadius: 9, padding: "18px 16px", display: "flex", flexDirection: "column", gap: 0, minHeight: 280, position: "relative", overflow: "hidden", zIndex: 1 }}>
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>

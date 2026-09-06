@@ -40,8 +40,8 @@ export default function DashboardChartPanel({ bistHisseler, chart }: Props) {
     fetchBuyukGrafik,
   } = chart;
   const chartListboxId = useId();
-  const chartHeight = grafikWidth > 0 && grafikWidth < 520 ? 196 : 256;
-  const chartShellHeight = grafikWidth > 0 && grafikWidth < 520 ? 220 : 280;
+  const chartHeight = Math.round(Math.min(280, Math.max(220, grafikWidth * 0.52)));
+  const chartShellHeight = chartHeight + 24;
   const sabitGrafikSecenekleri = [
     { ticker: "XU100.IS", label: "XU100 - BIST 100" },
     { ticker: "XU030.IS", label: "XU030 - BIST 30" },
@@ -204,7 +204,7 @@ export default function DashboardChartPanel({ bistHisseler, chart }: Props) {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false}/>
-                <XAxis dataKey="tarih" tick={{ fontSize: 12, fill: "#94A3B8" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                <XAxis dataKey="tarih" tick={{ fontSize: 12, fill: "#94A3B8" }} tickLine={false} axisLine={false} minTickGap={28} tickFormatter={(value: string) => value === "Önceki Kapanış" ? "Önc. kap." : value} interval="preserveStartEnd" />
                 <YAxis
                   domain={[mn - pad, mx + pad]}
                   tick={{ fontSize: 12, fill: "#94A3B8" }}

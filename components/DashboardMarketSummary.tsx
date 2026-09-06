@@ -87,7 +87,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
                     </>
                   )}
                 </div>
-                <svg aria-hidden="true" className="h-8 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
+                <svg aria-hidden="true" className="h-6 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
                   <defs>
                     <linearGradient id={`sg-${e.label}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={color} stopOpacity="0.3"/>

@@ -231,7 +231,7 @@ export default function DashboardPage() {
         .dash-main-padding { padding: 24px 32px; }
         .dash-main-grid { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 20px; align-items: start; }
         .dash-piyasa-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
-        .dash-grafik-ai-grid { display: grid; grid-template-columns: minmax(0, 1fr) 284px; gap: 12px; }
+        .dash-grafik-ai-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 12px; }
         .dash-popular-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
         .dash-alt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .dash-h1 { font-size: 26px; }
@@ -243,7 +243,7 @@ export default function DashboardPage() {
           .dash-main-grid { grid-template-columns: 1fr !important; }
           .dash-piyasa-grid { grid-template-columns: repeat(2,1fr) !important; }
           .dash-popular-grid { grid-template-columns: repeat(4,1fr) !important; }
-          .dash-grafik-ai-grid { grid-template-columns: minmax(0,1fr) 284px !important; }
+          .dash-grafik-ai-grid { grid-template-columns: minmax(0,2fr) minmax(220px,1fr) !important; }
         }
         @media (max-width: 767px) {
           .dash-main-padding { padding: 12px 14px !important; }
