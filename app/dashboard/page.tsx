@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/AppShell";
 import { useRouter } from "next/navigation";
@@ -263,22 +262,9 @@ export default function DashboardPage() {
         }`}</style>
 
       <main className="dash-main-padding" style={{ maxWidth: 1600, margin: "0 auto" }}>
-        <header className="mb-6 flex flex-col gap-4 rounded-2xl border border-blue-400/20 bg-blue-500/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <div className="min-w-0">
-            <h1 className="font-[family-name:var(--font-geist)] text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">{selamlama()}, {firstName}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-              {portfoyOzet || portfolioError
-                ? "Portföyünün değişimini incele, takip ettiğin hisselerde neler olduğunu gör."
-                : "İlk pozisyonunu ekle. Maliyetini, kâr/zararını ve portföyündeki dağılımı bir arada gör."}
-            </p>
-            <p className="mt-2 text-xs leading-5 text-slate-400">Piyasa verileri 15 dakika gecikmelidir.</p>
-          </div>
-          <Link href="/portfoy" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400">
-            {portfoyOzet || portfolioError ? "Portföyümü incele →" : "İlk pozisyonunu ekle →"}
-          </Link>
-        </header>
         <div className="dash-main-grid">
         <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
+        <h1 className="dash-h1 font-[family-name:var(--font-geist)] font-bold tracking-tight text-slate-50">{selamlama()}, {firstName}</h1>
 
         <DashboardSearchBox
           value={ticker}

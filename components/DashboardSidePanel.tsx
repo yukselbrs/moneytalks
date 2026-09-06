@@ -42,7 +42,21 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
   const [mod, setMod] = useState<"total" | "daily">("total");
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  if (!portfoyOzet) return null;
+  if (!portfoyOzet) {
+    return (
+      <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "24px 16px", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12 }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.35) 70%, transparent 100%)" }} />
+        <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </div>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", marginBottom: 4 }}>Portföyünüzü Takip Edin</p>
+          <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>Hisselerinizi ekleyin, kâr/zarar ve dağılımınızı görün. Fiyatlar 15 dakika gecikmelidir.</p>
+        </div>
+        <a href="/portfoy" style={{ display: "inline-block", background: "#3B82F6", color: "#fff", fontSize: 12, fontWeight: 600, padding: "8px 18px", borderRadius: 8, textDecoration: "none" }}>Portföy Oluştur →</a>
+      </div>
+    );
+  }
 
   const aktifPL = mod === "daily" ? portfoyOzet.gunlukPL : portfoyOzet.toplamPL;
   const aktifPLYuzde = mod === "daily" ? portfoyOzet.gunlukPLYuzde : portfoyOzet.toplamPLYuzde;
