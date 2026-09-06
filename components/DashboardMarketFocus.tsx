@@ -101,7 +101,7 @@ export default function DashboardMarketFocus({
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
         <div>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: "#F8FAFC", letterSpacing: "-0.4px", marginBottom: 2 }}>Piyasa Odakları</h2>
-          <p style={{ fontSize: 12, color: "#475569" }}>BIST&apos;te bugün öne çıkan hisseler.</p>
+          <p style={{ fontSize: 12, color: "#94A3B8" }}>BIST&apos;te bugün öne çıkan hisseler.</p>
         </div>
         <a href="/hisseler" style={{ fontSize: 13, fontWeight: 600, color: "#3B82F6", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, padding: "7px 14px", textDecoration: "none", whiteSpace: "nowrap" }}>
           Tüm Hisseler →
@@ -120,7 +120,7 @@ export default function DashboardMarketFocus({
               {t.label}
             </button>
           ))}
-          <span style={{ marginLeft: "auto", fontSize: 11, color: "#2D3F55", fontWeight: 500 }}>15 dk gecikmeli</span>
+          <span style={{ marginLeft: "auto", fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>15 dk gecikmeli</span>
         </div>
         {liste.length === 0 && piyasaOdagiTab !== "one" ? (
           <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -158,26 +158,26 @@ export default function DashboardMarketFocus({
                       onClick={ev => ev.stopPropagation()}
                       aria-label={`${s.ticker} KAP bildirimi: ${kap.tipEtiket} — detayı aç`}
                       title={`${kap.ozet ? kap.ozet + " — " : ""}Bu hareketin son 24 saatteki KAP bildirimiyle zamansal örtüşmesi var; kesin neden göstermez. Detay için tıkla.`}
-                      style={{ fontSize: 11, fontWeight: 600, color: "#A78BFA", background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 20, padding: "4px 10px", textDecoration: "none", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
+                      style={{ fontSize: 12, fontWeight: 600, color: "#A78BFA", background: "rgba(139,92,246,0.12)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 20, padding: "4px 10px", textDecoration: "none", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
                       KAP: {kap.tipEtiket}
                     </a>
                   )}
                   {endeksYonlu && (
                     <span
                       title={`XU100 bugün ${formatPercent(endeks!, { symbolPosition: "prefix" })} — hareket endeksle aynı yönde ve benzer ölçekte; hisseye özgü bir gelişme göstermez.`}
-                      style={{ fontSize: 11, fontWeight: 600, color: "#64748B", background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.25)", borderRadius: 20, padding: "4px 10px", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
+                      style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8", background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.25)", borderRadius: 20, padding: "4px 10px", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
                       Endeks yönlü
                     </span>
                   )}
                   {sektorYonlu && (
                     <span
                       title={`${sektor!.ad} sektörü bugün ortalama ${formatPercent(sektor!.ortalama!, { symbolPosition: "prefix" })} — hareket sektörle aynı yönde ve benzer ölçekte; kesin neden göstermez.`}
-                      style={{ fontSize: 11, fontWeight: 600, color: "#7DD3FC", background: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.22)", borderRadius: 20, padding: "4px 10px", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
+                      style={{ fontSize: 12, fontWeight: 600, color: "#7DD3FC", background: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.22)", borderRadius: 20, padding: "4px 10px", whiteSpace: "nowrap", minHeight: 24, display: "inline-flex", alignItems: "center" }}>
                       Sektör yönlü
                     </span>
                   )}
                 </div>
-                <div title={h?.name || s.ticker} style={{ fontSize: 11, color: "#334155", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>{h?.name || s.ticker}</div>
+                <div title={h?.name || s.ticker} style={{ fontSize: 12, color: "#94A3B8", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 140 }}>{h?.name || s.ticker}</div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.2px" }}>{s.fiyat} ₺</div>

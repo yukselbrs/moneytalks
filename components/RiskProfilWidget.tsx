@@ -88,7 +88,7 @@ export default function RiskProfilWidget() {
       <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(59,130,246,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 14 }}>🎯</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.07em", textTransform: "uppercase" }}>Risk Profili</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>Risk Profili</span>
         </div>
         {oneri && (
           <button onClick={() => { setOneri(null); setAdim(0); setCevaplar({}); }}
@@ -102,23 +102,23 @@ export default function RiskProfilWidget() {
         {yukleniyor ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "20px 0" }}>
             <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid rgba(59,130,246,0.2)", borderTopColor: "#3B82F6", animation: "spin 0.8s linear infinite" }} />
-            <span style={{ fontSize: 12, color: "#475569" }}>Profil analiz ediliyor...</span>
+            <span style={{ fontSize: 12, color: "#94A3B8" }}>Profil analiz ediliyor...</span>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : oneri ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <p style={{ fontSize: 12, color: "#64748B", lineHeight: 1.6, fontStyle: "italic" }}>"{oneri.profil}"</p>
-            <p style={{ fontSize: 12, fontWeight: 600, color: "#334155", letterSpacing: "0.07em", textTransform: "uppercase" }}>Önerilen Hisseler</p>
+            <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6, fontStyle: "italic" }}>"{oneri.profil}"</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.07em", textTransform: "uppercase" }}>Tarama sonuçları</p>
             {oneri.hisseler?.map((h) => (
               <div key={h.ticker} onClick={() => router.push(`/hisse/${h.ticker}`)}
                 style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 12px", background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 8, cursor: "pointer" }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)")}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(59,130,246,0.1)")}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#3B82F6", minWidth: 48 }}>{h.ticker}</span>
-                <span style={{ fontSize: 11, color: "#475569", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.neden}</span>
+                <span style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.neden}</span>
               </div>
             ))}
-            <p style={{ fontSize: 12, color: "#1E293B", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.</p>
+            <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>Yatırım tavsiyesi değildir. Yalnızca teknik veri analizidir.</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -140,7 +140,7 @@ export default function RiskProfilWidget() {
             </div>
             {adim > 0 && (
               <button onClick={() => setAdim(adim - 1)}
-                style={{ fontSize: 11, color: "#334155", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}>
+                style={{ fontSize: 12, color: "#94A3B8", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}>
                 ← Geri
               </button>
             )}

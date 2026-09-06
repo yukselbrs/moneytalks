@@ -72,7 +72,7 @@ export default function DashboardWatchlistPanel({
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.35) 70%, transparent 100%)" }} />
 
       <div style={{ padding: "10px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>İzleme Listem</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>İzleme Listem</p>
         <button
           onClick={() => { setWatchlistInputAcik(!watchlistInputAcik); setWatchlistInput(""); }}
           aria-label={watchlistInputAcik ? "İzleme listesine ekleme alanını kapat" : "İzleme listesine hisse ekle"}
@@ -108,7 +108,7 @@ export default function DashboardWatchlistPanel({
                       onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(59,130,246,0.08)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</span>
-                      <span style={{ fontSize: 11, color: "#475569" }}>{h.name}</span>
+                      <span style={{ fontSize: 12, color: "#94A3B8" }}>{h.name}</span>
                     </div>
                   ))}
                 </div>
@@ -141,7 +141,7 @@ export default function DashboardWatchlistPanel({
               { label: "ORT. DEĞİŞİM", value: ortLabel, renk: ortRenk },
             ].map((s, i) => (
               <div key={s.label} style={{ padding: "10px 14px", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
-                <div style={{ fontSize: 9, color: "#2D3F55", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>{s.label}</div>
+                <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>{s.label}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: s.renk }}>{s.value}</div>
               </div>
             ))}
@@ -152,8 +152,8 @@ export default function DashboardWatchlistPanel({
       {watchlist.length === 0 ? (
         <div style={{ padding: "32px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,130,246,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, color: "#3B82F6" }}>☆</div>
-          <p style={{ fontSize: 13, color: "#475569", textAlign: "center", margin: 0 }}>Henüz hisse eklemediniz</p>
-          <p style={{ fontSize: 11, color: "#2D3F55", textAlign: "center", margin: 0 }}>Hisse sayfalarındaki yıldız ikonuna tıklayın</p>
+          <p style={{ fontSize: 13, color: "#94A3B8", textAlign: "center", margin: 0 }}>Henüz hisse eklemediniz</p>
+          <p style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", margin: 0 }}>Hisse sayfalarındaki yıldız ikonuna tıklayın</p>
         </div>
       ) : (
         watchlist.map((w, i) => {
@@ -168,7 +168,7 @@ export default function DashboardWatchlistPanel({
               <StockLogo ticker={w.ticker} domain={h?.domain} size={38} radius={9} color={tickerRenk(w.ticker)} />
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", letterSpacing: "-0.2px" }}>{w.ticker}</div>
-                <div title={h?.name || w.ticker} style={{ fontSize: 11, color: "#334155", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 120 }}>{h?.name || w.ticker}</div>
+                <div title={h?.name || w.ticker} style={{ fontSize: 12, color: "#94A3B8", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 120 }}>{h?.name || w.ticker}</div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9" }}>{f?.fiyat || "—"} ₺</div>
@@ -181,9 +181,9 @@ export default function DashboardWatchlistPanel({
               <button
                 onClick={(e) => { e.stopPropagation(); removeFromWatchlist(w.ticker); }}
                 aria-label={`${w.ticker} izleme listesinden çıkar`}
-                style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#334155", transition: "all 0.12s" }}
+                style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", transition: "all 0.12s" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.1)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,68,68,0.25)"; (e.currentTarget as HTMLButtonElement).style.color = "#EF4444"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLButtonElement).style.color = "#334155"; }}>
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLButtonElement).style.color = "#94A3B8"; }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
@@ -193,11 +193,11 @@ export default function DashboardWatchlistPanel({
 
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "12px 16px 10px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Son Analizlerim</p>
-          <a href="/analizler" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Son Analizlerim</p>
+          <a href="/analizler" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
         </div>
         {recent.length === 0 ? (
-          <p style={{ fontSize: 12, color: "#2D3F55", padding: "6px 0 8px", margin: 0 }}>Henüz analiz yapmadınız</p>
+          <p style={{ fontSize: 12, color: "#94A3B8", padding: "6px 0 8px", margin: 0 }}>Henüz analiz yapmadınız</p>
         ) : (
           recent.map((r, i) => {
             const h = bistMap.get(r.ticker);
@@ -212,17 +212,17 @@ export default function DashboardWatchlistPanel({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{r.ticker}</span>
-                    {sirketAdi && <span title={sirketAdi} style={{ fontSize: 10, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sirketAdi}</span>}
+                    {sirketAdi && <span title={sirketAdi} style={{ fontSize: 12, color: "#94A3B8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sirketAdi}</span>}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#2D3F55" strokeWidth="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
-                    <span style={{ fontSize: 10, color: "#334155" }}>{r.time}</span>
+                    <span style={{ fontSize: 12, color: "#94A3B8" }}>{r.time}</span>
                   </div>
                 </div>
                 {f && (
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#E2E8F0" }}>{f.fiyat} ₺</div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
                       {f.yukselis ? "▲" : "▼"} {formatPercent(Number(f.degisim), { symbolPosition: "prefix", signDisplay: "never" })}
                     </div>
                   </div>

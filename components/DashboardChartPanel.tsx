@@ -77,9 +77,9 @@ export default function DashboardChartPanel({ bistHisseler, chart }: Props) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <h2 style={{ fontSize: 11, fontWeight: 600, color: "#475569", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>Piyasa Grafiği</h2>
+          <h2 style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8", letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>Piyasa Grafiği</h2>
           <div style={{ position: "relative" }}>
             <button
               onClick={() => setGrafikDropdown(v => !v)}
@@ -154,7 +154,7 @@ export default function DashboardChartPanel({ bistHisseler, chart }: Props) {
             { label: "1Y", value: "1y" },
           ].map((r) => (
             <button key={r.value} onClick={() => { setGrafikRange(r.value); fetchBuyukGrafik(r.value); }}
-              style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: grafikRange === r.value ? 600 : 500, padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer", transition: "all 0.15s",
+              style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: grafikRange === r.value ? 600 : 500, padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer", transition: "all 0.15s",
                 background: grafikRange === r.value ? "#3B82F6" : "transparent",
                 color: grafikRange === r.value ? "#fff" : "#64748B",
                 boxShadow: grafikRange === r.value ? "0 1px 4px rgba(59,130,246,0.3)" : "none" }}>
@@ -178,14 +178,14 @@ export default function DashboardChartPanel({ bistHisseler, chart }: Props) {
                 {degisim >= 0 ? "▲ +" : "▼ "}{formatPercent(degisim, { signDisplay: "never" })}
               </span>
             )}
-            <span style={{ fontSize: 12, color: "#475569" }}>15 dk gecikmeli</span>
+            <span style={{ fontSize: 12, color: "#94A3B8" }}>15 dk gecikmeli</span>
           </div>
         );
       })()}
       <div ref={setGrafikContainerRef} className="dash-surface" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 12, padding: "14px 8px 8px 0", position: "relative", height: chartShellHeight, minWidth: 0, boxSizing: "border-box" }}>
         {grafikYukleniyor && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(11,18,32,0.7)", borderRadius: 12, zIndex: 10 }}>
-            <span style={{ fontSize: 12, color: "#64748B" }}>Yükleniyor...</span>
+            <span style={{ fontSize: 12, color: "#94A3B8" }}>Yükleniyor...</span>
           </div>
         )}
         {buyukGrafik.length > 0 && (() => {
@@ -204,10 +204,10 @@ export default function DashboardChartPanel({ bistHisseler, chart }: Props) {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false}/>
-                <XAxis dataKey="tarih" tick={{ fontSize: 12, fill: "#334155" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                <XAxis dataKey="tarih" tick={{ fontSize: 12, fill: "#94A3B8" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                 <YAxis
                   domain={[mn - pad, mx + pad]}
-                  tick={{ fontSize: 12, fill: "#334155" }}
+                  tick={{ fontSize: 12, fill: "#94A3B8" }}
                   tickLine={false}
                   axisLine={false}
                   width={60}

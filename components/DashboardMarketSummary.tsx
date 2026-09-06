@@ -30,7 +30,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Özeti</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Özeti</p>
         <span style={{ fontSize: 12, fontWeight: 700, color: acik ? "#10B981" : "#EF4444", background: acik ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${acik ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}`, borderRadius: 4, padding: "2px 7px", letterSpacing: "0.04em" }}>
           {acik ? "● AÇIK" : "● KAPALI"}
         </span>
@@ -62,15 +62,15 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
               <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 11, color: "#64748B", fontWeight: 600, letterSpacing: "0.04em" }}>{e.label}</span>
+                <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600, letterSpacing: "0.04em" }}>{e.label}</span>
                 {e.gecikme && (
                   <span style={{ position: "relative", display: "inline-flex" }} className="g-tooltip-wrap">
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 3, padding: "1px 4px", lineHeight: 1.4, cursor: "default" }}>G</span>
                     <span style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }} className="g-tooltip">15 dk gecikmeli</span>
                   </span>
                 )}
               </div>
-              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 4 }}>
+              <div className="flex min-w-0 flex-col gap-2">
                 <div style={{ minWidth: 0 }}>
                   {e.val === "-" ? (
                     <>
@@ -87,7 +87,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
                     </>
                   )}
                 </div>
-                <svg width="72" height="32" viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
+                <svg aria-hidden="true" className="h-8 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
                   <defs>
                     <linearGradient id={`sg-${e.label}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={color} stopOpacity="0.3"/>

@@ -42,21 +42,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
   const [mod, setMod] = useState<"total" | "daily">("total");
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  if (!portfoyOzet) {
-    return (
-      <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "24px 16px", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12 }}>
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.35) 70%, transparent 100%)" }} />
-        <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-        </div>
-        <div>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", marginBottom: 4 }}>Portföyünüzü Takip Edin</p>
-          <p style={{ fontSize: 11, color: "#334155", lineHeight: 1.5 }}>Hisselerinizi ekleyin, kâr/zarar ve dağılımı anlık görün.</p>
-        </div>
-        <a href="/portfoy" style={{ display: "inline-block", background: "#3B82F6", color: "#fff", fontSize: 12, fontWeight: 600, padding: "8px 18px", borderRadius: 8, textDecoration: "none" }}>Portföy Oluştur →</a>
-      </div>
-    );
-  }
+  if (!portfoyOzet) return null;
 
   const aktifPL = mod === "daily" ? portfoyOzet.gunlukPL : portfoyOzet.toplamPL;
   const aktifPLYuzde = mod === "daily" ? portfoyOzet.gunlukPLYuzde : portfoyOzet.toplamPLYuzde;
@@ -68,38 +54,38 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.35) 70%, transparent 100%)" }} />
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Portföy Özeti</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Portföy Özeti</p>
           <span className="g-tooltip-wrap" style={{ position: "relative", display: "inline-flex" }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
             <span className="g-tooltip" style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }}>15 dk gecikmeli</span>
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 6, padding: 2 }}>
-            {([{ key: "daily" as const, label: "Günlük" }, { key: "total" as const, label: "Total" }]).map(item => (
+            {([{ key: "daily" as const, label: "Günlük" }, { key: "total" as const, label: "Toplam" }]).map(item => (
               <button key={item.key} onClick={() => setMod(item.key)}
-                style={{ border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", background: mod === item.key ? "#3B82F6" : "transparent", color: mod === item.key ? "#fff" : "#475569" }}>
+                style={{ border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 12, fontWeight: 700, cursor: "pointer", background: mod === item.key ? "#3B82F6" : "transparent", color: mod === item.key ? "#fff" : "#475569" }}>
                 {item.label}
               </button>
             ))}
           </div>
-          <a href="/portfoy" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
+          <a href="/portfoy" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
         </div>
       </div>
 
       {/* Toplam değer */}
       <div style={{ marginBottom: 12 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: "#2D3F55", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Toplam Değer</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Toplam Değer</p>
         <p style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.8px", margin: 0 }}>
           {formatCurrency(portfoyOzet.toplamGuncel)}
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
-          <span style={{ fontSize: 10, color: "#334155", fontWeight: 600 }}>{aktifLabel}</span>
+          <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600 }}>{aktifLabel}</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: aktifPozitif ? "#10B981" : "#EF4444" }}>
             {formatPercent(aktifPLYuzde, { symbolPosition: "prefix" })}
-            <span style={{ fontSize: 11, fontWeight: 500, marginLeft: 4, opacity: 0.75 }}>
+            <span style={{ fontSize: 12, fontWeight: 500, marginLeft: 4, opacity: 0.75 }}>
               ({formatSignedCurrency(aktifPL)})
             </span>
           </span>
@@ -160,7 +146,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                   <text x={cx} y={cy + 7} textAnchor="middle" fontSize="9" fill={hov.renk} fontWeight="700" fontFamily="sans-serif">{formatPercent(hov.yuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</text>
                 </>
               ) : (
-                <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fill="#334155" fontWeight="600" fontFamily="sans-serif">{grafikDilims.length} hisse</text>
+                <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fill="#94A3B8" fontWeight="600" fontFamily="sans-serif">{grafikDilims.length} hisse</text>
               )}
             </svg>
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
@@ -170,16 +156,16 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                     <div style={{ width: 5, height: 5, borderRadius: "50%", background: h.renk, flexShrink: 0 }} />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8" }}>{h.ticker}</span>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#475569" }}>{formatPercent(h.yuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8" }}>{formatPercent(h.yuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</span>
                 </div>
               ))}
               {digerDilims.length > 0 && (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 3, borderTop: "1px solid rgba(255,255,255,0.04)", marginTop: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                     <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#2D3F55" }} />
-                    <span style={{ fontSize: 12, color: "#475569" }}>Diğer</span>
+                    <span style={{ fontSize: 12, color: "#94A3B8" }}>Diğer</span>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#334155" }}>{formatPercent(digerYuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8" }}>{formatPercent(digerYuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</span>
                 </div>
               )}
             </div>
@@ -196,7 +182,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
           { label: mod === "daily" ? "Günlük" : "Getiri", value: formatPercent(aktifPLYuzde, { signDisplay: "always" }), color: aktifPozitif ? "#10B981" : "#EF4444" },
         ].map((item) => (
           <div key={item.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 7, padding: "7px 10px" }}>
-            <p style={{ fontSize: 9, fontWeight: 700, color: "#2D3F55", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</p>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>{item.label}</p>
             <p style={{ fontSize: 12, fontWeight: 700, color: item.color, margin: 0 }} suppressHydrationWarning>{item.value}</p>
           </div>
         ))}
@@ -243,14 +229,14 @@ function ActiveAlarmsCard() {
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.35) 70%, transparent 100%)" }} />
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Aktif Alarmlar</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Aktif Alarmlar</p>
           {!loading && alarmlar.length > 0 && (
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#F59E0B", background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.22)", borderRadius: 999, padding: "1px 6px" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#F59E0B", background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.22)", borderRadius: 999, padding: "1px 6px" }}>
               {alarmlar.length}
             </span>
           )}
         </div>
-        <a href="/alarmlar" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none", whiteSpace: "nowrap" }}>Tümü →</a>
+        <a href="/alarmlar" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none", whiteSpace: "nowrap" }}>Tümü →</a>
       </div>
 
       {loading ? (
@@ -266,8 +252,8 @@ function ActiveAlarmsCard() {
               <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
             </svg>
           </div>
-          <p style={{ fontSize: 12, color: "#475569", margin: 0, lineHeight: 1.5 }}>Aktif alarm yok.<br />Hisse fiyatlarını takip edin.</p>
-          <a href="/alarmlar" style={{ fontSize: 11, fontWeight: 600, color: "#3B82F6", textDecoration: "none", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", padding: "5px 12px", borderRadius: 6 }}>Alarm Ekle →</a>
+          <p style={{ fontSize: 12, color: "#94A3B8", margin: 0, lineHeight: 1.5 }}>Aktif alarm yok.<br />Hisse fiyatlarını takip edin.</p>
+          <a href="/alarmlar" style={{ fontSize: 12, fontWeight: 600, color: "#3B82F6", textDecoration: "none", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.18)", padding: "5px 12px", borderRadius: 6 }}>Alarm Ekle →</a>
         </div>
       ) : (
         <>
@@ -279,7 +265,7 @@ function ActiveAlarmsCard() {
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: a.kosul === "yukari" ? "#10B981" : "#EF4444", flexShrink: 0 }} />
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", letterSpacing: "-0.2px" }}>{a.ticker}</span>
-                <span style={{ fontSize: 11, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{TIP_LABEL[a.tip] ?? a.tip}</span>
+                <span style={{ fontSize: 12, color: "#94A3B8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{TIP_LABEL[a.tip] ?? a.tip}</span>
               </div>
               <div style={{ textAlign: "right", flexShrink: 0 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: a.kosul === "yukari" ? "#10B981" : "#EF4444" }}>
@@ -303,23 +289,23 @@ function MarketNewsCard({ kap }: { kap: MarketNews[] }) {
     <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", position: "relative" }}>
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(139,92,246,0.4) 70%, transparent 100%)" }} />
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Haberleri</p>
-        <a href="/haberler" style={{ fontSize: 11, color: "#3B82F6", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Haberleri</p>
+        <a href="/haberler" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
       </div>
       {kap.length === 0 ? (
-        <div style={{ padding: "14px", color: "#334155", fontSize: 12 }}>Haberler yükleniyor.</div>
+        <div style={{ padding: "14px", color: "#94A3B8", fontSize: 12 }}>Haberler yükleniyor.</div>
       ) : (
         <>
           {kap.map((k, i) => (
             <div key={`${k.ticker}-${k.time}-${i}`} style={{ padding: "9px 14px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
-                <span style={{ fontSize: 10, fontWeight: 800, color: "#60A5FA", background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 4, padding: "1px 6px", letterSpacing: "0.04em" }}>{k.ticker}</span>
-                <span style={{ fontSize: 10, color: "#334155", fontWeight: 500 }}>{k.time}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: "#60A5FA", background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 4, padding: "1px 6px", letterSpacing: "0.04em" }}>{k.ticker}</span>
+                <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>{k.time}</span>
               </div>
               <div style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.45 }}>{k.title}</div>
             </div>
           ))}
-          <a href="/haberler" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 14px", textDecoration: "none", color: "#334155", fontSize: 11, fontWeight: 600, background: "rgba(255,255,255,0.015)", letterSpacing: "0.02em" }}>
+          <a href="/haberler" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 14px", textDecoration: "none", color: "#94A3B8", fontSize: 12, fontWeight: 600, background: "rgba(255,255,255,0.015)", letterSpacing: "0.02em" }}>
             Tüm haberleri gör →
           </a>
         </>
@@ -398,8 +384,8 @@ function UpcomingEventsCard() {
     <div className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, overflow: "hidden", position: "relative" }}>
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 40%, rgba(59,130,246,0.4) 70%, transparent 100%)" }} />
       <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(167,139,250,0.7)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Ekonomik Takvim</p>
-        <a href="/takvim" style={{ fontSize: 11, color: "#A78BFA", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(167,139,250,0.7)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Ekonomik Takvim</p>
+        <a href="/takvim" style={{ fontSize: 12, color: "#A78BFA", textDecoration: "none", opacity: 0.8 }}>Tümü →</a>
       </div>
 
       {loading ? (
@@ -409,21 +395,21 @@ function UpcomingEventsCard() {
           ))}
         </div>
       ) : events.length === 0 ? (
-        <div style={{ padding: "12px 14px", fontSize: 12, color: "#334155" }}>Yaklaşan önemli olay yok.</div>
+        <div style={{ padding: "12px 14px", fontSize: 12, color: "#94A3B8" }}>Yaklaşan önemli olay yok.</div>
       ) : (
         events.map((e, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderBottom: i < events.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
             <div style={{ flexShrink: 0, width: 44, textAlign: "center" }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: ONEM_RENK[e.onem] ?? "#475569", background: ONEM_BG[e.onem] ?? "transparent", border: `1px solid ${ONEM_BORDER[e.onem] ?? "transparent"}`, borderRadius: 4, padding: "2px 4px", lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: ONEM_RENK[e.onem] ?? "#475569", background: ONEM_BG[e.onem] ?? "transparent", border: `1px solid ${ONEM_BORDER[e.onem] ?? "transparent"}`, borderRadius: 4, padding: "2px 4px", lineHeight: 1.4 }}>
                 {e.gunEtiketi}
               </div>
-              <div style={{ fontSize: 10, color: "#334155", marginTop: 2, fontWeight: 500 }}>{e.saat}</div>
+              <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2, fontWeight: 500 }}>{e.saat}</div>
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: 12, color: "#CBD5E1", fontWeight: 600, lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {e.ulke} {e.baslik}
               </div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: ONEM_RENK[e.onem] ?? "#475569", marginTop: 2, letterSpacing: "0.04em" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: ONEM_RENK[e.onem] ?? "#475569", marginTop: 2, letterSpacing: "0.04em" }}>
                 {e.onem} önem
               </div>
             </div>

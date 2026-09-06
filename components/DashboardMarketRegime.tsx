@@ -55,21 +55,21 @@ export default function DashboardMarketRegime() {
         onClick={() => setOpen((v) => !v)}
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 0, border: 0, background: "transparent", textAlign: "left", cursor: "pointer" }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(96,165,250,0.65)", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Rejimi</p>
-          <span style={{ fontSize: 10, fontWeight: 800, color: style.color, background: style.bg, border: `1px solid ${style.border}`, borderRadius: 999, padding: "2px 7px" }}>{style.label}</span>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Rejimi</p>
+          <span style={{ fontSize: 12, fontWeight: 800, color: style.color, background: style.bg, border: `1px solid ${style.border}`, borderRadius: 999, padding: "2px 7px" }}>{style.label}</span>
           {!open && <span style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 800 }}>{data.mod}</span>}
         </div>
-        <span style={{ color: "#64748B", fontSize: 12, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.16s ease" }}>⌄</span>
+        <span style={{ color: "#94A3B8", fontSize: 12, transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.16s ease" }}>⌄</span>
       </button>
 
-      {open && <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginTop: 10 }}>
+      {open && <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
         <div style={{ minWidth: 0 }}>
           <p style={{ margin: 0, color: "#F8FAFC", fontSize: 20, lineHeight: 1.15, fontWeight: 800, letterSpacing: "-0.3px" }}>{data.mod}</p>
-          <p style={{ margin: "6px 0 0", color: "#64748B", fontSize: 12, lineHeight: 1.45 }}>{data.ozet}</p>
+          <p style={{ margin: "6px 0 0", color: "#94A3B8", fontSize: 12, lineHeight: 1.45 }}>{data.ozet}</p>
         </div>
         <div style={{ minWidth: 140, textAlign: "right" }}>
-          <p style={{ margin: 0, color: "#64748B", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Yayılım</p>
+          <p style={{ margin: 0, color: "#94A3B8", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Yayılım</p>
           <p style={{ margin: "2px 0 5px", color: style.color, fontSize: 18, fontWeight: 800 }}>{formatPercent(yayilim, { fractionDigits: 1 })}</p>
           <div style={{ height: 4, borderRadius: 999, background: "rgba(148,163,184,0.10)", overflow: "hidden" }}>
             <div style={{ width: `${yayilim}%`, height: "100%", background: style.color, opacity: 0.8 }} />
@@ -84,7 +84,7 @@ export default function DashboardMarketRegime() {
           { label: "Hacim", value: data.metrikler.hacimCanliligi, color: "#CBD5E1" },
         ].map((item) => (
           <div key={item.label} style={{ border: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.018)", borderRadius: 8, padding: "8px 9px" }}>
-            <p style={{ margin: 0, color: "#475569", fontSize: 10, fontWeight: 700 }}>{item.label}</p>
+            <p style={{ margin: 0, color: "#94A3B8", fontSize: 12, fontWeight: 700 }}>{item.label}</p>
             <p style={{ margin: "3px 0 0", color: item.color, fontSize: 13, fontWeight: 800, whiteSpace: "nowrap" }}>{typeof item.value === "number" ? formatNumber(item.value) : item.value}</p>
           </div>
         ))}

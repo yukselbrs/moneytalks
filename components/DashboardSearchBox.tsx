@@ -214,8 +214,8 @@ export default function DashboardSearchBox({
           <div className="dash-search-suggestions">
             <div className="dash-search-sheet-header">
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#60A5FA" }}>Hisse Ara</div>
-                <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>{aramaOneri.length} sonuç</div>
+                <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#60A5FA" }}>Hisse Ara</div>
+                <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{aramaOneri.length} sonuç</div>
               </div>
               <button
                 type="button"
@@ -247,12 +247,12 @@ export default function DashboardSearchBox({
                   <StockLogo ticker={h.ticker} domain={h.domain} size={28} radius={6} color={tickerRenk(h.ticker)} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</div>
-                    <div className="dash-search-company" style={{ fontSize: 11, color: "#475569", marginTop: 1 }}>{h.name}</div>
+                    <div className="dash-search-company" style={{ fontSize: 12, color: "#94A3B8", marginTop: 1 }}>{h.name}</div>
                   </div>
                   {(() => { const f = aramaFiyatlar[h.ticker] ?? fiyatlar[h.ticker]; return f ? (
                     <div style={{ textAlign: "right", marginRight: 4, flexShrink: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: "#E2E8F0", whiteSpace: "nowrap" }}>{f.fiyat} ₺</div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: f.yukselis ? "#10B981" : "#EF4444" }}>
                         {f.yukselis ? "▲" : "▼"} {formatPercent(Number(f.degisim), { symbolPosition: "prefix", signDisplay: "never" })}
                       </div>
                     </div>

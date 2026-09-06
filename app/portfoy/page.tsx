@@ -478,7 +478,7 @@ export default function PortfoyPage() {
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div className="p-5 flex items-start gap-0">
               <div className="flex-1 min-w-0">
-                <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.15em] mb-1.5">Portföy Değeri</p>
                 <div className="flex items-baseline gap-2 mb-1">
                   <p className="portfolio-number text-white" style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1 }}>
                     {fiyatlarTam ? formatNumber(displayDeger, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}
@@ -504,19 +504,19 @@ export default function PortfoyPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-3 border-t border-slate-800/80">
                   <div>
-                    <p className="text-slate-600 text-[10px] font-medium mb-0.5">Ana Para</p>
+                    <p className="text-slate-400 text-[10px] font-medium mb-0.5">Ana Para</p>
                     <p className="portfolio-number text-slate-300 text-sm font-semibold">{formatCurrency(toplamMaliyet, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}</p>
                   </div>
                   <div className="w-px h-5 bg-slate-800" />
                   <div>
-                    <p className="text-slate-600 text-[10px] font-medium mb-0.5">Pozisyon</p>
+                    <p className="text-slate-400 text-[10px] font-medium mb-0.5">Pozisyon</p>
                     <p className="text-slate-300 text-sm font-semibold">{portfoy.length} hisse</p>
                   </div>
                   {portfoyRiskSkor && !portfoyRiskSkor.yukleniyor && (
                     <>
                       <div className="w-px h-5 bg-slate-800" />
                       <div>
-                        <p className="text-slate-600 text-[10px] font-medium mb-0.5">Portföy Riski</p>
+                        <p className="text-slate-400 text-[10px] font-medium mb-0.5">Portföy Riski</p>
                         <p className={`text-sm font-bold ${portfoyRiskSkor.seviye === "Yüksek" ? "text-red-400" : portfoyRiskSkor.seviye === "Orta" ? "text-yellow-400" : "text-emerald-400"}`}>
                           {portfoyRiskSkor.seviye} · {portfoyRiskSkor.skor}/100
                         </p>
@@ -595,7 +595,7 @@ export default function PortfoyPage() {
                         <div key={item.ticker} className="flex items-center gap-2">
                           <span style={{ width: 6, height: 6, borderRadius: "50%", background: PASTA_RENKLER[i % PASTA_RENKLER.length], flexShrink: 0 }} />
                           <span className="text-slate-400 text-xs font-medium w-12">{item.ticker}</span>
-                          <span className="text-slate-600 text-xs tabular-nums">{o.toFixed(1)}%</span>
+                          <span className="text-slate-400 text-xs tabular-nums">{o.toFixed(1)}%</span>
                         </div>
                       );
                     })}
@@ -741,7 +741,7 @@ export default function PortfoyPage() {
               {grafikAcik && <p className="mt-2 text-xs leading-relaxed text-slate-400">Mevcut pozisyonların geçmiş fiyatlarla hesaplanan değişimi. İşlem tarihçesi, nakit akışları ve komisyonlar dahil değildir.</p>}
               {grafikAcik && grafikHata && <p role="status" className="mt-3 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3 text-sm text-amber-200">{grafikHata}</p>}
               {grafikAcik && (grafikYukleniyor && grafik.length === 0 ? (
-                <div className="h-28 flex items-center justify-center text-slate-600 text-xs animate-pulse mt-3">Yükleniyor...</div>
+                <div className="h-28 flex items-center justify-center text-slate-400 text-xs animate-pulse mt-3">Yükleniyor...</div>
               ) : grafik.length > 1 ? (() => {
                 const son = grafik[grafik.length - 1].degisim;
                 const pozitif = son >= 0;
@@ -759,7 +759,7 @@ export default function PortfoyPage() {
                             <stop offset="100%" stopColor={renk} stopOpacity="0" />
                           </linearGradient>
                         </defs>
-                        <XAxis dataKey="tarih" tick={{ fontSize: 9, fill: "#475569" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                        <XAxis dataKey="tarih" tick={{ fontSize: 9, fill: "#94A3B8" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                         <YAxis hide domain={["dataMin", "dataMax"]} />
                         <Tooltip
                           contentStyle={{ background: "#0F172A", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, fontSize: 11 }}
@@ -772,7 +772,7 @@ export default function PortfoyPage() {
                   </div>
                 );
               })() : (
-                <div className="h-28 flex items-center justify-center text-slate-600 text-xs mt-3">Veri yok</div>
+                <div className="h-28 flex items-center justify-center text-slate-400 text-xs mt-3">Veri yok</div>
               ))}
             </div>
           </div>
@@ -785,7 +785,7 @@ export default function PortfoyPage() {
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>💼</div>
             <div>
               <p style={{ fontSize: 18, fontWeight: 700, color: "#E2E8F0", marginBottom: 8 }}>Portföyünüz boş</p>
-              <p style={{ fontSize: 13, color: "#64748B", lineHeight: 1.6, maxWidth: 280 }}>Hisselerinizi ekleyerek kâr/zarar ve performansınızı anlık takip edin.</p>
+              <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.6, maxWidth: 280 }}>Pozisyonlarınızı ekleyin; maliyetinizi, kâr/zararınızı ve dağılımınızı bir arada görün. Fiyatlar 15 dakika gecikmelidir.</p>
             </div>
             <button
               onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
@@ -801,7 +801,7 @@ export default function PortfoyPage() {
               ].map(f => (
                 <div key={f.text} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(59,130,246,0.08)", borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{f.icon}</div>
-                  <div style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>{f.text}</div>
+                  <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 500 }}>{f.text}</div>
                 </div>
               ))}
             </div>
@@ -839,7 +839,7 @@ export default function PortfoyPage() {
                     </div>
                     <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-slate-600">Maliyet {formatCurrency(item.maliyet)}</span>
+                        <span className="text-[10px] text-slate-400">Maliyet {formatCurrency(item.maliyet)}</span>
                         {(() => {
                           const gunluk = gunlukHesapla(item);
                           if (!gunluk) return null;
@@ -847,7 +847,7 @@ export default function PortfoyPage() {
                           return <span className={`portfolio-number text-[10px] font-semibold ${pozitif ? "text-emerald-500" : "text-red-500"}`}>Günlük {formatSignedCurrency(gunluk.gunluk)}</span>;
                         })()}
                       </div>
-                      <span className="text-slate-600 text-[10px]">{acik ? "▲" : "▼"}</span>
+                      <span className="text-slate-400 text-[10px]">{acik ? "▲" : "▼"}</span>
                     </div>
                   </div>
                   {acik && (
@@ -862,7 +862,7 @@ export default function PortfoyPage() {
                           { label: "Güncel Değer", value: pl ? formatCurrency(pl.guncel_toplam) : "—", cls: "text-white" },
                         ].map(s => (
                           <div key={s.label} className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                            <p className="text-slate-600 text-[10px] mb-1">{s.label}</p>
+                            <p className="text-slate-400 text-[10px] mb-1">{s.label}</p>
                             <p className={`portfolio-number text-sm font-semibold ${s.cls}`}>{s.value}</p>
                           </div>
                         ))}
@@ -873,11 +873,11 @@ export default function PortfoyPage() {
                           return (
                             <>
                               <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                                <p className="text-slate-600 text-[10px] mb-1">Günlük ₺</p>
+                                <p className="text-slate-400 text-[10px] mb-1">Günlük ₺</p>
                                 <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? formatSignedCurrency(gunluk.gunluk) : "—"}</p>
                               </div>
                               <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
-                                <p className="text-slate-600 text-[10px] mb-1">Günlük %</p>
+                                <p className="text-slate-400 text-[10px] mb-1">Günlük %</p>
                                 <p className={`portfolio-number text-sm font-semibold ${cls}`}>{gunluk ? formatPercent(gunluk.gunlukYuzde, { signDisplay: "always" }) : "—"}</p>
                               </div>
                             </>
@@ -915,7 +915,7 @@ export default function PortfoyPage() {
                         <Link href={pozisyonLink(item)} className="flex-1 py-2 rounded-lg text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors text-center"
                           style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)" }}>Analiz →</Link>
                         <button onClick={() => setSilModal({ open: true, ticker: item.ticker })}
-                          className="px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors"
+                          className="px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-red-400 hover:bg-red-900/20 transition-colors"
                           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>✕</button>
                       </div>
                     </div>
@@ -984,7 +984,7 @@ export default function PortfoyPage() {
                                 </span>
                               )}
                             </div>
-                            {sirketAdi && <p className="text-[10px] text-slate-600 mt-0.5 leading-none truncate max-w-[140px]">{sirketAdi}</p>}
+                            {sirketAdi && <p className="text-[10px] text-slate-400 mt-0.5 leading-none truncate max-w-[140px]">{sirketAdi}</p>}
                             {risk?.skor && !risk.yukleniyor && (
                               <button
                                 onClick={() => setRiskler((prev) => ({ ...prev, [item.ticker]: { ...prev[item.ticker], detay: !prev[item.ticker]?.detay } }))}
@@ -994,21 +994,21 @@ export default function PortfoyPage() {
                               </button>
                             )}
                             {risk?.yukleniyor && (
-                              <span className="mt-1 text-slate-600 text-[10px] animate-pulse block">Hesaplanıyor...</span>
+                              <span className="mt-1 text-slate-400 text-[10px] animate-pulse block">Hesaplanıyor...</span>
                             )}
                           </td>
                           <td className="portfolio-number px-3 py-2.5 text-right text-slate-300 text-sm hidden sm:table-cell">{formatQuantity(item.adet)}</td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm">{formatCurrency(item.maliyet)}</td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-sm" style={{ transition: "background 0.7s ease", background: flash === "up" ? "rgba(16,185,129,0.12)" : flash === "down" ? "rgba(239,68,68,0.12)" : "transparent" }}>
-                            {fiyat ? <span className="text-white font-semibold">{formatCurrency(fiyat.fiyat)}</span> : <span className="text-slate-700">—</span>}
+                            {fiyat ? <span className="text-white font-semibold">{formatCurrency(fiyat.fiyat)}</span> : <span className="text-slate-400">—</span>}
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm hidden sm:table-cell">
                             {formatCurrency(item.adet * item.maliyet)}
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-white text-sm font-semibold hidden sm:table-cell">
-                            {pl ? <>{formatCurrency(pl.guncel_toplam)}</> : <span className="text-slate-700">—</span>}
+                            {pl ? <>{formatCurrency(pl.guncel_toplam)}</> : <span className="text-slate-400">—</span>}
                           </td>
-                          <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-600" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-2.5 text-right text-sm font-medium hidden md:table-cell ${gunlukPozitif === null ? "text-slate-400" : gunlukPozitif ? "text-emerald-400" : "text-red-400"}`}>
                             {gunluk ? (
                               <div>
                                 <div>{formatSignedCurrency(gunluk.gunluk)}</div>
@@ -1016,10 +1016,10 @@ export default function PortfoyPage() {
                               </div>
                             ) : "—"}
                           </td>
-                          <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] ${isPos === null ? "text-slate-400" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                             {pl ? formatSignedCurrency(pl.pl) : "—"}
                           </td>
-                          <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] hidden sm:table-cell ${isPos === null ? "text-slate-600" : isPos ? "text-emerald-400" : "text-red-400"}`}>
+                          <td className={`portfolio-number px-4 py-2.5 text-right font-bold text-[15px] hidden sm:table-cell ${isPos === null ? "text-slate-400" : isPos ? "text-emerald-400" : "text-red-400"}`}>
                             {pl ? formatPercent(pl.plYuzde, { signDisplay: "always" }) : "—"}
                           </td>
                           <td className="px-3 py-2.5">
@@ -1027,9 +1027,9 @@ export default function PortfoyPage() {
                               {!risk?.skor && !risk?.yukleniyor && !hisseHarici(item) && (
                                 <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">⚡</button>
                               )}
-                              <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Lot Ekle/Çıkar" className="p-1.5 rounded text-slate-600 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
-                              <Link href={pozisyonLink(item)} title="Analiz" className="p-1.5 rounded text-slate-600 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-sm">→</Link>
-                              <button onClick={() => setSilModal({ open: true, ticker: item.ticker })} title="Sil" className="p-1.5 rounded text-slate-700 hover:text-red-400 hover:bg-red-900/20 transition-colors text-xs">✕</button>
+                              <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Lot Ekle/Çıkar" className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
+                              <Link href={pozisyonLink(item)} title="Analiz" className="p-1.5 rounded text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-sm">→</Link>
+                              <button onClick={() => setSilModal({ open: true, ticker: item.ticker })} title="Sil" className="p-1.5 rounded text-slate-400 hover:text-red-400 hover:bg-red-900/20 transition-colors text-xs">✕</button>
                             </div>
                           </td>
                         </tr>
@@ -1075,7 +1075,7 @@ export default function PortfoyPage() {
                 {senaryoAcik && <span className="text-xs text-slate-500">XU100 değişirse portföy tahmini nasıl etkilenir?</span>}
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                className="text-slate-600 transition-transform duration-200" style={{ transform: senaryoAcik ? "rotate(180deg)" : "rotate(0)" }}>
+                className="text-slate-400 transition-transform duration-200" style={{ transform: senaryoAcik ? "rotate(180deg)" : "rotate(0)" }}>
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </button>
@@ -1090,7 +1090,7 @@ export default function PortfoyPage() {
                 <div className="grid grid-cols-1 gap-4 px-5 py-4 lg:grid-cols-[minmax(260px,0.85fr)_1fr] lg:items-center">
                   <div>
                     <div className="mb-2 flex items-center justify-between">
-                      <span className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em]">XU100 Senaryosu</span>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.12em]">XU100 Senaryosu</span>
                       <span className={`portfolio-number text-lg font-extrabold ${senaryoYuzde > 0 ? "text-emerald-400" : senaryoYuzde < 0 ? "text-red-400" : "text-slate-500"}`}>
                         {senaryoYuzde > 0 ? "+" : ""}{senaryoYuzde}%
                       </span>
@@ -1111,13 +1111,13 @@ export default function PortfoyPage() {
                       />
                       <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-slate-600/45" />
                     </div>
-                    <div className="mt-2 flex justify-between text-[10px] text-slate-700 font-medium">
+                    <div className="mt-2 flex justify-between text-[10px] text-slate-400 font-medium">
                       <span>−40%</span><span>0</span><span>+40%</span>
                     </div>
                   </div>
 
                   {betaYukleniyor ? (
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
                       <div className="w-3 h-3 border border-slate-600 border-t-blue-500 rounded-full animate-spin" />
                       Beta verileri alınıyor...
                     </div>
@@ -1143,7 +1143,7 @@ export default function PortfoyPage() {
                       <div>
                         <div className="rounded-xl border border-slate-800/80 bg-slate-950/20 px-4 py-3">
                           <div>
-                            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em]">Tahmini Etki</p>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.12em]">Tahmini Etki</p>
                             <p className={`portfolio-number mt-0.5 text-lg font-extrabold ${totalImpact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                               {formatSignedCurrency(totalImpact, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
                               <span className="ml-2 text-xs font-semibold opacity-70">
@@ -1157,7 +1157,7 @@ export default function PortfoyPage() {
                           {rows.map((r, idx) => (
                             <div key={r.ticker} className="grid grid-cols-[64px_48px_1fr_58px_82px] items-center gap-2 px-3 py-2" style={{ borderTop: idx === 0 ? "none" : "1px solid rgba(255,255,255,0.035)" }}>
                               <span className="portfolio-number text-xs font-bold text-slate-300">{r.ticker}</span>
-                              <span className={`portfolio-number text-[10px] ${r.betaVarsayim ? "text-amber-400" : "text-slate-600"}`}>β {r.beta.toFixed(2)}{r.betaVarsayim ? "*" : ""}</span>
+                              <span className={`portfolio-number text-[10px] ${r.betaVarsayim ? "text-amber-400" : "text-slate-400"}`}>β {r.beta.toFixed(2)}{r.betaVarsayim ? "*" : ""}</span>
                               <div className="relative h-1 rounded-full bg-slate-800/70">
                                 <span className="absolute left-1/2 top-1/2 h-2.5 w-px -translate-y-1/2 bg-slate-600/40" />
                                 {senaryoYuzde !== 0 && (
@@ -1177,7 +1177,7 @@ export default function PortfoyPage() {
                           ))}
                         </div>
 
-                        <p className="mt-2 text-[10px] text-slate-700">
+                        <p className="mt-2 text-[10px] text-slate-400">
                           Beta katsayısı tahmindir; gerçek piyasa korelasyonu farklılaşabilir.
                           {betaVarsayilanlar.length > 0 && ` * ${betaVarsayilanlar.map(r => r.ticker).join(", ")} için beta verisi yok, β 1,00 varsayıldı.`}
                         </p>
@@ -1235,7 +1235,7 @@ export default function PortfoyPage() {
                             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                             <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
                               <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{f.kod}</span>
-                              <span className="truncate" style={{ fontSize: 11, color: "#475569", maxWidth: 150 }}>{f.unvan}</span>
+                              <span className="truncate" style={{ fontSize: 11, color: "#94A3B8", maxWidth: 150 }}>{f.unvan}</span>
                             </span>
                             <span style={{ fontSize: 10, fontWeight: 700, color: "#2DD4BF", background: "rgba(45,212,191,0.12)", borderRadius: 999, padding: "2px 8px", flexShrink: 0 }}>Fon</span>
                           </div>
@@ -1246,7 +1246,7 @@ export default function PortfoyPage() {
                             onMouseEnter={e => (e.currentTarget.style.background = "rgba(59,130,246,0.08)") }
                             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>{h.ticker}</span>
-                            <span style={{ fontSize: 11, color: "#475569" }}>{h.ad}</span>
+                            <span style={{ fontSize: 11, color: "#94A3B8" }}>{h.ad}</span>
                           </div>
                         ))}
                       </div>
