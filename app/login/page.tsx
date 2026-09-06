@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/components/lib/supabase";
 import LogoIcon from "@/components/LogoIcon";
+import StockLogo from "@/components/StockLogo";
+import { ArrowRight, ArrowUpRight, Eye, EyeOff, Sparkles } from "lucide-react";
 import { LS } from "@/lib/storage-keys";
 
 export default function LoginPage() {
@@ -77,168 +79,74 @@ export default function LoginPage() {
     }
   }
 
-  const features = [
-    { title: "Akıllı Analizler", desc: "Yapay zeka destekli analizler ile potansiyel fırsatları keşfedin." },
-    { title: "Gecikmeli Veri Şeffaflığı", desc: "Piyasa verilerinde gecikme bilgisini görün, analizleri bu bağlamla okuyun." },
-    { title: "Güvenli ve Kişisel", desc: "Portföyünüz ve takip listeniz hesabınıza özel tutulur." },
-  ];
-
   return (
-    <div className="login-shell" style={{ minHeight: "100vh", background: "#0B1220", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", overflowX: "hidden", boxSizing: "border-box" }}>
-      <style>{`
-        @media (max-width: 768px) {
-          .login-shell { padding: 16px !important; }
-          .login-grid { grid-template-columns: minmax(0, 1fr) !important; width: 100% !important; max-width: 360px !important; }
-          .login-left { display: none !important; }
-          .login-right { padding: 36px 24px !important; }
-          .login-grid,
-          .login-right,
-          .login-form,
-          .login-field {
-            min-width: 0 !important;
-            box-sizing: border-box !important;
-          }
-          .login-remember-row {
-            align-items: flex-start !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .login-right { padding: 32px 20px !important; }
-        }
-      `}</style>
-      <div className="login-grid" style={{ width: "100%", maxWidth: 900, display: "grid", gridTemplateColumns: "1fr 1fr", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(59,130,246,0.14)", boxShadow: "0 24px 80px rgba(0,0,0,0.28), 0 0 70px rgba(59,130,246,0.06)" }}>
+    <div className="flex min-h-dvh flex-col bg-[#060c17] text-slate-100">
+      <header className="mx-auto flex w-full max-w-[1536px] items-center justify-between gap-4 px-6 py-7 sm:px-10 lg:px-16">
+        <Link href="/" aria-label="ParaKonuşur ana sayfa" className="inline-flex items-center gap-3">
+          <LogoIcon size={32} />
+          <span className="text-xl font-semibold tracking-tight">para<span className="text-blue-500">konuşur</span></span>
+        </Link>
+        <Link href="/" className="inline-flex min-h-11 items-center gap-1.5 text-xs text-slate-300 transition hover:text-white sm:text-sm">Ana sayfaya dön <ArrowUpRight size={16} aria-hidden="true" /></Link>
+      </header>
 
-        {/* SOL KOLON */}
-        <div className="login-left" style={{ background: "linear-gradient(160deg, #0F1C2E 0%, #0B1220 100%)", padding: "40px 40px 36px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid rgba(59,130,246,0.1)" }}>
+      <main className="mx-auto grid w-full max-w-[1536px] flex-1 items-center gap-16 px-6 py-10 sm:px-10 lg:grid-cols-[1.3fr_1fr] lg:gap-24 lg:px-16 lg:py-16 xl:gap-36">
+        <section aria-labelledby="login-story-title" className="order-2 min-w-0 border-t border-slate-800/70 pt-10 lg:order-1 lg:border-0 lg:pt-0">
+          <p className="mb-5 text-xs tracking-[0.2em] text-blue-300">PİYASALARIN ÖTESİNİ GÖR</p>
+          <h1 id="login-story-title" className="font-[family-name:var(--font-geist)] text-[clamp(2.6rem,4.3vw,4.3rem)] font-semibold leading-[1.12] tracking-[-0.045em]">Her veri bir parça.<br /><span className="text-[#9bb8ff]">Birlikte anlamlı.</span></h1>
+          <p className="mt-7 text-base font-semibold leading-relaxed text-slate-100 xl:text-lg">Portföyün bugün neden değişti? Riskin nerede birikiyor?</p>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-300">Pako AI, getirini etkileyen hisseleri ve portföyündeki yoğunlaşmayı ortaya koyar. Şirket verilerini, teknik göstergeleri ve haberleri yorumlayarak nelere dikkat edebileceğini açıklar.</p>
 
-          <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
-            <LogoIcon size={32} />
-            <span style={{ fontSize: 18, fontWeight: 700, color: "#F1F5F9" }}>
-              para<span style={{ color: "#3B82F6" }}>konusur</span><span style={{ color: "#334155" }}>.com</span>
-            </span>
-          </Link>
-
-          <div style={{ margin: "36px 0 28px" }}>
-            <h1 style={{ fontSize: 30, fontWeight: 800, color: "#F8FAFC", lineHeight: 1.18, marginBottom: 12 }}>
-              Veriye dayalı kararlar,<br />
-              <span style={{ color: "#3B82F6" }}>güçlü yatırımlar.</span>
-            </h1>
-            <p style={{ fontSize: 14, color: "#8493A8", lineHeight: 1.65, margin: 0 }}>
-              BIST odaklı yapay zeka destekli analizler, 15 dakika gecikmeli veri şeffaflığı ve akıllı yatırım araçları.
-            </p>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 26 }}>
-            {features.map((f) => (
-              <div key={f.title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                <div style={{ width: 38, height: 38, borderRadius: 9, flexShrink: 0, background: "rgba(59,130,246,0.09)", border: "1px solid rgba(59,130,246,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={{ width: 15, height: 15, borderRadius: 4, background: "linear-gradient(135deg, #60A5FA, #1D4ED8)" }} />
-                </div>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0", margin: "0 0 3px" }}>{f.title}</p>
-                  <p style={{ fontSize: 12, color: "#76859A", lineHeight: 1.55, margin: 0 }}>{f.desc}</p>
-                </div>
-              </div>
+          <div className="mt-8">
+            <div className="mb-3 flex items-center justify-between gap-3 text-xs"><p className="tracking-[0.16em] text-slate-200">TAKİP ETTİĞİN DÜNYA</p><span className="text-slate-400">Örnek görünüm</span></div>
+            {[
+              { ticker: "THYAO", name: "Türk Hava Yolları", topic: "Bilanço" },
+              { ticker: "GARAN", name: "Garanti BBVA", topic: "KAP" },
+              { ticker: "ASELS", name: "Aselsan", topic: "Teknik görünüm" },
+            ].map(item => (
+              <Link key={item.ticker} href={`/hisse/${item.ticker}`} className="group flex items-center gap-4 border-t border-slate-800/70 py-4 transition hover:bg-slate-800/20">
+                <StockLogo ticker={item.ticker} size={36} radius={6} />
+                <div className="min-w-0 flex-1"><p className="text-sm font-medium">{item.ticker}</p><p className="mt-1 text-sm text-slate-400">{item.name}</p></div>
+                <span className="text-xs text-slate-400 sm:text-sm">{item.topic}</span><ArrowRight size={18} className="ml-2 shrink-0 text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-300" aria-hidden="true" />
+              </Link>
             ))}
           </div>
-
-          <div style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.16)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", margin: 0 }}>Pro özellikler yakında.</p>
-              <p style={{ fontSize: 11, color: "#76859A", margin: "3px 0 0" }}>Gelişmiş analizler ve özel veriler.</p>
-            </div>
-            <Link href="/pro" style={{ flexShrink: 0, padding: "8px 16px", background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", borderRadius: 8, textDecoration: "none", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>Pro — Çok Yakında</Link>
+          <div className="flex gap-4 border-t border-slate-800/70 pt-5">
+            <Sparkles size={23} className="mt-0.5 shrink-0 text-blue-400" aria-hidden="true" />
+            <div><p className="text-base text-blue-400">Sadece rakamları görme, ne anlattıklarını da öğren.</p><p className="mt-2 text-sm leading-6 text-slate-300">Portföyünü incele. Hisseleri karşılaştır. Pako’ya sor.</p><p className="mt-1 text-xs leading-5 text-slate-400">Yatırım tavsiyesi değildir.</p></div>
           </div>
+        </section>
 
-          <div style={{ display: "flex", gap: 16, marginTop: 24, flexWrap: "wrap" }}>
-            {["HTTPS bağlantı", "Gizlilik politikası", "Kişisel takip alanı"].map((t) => (
-              <div key={t} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ color: "#3B82F6", fontSize: 12 }}>✓</span>
-                <span style={{ fontSize: 11, color: "#5D6B80" }}>{t}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <section aria-labelledby="login-form-title" className="order-1 mx-auto w-full max-w-[464px] min-w-0 lg:order-2">
+          <p className="mb-3 text-xs tracking-[0.16em] text-slate-300">HESABINA GİRİŞ YAP</p>
+          <h2 id="login-form-title" className="font-[family-name:var(--font-geist)] text-[30px] font-medium leading-tight tracking-tight sm:text-[34px]">Tekrar hoş geldin.</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-400">Piyasayı kaldığın yerden takip et.</p>
 
-        {/* SAG KOLON */}
-        <div className="login-right" style={{ background: "#0F1829", padding: "40px 40px 36px", display: "flex", flexDirection: "column", justifyContent: "center", minWidth: 0, boxSizing: "border-box" }}>
-
-          <div style={{ textAlign: "center", marginBottom: 26 }}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", margin: "0 auto 14px", background: "linear-gradient(135deg, rgba(30,64,175,0.34), rgba(59,130,246,0.28))", border: "1px solid rgba(59,130,246,0.34)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <LogoIcon size={30} />
-            </div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#F8FAFC", margin: "0 0 6px" }}>Tekrar hoş geldiniz</h2>
-            <p style={{ fontSize: 13, color: "#8493A8", margin: 0 }}>Hesabınıza giriş yaparak devam edin.</p>
-          </div>
-
-          <form className="login-form" onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 15, width: "100%", minWidth: 0 }}>
-
+          <button type="button" onClick={handleGoogleLogin} disabled={loading} className="mt-8 flex min-h-[52px] w-full items-center justify-center gap-3 rounded-lg border border-slate-600/70 bg-white/[0.025] px-4 text-sm font-medium transition hover:border-slate-400 hover:bg-white/5 disabled:opacity-50">
+            <svg aria-hidden="true" width="21" height="21" viewBox="0 0 48 48"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.2h6.7c3.9-3.6 6-8.8 6-15.1Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.2c-1.8 1.2-4.1 1.9-6.8 1.9-5.3 0-9.9-3.6-11.5-8.4H5.6v5.3A20.4 20.4 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.5 27.4a12 12 0 0 1 0-7.7v-5.3H5.6a20 20 0 0 0 0 18.3l6.9-5.3Z"/><path fill="#EA4335" d="M24 11.2c3 0 5.7 1 7.8 3l5.9-5.9A19.7 19.7 0 0 0 24 3 20.4 20.4 0 0 0 5.6 14.4l6.9 5.3c1.6-4.9 6.2-8.5 11.5-8.5Z"/></svg>
+            Google ile devam et
+          </button>
+          <div className="my-7 flex items-center gap-5 text-sm text-slate-400" aria-hidden="true"><span className="h-px flex-1 bg-slate-700" />veya<span className="h-px flex-1 bg-slate-700" /></div>
+          <form onSubmit={handleLogin} className="flex flex-col gap-5" aria-busy={loading}>
             <div>
-              <label htmlFor="login-email" style={{ fontSize: 12, color: "#A8B4C6", fontWeight: 600, display: "block", marginBottom: 8 }}>E-posta veya kullanıcı adı</label>
-              <div className="login-field" style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.035)", border: "1px solid rgba(59,130,246,0.18)", borderRadius: 10, padding: "0 14px", height: 44, width: "100%", boxSizing: "border-box" }}>
-                <span style={{ color: "#65748A" }}>✉</span>
-                <input id="login-email" autoComplete="username" type="text" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ornek@email.com veya kullanici_adi"
-                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#F1F5F9", minWidth: 0 }} />
-              </div>
+              <label htmlFor="login-email" className="mb-2 block text-sm text-slate-200">E-posta veya kullanıcı adı</label>
+              <input id="login-email" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} type="text" value={email} onChange={e => setEmail(e.target.value)} required placeholder="E-posta veya kullanıcı adın" className="h-[52px] w-full min-w-0 rounded-lg border border-slate-600/70 bg-white/[0.025] px-4 text-base text-slate-100 placeholder:text-slate-500 focus:border-blue-400" />
             </div>
-
             <div>
-              <label htmlFor="login-password" style={{ fontSize: 12, color: "#A8B4C6", fontWeight: 600, display: "block", marginBottom: 8 }}>Şifre</label>
-              <div className="login-field" style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.035)", border: "1px solid rgba(59,130,246,0.18)", borderRadius: 10, padding: "0 14px", height: 44, width: "100%", boxSizing: "border-box" }}>
-                <span style={{ color: "#65748A" }}>🔒</span>
-                <input id="login-password" autoComplete="current-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••••"
-                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#F1F5F9", minWidth: 0 }} />
-                <button type="button" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "#65748A", padding: 0, lineHeight: 1 }}>
-                  {showPassword ? "🙈" : "👁"}
-                </button>
+              <div className="mb-2 flex items-center justify-between gap-3"><label htmlFor="login-password" className="text-sm text-slate-200">Şifre</label><Link href="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 sm:text-sm">Şifremi unuttum</Link></div>
+              <div className="relative">
+                <input id="login-password" name="password" autoComplete="current-password" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••••••" className="h-[52px] w-full min-w-0 rounded-lg border border-slate-600/70 bg-white/[0.025] py-3 pl-4 pr-14 text-base text-slate-100 placeholder:text-slate-500 focus:border-blue-400" />
+                <button type="button" aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-1 flex w-11 items-center justify-center rounded-md text-slate-300 hover:text-white">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
               </div>
             </div>
-
-            <div className="login-remember-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", flex: "1 1 190px", minWidth: 0 }}>
-                <input
-                  type="checkbox"
-                  checked={beniHatirla}
-                  onChange={(e) => handleRememberChange(e.target.checked)}
-                  style={{ width: 14, height: 14, accentColor: "#3B82F6" }}
-                />
-                <span style={{ fontSize: 12, color: "#8493A8", lineHeight: 1.35 }}>E-posta/kullanıcı adımı hatırla</span>
-              </label>
-              <Link href="/forgot-password" style={{ fontSize: 12, color: "#3B82F6", textDecoration: "none", whiteSpace: "nowrap" }}>Şifremi unuttum?</Link>
-            </div>
-
-            {error && (
-              <div role="alert" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>
-                <p style={{ fontSize: 12, color: "#EF4444" }}>{error}</p>
-              </div>
-            )}
-
-            <button type="submit" disabled={loading}
-              style={{ height: 44, background: loading ? "#1E3A6E" : "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer" }}>
-              {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
-            </button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "4px 0" }}>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
-              <span style={{ fontSize: 11, color: "#334155" }}>veya</span>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
-            </div>
-
-            <button type="button" onClick={handleGoogleLogin} style={{ height: 44, background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#E2E8F0", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-              Google ile giriş yap
-            </button>
-
-
+            <label className="flex min-h-8 cursor-pointer items-center gap-3 text-sm text-slate-400"><input type="checkbox" checked={beniHatirla} onChange={e => handleRememberChange(e.target.checked)} className="h-[18px] w-[18px] accent-blue-500" />Kullanıcı adımı hatırla</label>
+            {error && <p role="alert" className="rounded-lg border border-red-400/25 bg-red-400/5 px-4 py-3 text-sm leading-6 text-red-300">{error}</p>}
+            <button type="submit" disabled={loading} className="relative mt-1 flex min-h-[54px] items-center justify-center rounded-lg bg-blue-600 px-12 text-base font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60">{loading ? "Giriş yapılıyor…" : "Giriş yap"}<ArrowRight size={22} className="absolute right-5" aria-hidden="true" /></button>
           </form>
+          <p className="mt-8 text-center text-sm text-slate-300">Yeni misin? <Link href="/register" className="text-blue-400 hover:text-blue-300">Ücretsiz hesap aç</Link></p>
+        </section>
+      </main>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap", marginTop: 22, fontSize: 12, color: "#5D6B80" }}>
-            <span>Hesabın yok mu? <Link href="/register" style={{ color: "#3B82F6", textDecoration: "none", fontWeight: 700 }}>Kayıt ol</Link></span>
-            <span style={{ color: "#334155" }}>•</span>
-            <Link href="/" style={{ color: "#94A3B8", textDecoration: "none", fontWeight: 600 }}>Ana sayfaya dön</Link>
-          </div>
-        </div>
-      </div>
+      <footer className="border-t border-slate-800/60"><div className="mx-auto flex max-w-[1536px] flex-col items-center justify-between gap-5 px-6 py-6 text-xs text-slate-400 sm:flex-row sm:px-10 lg:px-16"><p>© {new Date().getFullYear()} ParaKonuşur</p><nav aria-label="Yasal ve destek bağlantıları" className="flex items-center gap-6"><Link href="/gizlilik" className="hover:text-white">Gizlilik</Link><Link href="/kullanim-sartlari" className="hover:text-white">Kullanım şartları</Link><a href="mailto:support@parakonusur.com" className="hover:text-white">Destek</a></nav></div></footer>
     </div>
   );
 }
