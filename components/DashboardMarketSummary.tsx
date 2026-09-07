@@ -30,7 +30,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Özeti</p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Özeti <span className="ml-2 text-[10px] font-medium normal-case tracking-normal text-slate-400">Gün içi</span></p>
         <span style={{ fontSize: 12, fontWeight: 700, color: acik ? "#10B981" : "#EF4444", background: acik ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${acik ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}`, borderRadius: 4, padding: "2px 7px", letterSpacing: "0.04em" }}>
           {acik ? "● AÇIK" : "● KAPALI"}
         </span>
@@ -47,15 +47,15 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
           const cardFlash = flash[e.key];
           const flashColor = cardFlash === "up" ? "#10B981" : cardFlash === "down" ? "#EF4444" : "transparent";
           const flashBg = cardFlash === "up" ? "rgba(16,185,129,0.10)" : cardFlash === "down" ? "rgba(239,68,68,0.10)" : "transparent";
-          const pts = (sparklines[e.label] || []).length > 1 ? sparklines[e.label] : [];
-          const w = 90;
-          const h = 36;
+          const pts = (sparklines[e.label] ?? []).filter(p => Number.isFinite(p) && p > 0);
+          const w = 160;
+          const h = 48;
           const mn = pts.length > 1 ? Math.min(...pts) : 0;
           const mx = pts.length > 1 ? Math.max(...pts) : 1;
-          const sx = (i: number) => (i / (pts.length - 1)) * w;
-          const sy = (v: number) => h - ((v - mn) / (mx - mn + 1)) * h;
+          const sx = (i: number) => 3 + (i / (pts.length - 1)) * (w - 6);
+          const sy = (v: number) => mx === mn ? h / 2 : h - 6 - ((v - mn) / (mx - mn)) * (h - 12);
           const d = pts.length > 1 ? pts.map((v, i) => `${i === 0 ? "M" : "L"} ${sx(i)} ${sy(v)}`).join(" ") : "";
-          const area = d ? d + ` L ${w} ${h} L 0 ${h} Z` : "";
+          const area = d ? d + ` L ${w - 3} ${h} L 3 ${h} Z` : "";
 
           return (
             <div key={e.label} className="dash-surface" style={{ background: "#0B1220", border: "1px solid rgba(255,255,255,0.06)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
@@ -87,16 +87,16 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
                     </>
                   )}
                 </div>
-                <svg aria-hidden="true" className="h-6 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
+                {d ? <svg role="img" aria-label={`${e.label} gün içi fiyat seyri; kendi fiyat aralığına göre ölçeklenmiştir`} className="mt-1 h-12 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
                   <defs>
                     <linearGradient id={`sg-${e.label}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
+                      <stop offset="0%" stopColor={color} stopOpacity="0.12"/>
                       <stop offset="100%" stopColor={color} stopOpacity="0"/>
                     </linearGradient>
                   </defs>
                   {area && <path d={area} fill={`url(#sg-${e.label})`}/>}
-                  {d && <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>}
-                </svg>
+                  {d && <path d={d} fill="none" stroke={color} strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round"/>}
+                </svg> : <div className="mt-1 flex h-12 items-center justify-center rounded border border-dashed border-slate-700/60 text-[10px] text-slate-400">{sparklines[e.label] === undefined ? "Grafik yükleniyor" : "Grafik verisi yok"}</div>}
               </div>
             </div>
           );

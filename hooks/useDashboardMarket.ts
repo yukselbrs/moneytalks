@@ -89,21 +89,28 @@ export function useDashboardMarket(enabled = true) {
       try { localStorage.setItem(LS.PIYASA, JSON.stringify(data)); } catch {}
     };
 
-    const fetchSparklines = () => {
-      [
-        { sym: "XU100.IS", key: "XU100" },
-        { sym: "XU030.IS", key: "XU030" },
-        { sym: "USDTRY=X", key: "USD/TRY" },
-        { sym: "EURTRY=X", key: "EUR/TRY" },
-      ].forEach(({ sym, key }) => {
-        fetch(`/api/grafik?ticker=${sym}`)
-          .then((r) => r.json())
-          .then((data) => {
-            if (data.points) {
-              setSparklines((prev) => ({ ...prev, [key]: data.points.map((p: { fiyat: number }) => p.fiyat) }));
-            }
-          })
-          .catch(() => {});
+    const fetchSparklines = async () => {
+      const sources = [
+        { url: "/api/grafik?ticker=XU100.IS&range=1d", key: "XU100" },
+        { url: "/api/grafik?ticker=XU030.IS&range=1d", key: "XU030" },
+        { url: "/api/grafik?ticker=USDTRY%3DX&range=1d", key: "USD/TRY" },
+        { url: "/api/grafik?ticker=EURTRY%3DX&range=1d", key: "EUR/TRY" },
+        { url: "/api/doviz-maden/gram-altin?range=1d", key: "GRAM ALTIN" },
+      ];
+      const results = await Promise.allSettled(sources.map(async ({ url, key }) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Grafik ${response.status}`);
+        const data = await response.json() as { points?: { fiyat: number }[]; grafik?: { fiyat: number }[] };
+        const points = (data.points ?? data.grafik ?? [])
+          .map(p => p.fiyat)
+          .filter(p => Number.isFinite(p) && p > 0);
+        if (!canceled) setSparklines(prev => ({ ...prev, [key]: points }));
+      }));
+      if (canceled) return;
+      results.forEach((result, index) => {
+        if (result.status === "rejected") {
+          setSparklines(prev => ({ ...prev, [sources[index].key]: [] }));
+        }
       });
     };
 
