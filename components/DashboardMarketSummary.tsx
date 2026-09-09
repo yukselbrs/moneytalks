@@ -89,12 +89,12 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
                 </div>
                 {d ? <svg role="img" aria-label={`${e.label} gün içi fiyat seyri; kendi fiyat aralığına göre ölçeklenmiştir`} className="mt-1 h-12 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
                   <defs>
-                    <linearGradient id={`sg-${e.label}`} x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id={`sg-${e.key}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={color} stopOpacity="0.12"/>
                       <stop offset="100%" stopColor={color} stopOpacity="0"/>
                     </linearGradient>
                   </defs>
-                  {area && <path d={area} fill={`url(#sg-${e.label})`}/>}
+                  {area && <path d={area} fill={`url(#sg-${e.key})`}/>}
                   {d && <path d={d} fill="none" stroke={color} strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round"/>}
                 </svg> : <div className="mt-1 flex h-12 items-center justify-center rounded border border-dashed border-slate-700/60 text-[10px] text-slate-400">{sparklines[e.label] === undefined ? "Grafik yükleniyor" : "Grafik verisi yok"}</div>}
               </div>
