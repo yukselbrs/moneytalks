@@ -1,5 +1,7 @@
 "use client";
-import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+
+import { loadFundCatalog } from "@/lib/fund-catalog";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
@@ -178,9 +180,17 @@ export default function PortfoyPage() {
   // Fon arama/algilama listesi (kod+unvan) — bir kez cekilir.
   const [fonListesi, setFonListesi] = useState<{ kod: string; unvan: string }[]>([]);
   useEffect(() => {
-    supabase.from("fon_snapshots").select("kod, unvan").then(({ data }) => { if (data) setFonListesi(data); });
+    let active = true;
+    async function load() {
+      try {
+        const funds = await loadFundCatalog();
+        if (active) setFonListesi(funds);
+      } catch { /* Kaydetme sırasında tekrar denenir ve hata gösterilir. */ }
+    }
+    void load();
+    return () => { active = false; };
   }, []);
-  const fonKodSet = useMemo(() => new Set(fonListesi.map(f => f.kod)), [fonListesi]);
+
 
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
   const [sonRiskHesaplama, setSonRiskHesaplama] = useState<Date | null>(() => {
@@ -244,8 +254,13 @@ export default function PortfoyPage() {
         setEkleModal((m) => ({ ...m, hata: "Portföye yalnız TL bazlı enstrümanlar eklenebilir: USD-TRY, EUR-TRY, GBP-TRY, GRAM-ALTIN, GRAM-GUMUS.", yukleniyor: false }));
         return;
       }
-      const fonMu = !enstruman && fonKodSet.has(girilen);
-      const tur = enstruman ? enstruman.tur : fonMu ? "fon" : undefined;
+      const hisseMu = BIST_HISSELER.some(h => h.ticker === girilen);
+      const fonMu = !enstruman && !hisseMu && (await loadFundCatalog()).some(f => f.kod === girilen);
+      if (!enstruman && !hisseMu && !fonMu) {
+        setEkleModal(m => ({ ...m, hata: "Geçerli bir hisse, fon veya enstrüman kodu seçin.", yukleniyor: false }));
+        return;
+      }
+      const tur = enstruman ? enstruman.tur : fonMu ? "fon" : "hisse";
       const { error } = await supabase.from("portfoy").upsert(
         {
           user_id: session.user.id,
@@ -259,7 +274,7 @@ export default function PortfoyPage() {
       if (error) { setEkleModal((m) => ({ ...m, hata: error.message, yukleniyor: false })); return; }
       setEkleModal({ open: false, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false });
       await portfoyuYukle();
-    } catch { setEkleModal((m) => ({ ...m, yukleniyor: false })); }
+    } catch (error) { setEkleModal((m) => ({ ...m, yukleniyor: false, hata: error instanceof Error ? error.message : "Pozisyon kaydedilemedi." })); }
   };
 
   const lotGüncelle = async () => {
@@ -468,7 +483,7 @@ export default function PortfoyPage() {
             onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
-            + Hisse Ekle
+            + Pozisyon Ekle
           </button>
         </div>
 
@@ -791,7 +806,7 @@ export default function PortfoyPage() {
               onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
               style={{ background: "linear-gradient(135deg, #1E40AF, #3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "12px 28px", fontSize: 14, fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 12px rgba(59,130,246,0.3)" }}
             >
-              + İlk Hisseni Ekle
+              + İlk Pozisyonunu Ekle
             </button>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 8, maxWidth: 400, width: "100%" }}>
               {[
@@ -1202,9 +1217,9 @@ export default function PortfoyPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-slate-400 text-xs mb-1 block">Hisse / Döviz / Maden</label>
+                <label className="text-slate-400 text-xs mb-1 block">Hisse / Fon / Döviz / Maden</label>
                 <div style={{ position: "relative" }}>
-                  <input className={inputCls + " uppercase"} placeholder="THYAO ya da USD-TRY" value={ekleModal.ticker}
+                  <input className={inputCls + " uppercase"} placeholder="THYAO, TLY ya da USD-TRY" value={ekleModal.ticker}
                     onChange={(e) => setEkleModal((m) => ({ ...m, ticker: e.target.value.toUpperCase() }))}
                     autoComplete="off" />
                   {ekleModal.ticker.length >= 2 && (() => {
@@ -1255,7 +1270,7 @@ export default function PortfoyPage() {
                 </div>
               </div>
               <div>
-                <label className="text-slate-400 text-xs mb-1 block">Adet (lot)</label>
+                <label className="text-slate-400 text-xs mb-1 block">Adet / Fon payı</label>
                 <input type="number" className={inputCls} placeholder="100" value={ekleModal.adet}
                   onChange={(e) => setEkleModal((m) => ({ ...m, adet: e.target.value }))} />
               </div>
