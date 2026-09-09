@@ -67,7 +67,7 @@ export const KURUCU_DOMAINS: Record<string, string> = {
   "mukafat-portfoy": "mukafatportfoy.com",
   "a1-portfoy": "a1portfoy.com.tr",
   "tera-portfoy": "teraportfoy.com.tr",
-  "pardus-portfoy": "pardusportfoy.com.tr",
+  "pardus-portfoy": "pardusportfoy.com",
 };
 
 const FALLBACK_COLORS = ["#3B82F6", "#14B8A6", "#F59E0B", "#8B5CF6", "#EC4899", "#22C55E", "#EAB308", "#06B6D4"];
@@ -95,7 +95,7 @@ export function getFonLogoInfo(kod: string, unvan: string): FonLogoInfo {
     const localFile = FON_LOGO_FILES[slug];
     if (localFile) candidates.push(`/fon-logos/${localFile}`);
     const domain = KURUCU_DOMAINS[slug];
-    if (domain) candidates.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
+    if (domain) candidates.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
   }
   const initialsSource = kurucu ?? kod;
   const initials = initialsSource

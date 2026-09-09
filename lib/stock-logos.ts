@@ -163,6 +163,11 @@ export const STOCK_LOGO_SLUGS: Record<string, string> = {
   ZRGYO: "ziraat-gyo",
 };
 
+// Local SVG copies include a viewBox so small source icons scale correctly.
+const CACHED_TRADINGVIEW_LOGOS = new Set([
+  "ADEL", "AEFES", "AFYON", "AGYO", "AHGAZ", "AKBNK", "AKCNS", "AKFGY", "AKGRT", "AKMGY", "AKSA", "AKSEN", "AKSGY", "AKSUE", "ALARK", "ALBRK", "ALKIM", "ANELE", "ANSGR", "ARCLK", "ARENA", "ARSAN", "ASELS", "ASTOR", "ASUZU", "ATAGY", "ATLAS", "AYEN", "BAGFS", "BAKAB", "BANVT", "BERA", "BESLR", "BEYAZ", "BIOEN", "BLCYT", "BMSTL", "BOSSA", "BUCIM", "BURCE", "CASA", "CELHA", "CEMAS", "CEMTS", "CMBTN", "CWENE", "DAGI", "DESA", "DEVA", "DMSAS", "DOAS", "DOHOL", "DYOBY", "DZGYO", "ECILC", "ECZYT", "EDATA", "EGEEN", "EGEPO", "EGGUB", "EGSER", "EKSUN", "EMKEL", "ENERY", "ENKAI", "ERBOS", "ERSU", "ESCAR", "EUPWR", "FADE", "FLAP", "FORTE", "FROTO", "GARFA", "GEDIK", "GENIL", "GENTS", "GOLTS", "GOZDE", "GSDHO", "HEKTS", "HOROZ", "ICUGS", "IHLAS", "INDES", "INFO", "ISBIR", "IZMDC", "KAREL", "KARTN", "KATMR", "KCHOL", "KFEIN", "KLGYO", "KONYA", "KRSTL", "LIDER", "LINK", "LKMNH", "LOGO", "LRSHO", "MARKA", "MARTI", "MAVI", "MERCN", "MERIT", "MERKO", "METRO", "MNDRS", "MPARK", "MRSHL", "NETAS", "NTGAZ", "NUGYO", "NUHCM", "ODAS", "OTKAR", "OYAKC", "PARSN", "PENTA", "PETKM", "PGSUS", "PKART", "PKENT", "POLHO", "PRDGS", "QNBTR", "RAYSG", "RYSAS", "SAHOL", "SANKO", "SARKY", "SASA", "SEKUR", "SEYKM", "SISE", "SKTAS", "SUWEN", "TABGD", "TATGD", "TAVHL", "TBORG", "TCELL", "THYAO", "TKFEN", "TRALT", "TRCAS", "TRENJ", "TTKOM", "TTRAK", "TUPRS", "TURSG", "ULKER", "USAK", "VAKKO", "VESBE", "VESTL", "YKSLN", "ZOREN", "ZRGYO",
+]);
+
 export function getStockLogoUrl(ticker: string, domain?: string) {
   const normalizedTicker = ticker.toUpperCase();
   const midasFile = MIDAS_STOCK_LOGOS[normalizedTicker];
@@ -173,7 +178,9 @@ export function getStockLogoUrl(ticker: string, domain?: string) {
   }
 
   if (slug) {
-    return `https://s3-symbol-logo.tradingview.com/${slug}.svg`;
+    return CACHED_TRADINGVIEW_LOGOS.has(normalizedTicker)
+      ? `/stock-logos/tradingview/${slug}.svg`
+      : `https://s3-symbol-logo.tradingview.com/${slug}.svg`;
   }
 
   if (domain) {

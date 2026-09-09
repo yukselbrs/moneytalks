@@ -697,7 +697,7 @@ function HisselerContent() {
                   style={{ display: "grid", gridTemplateColumns: tabloGrid, gap: 8, padding: "14px 18px", borderBottom: "1px solid rgba(59,130,246,0.05)", cursor: "pointer", alignItems: "center", background: "transparent" }}>
                   <span className="col-no" style={{ fontSize: 12, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
-                    <StockLogo ticker={hisse.ticker} domain={hisse.domain} size={30} radius={7} color={renk} />
+                    <StockLogo ticker={hisse.ticker} domain={hisse.domain} size={32} radius={8} color={renk} />
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontSize: 14, fontWeight: 700, color: "#F1F5F9", margin: 0, letterSpacing: "-0.2px" }}>{hisse.ticker}</p>
                       <p style={{ fontSize: 11.5, color: "#94A3B8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1 }}>{hisse.ad}</p>
@@ -755,7 +755,7 @@ function HisselerContent() {
                     style={{ display: "grid", gridTemplateColumns: tabloGrid, gap: 6, padding: "12px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", alignItems: "center", background: "transparent", cursor: "pointer" }}>
                     <span className="col-no" style={{ fontSize: 11, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                      <FonLogo kod={fon.kod} unvan={fon.unvan} size={26} radius={7} />
+                      <FonLogo kod={fon.kod} unvan={fon.unvan} size={32} radius={8} />
                       <div style={{ minWidth: 0 }}>
                         <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9", margin: 0, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{fon.kod}</p>
                         <p style={{ fontSize: 10.5, color: "#94A3B8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1, lineHeight: 1.2 }}>{fon.unvan}</p>
@@ -801,7 +801,7 @@ function HisselerContent() {
                   style={{ display: "grid", gridTemplateColumns: tabloGrid, gap: 6, padding: "11px 14px", borderBottom: "1px solid rgba(59,130,246,0.05)", alignItems: "center", background: "transparent", cursor: "pointer" }}>
                   <span className="col-no" style={{ fontSize: 11, color: "#64748B", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{globalNo}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                    <FonLogo kod={fon.kod} unvan={fon.unvan} size={26} radius={7} />
+                    <FonLogo kod={fon.kod} unvan={fon.unvan} size={32} radius={8} />
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontSize: 13, fontWeight: 700, color: "#F1F5F9", margin: 0, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{fon.kod}</p>
                       <p style={{ fontSize: 10.5, color: "#94A3B8", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 1, lineHeight: 1.2 }}>{fon.unvan}</p>

@@ -68,8 +68,17 @@ function extFrom(url, buffer) {
   return null;
 }
 
-const manifest = {};
+// Preserve reviewed local assets; a failed refresh must not erase them.
+const oldManifest = readFileSync(join(root, "lib", "fon-logo-files.ts"), "utf8");
+const manifest = Object.fromEntries([...oldManifest.matchAll(/"([a-z0-9-]+)":\s*"([^"]+)"/g)].map((m) => [m[1], m[2]]));
+// Reviewed source URLs (do not replace these with generic social preview images).
+const reviewed = new Set([
+  "ata-portfoy", // https://www.google.com/s2/favicons?domain=ataportfoy.com.tr&sz=128
+  "pardus-portfoy", // https://pardusportfoy.com/wp-content/uploads/2026/02/PARDUS-PORTFOY-LOGO-fav.png
+  "istanbul-portfoy", // https://www.istanbulportfoy.com/assets/img/logo_black.svg
+]);
 for (const [slug, domain] of Object.entries(domains)) {
+  if (reviewed.has(slug)) continue;
   const base = `https://${domain}/`;
   try {
     let logoUrl = null;

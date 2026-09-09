@@ -32,10 +32,11 @@ export default function StockLogo({
   style,
   color = "#3B82F6",
 }: StockLogoProps) {
-  const [failed, setFailed] = useState(false);
+  const [failedSources, setFailedSources] = useState<string[]>([]);
+  const candidates = [logoUrl, getStockLogoUrl(ticker, domain), domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null];
   // Acik logoUrl (or. yeni kotasyonlarin araci-kurum logosu) statik cozumun onunde gelir.
-  const src = failed ? null : (logoUrl || getStockLogoUrl(ticker, domain));
-  const source = failed ? "fallback" : (logoUrl ? "domain" : getStockLogoSource(ticker, domain));
+  const src = candidates.find((candidate): candidate is string => Boolean(candidate) && !failedSources.includes(candidate!)) ?? null;
+  const source = src === logoUrl ? "domain" : getStockLogoSource(ticker, domain);
   const resolvedImageSize = imageSize ?? size;
   const domainImageSize = imageSize ?? Math.round(size * 0.7);
   const fallbackSize = Math.max(8, Math.round(size * 0.28));
@@ -48,7 +49,7 @@ export default function StockLogo({
         width: size,
         height: size,
         borderRadius: radius,
-        background: src ? (hasNeutralPlate ? "#050914" : "transparent") : `${color}18`,
+        background: src ? (hasNeutralPlate ? "#F8FAFC" : "#F0F3FA") : `${color}18`,
         border: src ? "none" : `1px solid ${color}33`,
         display: "flex",
         alignItems: "center",
@@ -73,7 +74,7 @@ export default function StockLogo({
             height: hasNeutralPlate ? domainImageSize : resolvedImageSize,
             objectFit: "contain",
           }}
-          onError={() => setFailed(true)}
+          onError={() => setFailedSources((sources) => [...sources, src])}
         />
       ) : (
         <span style={{ fontSize: fallbackSize, fontWeight: 700, color }}>

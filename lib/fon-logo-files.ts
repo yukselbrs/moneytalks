@@ -1,6 +1,9 @@
-// Bu dosyayi scripts/fetch-fon-logos.mjs otomatik uretir; elle duzenleme.
+// Yerel logo manifesti; doğrulanmış kaynaklar scripts/fetch-fon-logos.mjs içinde.
 // slug -> public/fon-logos/ altindaki dosya adi
 export const FON_LOGO_FILES: Record<string, string> = {
+  "ata-portfoy": "ata-portfoy.png",
+  "pardus-portfoy": "pardus-portfoy.png",
+  "istanbul-portfoy": "istanbul-portfoy.svg",
   "ziraat-portfoy": "ziraat-portfoy.png",
   "yapi-kredi-portfoy": "yapi-kredi-portfoy.ico",
   "garanti-portfoy": "garanti-portfoy.svg",
