@@ -25,7 +25,7 @@ export default function FonLogo({ kod, unvan, size = 32, radius = 7, style }: Fo
         width: size,
         height: size,
         borderRadius: radius,
-        background: src ? "#F8FAFC" : `${info.color}18`,
+        background: src ? info.background : `${info.color}18`,
         border: src ? "1px solid rgba(148,163,184,0.12)" : `1px solid ${info.color}33`,
         display: "flex",
         alignItems: "center",
@@ -40,10 +40,10 @@ export default function FonLogo({ kod, unvan, size = 32, radius = 7, style }: Fo
         <Image
           src={src}
           alt={`${info.kurucu ?? kod} logo`}
-          width={Math.round(size * 0.88)}
-          height={Math.round(size * 0.88)}
+          width={size}
+          height={size}
           unoptimized
-          style={{ width: Math.round(size * 0.88), height: Math.round(size * 0.88), objectFit: "contain" }}
+          style={{ width: size, height: size, objectFit: "contain" }}
           onError={() => setFailedSources((sources) => [...sources, src])}
         />
       ) : (

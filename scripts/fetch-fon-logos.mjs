@@ -70,15 +70,18 @@ function extFrom(url, buffer) {
 
 // Preserve reviewed local assets; a failed refresh must not erase them.
 const oldManifest = readFileSync(join(root, "lib", "fon-logo-files.ts"), "utf8");
-const manifest = Object.fromEntries([...oldManifest.matchAll(/"([a-z0-9-]+)":\s*"([^"]+)"/g)].map((m) => [m[1], m[2]]));
+const manifest = Object.fromEntries([...oldManifest.split("};")[0].matchAll(/"([a-z0-9-]+)":\s*"([^"]+)"/g)].map((m) => [m[1], m[2]]));
 // Reviewed source URLs (do not replace these with generic social preview images).
+const backgrounds = oldManifest.includes("export const FON_LOGO_BACKGROUNDS")
+  ? oldManifest.slice(oldManifest.indexOf("export const FON_LOGO_BACKGROUNDS"))
+  : "export const FON_LOGO_BACKGROUNDS: Record<string, string> = {};\n";
 const reviewed = new Set([
   "ata-portfoy", // https://www.google.com/s2/favicons?domain=ataportfoy.com.tr&sz=128
   "pardus-portfoy", // https://pardusportfoy.com/wp-content/uploads/2026/02/PARDUS-PORTFOY-LOGO-fav.png
   "istanbul-portfoy", // https://www.istanbulportfoy.com/assets/img/logo_black.svg
 ]);
 for (const [slug, domain] of Object.entries(domains)) {
-  if (reviewed.has(slug)) continue;
+  if (reviewed.has(slug) || manifest[slug]?.startsWith("verified/")) continue;
   const base = `https://${domain}/`;
   try {
     let logoUrl = null;
@@ -105,6 +108,6 @@ const lines = Object.entries(manifest)
   .join("\n");
 writeFileSync(
   join(root, "lib", "fon-logo-files.ts"),
-  `// Bu dosyayi scripts/fetch-fon-logos.mjs otomatik uretir; elle duzenleme.\n// slug -> public/fon-logos/ altindaki dosya adi\nexport const FON_LOGO_FILES: Record<string, string> = {\n${lines}\n};\n`
+  `// Bu dosyayi scripts/fetch-fon-logos.mjs otomatik uretir; elle duzenleme.\n// slug -> public/fon-logos/ altindaki dosya adi\nexport const FON_LOGO_FILES: Record<string, string> = {\n${lines}\n};\n\n${backgrounds}`
 );
 console.log(`\n${Object.keys(manifest).length}/${Object.keys(domains).length} logo indirildi; lib/fon-logo-files.ts guncellendi.`);

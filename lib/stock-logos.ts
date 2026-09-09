@@ -1,3 +1,4 @@
+import { REVIEWED_STOCK_LOGOS } from "./reviewed-stock-logos";
 import { MIDAS_STOCK_LOGOS } from "./midas-stock-logos";
 
 export const STOCK_LOGO_SLUGS: Record<string, string> = {
@@ -170,6 +171,7 @@ const CACHED_TRADINGVIEW_LOGOS = new Set([
 
 export function getStockLogoUrl(ticker: string, domain?: string) {
   const normalizedTicker = ticker.toUpperCase();
+  if (REVIEWED_STOCK_LOGOS[normalizedTicker]) return REVIEWED_STOCK_LOGOS[normalizedTicker];
   const midasFile = MIDAS_STOCK_LOGOS[normalizedTicker];
   const slug = STOCK_LOGO_SLUGS[normalizedTicker];
 
@@ -193,7 +195,7 @@ export function getStockLogoUrl(ticker: string, domain?: string) {
 export function getStockLogoSource(ticker: string, domain?: string) {
   const normalizedTicker = ticker.toUpperCase();
 
-  if (MIDAS_STOCK_LOGOS[normalizedTicker]) return "local";
+  if (REVIEWED_STOCK_LOGOS[normalizedTicker] || MIDAS_STOCK_LOGOS[normalizedTicker]) return "local";
   if (STOCK_LOGO_SLUGS[normalizedTicker]) return "tradingview";
   if (domain) return "domain";
   return "fallback";

@@ -1,0 +1,3808 @@
+{
+  "checkedAt": "2026-09-09T20:21:15.177144+00:00",
+  "funds": {
+    "ak-portfoy": {
+      "sourceUrl": "https://www.akportfoy.com.tr/images/favicon.ico",
+      "website": "https://www.akportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2283-ak-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/ak-portfoy-251d5f1558.webp",
+      "background": "#F8FAFC"
+    },
+    "garanti-portfoy": {
+      "sourceUrl": "https://www.garantibbvaportfoy.com.tr/assets/nav-logo.svg?cache=31536000",
+      "website": "https://www.garantibbvaportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2294-garanti-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/garanti-portfoy-3dda539dcb.webp",
+      "background": "#F8FAFC"
+    },
+    "astra-portfoy": {
+      "sourceUrl": "https://astraportfoy.com.tr/assets/img/dark-logo.png",
+      "website": "https://www.astraportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2299-astra-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/astra-portfoy-ca23f5a1b3.webp",
+      "background": "#F8FAFC"
+    },
+    "ata-portfoy": {
+      "sourceUrl": "https://www.ataportfoy.com.tr/a/img/favicon.gif",
+      "website": "https://www.ataportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2300-ata-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/ata-portfoy-deb4cf4653.webp",
+      "background": "#F8FAFC"
+    },
+    "fiba-portfoy": {
+      "sourceUrl": "https://www.fibaportfoy.com.tr/storage/site_settings/01JW5SJP3PDT6NMHSG7R5T22NJ.png",
+      "website": "https://www.fibaportfoy.com.tr",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/fiba-portfoy-6bc3043110.webp",
+      "background": "#F8FAFC"
+    },
+    "perform-portfoy": {
+      "sourceUrl": "https://www.performportfoy.com/images/logo.svg",
+      "website": "https://www.performportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2304-perform-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/perform-portfoy-ff4cecb5bb.webp",
+      "background": "#F8FAFC"
+    },
+    "qnb-portfoy": {
+      "sourceUrl": "https://www.google.com/s2/favicons?domain=qnbportfoy.com.tr&sz=128",
+      "website": "https://www.qnbportfoy.com.tr",
+      "kap": null,
+      "sourceType": "favicon-service",
+      "file": "/fon-logos/verified/qnb-portfoy-a2b4de97d6.webp",
+      "background": "#F8FAFC"
+    },
+    "hedef-portfoy": {
+      "sourceUrl": "https://www.hedefportfoy.com.tr/media/img/favicon.ico",
+      "website": "https://www.hedefportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2311-hedef-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/hedef-portfoy-6c388a1669.webp",
+      "background": "#F8FAFC"
+    },
+    "hsbc-portfoy": {
+      "sourceUrl": "https://www.hsbcportfoy.com.tr/_assets/img/favicon/favicon-96x96.png",
+      "website": "https://www.hsbcportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2312-hsbc-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/hsbc-portfoy-a9e3bd9c35.webp",
+      "background": "#F8FAFC"
+    },
+    "teb-portfoy": {
+      "sourceUrl": "https://www.tebportfoy.com.tr/_assets/img/logo-dark.svg",
+      "website": "https://www.tebportfoy.com.tr",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/teb-portfoy-3709c16afa.webp",
+      "background": "#F8FAFC"
+    },
+    "global-md-portfoy": {
+      "sourceUrl": "https://www.globalmdportfoy.com.tr/wp-content/uploads/2024/11/android-chrome-192x192-1.png",
+      "website": "https://www.globalmdportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2317-global-md-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/global-md-portfoy-ac4ab80f92.webp",
+      "background": "#F8FAFC"
+    },
+    "ziraat-portfoy": {
+      "sourceUrl": "https://www.ziraatportfoy.com.tr/media/wqyf5eln/favicon152x152.png",
+      "website": "https://www.ziraatportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2335-ziraat-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/ziraat-portfoy-be9ee30691.webp",
+      "background": "#F8FAFC"
+    },
+    "deniz-portfoy": {
+      "sourceUrl": "https://www.denizportfoy.com/favicon.ico",
+      "website": "https://www.denizportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2336-deniz-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/deniz-portfoy-b870d5638e.webp",
+      "background": "#F8FAFC"
+    },
+    "is-portfoy": {
+      "sourceUrl": "https://www.isportfoy.com.tr/_assets/images/favicon/apple-icon-76x76.png",
+      "website": "https://www.isportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2339-is-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/is-portfoy-f9cf98d08d.webp",
+      "background": "#F8FAFC"
+    },
+    "istanbul-portfoy": {
+      "sourceUrl": "https://www.istanbulportfoy.com/assets/img/logo_black.svg",
+      "website": "https://www.istanbulportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2340-istanbul-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/istanbul-portfoy-b4ee7953a1.webp",
+      "background": "#F8FAFC"
+    },
+    "unlu-portfoy": {
+      "sourceUrl": "https://www.unluportfoy.com/assets/unlu_portfoy/content/2024/img/favicon.ico",
+      "website": "https://www.unluportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2341-unlu-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/unlu-portfoy-4ec9c6d3a3.webp",
+      "background": "#F8FAFC"
+    },
+    "inveo-portfoy": {
+      "sourceUrl": "https://www.inveoportfoy.com/website/apple-icon-76x76.png",
+      "website": "https://www.inveoportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2343-inveo-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/inveo-portfoy-e298ee86b2.webp",
+      "background": "#ffffff"
+    },
+    "oyak-portfoy": {
+      "sourceUrl": "https://www.oyakportfoy.com.tr/img/oyak-logo.png",
+      "website": "https://www.oyakportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2346-oyak-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/oyak-portfoy-08d7386b2d.webp",
+      "background": "#F8FAFC"
+    },
+    "aura-portfoy": {
+      "sourceUrl": "https://www.auraportfoy.com.tr/assets/img/auraLogoFooter.svg",
+      "website": "https://www.auraportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2349-aura-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/aura-portfoy-c53c3138a0.webp",
+      "background": "#10213A"
+    },
+    "tacirler-portfoy": {
+      "sourceUrl": "https://tacirlerportfoy.com.tr/lib/img/fav6.png",
+      "website": "https://www.tacirlerportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2350-tacirler-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/tacirler-portfoy-4561bf2c17.webp",
+      "background": "#F8FAFC"
+    },
+    "atlas-portfoy": {
+      "sourceUrl": "https://www.atlasportfoy.com/media/img/favicon.ico",
+      "website": "https://www.atlasportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2354-atlas-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/atlas-portfoy-98bfcb5a62.webp",
+      "background": "#ffffff"
+    },
+    "azimut-portfoy": {
+      "sourceUrl": "https://azimutportfoy.com/wp-content/uploads/2022/05/favicon.png",
+      "website": "https://www.azimutportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2364-azimut-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/azimut-portfoy-5fd712ad31.webp",
+      "background": "#F8FAFC"
+    },
+    "re-pie-portfoy": {
+      "sourceUrl": "https://www.repieportfoy.com/Content/favicon/apple-touch-icon.png",
+      "website": "https://www.repieportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2472-re-pie-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/re-pie-portfoy-0b46ec6f9b.webp",
+      "background": "#F8FAFC"
+    },
+    "strateji-portfoy": {
+      "sourceUrl": "https://www.stratejiportfoy.com.tr/wp-content/uploads/2023/06/cropped-marker-180x180.png",
+      "website": "https://www.stratejiportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2480-strateji-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/strateji-portfoy-ace0bb9fd3.webp",
+      "background": "#F8FAFC"
+    },
+    "marmara-capital-portfoy": {
+      "sourceUrl": "https://www.marmaracapital.com.tr/wp-content/uploads/logo.png",
+      "website": "https://www.marmaracapital.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2487-marmara-capital-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/marmara-capital-portfoy-e14e43bcff.webp",
+      "background": "#ffffff"
+    },
+    "kare-portfoy": {
+      "sourceUrl": "https://www.google.com/s2/favicons?domain=kareportfoy.com.tr&sz=128",
+      "website": "https://kareportfoy.com.tr",
+      "kap": null,
+      "sourceType": "favicon-service",
+      "file": "/fon-logos/verified/kare-portfoy-e314ee4115.webp",
+      "background": "#F8FAFC"
+    },
+    "kuveyt-turk-portfoy": {
+      "sourceUrl": "https://www.kuveytturkportfoy.com.tr/Content/images/favicon/apple-touch-icon.png",
+      "website": "https://www.kuveytturkportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2511-kuveyt-turk-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/kuveyt-turk-portfoy-522bb3f8ad.webp",
+      "background": "#F8FAFC"
+    },
+    "tera-portfoy": {
+      "sourceUrl": "https://www.teraportfoy.com/img/apple-icon-76x76.png",
+      "website": "https://www.teraportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2560-tera-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/tera-portfoy-5d30248448.webp",
+      "background": "#16254c"
+    },
+    "albaraka-portfoy": {
+      "sourceUrl": "https://www.albarakaportfoy.com.tr/Content/assets/images/logoDark.svg",
+      "website": "https://www.albarakaportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2562-albaraka-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/albaraka-portfoy-e8b1a53af2.webp",
+      "background": "#10213A"
+    },
+    "meksa-portfoy": {
+      "sourceUrl": "https://www.meksaportfoy.com.tr/themes/custom/meksa/meksa-logo.svg",
+      "website": "https://www.meksaportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2563-meksa-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/meksa-portfoy-71da9eebb5.webp",
+      "background": "#F8FAFC"
+    },
+    "aktif-portfoy": {
+      "sourceUrl": "https://www.aktifportfoy.com.tr/favicon.ico",
+      "website": "https://www.aktifportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/4358-aktif-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/aktif-portfoy-c6710dfda5.webp",
+      "background": "#F8FAFC"
+    },
+    "neo-portfoy": {
+      "sourceUrl": "https://www.neoportfoy.com.tr/TR/Content/images/ico_logo.png",
+      "website": "https://www.neoportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/4591-neo-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/neo-portfoy-1e1f0a9d9a.webp",
+      "background": "#F8FAFC"
+    },
+    "allbatross-portfoy": {
+      "sourceUrl": "https://allbatrossportfoy.com/assets/images/logo.png",
+      "website": "https://allbatrossportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/4880-allbatross-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/allbatross-portfoy-c3c13ca320.webp",
+      "background": "#10213A"
+    },
+    "nurol-portfoy": {
+      "sourceUrl": "https://www.nurolportfoy.com.tr/favicon.png",
+      "website": "https://www.nurolportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5329-nurol-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/nurol-portfoy-d99d4c3f71.webp",
+      "background": "#10213A"
+    },
+    "phillip-portfoy": {
+      "sourceUrl": "https://www.google.com/s2/favicons?domain=phillipportfoy.com.tr&sz=128",
+      "website": "https://phillipportfoy.com.tr",
+      "kap": null,
+      "sourceType": "favicon-service",
+      "file": "/fon-logos/verified/phillip-portfoy-ad787cacc3.webp",
+      "background": "#000000"
+    },
+    "statech-portfoy": {
+      "sourceUrl": "https://statechportfoy.com.tr/wp-content/themes/statechportfoy/img/favicon.png",
+      "website": "https://www.statechportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5537-statech-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/statech-portfoy-cf5252b9ea.webp",
+      "background": "#F8FAFC"
+    },
+    "rota-portfoy": {
+      "sourceUrl": "https://www.rotaportfoy.com.tr/media/op3n4kce/rota-portfoy-logo.svg",
+      "website": "https://www.rotaportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5540-rota-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/rota-portfoy-2ceedcb295.webp",
+      "background": "#F8FAFC"
+    },
+    "one-portfoy": {
+      "sourceUrl": "https://www.oneportfoy.com.tr/logo.png",
+      "website": "https://www.oneportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5551-one-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/one-portfoy-bfe6713e1d.webp",
+      "background": "#F8FAFC"
+    },
+    "pardus-portfoy": {
+      "sourceUrl": "https://pardusportfoy.com/wp-content/uploads/2026/02/PARDUS-PORTFOY-LOGO-fav.png",
+      "website": "https://www.pardusportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5552-pardus-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/pardus-portfoy-1d37492fb1.webp",
+      "background": "#F8FAFC"
+    },
+    "trive-portfoy": {
+      "sourceUrl": "https://framerusercontent.com/images/m1MjSDTMdF1XDa9z8z47ldnaE.png",
+      "website": "https://www.triveportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5594-trive-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/trive-portfoy-2366d1faed.webp",
+      "background": "#10213A"
+    },
+    "has-portfoy": {
+      "sourceUrl": "https://hasportfoy.com.tr/wp-content/uploads/2025/08/cropped-fav-logo-180x180.png",
+      "website": "https://www.hasportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5610-has-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/has-portfoy-784c8f2a64.webp",
+      "background": "#10213A"
+    },
+    "bv-portfoy": {
+      "sourceUrl": "https://www.bvportfoy.com/images/logo.svg",
+      "website": "https://www.bvportfoy.com",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/bv-portfoy-48ceb444fb.webp",
+      "background": "#F8FAFC"
+    },
+    "fonmap-portfoy": {
+      "sourceUrl": "https://www.fonmap.com/_nuxt/img/logo.f57d1f3.png",
+      "website": "https://www.fonmap.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5839-fonmap-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/fonmap-portfoy-b3bc18d434.webp",
+      "background": "#F8FAFC"
+    },
+    "vega-portfoy": {
+      "sourceUrl": "https://www.vegaportfoy.com/wp-content/uploads/2022/11/vega-favicon.png",
+      "website": "https://www.vegaportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5894-vega-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/vega-portfoy-5282950f93.webp",
+      "background": "#F8FAFC"
+    },
+    "piramit-portfoy": {
+      "sourceUrl": "https://www.piramitportfoy.com.tr/meeappslogo.png",
+      "website": "https://www.piramitportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5902-piramit-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/piramit-portfoy-3c0eb0b971.webp",
+      "background": "#10213A"
+    },
+    "pusula-portfoy": {
+      "sourceUrl": "https://pusulaportfoy.prod.mlncgs.net/api/uploads/legal/favicon-amblem-019e072d.png",
+      "website": "https://pusulaportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5913-pusula-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/pusula-portfoy-154df43031.webp",
+      "background": "#F8FAFC"
+    },
+    "bulls-portfoy": {
+      "sourceUrl": "https://bullsportfoy.com/upload/images/logo/bullsportfoy-dark.svg",
+      "website": "https://www.bullsportfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6046-bulls-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/bulls-portfoy-0e92595fd3.webp",
+      "background": "#F8FAFC"
+    },
+    "sparta-portfoy": {
+      "sourceUrl": "https://www.spartaportfoy.com.tr/icon.png?67603c9d14776e2b",
+      "website": "https://www.spartaportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6050-sparta-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/sparta-portfoy-a013235278.webp",
+      "background": "#10213A"
+    },
+    "a1-capital-portfoy": {
+      "sourceUrl": "https://a1portfoy.com/wp-content/uploads/2026/03/cropped-A1_Capital_Portfoy_Logo-180x180-1.png",
+      "website": "https://www.a1portfoy.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6069-a1-capital-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/a1-capital-portfoy-9c3a165aaf.webp",
+      "background": "#F8FAFC"
+    },
+    "ahlatci-portfoy": {
+      "sourceUrl": "https://www.ahlatciportfoy.com.tr/img/logos/gradient_80x80_logo.png",
+      "website": "https://www.ahlatciportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6077-ahlatci-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/ahlatci-portfoy-f88c5b65ec.webp",
+      "background": "#efbe70"
+    },
+    "emaa-blue-portfoy": {
+      "sourceUrl": "https://www.emaaportfoy.com.tr/_next/image/?url=%2Fimages%2Flogo-400.png&w=384&q=75",
+      "website": "https://www.emaaportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6080-emaa-blue-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/emaa-blue-portfoy-0333ca97f1.webp",
+      "background": "#F8FAFC"
+    },
+    "golden-global-portfoy": {
+      "sourceUrl": "https://goldenglobalportfoy.com.tr/assets/images/fav.png",
+      "website": "https://goldenglobalportfoy.com.tr",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/golden-global-portfoy-1d00f403dc.webp",
+      "background": "#F8FAFC"
+    },
+    "vakif-katilim-portfoy": {
+      "sourceUrl": "https://www.vakifkatilimportfoy.com.tr/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo.4ea162f8.png&w=640&q=75",
+      "website": "https://www.vakifkatilimportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6152-vakif-katilim-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/vakif-katilim-portfoy-6f20126980.webp",
+      "background": "#F8FAFC"
+    },
+    "emlak-katilim-portfoy": {
+      "sourceUrl": "https://storage.emlakkatilimportfoy.com.tr/documents/PYS_Logo_b343b972fa.png",
+      "website": "https://www.emlakkatilimportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6176-emlak-katilim-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/emlak-katilim-portfoy-f00e3a2e7f.webp",
+      "background": "#F8FAFC"
+    },
+    "v-portfoy": {
+      "sourceUrl": "https://www.vportfoy.com.tr/Assets/img/favicon.ico",
+      "website": "https://www.vportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6183-v-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/v-portfoy-8692e5cfb6.webp",
+      "background": "#10213A"
+    },
+    "incir-portfoy": {
+      "sourceUrl": "https://incirportfoy.com.tr/wp-content/uploads/2026/01/cropped-incirlogo.jpg",
+      "website": "https://www.incirportfoy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6192-incir-portfoy-yonetimi-a-s",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/incir-portfoy-ca6185f9ad.webp",
+      "background": "#4a296e"
+    },
+    "destek-portfoy": {
+      "sourceUrl": "https://cdn.destekportfoy.com/public/Photos/135-destek-portfoy-logo.svg",
+      "website": "https://www.destekportfoy.com",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/destek-portfoy-395fcdd957.webp",
+      "background": "#F8FAFC"
+    },
+    "btcturk-portfoy": {
+      "sourceUrl": "https://portfoy.btcturk.com/images/apple-touch-icon.png",
+      "website": "https://portfoy.btcturk.com",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/btcturk-portfoy-c685d7e914.webp",
+      "background": "#F8FAFC"
+    },
+    "mt-portfoy": {
+      "sourceUrl": "https://cdn.prod.website-files.com/65d73b30c5b4695a3d54f427/65d73f06f2adb7edd1c0dd0f_MT_Portfoy_Logotype.svg",
+      "website": "https://www.mtportfoy.com",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/mt-portfoy-a12a90b171.webp",
+      "background": "#F8FAFC"
+    },
+    "yapi-kredi-portfoy": {
+      "sourceUrl": "https://www.yapikrediportfoy.com.tr/assets/images/logo-mobile.svg",
+      "website": "https://www.yapikrediportfoy.com.tr",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/yapi-kredi-portfoy-3b1c22c6ab.webp",
+      "background": "#F8FAFC"
+    },
+    "logos-portfoy": {
+      "sourceUrl": "http://www.logosportfoy.com/common/images/logo.jpg",
+      "website": "http://www.logosportfoy.com",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/logos-portfoy-abbffacce2.webp",
+      "background": "#fafafa"
+    },
+    "osmanli-portfoy": {
+      "sourceUrl": "https://www.osmanliportfoy.com.tr/",
+      "website": "https://www.osmanliportfoy.com.tr",
+      "sourceType": "official-website",
+      "file": "/fon-logos/verified/osmanli-portfoy-6eeb33aa0c.webp",
+      "background": "#F8FAFC"
+    }
+  },
+  "stocks": {
+    "A1CAP": {
+      "file": "/stock-logos/midas/A1CAP.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/a1cap-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "A1YEN": {
+      "file": "/stock-logos/midas/A1YEN.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/a1yen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AAGYO": {
+      "file": "/stock-logos/midas/AAGYO.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aagyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ACSEL": {
+      "file": "/stock-logos/midas/ACSEL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/acsel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ADEL": {
+      "file": "/stock-logos/midas/ADEL.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/adel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ADESE": {
+      "file": "/stock-logos/midas/ADESE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/adese-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ADGYO": {
+      "file": "/stock-logos/midas/ADGYO.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/adgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AEFES": {
+      "file": "/stock-logos/midas/AEFES.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aefes-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AFYON": {
+      "file": "/stock-logos/midas/AFYON.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/afyon-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AGESA": {
+      "file": "/stock-logos/midas/AGESA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/agesa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AGHOL": {
+      "file": "/stock-logos/midas/AGHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aghol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AGYO": {
+      "file": "/stock-logos/midas/AGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/agyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AHGAZ": {
+      "file": "/stock-logos/midas/AHGAZ.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ahgaz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKBNK": {
+      "file": "/stock-logos/midas/AKBNK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akbnk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKCNS": {
+      "file": "/stock-logos/midas/AKCNS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akcns-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKENR": {
+      "file": "/stock-logos/midas/AKENR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akenr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKFGY": {
+      "file": "/stock-logos/midas/AKFGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akfgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKFIS": {
+      "file": "/stock-logos/midas/AKFIS.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akfis-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKFYE": {
+      "file": "/stock-logos/midas/AKFYE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akfye-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKGRT": {
+      "file": "/stock-logos/midas/AKGRT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akgrt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKHAN": {
+      "file": "/stock-logos/midas/AKHAN.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akhan-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKMGY": {
+      "file": "/stock-logos/midas/AKMGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akmgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKSA": {
+      "file": "/stock-logos/midas/AKSA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aksa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKSEN": {
+      "file": "/stock-logos/midas/AKSEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aksen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKSGY": {
+      "file": "/stock-logos/midas/AKSGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aksgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKSUE": {
+      "file": "/stock-logos/midas/AKSUE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aksue-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AKYHO": {
+      "file": "/stock-logos/midas/AKYHO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/akyho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALARK": {
+      "file": "/stock-logos/midas/ALARK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/alark-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALBRK": {
+      "file": "/stock-logos/midas/ALBRK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/albrk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALCAR": {
+      "file": "/stock-logos/midas/ALCAR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/alcar-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALCTL": {
+      "file": "/stock-logos/midas/ALCTL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/alctl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALFAS": {
+      "file": "/stock-logos/midas/ALFAS.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/alfas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALGYO": {
+      "file": "/stock-logos/midas/ALGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/algyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALKA": {
+      "file": "/stock-logos/midas/ALKA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/alka-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALKIM": {
+      "file": "/stock-logos/midas/ALKIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/alkim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALKLC": {
+      "file": "/stock-logos/midas/ALKLC.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/alklc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ALTNY": {
+      "file": "/stock-logos/midas/ALTNY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/altny-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ANELE": {
+      "file": "/stock-logos/midas/ANELE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/anele-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ANGEN": {
+      "file": "/stock-logos/midas/ANGEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/angen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ANHYT": {
+      "file": "/stock-logos/midas/ANHYT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/anhyt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ANSGR": {
+      "file": "/stock-logos/midas/ANSGR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ansgr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARASE": {
+      "file": "/stock-logos/midas/ARASE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/arase-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARCLK": {
+      "file": "/stock-logos/midas/ARCLK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/arclk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARDYZ": {
+      "file": "/stock-logos/midas/ARDYZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ardyz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARENA": {
+      "file": "/stock-logos/midas/ARENA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/arena-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARFYE": {
+      "file": "/stock-logos/midas/ARFYE.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/arfye-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARMGD": {
+      "file": "/stock-logos/midas/ARMGD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/armgd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARSAN": {
+      "file": "/stock-logos/midas/ARSAN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/arsan-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ARZUM": {
+      "file": "/stock-logos/midas/ARZUM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/arzum-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ASELS": {
+      "file": "/stock-logos/midas/ASELS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/asels-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ASGYO": {
+      "file": "/stock-logos/midas/ASGYO.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/asgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ASTOR": {
+      "file": "/stock-logos/midas/ASTOR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/astor-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ASUZU": {
+      "file": "/stock-logos/midas/ASUZU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/asuzu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ATAGY": {
+      "file": "/stock-logos/midas/ATAGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/atagy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ATAKP": {
+      "file": "/stock-logos/midas/ATAKP.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/atakp-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ATATP": {
+      "file": "/stock-logos/midas/ATATP.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/atatp-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ATATR": {
+      "file": "/stock-logos/midas/ATATR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/atatr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ATEKS": {
+      "file": "/stock-logos/midas/ATEKS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ateks-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ATLAS": {
+      "file": "/stock-logos/midas/ATLAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/atlas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ATSYH": {
+      "file": "/stock-logos/midas/ATSYH.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/atsyh-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AVGYO": {
+      "file": "/stock-logos/midas/AVGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/avgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AVHOL": {
+      "file": "/stock-logos/midas/AVHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/avhol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AVTUR": {
+      "file": "/stock-logos/midas/AVTUR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/avtur-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AYCES": {
+      "file": "/stock-logos/midas/AYCES.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ayces-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AYDEM": {
+      "file": "/stock-logos/midas/AYDEM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aydem-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AYEN": {
+      "file": "/stock-logos/midas/AYEN.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ayen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AYES": {
+      "file": "/stock-logos/midas/AYES.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ayes-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AYGAZ": {
+      "file": "/stock-logos/midas/AYGAZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aygaz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AZTEK": {
+      "file": "/stock-logos/midas/AZTEK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/aztek-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BAGFS": {
+      "file": "/stock-logos/midas/BAGFS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bagfs-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BAHKM": {
+      "file": "/stock-logos/midas/BAHKM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bahkm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BAKAB": {
+      "file": "/stock-logos/midas/BAKAB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bakab-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BALAT": {
+      "file": "/stock-logos/midas/BALAT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/balat-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BALSU": {
+      "file": "/stock-logos/midas/BALSU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/balsu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BANVT": {
+      "file": "/stock-logos/midas/BANVT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/banvt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BARMA": {
+      "file": "/stock-logos/midas/BARMA.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/barma-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BASCM": {
+      "file": "/stock-logos/midas/BASCM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bascm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BASGZ": {
+      "file": "/stock-logos/midas/BASGZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/basgz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BAYRK": {
+      "file": "/stock-logos/midas/BAYRK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bayrk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BERA": {
+      "file": "/stock-logos/midas/BERA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bera-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BESLR": {
+      "file": "/stock-logos/midas/BESLR.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/beslr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BESTE": {
+      "file": "/stock-logos/midas/BESTE.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/beste-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BEYAZ": {
+      "file": "/stock-logos/midas/BEYAZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/beyaz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BFREN": {
+      "file": "/stock-logos/midas/BFREN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bfren-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BIENY": {
+      "file": "/stock-logos/midas/BIENY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bieny-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BIGCH": {
+      "file": "/stock-logos/midas/BIGCH.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bigch-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BIGEN": {
+      "file": "/stock-logos/midas/BIGEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bigen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BIGTK": {
+      "file": "/stock-logos/midas/BIGTK.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bigtk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BIMAS": {
+      "file": "/stock-logos/midas/BIMAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bimas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BINBN": {
+      "file": "/stock-logos/midas/BINBN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/binbn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BIOEN": {
+      "file": "/stock-logos/midas/BIOEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bioen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BIZIM": {
+      "file": "/stock-logos/midas/BIZIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bizim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BJKAS": {
+      "file": "/stock-logos/midas/BJKAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bjkas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BLCYT": {
+      "file": "/stock-logos/midas/BLCYT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/blcyt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BLUME": {
+      "file": "/stock-logos/midas/BLUME.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/blume-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BMSCH": {
+      "file": "/stock-logos/midas/BMSCH.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bmsch-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BMSTL": {
+      "file": "/stock-logos/midas/BMSTL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bmstl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BNTAS": {
+      "file": "/stock-logos/midas/BNTAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bntas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BOBET": {
+      "file": "/stock-logos/midas/BOBET.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bobet-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BOSSA": {
+      "file": "/stock-logos/midas/BOSSA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bossa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRISA": {
+      "file": "/stock-logos/midas/BRISA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/brisa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRKO": {
+      "file": "/stock-logos/midas/BRKO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/brko-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRKSN": {
+      "file": "/stock-logos/midas/BRKSN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/brksn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRKVY": {
+      "file": "/stock-logos/midas/BRKVY.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/brkvy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRLSM": {
+      "file": "/stock-logos/midas/BRLSM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/brlsm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRMEN": {
+      "file": "/stock-logos/midas/BRMEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/brmen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRSAN": {
+      "file": "/stock-logos/midas/BRSAN.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/brsan-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BRYAT": {
+      "file": "/stock-logos/midas/BRYAT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bryat-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BSOKE": {
+      "file": "/stock-logos/midas/BSOKE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bsoke-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BTCIM": {
+      "file": "/stock-logos/midas/BTCIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/btcim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BUCIM": {
+      "file": "/stock-logos/midas/BUCIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bucim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BULGS": {
+      "file": "/stock-logos/midas/BULGS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bulgs-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BURCE": {
+      "file": "/stock-logos/midas/BURCE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/burce-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BURVA": {
+      "file": "/stock-logos/midas/BURVA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/burva-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BVSAN": {
+      "file": "/stock-logos/midas/BVSAN.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bvsan-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "BYDNR": {
+      "file": "/stock-logos/midas/BYDNR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/bydnr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CANTE": {
+      "file": "/stock-logos/midas/CANTE.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cante-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CASA": {
+      "file": "/stock-logos/midas/CASA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/casa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CCOLA": {
+      "file": "/stock-logos/midas/CCOLA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ccola-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CELHA": {
+      "file": "/stock-logos/midas/CELHA.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/celha-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CEMAS": {
+      "file": "/stock-logos/midas/CEMAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cemas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CEMTS": {
+      "file": "/stock-logos/midas/CEMTS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cemts-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CEMZY": {
+      "file": "/stock-logos/midas/CEMZY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cemzy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CEOEM": {
+      "file": "/stock-logos/midas/CEOEM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ceoem-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CGCAM": {
+      "file": "/stock-logos/midas/CGCAM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cgcam-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CIMSA": {
+      "file": "/stock-logos/midas/CIMSA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cimsa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CLEBI": {
+      "file": "/stock-logos/midas/CLEBI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/clebi-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CMBTN": {
+      "file": "/stock-logos/midas/CMBTN.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cmbtn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CMENT": {
+      "file": "/stock-logos/midas/CMENT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cment-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CONSE": {
+      "file": "/stock-logos/midas/CONSE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/conse-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "COSMO": {
+      "file": "/stock-logos/midas/COSMO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cosmo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CRDFA": {
+      "file": "/stock-logos/midas/CRDFA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/crdfa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CRFSA": {
+      "file": "/stock-logos/midas/CRFSA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/crfsa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CUSAN": {
+      "file": "/stock-logos/midas/CUSAN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cusan-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CVKMD": {
+      "file": "/stock-logos/midas/CVKMD.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cvkmd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "CWENE": {
+      "file": "/stock-logos/midas/CWENE.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/cwene-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DAGI": {
+      "file": "/stock-logos/midas/DAGI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dagi-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DAPGM": {
+      "file": "/stock-logos/midas/DAPGM.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dapgm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DARDL": {
+      "file": "/stock-logos/midas/DARDL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dardl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DCTTR": {
+      "file": "/stock-logos/midas/DCTTR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dcttr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DENGE": {
+      "file": "/stock-logos/midas/DENGE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/denge-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DERHL": {
+      "file": "/stock-logos/midas/DERHL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/derhl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DERIM": {
+      "file": "/stock-logos/midas/DERIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/derim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DESA": {
+      "file": "/stock-logos/midas/DESA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/desa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DESPC": {
+      "file": "/stock-logos/midas/DESPC.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/despc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DEVA": {
+      "file": "/stock-logos/midas/DEVA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/deva-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DGATE": {
+      "file": "/stock-logos/midas/DGATE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dgate-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DGGYO": {
+      "file": "/stock-logos/midas/DGGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dggyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DGNMO": {
+      "file": "/stock-logos/midas/DGNMO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dgnmo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DIRIT": {
+      "file": "/stock-logos/midas/DIRIT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dirit-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DITAS": {
+      "file": "/stock-logos/midas/DITAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ditas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DMSAS": {
+      "file": "/stock-logos/midas/DMSAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dmsas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DNISI": {
+      "file": "/stock-logos/midas/DNISI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dnisi-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DOAS": {
+      "file": "/stock-logos/midas/DOAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/doas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DOCO": {
+      "file": "/stock-logos/midas/DOCO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/doco-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DOFRB": {
+      "file": "/stock-logos/midas/DOFRB.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dofrb-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DOGUB": {
+      "file": "/stock-logos/midas/DOGUB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dogub-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DOHOL": {
+      "file": "/stock-logos/midas/DOHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dohol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DOKTA": {
+      "file": "/stock-logos/midas/DOKTA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dokta-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DSTKF": {
+      "file": "/stock-logos/midas/DSTKF.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dstkf-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DUNYH": {
+      "file": "/stock-logos/midas/DUNYH.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dunyh-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DURDO": {
+      "file": "/stock-logos/midas/DURDO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/durdo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DURKN": {
+      "file": "/stock-logos/midas/DURKN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/durkn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DYOBY": {
+      "file": "/stock-logos/midas/DYOBY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dyoby-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "DZGYO": {
+      "file": "/stock-logos/midas/DZGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/dzgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EBEBK": {
+      "file": "/stock-logos/midas/EBEBK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ebebk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ECILC": {
+      "file": "/stock-logos/midas/ECILC.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ecilc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ECOGR": {
+      "file": "/stock-logos/midas/ECOGR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ecogr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ECZYT": {
+      "file": "/stock-logos/midas/ECZYT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eczyt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EDATA": {
+      "file": "/stock-logos/midas/EDATA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/edata-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EDIP": {
+      "file": "/stock-logos/midas/EDIP.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/edip-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EFOR": {
+      "file": "/stock-logos/midas/EFOR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/efor-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EGEEN": {
+      "file": "/stock-logos/midas/EGEEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/egeen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EGEGY": {
+      "file": "/stock-logos/midas/EGEGY.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/egegy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EGEPO": {
+      "file": "/stock-logos/midas/EGEPO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/egepo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EGGUB": {
+      "file": "/stock-logos/midas/EGGUB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eggub-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EGPRO": {
+      "file": "/stock-logos/midas/EGPRO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/egpro-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EGSER": {
+      "file": "/stock-logos/midas/EGSER.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/egser-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EKGYO": {
+      "file": "/stock-logos/midas/EKGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ekgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EKIZ": {
+      "file": "/stock-logos/midas/EKIZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ekiz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EKSUN": {
+      "file": "/stock-logos/midas/EKSUN.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eksun-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ELITE": {
+      "file": "/stock-logos/midas/ELITE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/elite-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EMKEL": {
+      "file": "/stock-logos/midas/EMKEL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/emkel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EMNIS": {
+      "file": "/stock-logos/midas/EMNIS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/emnis-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EMPAE": {
+      "file": "/stock-logos/midas/EMPAE.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/empae-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ENDAE": {
+      "file": "/stock-logos/midas/ENDAE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/endae-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ENERY": {
+      "file": "/stock-logos/midas/ENERY.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/enery-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ENJSA": {
+      "file": "/stock-logos/midas/ENJSA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/enjsa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ENKAI": {
+      "file": "/stock-logos/midas/ENKAI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/enkai-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ENPRA": {
+      "file": "/stock-logos/midas/ENPRA.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/enpra-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ENSRI": {
+      "file": "/stock-logos/midas/ENSRI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ensri-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EPLAS": {
+      "file": "/stock-logos/midas/EPLAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eplas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ERBOS": {
+      "file": "/stock-logos/midas/ERBOS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/erbos-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ERCB": {
+      "file": "/stock-logos/midas/ERCB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ercb-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EREGL": {
+      "file": "/stock-logos/midas/EREGL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eregl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ERSU": {
+      "file": "/stock-logos/midas/ERSU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ersu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ESCAR": {
+      "file": "/stock-logos/midas/ESCAR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/escar-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ESCOM": {
+      "file": "/stock-logos/midas/ESCOM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/escom-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ESEN": {
+      "file": "/stock-logos/midas/ESEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/esen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ETILR": {
+      "file": "/stock-logos/midas/ETILR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/etilr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ETYAT": {
+      "file": "/stock-logos/midas/ETYAT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/etyat-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EUHOL": {
+      "file": "/stock-logos/midas/EUHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/euhol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EUKYO": {
+      "file": "/stock-logos/midas/EUKYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eukyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EUPWR": {
+      "file": "/stock-logos/midas/EUPWR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eupwr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EUREN": {
+      "file": "/stock-logos/midas/EUREN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/euren-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EUYO": {
+      "file": "/stock-logos/midas/EUYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/euyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "EYGYO": {
+      "file": "/stock-logos/midas/EYGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/eygyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FADE": {
+      "file": "/stock-logos/midas/FADE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/fade-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FENER": {
+      "file": "/stock-logos/midas/FENER.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/fener-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FLAP": {
+      "file": "/stock-logos/midas/FLAP.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/flap-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FMIZP": {
+      "file": "/stock-logos/midas/FMIZP.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/fmizp-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FONET": {
+      "file": "/stock-logos/midas/FONET.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/fonet-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FORMT": {
+      "file": "/stock-logos/midas/FORMT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/formt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FORTE": {
+      "file": "/stock-logos/midas/FORTE.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/forte-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FRIGO": {
+      "file": "/stock-logos/midas/FRIGO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/frigo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FRMPL": {
+      "file": "/stock-logos/midas/FRMPL.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/frmpl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FROTO": {
+      "file": "/stock-logos/midas/FROTO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/froto-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "FZLGY": {
+      "file": "/stock-logos/midas/FZLGY.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/fzlgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GARAN": {
+      "file": "/stock-logos/midas/GARAN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/garan-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GARFA": {
+      "file": "/stock-logos/midas/GARFA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/garfa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GATEG": {
+      "file": "/stock-logos/midas/GATEG.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gateg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GEDIK": {
+      "file": "/stock-logos/midas/GEDIK.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gedik-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GEDZA": {
+      "file": "/stock-logos/midas/GEDZA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gedza-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GENIL": {
+      "file": "/stock-logos/midas/GENIL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/genil-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GENKM": {
+      "file": "/stock-logos/midas/GENKM.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/genkm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GENTS": {
+      "file": "/stock-logos/midas/GENTS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gents-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GEREL": {
+      "file": "/stock-logos/midas/GEREL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gerel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GESAN": {
+      "file": "/stock-logos/midas/GESAN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gesan-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GIPTA": {
+      "file": "/stock-logos/midas/GIPTA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gipta-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GLBMD": {
+      "file": "/stock-logos/midas/GLBMD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/glbmd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GLCVY": {
+      "file": "/stock-logos/midas/GLCVY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/glcvy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GLRMK": {
+      "file": "/stock-logos/midas/GLRMK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/glrmk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GLRYH": {
+      "file": "/stock-logos/midas/GLRYH.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/glryh-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GLYHO": {
+      "file": "/stock-logos/midas/GLYHO.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/glyho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GMTAS": {
+      "file": "/stock-logos/midas/GMTAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gmtas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GOKNR": {
+      "file": "/stock-logos/midas/GOKNR.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/goknr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GOLTS": {
+      "file": "/stock-logos/midas/GOLTS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/golts-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GOODY": {
+      "file": "/stock-logos/midas/GOODY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/goody-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GOZDE": {
+      "file": "/stock-logos/midas/GOZDE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gozde-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GRNYO": {
+      "file": "/stock-logos/midas/GRNYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/grnyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GRSEL": {
+      "file": "/stock-logos/midas/GRSEL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/grsel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GRTHO": {
+      "file": "/stock-logos/midas/GRTHO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/grtho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GSDDE": {
+      "file": "/stock-logos/midas/GSDDE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gsdde-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GSDHO": {
+      "file": "/stock-logos/midas/GSDHO.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gsdho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GSRAY": {
+      "file": "/stock-logos/midas/GSRAY.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gsray-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GUBRF": {
+      "file": "/stock-logos/midas/GUBRF.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gubrf-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GUNDG": {
+      "file": "/stock-logos/midas/GUNDG.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gundg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GWIND": {
+      "file": "/stock-logos/midas/GWIND.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gwind-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "GZNMI": {
+      "file": "/stock-logos/midas/GZNMI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/gznmi-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HALKB": {
+      "file": "/stock-logos/midas/HALKB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/halkb-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HATEK": {
+      "file": "/stock-logos/midas/HATEK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hatek-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HDFGS": {
+      "file": "/stock-logos/midas/HDFGS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hdfgs-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HEDEF": {
+      "file": "/stock-logos/midas/HEDEF.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hedef-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HEKTS": {
+      "file": "/stock-logos/midas/HEKTS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hekts-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HKTM": {
+      "file": "/stock-logos/midas/HKTM.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hktm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HLGYO": {
+      "file": "/stock-logos/midas/HLGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hlgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HOROZ": {
+      "file": "/stock-logos/midas/HOROZ.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/horoz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HRKET": {
+      "file": "/stock-logos/midas/HRKET.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hrket-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HTTBT": {
+      "file": "/stock-logos/midas/HTTBT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/httbt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HUBVC": {
+      "file": "/stock-logos/midas/HUBVC.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hubvc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HUNER": {
+      "file": "/stock-logos/midas/HUNER.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/huner-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "HURGZ": {
+      "file": "/stock-logos/midas/HURGZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/hurgz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ICBCT": {
+      "file": "/stock-logos/midas/ICBCT.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/icbct-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IDGYO": {
+      "file": "/stock-logos/midas/IDGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/idgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IEYHO": {
+      "file": "/stock-logos/midas/IEYHO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ieyho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IHAAS": {
+      "file": "/stock-logos/midas/IHAAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ihaas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IHEVA": {
+      "file": "/stock-logos/midas/IHEVA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/iheva-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IHGZT": {
+      "file": "/stock-logos/midas/IHGZT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ihgzt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IHLAS": {
+      "file": "/stock-logos/midas/IHLAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ihlas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IHLGM": {
+      "file": "/stock-logos/midas/IHLGM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ihlgm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IHYAY": {
+      "file": "/stock-logos/midas/IHYAY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ihyay-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IMASM": {
+      "file": "/stock-logos/midas/IMASM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/imasm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "INDES": {
+      "file": "/stock-logos/midas/INDES.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/indes-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "INFO": {
+      "file": "/stock-logos/midas/INFO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/info-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "INGRM": {
+      "file": "/stock-logos/midas/INGRM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ingrm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "INTEK": {
+      "file": "/stock-logos/midas/INTEK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/intek-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "INTEM": {
+      "file": "/stock-logos/midas/INTEM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/intem-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "INVEO": {
+      "file": "/stock-logos/midas/INVEO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/inveo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "INVES": {
+      "file": "/stock-logos/midas/INVES.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/inves-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISBIR": {
+      "file": "/stock-logos/midas/ISBIR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/isbir-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISBTR": {
+      "file": "/stock-logos/midas/ISBTR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/isbtr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISCTR": {
+      "file": "/stock-logos/midas/ISCTR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/isctr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISDMR": {
+      "file": "/stock-logos/midas/ISDMR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/isdmr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISFIN": {
+      "file": "/stock-logos/midas/ISFIN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/isfin-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISGSY": {
+      "file": "/stock-logos/midas/ISGSY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/isgsy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISGYO": {
+      "file": "/stock-logos/midas/ISGYO.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/isgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISKPL": {
+      "file": "/stock-logos/midas/ISKPL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/iskpl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISKUR": {
+      "file": "/stock-logos/midas/ISKUR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/iskur-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISMEN": {
+      "file": "/stock-logos/midas/ISMEN.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ismen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ISSEN": {
+      "file": "/stock-logos/midas/ISSEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/issen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IZENR": {
+      "file": "/stock-logos/midas/IZENR.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/izenr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IZFAS": {
+      "file": "/stock-logos/midas/IZFAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/izfas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IZINV": {
+      "file": "/stock-logos/midas/IZINV.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/izinv-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "IZMDC": {
+      "file": "/stock-logos/midas/IZMDC.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/izmdc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "JANTS": {
+      "file": "/stock-logos/midas/JANTS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/jants-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KAPLM": {
+      "file": "/stock-logos/midas/KAPLM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kaplm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KAREL": {
+      "file": "/stock-logos/midas/KAREL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/karel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KARSN": {
+      "file": "/stock-logos/midas/KARSN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/karsn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KARTN": {
+      "file": "/stock-logos/midas/KARTN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kartn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KATMR": {
+      "file": "/stock-logos/midas/KATMR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/katmr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KAYSE": {
+      "file": "/stock-logos/midas/KAYSE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kayse-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KCAER": {
+      "file": "/stock-logos/midas/KCAER.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kcaer-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KCHOL": {
+      "file": "/stock-logos/midas/KCHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kchol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KENT": {
+      "file": "/stock-logos/midas/KENT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kent-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KERVN": {
+      "file": "/stock-logos/midas/KERVN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kervn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KFEIN": {
+      "file": "/stock-logos/midas/KFEIN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kfein-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KGYO": {
+      "file": "/stock-logos/midas/KGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KIMMR": {
+      "file": "/stock-logos/midas/KIMMR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kimmr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLGYO": {
+      "file": "/stock-logos/midas/KLGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLKIM": {
+      "file": "/stock-logos/midas/KLKIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klkim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLMSN": {
+      "file": "/stock-logos/midas/KLMSN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klmsn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLNMA": {
+      "file": "/stock-logos/midas/KLNMA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klnma-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLRHO": {
+      "file": "/stock-logos/midas/KLRHO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klrho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLSER": {
+      "file": "/stock-logos/midas/KLSER.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klser-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLSYN": {
+      "file": "/stock-logos/midas/KLSYN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klsyn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KLYPV": {
+      "file": "/stock-logos/midas/KLYPV.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/klypv-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KMPUR": {
+      "file": "/stock-logos/midas/KMPUR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kmpur-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KNFRT": {
+      "file": "/stock-logos/midas/KNFRT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/knfrt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KOCMT": {
+      "file": "/stock-logos/midas/KOCMT.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kocmt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KONKA": {
+      "file": "/stock-logos/midas/KONKA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/konka-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KONTR": {
+      "file": "/stock-logos/midas/KONTR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kontr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KONYA": {
+      "file": "/stock-logos/midas/KONYA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/konya-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KOPOL": {
+      "file": "/stock-logos/midas/KOPOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kopol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KORDS": {
+      "file": "/stock-logos/midas/KORDS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kords-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRDMA": {
+      "file": "/stock-logos/midas/KRDMA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krdma-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRDMB": {
+      "file": "/stock-logos/midas/KRDMB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krdmb-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRDMD": {
+      "file": "/stock-logos/midas/KRDMD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krdmd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRGYO": {
+      "file": "/stock-logos/midas/KRGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRONT": {
+      "file": "/stock-logos/midas/KRONT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kront-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRPLS": {
+      "file": "/stock-logos/midas/KRPLS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krpls-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRSTL": {
+      "file": "/stock-logos/midas/KRSTL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krstl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRTEK": {
+      "file": "/stock-logos/midas/KRTEK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krtek-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KRVGD": {
+      "file": "/stock-logos/midas/KRVGD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/krvgd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KSTUR": {
+      "file": "/stock-logos/midas/KSTUR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kstur-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KTLEV": {
+      "file": "/stock-logos/midas/KTLEV.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ktlev-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KTSKR": {
+      "file": "/stock-logos/midas/KTSKR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ktskr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KUTPO": {
+      "file": "/stock-logos/midas/KUTPO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kutpo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KUVVA": {
+      "file": "/stock-logos/midas/KUVVA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kuvva-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KUYAS": {
+      "file": "/stock-logos/midas/KUYAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kuyas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KZBGY": {
+      "file": "/stock-logos/midas/KZBGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kzbgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "KZGYO": {
+      "file": "/stock-logos/midas/KZGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/kzgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LIDER": {
+      "file": "/stock-logos/midas/LIDER.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/lider-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LIDFA": {
+      "file": "/stock-logos/midas/LIDFA.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/lidfa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LINK": {
+      "file": "/stock-logos/midas/LINK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/link-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LKMNH": {
+      "file": "/stock-logos/midas/LKMNH.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/lkmnh-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LOGO": {
+      "file": "/stock-logos/midas/LOGO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/logo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LRSHO": {
+      "file": "/stock-logos/midas/LRSHO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/lrsho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LUKSK": {
+      "file": "/stock-logos/midas/LUKSK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/luksk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LXGYO": {
+      "file": "/stock-logos/midas/LXGYO.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/lxgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LYDHO": {
+      "file": "/stock-logos/midas/LYDHO.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/lydho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "LYDYE": {
+      "file": "/stock-logos/midas/LYDYE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/lydye-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MAALT": {
+      "file": "/stock-logos/midas/MAALT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/maalt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MACKO": {
+      "file": "/stock-logos/midas/MACKO.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/macko-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MAGEN": {
+      "file": "/stock-logos/midas/MAGEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/magen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MAKIM": {
+      "file": "/stock-logos/midas/MAKIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/makim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MAKTK": {
+      "file": "/stock-logos/midas/MAKTK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/maktk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MANAS": {
+      "file": "/stock-logos/midas/MANAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/manas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MARKA": {
+      "file": "/stock-logos/midas/MARKA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/marka-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MARMR": {
+      "file": "/stock-logos/midas/MARMR.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/marmr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MARTI": {
+      "file": "/stock-logos/midas/MARTI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/marti-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MAVI": {
+      "file": "/stock-logos/midas/MAVI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mavi-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MCARD": {
+      "file": "/stock-logos/midas/MCARD.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mcard-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MEDTR": {
+      "file": "/stock-logos/midas/MEDTR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/medtr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MEGAP": {
+      "file": "/stock-logos/midas/MEGAP.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/megap-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MEPET": {
+      "file": "/stock-logos/midas/MEPET.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mepet-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MERCN": {
+      "file": "/stock-logos/midas/MERCN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mercn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MERIT": {
+      "file": "/stock-logos/midas/MERIT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/merit-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MERKO": {
+      "file": "/stock-logos/midas/MERKO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/merko-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "METRO": {
+      "file": "/stock-logos/midas/METRO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/metro-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MEYSU": {
+      "file": "/stock-logos/midas/MEYSU.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/meysu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MGROS": {
+      "file": "/stock-logos/midas/MGROS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mgros-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MIATK": {
+      "file": "/stock-logos/midas/MIATK.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/miatk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MMCAS": {
+      "file": "/stock-logos/midas/MMCAS.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mmcas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MNDRS": {
+      "file": "/stock-logos/midas/MNDRS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mndrs-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MNDTR": {
+      "file": "/stock-logos/midas/MNDTR.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mndtr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MOBTL": {
+      "file": "/stock-logos/midas/MOBTL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mobtl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MOPAS": {
+      "file": "/stock-logos/midas/MOPAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mopas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MPARK": {
+      "file": "/stock-logos/midas/MPARK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mpark-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MRGYO": {
+      "file": "/stock-logos/midas/MRGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mrgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MRSHL": {
+      "file": "/stock-logos/midas/MRSHL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mrshl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MSGYO": {
+      "file": "/stock-logos/midas/MSGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/msgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MTRKS": {
+      "file": "/stock-logos/midas/MTRKS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mtrks-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MTRYO": {
+      "file": "/stock-logos/midas/MTRYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mtryo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "MZHLD": {
+      "file": "/stock-logos/midas/MZHLD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/mzhld-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NATEN": {
+      "file": "/stock-logos/midas/NATEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/naten-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NETAS": {
+      "file": "/stock-logos/midas/NETAS.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/netas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NETCD": {
+      "file": "/stock-logos/midas/NETCD.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/netcd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NIBAS": {
+      "file": "/stock-logos/midas/NIBAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/nibas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NTGAZ": {
+      "file": "/stock-logos/midas/NTGAZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ntgaz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NTHOL": {
+      "file": "/stock-logos/midas/NTHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/nthol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NUGYO": {
+      "file": "/stock-logos/midas/NUGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/nugyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "NUHCM": {
+      "file": "/stock-logos/midas/NUHCM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/nuhcm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OBASE": {
+      "file": "/stock-logos/midas/OBASE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/obase-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ODAS": {
+      "file": "/stock-logos/midas/ODAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/odas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OFSYM": {
+      "file": "/stock-logos/midas/OFSYM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ofsym-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ONCSM": {
+      "file": "/stock-logos/midas/ONCSM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/oncsm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ONRYT": {
+      "file": "/stock-logos/midas/ONRYT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/onryt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ORCAY": {
+      "file": "/stock-logos/midas/ORCAY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/orcay-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ORGE": {
+      "file": "/stock-logos/midas/ORGE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/orge-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ORMA": {
+      "file": "/stock-logos/midas/ORMA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/orma-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OSMEN": {
+      "file": "/stock-logos/midas/OSMEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/osmen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OSTIM": {
+      "file": "/stock-logos/midas/OSTIM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ostim-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OTKAR": {
+      "file": "/stock-logos/midas/OTKAR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/otkar-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OTTO": {
+      "file": "/stock-logos/midas/OTTO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/otto-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OYAKC": {
+      "file": "/stock-logos/midas/OYAKC.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/oyakc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OYAYO": {
+      "file": "/stock-logos/midas/OYAYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/oyayo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OYLUM": {
+      "file": "/stock-logos/midas/OYLUM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/oylum-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OYYAT": {
+      "file": "/stock-logos/midas/OYYAT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/oyyat-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OZGYO": {
+      "file": "/stock-logos/midas/OZGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ozgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OZKGY": {
+      "file": "/stock-logos/midas/OZKGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ozkgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OZRDN": {
+      "file": "/stock-logos/midas/OZRDN.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ozrdn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OZSUB": {
+      "file": "/stock-logos/midas/OZSUB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ozsub-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "OZYSR": {
+      "file": "/stock-logos/midas/OZYSR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ozysr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PAGYO": {
+      "file": "/stock-logos/midas/PAGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pagyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PAHOL": {
+      "file": "/stock-logos/midas/PAHOL.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pahol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PAMEL": {
+      "file": "/stock-logos/midas/PAMEL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pamel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PAPIL": {
+      "file": "/stock-logos/midas/PAPIL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/papil-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PARSN": {
+      "file": "/stock-logos/midas/PARSN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/parsn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PASEU": {
+      "file": "/stock-logos/midas/PASEU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/paseu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PCILT": {
+      "file": "/stock-logos/midas/PCILT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pcilt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PEKGY": {
+      "file": "/stock-logos/midas/PEKGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pekgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PENGD": {
+      "file": "/stock-logos/midas/PENGD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pengd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PENTA": {
+      "file": "/stock-logos/midas/PENTA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/penta-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PETKM": {
+      "file": "/stock-logos/midas/PETKM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/petkm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PETUN": {
+      "file": "/stock-logos/midas/PETUN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/petun-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PGSUS": {
+      "file": "/stock-logos/midas/PGSUS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pgsus-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PINSU": {
+      "file": "/stock-logos/midas/PINSU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pinsu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PKART": {
+      "file": "/stock-logos/midas/PKART.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pkart-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PKENT": {
+      "file": "/stock-logos/midas/PKENT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pkent-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PLTUR": {
+      "file": "/stock-logos/midas/PLTUR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pltur-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PNLSN": {
+      "file": "/stock-logos/midas/PNLSN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pnlsn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PNSUT": {
+      "file": "/stock-logos/midas/PNSUT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/pnsut-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "POLHO": {
+      "file": "/stock-logos/midas/POLHO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/polho-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "POLTK": {
+      "file": "/stock-logos/midas/POLTK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/poltk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PRDGS": {
+      "file": "/stock-logos/midas/PRDGS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/prdgs-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PRKAB": {
+      "file": "/stock-logos/midas/PRKAB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/prkab-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PRKME": {
+      "file": "/stock-logos/midas/PRKME.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/prkme-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PRZMA": {
+      "file": "/stock-logos/midas/PRZMA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/przma-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PSDTC": {
+      "file": "/stock-logos/midas/PSDTC.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/psdtc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "PSGYO": {
+      "file": "/stock-logos/midas/PSGYO.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/psgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "QNBFK": {
+      "file": "/stock-logos/midas/QNBFK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/qnbfk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "QNBTR": {
+      "file": "/stock-logos/midas/QNBTR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/qnbtr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "QUAGR": {
+      "file": "/stock-logos/midas/QUAGR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/quagr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RALYH": {
+      "file": "/stock-logos/midas/RALYH.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ralyh-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RAYSG": {
+      "file": "/stock-logos/midas/RAYSG.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/raysg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RNPOL": {
+      "file": "/stock-logos/midas/RNPOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/rnpol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RODRG": {
+      "file": "/stock-logos/midas/RODRG.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/rodrg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RTALB": {
+      "file": "/stock-logos/midas/RTALB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/rtalb-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RUBNS": {
+      "file": "/stock-logos/midas/RUBNS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/rubns-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RUZYE": {
+      "file": "/stock-logos/midas/RUZYE.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ruzye-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RYGYO": {
+      "file": "/stock-logos/midas/RYGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/rygyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "RYSAS": {
+      "file": "/stock-logos/midas/RYSAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/rysas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SAFKR": {
+      "file": "/stock-logos/midas/SAFKR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/safkr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SAHOL": {
+      "file": "/stock-logos/midas/SAHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sahol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SAMAT": {
+      "file": "/stock-logos/midas/SAMAT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/samat-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SANEL": {
+      "file": "/stock-logos/midas/SANEL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sanel-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SANFM": {
+      "file": "/stock-logos/midas/SANFM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sanfm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SANKO": {
+      "file": "/stock-logos/midas/SANKO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sanko-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SARKY": {
+      "file": "/stock-logos/midas/SARKY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sarky-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SASA": {
+      "file": "/stock-logos/midas/SASA.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sasa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SAYAS": {
+      "file": "/stock-logos/midas/SAYAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sayas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SDTTR": {
+      "file": "/stock-logos/midas/SDTTR.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sdttr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SEGMN": {
+      "file": "/stock-logos/midas/SEGMN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/segmn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SEGYO": {
+      "file": "/stock-logos/midas/SEGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/segyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SEKFK": {
+      "file": "/stock-logos/midas/SEKFK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sekfk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SEKUR": {
+      "file": "/stock-logos/midas/SEKUR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sekur-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SELEC": {
+      "file": "/stock-logos/midas/SELEC.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/selec-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SELVA": {
+      "file": "/stock-logos/midas/SELVA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/selva-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SERNT": {
+      "file": "/stock-logos/midas/SERNT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sernt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SEYKM": {
+      "file": "/stock-logos/midas/SEYKM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/seykm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SILVR": {
+      "file": "/stock-logos/midas/SILVR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/silvr-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SISE": {
+      "file": "/stock-logos/midas/SISE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sise-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SKBNK": {
+      "file": "/stock-logos/midas/SKBNK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/skbnk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SKTAS": {
+      "file": "/stock-logos/midas/SKTAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sktas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SMART": {
+      "file": "/stock-logos/midas/SMART.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/smart-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SMRTG": {
+      "file": "/stock-logos/midas/SMRTG.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/smrtg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SMRVA": {
+      "file": "/stock-logos/midas/SMRVA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/smrva-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SNGYO": {
+      "file": "/stock-logos/midas/SNGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sngyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SNICA": {
+      "file": "/stock-logos/midas/SNICA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/snica-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SNPAM": {
+      "file": "/stock-logos/midas/SNPAM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/snpam-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SODSN": {
+      "file": "/stock-logos/midas/SODSN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sodsn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SOKE": {
+      "file": "/stock-logos/midas/SOKE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/soke-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SOKM": {
+      "file": "/stock-logos/midas/SOKM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sokm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SONME": {
+      "file": "/stock-logos/midas/SONME.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sonme-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SRVGY": {
+      "file": "/stock-logos/midas/SRVGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/srvgy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SUMAS": {
+      "file": "/stock-logos/midas/SUMAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/sumas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SUNTK": {
+      "file": "/stock-logos/midas/SUNTK.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/suntk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SUWEN": {
+      "file": "/stock-logos/midas/SUWEN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/suwen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "SVGYO": {
+      "file": "/stock-logos/midas/SVGYO.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/svgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TARKM": {
+      "file": "/stock-logos/midas/TARKM.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tarkm-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TATEN": {
+      "file": "/stock-logos/midas/TATEN.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/taten-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TATGD": {
+      "file": "/stock-logos/midas/TATGD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tatgd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TAVHL": {
+      "file": "/stock-logos/midas/TAVHL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tavhl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TBORG": {
+      "file": "/stock-logos/midas/TBORG.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tborg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TCELL": {
+      "file": "/stock-logos/midas/TCELL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tcell-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TDGYO": {
+      "file": "/stock-logos/midas/TDGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tdgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TEHOL": {
+      "file": "/stock-logos/midas/TEHOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tehol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TEKTU": {
+      "file": "/stock-logos/midas/TEKTU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tektu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TERA": {
+      "file": "/stock-logos/midas/TERA.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tera-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TEZOL": {
+      "file": "/stock-logos/midas/TEZOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tezol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TGSAS": {
+      "file": "/stock-logos/midas/TGSAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tgsas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "THYAO": {
+      "file": "/stock-logos/midas/THYAO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/thyao-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TKFEN": {
+      "file": "/stock-logos/midas/TKFEN.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tkfen-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TKNSA": {
+      "file": "/stock-logos/midas/TKNSA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tknsa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TLMAN": {
+      "file": "/stock-logos/midas/TLMAN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tlman-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TMPOL": {
+      "file": "/stock-logos/midas/TMPOL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tmpol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TMSN": {
+      "file": "/stock-logos/midas/TMSN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tmsn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TNZTP": {
+      "file": "/stock-logos/midas/TNZTP.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tnztp-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TOASO": {
+      "file": "/stock-logos/midas/TOASO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/toaso-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TRALT": {
+      "file": "/stock-logos/midas/TRALT.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tralt-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TRCAS": {
+      "file": "/stock-logos/midas/TRCAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/trcas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TRENJ": {
+      "file": "/stock-logos/midas/TRENJ.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/trenj-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TRGYO": {
+      "file": "/stock-logos/midas/TRGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/trgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TRHOL": {
+      "file": "/stock-logos/midas/TRHOL.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/trhol-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TRILC": {
+      "file": "/stock-logos/midas/TRILC.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/trilc-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TRMET": {
+      "file": "/stock-logos/midas/TRMET.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/trmet-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TSGYO": {
+      "file": "/stock-logos/midas/TSGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tsgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TSKB": {
+      "file": "/stock-logos/midas/TSKB.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tskb-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TSPOR": {
+      "file": "/stock-logos/midas/TSPOR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tspor-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TUCLK": {
+      "file": "/stock-logos/midas/TUCLK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tuclk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TUKAS": {
+      "file": "/stock-logos/midas/TUKAS.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tukas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TUPRS": {
+      "file": "/stock-logos/midas/TUPRS.jpg",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tuprs-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TUREX": {
+      "file": "/stock-logos/midas/TUREX.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/turex-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TURGG": {
+      "file": "/stock-logos/midas/TURGG.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/turgg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "TURSG": {
+      "file": "/stock-logos/midas/TURSG.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/tursg-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "UCAYM": {
+      "file": "/stock-logos/midas/UCAYM.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ucaym-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "UFUK": {
+      "file": "/stock-logos/midas/UFUK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ufuk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ULAS": {
+      "file": "/stock-logos/midas/ULAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ulas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ULKER": {
+      "file": "/stock-logos/midas/ULKER.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ulker-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ULUFA": {
+      "file": "/stock-logos/midas/ULUFA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ulufa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ULUSE": {
+      "file": "/stock-logos/midas/ULUSE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/uluse-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ULUUN": {
+      "file": "/stock-logos/midas/ULUUN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/uluun-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "UMPAS": {
+      "file": "/stock-logos/midas/UMPAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/umpas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "UNLU": {
+      "file": "/stock-logos/midas/UNLU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/unlu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "USAK": {
+      "file": "/stock-logos/midas/USAK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/usak-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VAKBN": {
+      "file": "/stock-logos/midas/VAKBN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vakbn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VAKFA": {
+      "file": "/stock-logos/midas/VAKFA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vakfa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VAKFN": {
+      "file": "/stock-logos/midas/VAKFN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vakfn-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VAKKO": {
+      "file": "/stock-logos/midas/VAKKO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vakko-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VANGD": {
+      "file": "/stock-logos/midas/VANGD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vangd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VBTYZ": {
+      "file": "/stock-logos/midas/VBTYZ.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vbtyz-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VERTU": {
+      "file": "/stock-logos/midas/VERTU.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vertu-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VERUS": {
+      "file": "/stock-logos/midas/VERUS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/verus-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VESBE": {
+      "file": "/stock-logos/midas/VESBE.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vesbe-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VESTL": {
+      "file": "/stock-logos/midas/VESTL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vestl-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VKFYO": {
+      "file": "/stock-logos/midas/VKFYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vkfyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VKGYO": {
+      "file": "/stock-logos/midas/VKGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vkgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VKING": {
+      "file": "/stock-logos/midas/VKING.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vking-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "VSNMD": {
+      "file": "/stock-logos/midas/VSNMD.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/vsnmd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YAPRK": {
+      "file": "/stock-logos/midas/YAPRK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yaprk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YATAS": {
+      "file": "/stock-logos/midas/YATAS.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yatas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YAYLA": {
+      "file": "/stock-logos/midas/YAYLA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yayla-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YBTAS": {
+      "file": "/stock-logos/midas/YBTAS.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ybtas-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YEOTK": {
+      "file": "/stock-logos/midas/YEOTK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yeotk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YESIL": {
+      "file": "/stock-logos/midas/YESIL.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yesil-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YGGYO": {
+      "file": "/stock-logos/midas/YGGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yggyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YIGIT": {
+      "file": "/stock-logos/midas/YIGIT.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yigit-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YKBNK": {
+      "file": "/stock-logos/midas/YKBNK.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/ykbnk-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YKSLN": {
+      "file": "/stock-logos/midas/YKSLN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yksln-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YONGA": {
+      "file": "/stock-logos/midas/YONGA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yonga-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YUNSA": {
+      "file": "/stock-logos/midas/YUNSA.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yunsa-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YYAPI": {
+      "file": "/stock-logos/midas/YYAPI.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yyapi-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "YYLGD": {
+      "file": "/stock-logos/midas/YYLGD.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/yylgd-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ZEDUR": {
+      "file": "/stock-logos/midas/ZEDUR.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/zedur-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ZERGY": {
+      "file": "/stock-logos/midas/ZERGY.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/zergy-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ZGYO": {
+      "file": "/stock-logos/midas/ZGYO.webp",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/zgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ZOREN": {
+      "file": "/stock-logos/midas/ZOREN.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/zoren-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "ZRGYO": {
+      "file": "/stock-logos/midas/ZRGYO.png",
+      "sourceUrl": "https://www.getmidas.com/canli-borsa/zrgyo-hisse/",
+      "sourceType": "broker-catalog"
+    },
+    "AGROT": {
+      "sourceUrl": "https://agrotech.com.tr/wp-content/uploads/2024/03/cropped-Frame-130-180x180.png",
+      "website": "https://www.agrotech.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5899-agrotech-yuksek-teknoloji-ve-yatirim-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/AGROT-c43daa5eac.webp",
+      "background": "#10213A"
+    },
+    "AHSGY": {
+      "sourceUrl": "https://ahesgyo.com/wp-content/uploads/2023/11/cropped-icon-ahes-180x180.png",
+      "website": "https://ahesgyo.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6014-ahes-gayrimenkul-yatirim-ortakligi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/AHSGY-61a1d5d051.webp",
+      "background": "#F8FAFC"
+    },
+    "ALBTN": {
+      "sourceUrl": "https://www.albayrakbeton.com.tr/images/favicon/apple-touch-icon.webp",
+      "website": "https://www.albayrakbeton.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6256-albayrak-hazir-beton-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/ALBTN-98c9986385.webp",
+      "background": "#dc0c26"
+    },
+    "ALVES": {
+      "sourceUrl": "https://www.alveskablo.com.tr/themes/theme2/assets/favicon/apple-touch-icon.png",
+      "website": "https://www.alveskablo.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5935-alves-kablo-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/ALVES-c845986d16.webp",
+      "background": "#e49758"
+    },
+    "ARTMS": {
+      "sourceUrl": "https://www.artemishali.com.tr/idea/gj/35/themes/selftpl_64afd35444078/assets/uploads/logo.png?revision=8.4.3.2-2-1784719441",
+      "website": "https://www.artemishali.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5936-artemis-hali-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/ARTMS-fd85011e3a.webp",
+      "background": "#F8FAFC"
+    },
+    "AVOD": {
+      "sourceUrl": "https://avod.com.tr/wp-content/uploads/2024/02/avod-fav.png",
+      "website": "https://www.avod.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/1564-a-v-o-d-kurutulmus-gida-ve-tarim-urunleri-sanayi-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/AVOD-ed77818ced.webp",
+      "background": "#F8FAFC"
+    },
+    "AVPGY": {
+      "sourceUrl": "https://www.avrupakentgyo.com/Images/logo.png?v=cBtqOrfhM2BJDJSR0mYtkDH7UaXrKSXGlzRomDlmFvU",
+      "website": "https://www.avrupakentgyo.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5912-avrupakent-gayrimenkul-yatirim-ortakligi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/AVPGY-0bbd3a4ba1.webp",
+      "background": "#000000"
+    },
+    "BEGYO": {
+      "sourceUrl": "https://www.batiegegyo.com.tr/assets/modules/Theme/images/logo.svg",
+      "website": "https://www.batiegegyo.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5906-bati-ege-gayrimenkul-yatirim-ortakligi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/BEGYO-f82b9b517e.webp",
+      "background": "#F8FAFC"
+    },
+    "BETAE": {
+      "sourceUrl": "https://betaenerji.com/wp-content/uploads/2024/05/cropped-BETA-FAV-180x180.png",
+      "website": "https://www.betaenerji.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5345-beta-enerji-ve-teknoloji-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/BETAE-fd05cec8d7.webp",
+      "background": "#F8FAFC"
+    },
+    "BINHO": {
+      "sourceUrl": "https://1000.com.tr/wp-content/uploads/2024/07/android-chrome-512x512-1-300x300.png",
+      "website": "https://www.1000.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5900-1000-yatirimlar-holding-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/BINHO-a1cacb726b.webp",
+      "background": "#ffffff"
+    },
+    "BORLS": {
+      "sourceUrl": "https://www.borlease.com.tr/assets/img/favicon/apple-touch-icon.png",
+      "website": "https://www.borlease.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5878-borlease-otomotiv-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/BORLS-1d78ea70a5.webp",
+      "background": "#ffffff"
+    },
+    "BORSK": {
+      "sourceUrl": "https://www.borseker.com/images/favicon.png",
+      "website": "https://borseker.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5929-bor-seker-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/BORSK-ee9f4b5c15.webp",
+      "background": "#F8FAFC"
+    },
+    "CATES": {
+      "sourceUrl": "https://www.google.com/s2/favicons?domain=cates.com.tr&sz=128",
+      "website": "https://cates.com.tr",
+      "kap": null,
+      "sourceType": "favicon-service",
+      "file": "/stock-logos/verified/CATES-5c6d68d658.webp",
+      "background": "#F8FAFC"
+    },
+    "DOFER": {
+      "sourceUrl": "https://dofer.com.tr/wp-content/uploads/2023/11/cropped-ico-180x180.png",
+      "website": "https://www.dofer.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5879-dofer-yapi-malzemeleri-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/DOFER-2eb4f9ec6e.webp",
+      "background": "#F8FAFC"
+    },
+    "EKDMR": {
+      "sourceUrl": "https://static.wixstatic.com/media/625e17_a3b7fae7d3004ce89be209e3b063d970%7Emv2.png/v1/fill/w_180%2Ch_180%2Clg_1%2Cusm_0.66_1.00_0.01/625e17_a3b7fae7d3004ce89be209e3b063d970%7Emv2.png",
+      "website": "https://www.ekinciler.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/3089-ekinciler-demir-ve-celik-sanayi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/EKDMR-681ad7f8ae.webp",
+      "background": "#F8FAFC"
+    },
+    "EKIM": {
+      "sourceUrl": "https://www.intercityfilo.com/dist/images/homepage/logo.png",
+      "website": "https://www.intercityfilo.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2444-ekim-turizm-ticaret-ve-sanayi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/EKIM-6d37e90fd2.webp",
+      "background": "#F8FAFC"
+    },
+    "EKOS": {
+      "sourceUrl": "https://www.ekoselectric.com/assets/fbrfg/apple-touch-icon.png",
+      "website": "https://www.ekoselectric.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5898-ekos-teknoloji-ve-elektrik-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/EKOS-fdaab7ed69.webp",
+      "background": "#cb2029"
+    },
+    "ENTRA": {
+      "sourceUrl": "https://cms.icenterra.com.tr/storage/images/logos/site_favicon_tr_1701870778.png",
+      "website": "https://www.icenterra.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5943-ic-enterra-yenilenebilir-enerji-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/ENTRA-68ba05caff.webp",
+      "background": "#F8FAFC"
+    },
+    "GOLDA": {
+      "sourceUrl": "https://golda.com.tr/storage/company/golda.1716552254.png",
+      "website": "https://golda.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/3523-golda-gida-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/GOLDA-ed72e6e607.webp",
+      "background": "#10213A"
+    },
+    "HATSN": {
+      "sourceUrl": "https://www.hat-san.com.tr/wp-content/uploads/2018/07/hatsan_logo.png",
+      "website": "https://www.hat-san.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5868-hat-san-gemi-insaa-bakim-onarim-deniz-nakliyat-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/HATSN-c74eb84675.webp",
+      "background": "#F8FAFC"
+    },
+    "INTET": {
+      "sourceUrl": "https://intetra.com.tr/wp-content/uploads/2022/09/favicon-300x300.png",
+      "website": "https://www.intetra.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6280-intetra-teknoloji-ve-bilisim-hizmetleri-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/INTET-443624e227.webp",
+      "background": "#F8FAFC"
+    },
+    "ISVEA": {
+      "sourceUrl": "https://static.wixstatic.com/media/85510a_37557b8d753c42a19cbd206d67dddedf%7Emv2.png/v1/fill/w_180%2Ch_180%2Clg_1%2Cusm_0.66_1.00_0.01/85510a_37557b8d753c42a19cbd206d67dddedf%7Emv2.png",
+      "website": "https://www.isvea.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6235-isvea-seramik-ve-banyo-urunleri-sanayi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/ISVEA-029b827b60.webp",
+      "background": "#F8FAFC"
+    },
+    "KARCL": {
+      "sourceUrl": "https://www.kar-demir.com.tr/wp-content/uploads/2024/07/cropped-fav-kr-180x180.png",
+      "website": "https://www.kar-demir.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/3200-kardemir-celik-sanayi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/KARCL-fb0060d494.webp",
+      "background": "#fefefe"
+    },
+    "KBORU": {
+      "sourceUrl": "https://www.kuzeyboru.com.tr/wp-content/uploads/2025/07/cropped-yildiz-png-180x180.png",
+      "website": "https://www.kuzeyboru.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5911-kuzey-boru-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/KBORU-56aff877c6.webp",
+      "background": "#F8FAFC"
+    },
+    "KOTON": {
+      "sourceUrl": "https://ktnimg2.mncdn.com/cms/2023/12/08/a99b013d-998f-446c-9fd3-bd60ebfa2a4b.png",
+      "website": "https://www.koton.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/2365-koton-magazacilik-tekstil-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/KOTON-e67c463cb6.webp",
+      "background": "#F8FAFC"
+    },
+    "LILAK": {
+      "sourceUrl": "https://lilakagit.com/wp-content/uploads/2021/04/favicon.svg",
+      "website": "https://www.lilakagit.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5953-lila-kagit-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/LILAK-ca566d192d.webp",
+      "background": "#F8FAFC"
+    },
+    "LMKDC": {
+      "sourceUrl": "https://www.limakdoguanadolucimento.com/images/content/logo.png",
+      "website": "https://www.limakdoguanadolucimento.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5930-limak-dogu-anadolu-cimento-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/LMKDC-c4715772e6.webp",
+      "background": "#10213A"
+    },
+    "MEGMT": {
+      "sourceUrl": "https://www.megametal.com.tr/assets/img/megametal-logo.webp",
+      "website": "https://www.megametal.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/4361-mega-metal-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/MEGMT-91fb0519b0.webp",
+      "background": "#10213A"
+    },
+    "MEKAG": {
+      "sourceUrl": "https://www.mekaglobal.com/content/images/logo.webp",
+      "website": "https://www.mekaglobal.com/tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5875-meka-global-makine-imalat-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/MEKAG-408339878b.webp",
+      "background": "#10213A"
+    },
+    "METEN": {
+      "sourceUrl": "https://metgunenerji.com.tr/Content/images/MetgunEnerji-Logo.png",
+      "website": "https://metgunenerji.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6189-metgun-enerji-yatirimlari-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/METEN-505380c425.webp",
+      "background": "#F8FAFC"
+    },
+    "MHRGY": {
+      "sourceUrl": "https://mhrgyo.com.tr/images/favicon/apple-touch-icon.png",
+      "website": "https://mhrgyo.com.tr",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/MHRGY-4dffdbf842.webp",
+      "background": "#F8FAFC"
+    },
+    "MOGAN": {
+      "sourceUrl": "https://mogan.com.tr/wp-content/uploads/2023/10/cropped-moganfav-180x180.png",
+      "website": "https://www.mogan.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5180-mogan-enerji-yatirim-holding-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/MOGAN-9b0e431f12.webp",
+      "background": "#45ae72"
+    },
+    "OBAMS": {
+      "sourceUrl": "https://www.obamakarna.com.tr/favicon.ico",
+      "website": "https://www.obamakarna.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5934-oba-makarnacilik-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/OBAMS-b044bd0184.webp",
+      "background": "#F8FAFC"
+    },
+    "ODINE": {
+      "sourceUrl": "https://odine.com/wp-content/uploads/cropped-favicon-180x180.png",
+      "website": "https://odine.com",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/ODINE-eaba720a84.webp",
+      "background": "#F8FAFC"
+    },
+    "ORZAX": {
+      "sourceUrl": "https://www.orzax.com.tr/wp-content/uploads/2026/04/faviconorzax.png",
+      "website": "https://www.orzax.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6234-orzaks-ilac-ve-kimya-sanayi-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/ORZAX-d4a8cd49f2.webp",
+      "background": "#F8FAFC"
+    },
+    "OZATD": {
+      "sourceUrl": "https://www.google.com/s2/favicons?domain=ozatadenizcilik.com&sz=128",
+      "website": "https://ozatadenizcilik.com",
+      "kap": null,
+      "sourceType": "favicon-service",
+      "file": "/stock-logos/verified/OZATD-302abbdec7.webp",
+      "background": "#F8FAFC"
+    },
+    "PATEK": {
+      "sourceUrl": "https://www.pasifikteknoloji.com/uploads/9558z9fyjgo4kg08s4.png",
+      "website": "https://www.pasifikteknoloji.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5928-pasifik-teknoloji-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/PATEK-1cf1729aa7.webp",
+      "background": "#F8FAFC"
+    },
+    "QUICK": {
+      "sourceUrl": "https://assets.quicksigorta.com/img/logos/quick-sigorta-q-logo.svg?w=3840&q=100",
+      "website": "https://www.quicksigorta.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6264-quick-sigorta-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/QUICK-659f382bab.webp",
+      "background": "#F8FAFC"
+    },
+    "REEDR": {
+      "sourceUrl": "https://reeder.com.tr/cdn/shop/files/reeder-logo-insta.jpg?v=1754401675&width=320",
+      "website": "https://www.reeder.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5866-reeder-teknoloji-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/REEDR-698bf7f5a0.webp",
+      "background": "#061b2c"
+    },
+    "RGYAS": {
+      "sourceUrl": "https://rgy.com.tr/content/files/logo-67836601785daa9886.07038753.svg",
+      "website": "https://www.rgy.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/1548-ronesans-gayrimenkul-yatirim-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/RGYAS-f9b1a08ae3.webp",
+      "background": "#F8FAFC"
+    },
+    "SARAE": {
+      "sourceUrl": "https://sara.com.tr/wp-content/uploads/2024/11/fav_logo.png",
+      "website": "https://sara-enerji.com",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6246-sa-ra-enerji-insaat-ticaret-ve-sanayi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/SARAE-6302b49b63.webp",
+      "background": "#F8FAFC"
+    },
+    "SKYLP": {
+      "sourceUrl": "https://cdn.skyalp.com.tr/skyalp/images/favicon.png",
+      "website": "https://www.skyalp.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/1602-skyalp-finansal-teknolojiler-ve-danismanlik-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/SKYLP-ae0517a06f.webp",
+      "background": "#F8FAFC"
+    },
+    "SOHOE": {
+      "sourceUrl": "https://www.sohocompany.com.tr/images/logo2.png",
+      "website": "https://www.sohocompany.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6233-soho-giyim-ve-enerji-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/SOHOE-65b73ce622.webp",
+      "background": "#F8FAFC"
+    },
+    "SURGY": {
+      "sourceUrl": "https://www.surtatilevlerigyo.com.tr/dosyalar/site_resim/ayar/1561710.png",
+      "website": "https://www.surtatilevlerigyo.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5910-sur-tatil-evleri-gayrimenkul-yatirim-ortakligi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/SURGY-1ebc49bba4.webp",
+      "background": "#F8FAFC"
+    },
+    "TABGD": {
+      "sourceUrl": "https://www.tabgida.com.tr/assets/img/apple-icon-precomposed.png",
+      "website": "https://www.tabgida.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/4065-tab-gida-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/TABGD-39b537223e.webp",
+      "background": "#006cb7"
+    },
+    "TCKRC": {
+      "sourceUrl": "https://tck.com.tr/assets/favicon/apple-icon-180x180.png",
+      "website": "https://www.tck.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6010-kirac-galvaniz-telekominikasyon-metal-makine-insaat-elektrik-sanayi-ve-ticaret-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/TCKRC-40f15400e1.webp",
+      "background": "#F8FAFC"
+    },
+    "TTKOM": {
+      "sourceUrl": "https://asset.turktelekom.com.tr/SiteAssets/images/logo-mobile.svg",
+      "website": "https://asset.turktelekom.com.tr/SiteAssets/images/logo-mobile.svg",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/TTKOM-357f375021.webp",
+      "background": "#F8FAFC"
+    },
+    "TTRAK": {
+      "sourceUrl": "https://www.turktraktor.com.tr/getmedia/0ddbd3b1-ca05-46f3-aaa9-cc2b29d4371f/logolar-turk-traktor.svg?ext=.svg",
+      "website": "https://www.turktraktor.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/1393-turk-traktor-ve-ziraat-makineleri-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/TTRAK-88bb781947.webp",
+      "background": "#F8FAFC"
+    },
+    "VEYAS": {
+      "sourceUrl": "https://www.turkerveyas.com.tr/assets/images/veyas-logo.svg?v=1",
+      "website": "https://www.turkerveyas.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/6273-turker-vangolu-enerji-yatirim-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/VEYAS-3c6fbc448f.webp",
+      "background": "#F8FAFC"
+    },
+    "VRGYO": {
+      "sourceUrl": "https://www.verakonseptgyo.com.tr/favicons/apple-icon-76x76.png",
+      "website": "https://www.verakonseptgyo.com.tr",
+      "kap": "https://kap.org.tr/tr/sirket-bilgileri/genel/5885-vera-konsept-gayrimenkul-yatirim-ortakligi-a-s",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/VRGYO-315f26bfdd.webp",
+      "background": "#F8FAFC"
+    },
+    "BKRGY": {
+      "sourceUrl": "https://www.bakircigyo.com.tr/icon?a63b7df068222195",
+      "website": "https://www.bakircigyo.com.tr",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/BKRGY-f3d9b472e5.webp",
+      "background": "#F8FAFC"
+    },
+    "KPEKS": {
+      "sourceUrl": "https://kapeks.com.tr/wp-content/uploads/logo-red-1.png",
+      "website": "https://kapeks.com.tr",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/KPEKS-a1f4660a30.webp",
+      "background": "#F8FAFC"
+    },
+    "MASFN": {
+      "sourceUrl": "https://masfen.com.tr/wp-content/uploads/2021/11/masfen-ikon-300x300.png",
+      "website": "https://masfen.com.tr/tr/",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/MASFN-340294f775.webp",
+      "background": "#F8FAFC"
+    },
+    "SKYMD": {
+      "sourceUrl": "https://www.sekeryatirim.com.tr/images/seker_logo.svg",
+      "website": "https://www.sekeryatirim.com.tr",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/SKYMD-88db674648.webp",
+      "background": "#F8FAFC"
+    },
+    "SSAAT": {
+      "sourceUrl": "https://www.saatvesaat.com/img/logo/ss.png",
+      "website": "https://www.saatvesaat.com",
+      "kap": null,
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/SSAAT-5f24c64f89.webp",
+      "background": "#F8FAFC"
+    },
+    "DMRGD": {
+      "sourceUrl": "https://s3-symbol-logo.tradingview.com/dmr-unlu-mamuller.svg",
+      "website": "https://www.dmrbakery.com",
+      "sourceType": "market-data",
+      "file": "/stock-logos/verified/DMRGD-8300f72e8a.webp",
+      "background": "#f0f3fa"
+    },
+    "MARBL": {
+      "sourceUrl": "https://s3-symbol-logo.tradingview.com/tureks-turunc-madencilik.svg",
+      "website": "https://www.marblesystemstureks.com.tr",
+      "sourceType": "market-data",
+      "file": "/stock-logos/verified/MARBL-739363661d.webp",
+      "background": "#f0f3fa"
+    },
+    "TKNKA": {
+      "sourceUrl": "https://teknikaluminyum.com.tr/img/tekniklogo.png",
+      "website": "https://teknikaluminyum.com.tr",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/TKNKA-d41995d1fe.webp",
+      "background": "#10213A"
+    },
+    "CITAS": {
+      "sourceUrl": "https://cdn.myikas.com/images/b6327f78-5749-4459-b135-27ef38dda6aa/43fb798d-b286-4aa5-b974-099c666fc8fb/image_1080.webp",
+      "website": "https://www.citlekci.com.tr",
+      "sourceType": "official-website",
+      "file": "/stock-logos/verified/CITAS-10e2350b7b.webp",
+      "background": "#F8FAFC"
+    }
+  }
+}

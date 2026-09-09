@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import sharp from "sharp";
 
 const root = process.cwd();
 const missingOnly = !process.argv.includes("--all");
@@ -109,6 +110,11 @@ await runLimited(targetTickers, 8, async (ticker) => {
     const filePath = path.join(outDir, fileName);
     const buffer = Buffer.from(await image.arrayBuffer());
 
+    const metadata = await sharp(buffer).metadata();
+    const statistics = await sharp(buffer).stats();
+    if (!metadata.width || !metadata.height || Math.min(metadata.width, metadata.height) < 24 || statistics.isOpaque && statistics.channels.every((channel) => channel.stdev < 1)) {
+      throw new Error("empty or undersized logo");
+    }
     await writeFile(filePath, buffer);
     found.set(ticker, fileName);
     console.log(`${ticker} ${fileName}`);
