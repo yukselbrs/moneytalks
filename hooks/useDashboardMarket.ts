@@ -91,11 +91,11 @@ export function useDashboardMarket(enabled = true) {
 
     const fetchSparklines = async () => {
       const sources = [
-        { url: "/api/grafik?ticker=XU100.IS&range=1d", key: "XU100" },
-        { url: "/api/grafik?ticker=XU030.IS&range=1d", key: "XU030" },
-        { url: "/api/grafik?ticker=USDTRY%3DX&range=1d", key: "USD/TRY" },
-        { url: "/api/grafik?ticker=EURTRY%3DX&range=1d", key: "EUR/TRY" },
-        { url: "/api/doviz-maden/gram-altin?range=1d", key: "GRAM ALTIN" },
+        { url: "/api/grafik?ticker=XU100.IS&range=1mo", key: "XU100" },
+        { url: "/api/grafik?ticker=XU030.IS&range=1mo", key: "XU030" },
+        { url: "/api/grafik?ticker=USDTRY%3DX&range=1mo", key: "USD/TRY" },
+        { url: "/api/grafik?ticker=EURTRY%3DX&range=1mo", key: "EUR/TRY" },
+        { url: "/api/doviz-maden/gram-altin?range=1mo", key: "GRAM ALTIN" },
       ];
       const results = await Promise.allSettled(sources.map(async ({ url, key }) => {
         const response = await fetch(url);

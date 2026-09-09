@@ -30,7 +30,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Özeti <span className="ml-2 text-[10px] font-medium normal-case tracking-normal text-slate-400">Gün içi</span></p>
+        <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Piyasa Özeti <span className="ml-2 text-[10px] font-medium normal-case tracking-normal text-slate-400">Grafikler: 1 ay · Değişim: günlük</span></p>
         <span style={{ fontSize: 12, fontWeight: 700, color: acik ? "#10B981" : "#EF4444", background: acik ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${acik ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}`, borderRadius: 4, padding: "2px 7px", letterSpacing: "0.04em" }}>
           {acik ? "● AÇIK" : "● KAPALI"}
         </span>
@@ -87,7 +87,7 @@ export default function DashboardMarketSummary({ piyasa, sparklines, flash }: Pr
                     </>
                   )}
                 </div>
-                {d ? <svg role="img" aria-label={`${e.label} gün içi fiyat seyri; kendi fiyat aralığına göre ölçeklenmiştir`} className="mt-1 h-12 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
+                {d ? <svg role="img" aria-label={`${e.label} son 1 aylık fiyat seyri; kendi fiyat aralığına göre ölçeklenmiştir`} className="mt-1 h-12 w-full" preserveAspectRatio="none" viewBox={`0 0 ${w} ${h}`}>
                   <defs>
                     <linearGradient id={`sg-${e.key}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={color} stopOpacity="0.12"/>
