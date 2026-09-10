@@ -349,6 +349,11 @@ async function loadRows(forceLive: boolean) {
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
+  const codesParam = sp.get("kodlar");
+  const codes = codesParam?.split(",").map(code => code.trim().toUpperCase());
+  if (codes && (!codes.length || codes.length > 25 || codes.some(code => !/^[A-Z0-9]{2,10}$/.test(code)))) {
+    return NextResponse.json({ error: "Geçersiz fon kodları" }, { status: 400 });
+  }
   const sort = sp.get("sort") || "alfabetik";
   const tefasParam = sp.get("tefas");
   const tefasFilter = tefasParam === "kapali" || tefasParam === "tumu" ? tefasParam : "acik";
@@ -361,7 +366,14 @@ export async function GET(req: NextRequest) {
   const sortDef = SORT_MAP[sort] || SORT_MAP.alfabetik;
 
   try {
-    const rows = (await getRows(forceLive))
+    const sourceRows = await getRows(forceLive);
+    if (codes) {
+      const requested = new Set(codes);
+      return NextResponse.json({ items: sourceRows.filter(row => requested.has(row.kod)).map(row => ({
+        kod: row.kod, fiyat: row.fiyat, gunluk_getiri: row.gunluk_getiri, veri_tarihi: row.veri_tarihi,
+      })) }, { headers: { "Cache-Control": "no-store" } });
+    }
+    const rows = sourceRows
       .filter((row) => {
         if (tefasFilter === "tumu") return true;
         // Yalnizca kesin kapali (false) olanlar "kapali"ya girer; durumu

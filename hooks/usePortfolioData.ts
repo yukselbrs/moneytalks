@@ -26,13 +26,14 @@ export function hisseHarici(item: Pick<PortfoyItem, "tur">): boolean {
 }
 
 export interface FiyatMap {
-  [ticker: string]: { fiyat: number; degisim: number };
+  [ticker: string]: { fiyat: number; degisim: number; veriTarihi?: string };
 }
 
 export type PortfoyRiskSkor = { skor: number; seviye: string; yukleniyor: boolean } | null;
 
 export function usePortfolioData() {
   const router = useRouter();
+  const [portfoyHata, setPortfoyHata] = useState<string | null>(null);
   const [portfoy, setPortfoy] = useState<PortfoyItem[]>([]);
   const [fiyatlar, setFiyatlar] = useState<FiyatMap>({});
   const [yükleniyor, setYükleniyor] = useState(true);
@@ -40,15 +41,18 @@ export function usePortfolioData() {
   const [fiyatlarYenileniyor, setFiyatlarYenileniyor] = useState(false);
   const [portfoyRiskSkor, setPortfoyRiskSkor] = useState<PortfoyRiskSkor>(null);
   const [flashTickers, setFlashTickers] = useState<Record<string, "up" | "down">>({});
+  const quoteRequest = useRef(0);
   const prevFiyatlarRef = useRef<FiyatMap>({});
 
   const fiyatlariYenile = useCallback(async (items: PortfoyItem[], sessiz = false): Promise<FiyatMap> => {
+    const request = ++quoteRequest.current;
     if (!items.length) return {};
     if (!sessiz) setFiyatlarYenileniyor(true);
     try {
       const map = await portfolioQuotes(items);
+      if (request !== quoteRequest.current) return map;
       setFiyatlar(map);
-      setSonFiyatGuncelleme(new Date());
+      setSonFiyatGuncelleme(items.every(item => map[item.ticker.trim()]) ? new Date() : null);
       return map;
     } catch (e) {
       console.error("Portfoy fiyat yenileme HATA:", e);
@@ -60,6 +64,7 @@ export function usePortfolioData() {
 
   const portfoyuYukle = useCallback(async () => {
     setYükleniyor(true);
+    setPortfoyHata(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/login"); return; }
@@ -67,8 +72,10 @@ export function usePortfolioData() {
         .from("portfoy")
         .select("id, ticker, adet, maliyet, tur")
         .order("created_at", { ascending: true });
-      if (error) { console.error("Portfoy yuklenemedi", error); return; }
+      if (error) throw error;
       if (!data || data.length === 0) {
+        quoteRequest.current++;
+        setSonFiyatGuncelleme(null);
         setPortfoy([]);
         setFiyatlar({});
         setPortfoyRiskSkor(null);
@@ -95,7 +102,8 @@ export function usePortfolioData() {
         const risk = weightedRisk(riskSonuclari);
         setPortfoyRiskSkor(risk ? { ...risk, yukleniyor: false } : null);
       } catch (e) { console.error("Fiyat fetch HATA:", e); }
-    } finally { setYükleniyor(false); }
+    } catch { setPortfoyHata("Portföy yüklenemedi. Sayfayı yenileyip tekrar deneyin."); }
+    finally { setYükleniyor(false); }
   }, [fiyatlariYenile, router]);
 
   useEffect(() => { portfoyuYukle(); }, [portfoyuYukle]);
@@ -125,6 +133,7 @@ export function usePortfolioData() {
   }, [fiyatlar]);
 
   return {
+    portfoyHata,
     portfoy,
     fiyatlar,
     yükleniyor,

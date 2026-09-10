@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { positivePortfolioNumber } from "@/lib/portfolio-math";
 import { requireUser } from "@/lib/auth";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -33,11 +34,6 @@ export async function GET(req: NextRequest) {
 const ADET_MAKS = 1_000_000_000;
 const MALIYET_MAKS = 10_000_000;
 
-function pozitifSayi(v: unknown, maks: number): number | null {
-  const n = Number(v);
-  if (!Number.isFinite(n) || n <= 0 || n > maks) return null;
-  return n;
-}
 
 export async function POST(req: NextRequest) {
   const auth = await requireUser(req, supabase);
@@ -52,15 +48,15 @@ export async function POST(req: NextRequest) {
   }
 
   // Ticker: once tip, sonra bicim. Uydurma kod fiyat sorgularini bozuyor.
-  const hamTicker = typeof govde.ticker === "string" ? govde.ticker.trim() : "";
+  const hamTicker = typeof govde?.ticker === "string" ? govde.ticker.trim() : "";
   if (!hamTicker || hamTicker.length > 12 || !/^[A-Za-z0-9.\-]+$/.test(hamTicker)) {
     return NextResponse.json({ error: "Geçersiz ticker" }, { status: 400 });
   }
 
-  const adet = pozitifSayi(govde.adet, ADET_MAKS);
+  const adet = positivePortfolioNumber(govde.adet, ADET_MAKS);
   if (adet === null) return NextResponse.json({ error: "Adet 0'dan büyük geçerli bir sayı olmalı" }, { status: 400 });
 
-  const maliyet = pozitifSayi(govde.maliyet, MALIYET_MAKS);
+  const maliyet = positivePortfolioNumber(govde.maliyet, MALIYET_MAKS);
   if (maliyet === null) return NextResponse.json({ error: "Maliyet 0'dan büyük geçerli bir sayı olmalı" }, { status: 400 });
 
   const { data, error } = await supabase
@@ -88,7 +84,7 @@ export async function DELETE(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
   }
-  const hamTicker = typeof govde.ticker === "string" ? govde.ticker.trim() : "";
+  const hamTicker = typeof govde?.ticker === "string" ? govde.ticker.trim() : "";
   if (!hamTicker || hamTicker.length > 12) return NextResponse.json({ error: "Geçersiz ticker" }, { status: 400 });
 
   const { error } = await supabase

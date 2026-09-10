@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { safeRedirectPath } from "@/lib/auth-redirect";
-import { portfolioHistory, weightedRisk } from "@/lib/portfolio-math";
+import { adjustPosition, positivePortfolioNumber, portfolioHistory, weightedRisk } from "@/lib/portfolio-math";
 import { safeAnalysis, ANALYSIS_DISCLAIMER } from "@/lib/ai-output";
 import { halkaArzDagitimHesabi } from "@/lib/halka-arz-dagitim";
 
@@ -30,5 +30,27 @@ describe("launch safety", () => {
     expect(safeAnalysis("Şimdi al, garanti getiri var.")).not.toContain("Şimdi al");
     expect(safeAnalysis("Fiyat günlük ortalamanın üzerinde.")).toContain(ANALYSIS_DISCLAIMER);
     expect(safeAnalysis(ANALYSIS_DISCLAIMER)).toBe(ANALYSIS_DISCLAIMER);
+  });
+});
+
+
+describe("portfolio position changes", () => {
+  it.each([true, false, [], [1], {}, null, "", " ", "12abc", "1e309", Infinity, NaN, -1, 0, "-5", "1,5"])("rejects invalid input %s", value => {
+    expect(positivePortfolioNumber(value, 1_000_000_000)).toBeNull();
+  });
+  it("preserves fractional fund cost across additions and partial removals", () => {
+    const added = adjustPosition({ adet: 100, maliyet: 0.123456 }, "100", "0.123458", "ekle");
+    expect(added.adet).toBe(200);
+    expect(added.maliyet).toBeCloseTo(0.123457, 12);
+    const removed = adjustPosition(added, "50", "0.2", "cikar");
+    expect(removed).toEqual({ adet: 150, maliyet: added.maliyet });
+  });
+  it("weights stock purchase cost and closes a fully removed position", () => {
+    expect(adjustPosition({ adet: 10, maliyet: 100 }, 30, 200, "ekle")).toEqual({ adet: 40, maliyet: 175 });
+    expect(adjustPosition({ adet: 10, maliyet: 100 }, 10, 80, "cikar").adet).toBe(0);
+  });
+  it("rejects overselling and excessive combined quantities", () => {
+    expect(() => adjustPosition({ adet: 10, maliyet: 100 }, 11, 80, "cikar")).toThrow();
+    expect(() => adjustPosition({ adet: 1e9, maliyet: 1 }, 1, 1, "ekle")).toThrow();
   });
 });

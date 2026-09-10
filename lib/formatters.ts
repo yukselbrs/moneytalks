@@ -62,6 +62,6 @@ export function formatPercent(value: NumericValue, options: PercentOptions = {})
 
 export function formatQuantity(value: NumericValue, unit?: string) {
   if (!isFiniteNumber(value)) return "—";
-  const formatted = formatNumber(value, { maximumFractionDigits: 0, useGrouping: true });
+  const formatted = formatNumber(value, { maximumFractionDigits: 6, useGrouping: true });
   return unit ? `${formatted} ${unit}` : formatted;
 }

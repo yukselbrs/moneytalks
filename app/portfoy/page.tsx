@@ -1,7 +1,9 @@
 "use client";
 
+import { adjustPosition, positivePortfolioNumber } from "@/lib/portfolio-math";
 import { loadFundCatalog } from "@/lib/fund-catalog";
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { yeniKotasyonOverlay } from "@/lib/hisse-evren";
 import { BIST_HISSELER } from "@/lib/bist-hisseler";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/components/lib/supabase";
@@ -111,33 +113,9 @@ interface SilModal {
 }
 
 function sonVeriZamaniLabel(sonGuncelleme: Date | null): string {
-  const simdi = new Date();
-  // Istanbul UTC+3
-  const ist = (d: Date) => new Date(d.getTime() + 3 * 60 * 60 * 1000);
-  const istSimdi = ist(simdi);
-  const gun = istSimdi.getUTCDay(); // 0=Paz,1=Pzt,...,5=Cum,6=Cmt
-  const dk = istSimdi.getUTCHours() * 60 + istSimdi.getUTCMinutes();
-  const piyasaAcik = gun >= 1 && gun <= 5 && dk >= 600 && dk <= 1090;
-
-  if (piyasaAcik && sonGuncelleme) {
-    return `Son: ${new Date(sonGuncelleme.getTime() - 15 * 60 * 1000).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}`;
-  }
-
-  // Piyasa kapalı — son kapanış gününü bul
-  const kapanisTarih = new Date(istSimdi);
-  if (gun === 0) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 2);       // Pazar → Cuma
-  else if (gun === 6) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 1);  // Cmt → Cuma
-  else if (dk < 600) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 1);   // Açılmadan → dün
-  // Dün Pzt ise ve Pazar, Cuma'ya çek
-  const kapanisGunu = kapanisTarih.getUTCDay();
-  if (kapanisGunu === 0) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 2);
-  else if (kapanisGunu === 6) kapanisTarih.setUTCDate(kapanisTarih.getUTCDate() - 1);
-
-  const gunAdi = kapanisTarih.toLocaleDateString("tr-TR", { weekday: "short", timeZone: "UTC" });
-  const tarih = kapanisTarih.toLocaleDateString("tr-TR", { day: "numeric", month: "numeric", timeZone: "UTC" });
-  // Eğer son kapanış bugün veya dün ise sadece gün adı, daha eskiyse tarih de ekle
-  const fark = Math.floor((istSimdi.getTime() - kapanisTarih.getTime()) / 86400000);
-  return fark < 3 ? `Kapanış: ${gunAdi} 18:10` : `Kapanış: ${tarih} 18:10`;
+  return sonGuncelleme
+    ? `Son kontrol: ${sonGuncelleme.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" })}`
+    : "Fiyatlar henüz alınamadı";
 }
 
 export default function PortfoyPage() {
@@ -146,6 +124,7 @@ export default function PortfoyPage() {
     portfoy,
     fiyatlar,
     yükleniyor,
+    portfoyHata,
     sonFiyatGuncelleme,
     fiyatlarYenileniyor,
     portfoyRiskSkor,
@@ -178,6 +157,7 @@ export default function PortfoyPage() {
   });
 
   // Fon arama/algilama listesi (kod+unvan) — bir kez cekilir.
+  const [hisseListesi, setHisseListesi] = useState(BIST_HISSELER);
   const [fonListesi, setFonListesi] = useState<{ kod: string; unvan: string }[]>([]);
   useEffect(() => {
     let active = true;
@@ -187,11 +167,18 @@ export default function PortfoyPage() {
         if (active) setFonListesi(funds);
       } catch { /* Kaydetme sırasında tekrar denenir ve hata gösterilir. */ }
     }
+    async function loadStocks() {
+      const overlay = await yeniKotasyonOverlay();
+      if (active) setHisseListesi([...BIST_HISSELER, ...overlay]);
+    }
+    void loadStocks();
     void load();
     return () => { active = false; };
   }, []);
 
 
+  const [silHata, setSilHata] = useState("");
+  const [siliniyor, setSiliniyor] = useState(false);
   const [silModal, setSilModal] = useState<SilModal>({ open: false, ticker: "" });
   const [sonRiskHesaplama, setSonRiskHesaplama] = useState<Date | null>(() => {
     try {
@@ -240,7 +227,13 @@ export default function PortfoyPage() {
   }, [riskler]);
 
   const hisseEkle = async () => {
+    if (ekleModal.yukleniyor) return;
     setEkleModal((m) => ({ ...m, hata: "" }));
+    const adet = positivePortfolioNumber(ekleModal.adet, 1_000_000_000);
+    const maliyet = positivePortfolioNumber(ekleModal.maliyet, 10_000_000);
+    if (adet === null || maliyet === null) {
+      setEkleModal(m => ({ ...m, hata: "Geçerli, sıfırdan büyük adet ve maliyet girin." })); return;
+    }
     if (!ekleModal.ticker || !ekleModal.adet || !ekleModal.maliyet) {
       setEkleModal((m) => ({ ...m, hata: "Tum alanlari doldurun." })); return;
     }
@@ -254,24 +247,23 @@ export default function PortfoyPage() {
         setEkleModal((m) => ({ ...m, hata: "Portföye yalnız TL bazlı enstrümanlar eklenebilir: USD-TRY, EUR-TRY, GBP-TRY, GRAM-ALTIN, GRAM-GUMUS.", yukleniyor: false }));
         return;
       }
-      const hisseMu = BIST_HISSELER.some(h => h.ticker === girilen);
+      const hisseMu = hisseListesi.some(h => h.ticker === girilen);
       const fonMu = !enstruman && !hisseMu && (await loadFundCatalog()).some(f => f.kod === girilen);
       if (!enstruman && !hisseMu && !fonMu) {
         setEkleModal(m => ({ ...m, hata: "Geçerli bir hisse, fon veya enstrüman kodu seçin.", yukleniyor: false }));
         return;
       }
       const tur = enstruman ? enstruman.tur : fonMu ? "fon" : "hisse";
-      const { error } = await supabase.from("portfoy").upsert(
+      const { error } = await supabase.from("portfoy").insert(
         {
           user_id: session.user.id,
           ticker: enstruman ? enstruman.kod : girilen,
-          adet: parseFloat(ekleModal.adet),
-          maliyet: parseFloat(ekleModal.maliyet),
+          adet,
+          maliyet,
           ...(tur ? { tur } : {}),
-        },
-        { onConflict: "user_id,ticker" }
+        }
       );
-      if (error) { setEkleModal((m) => ({ ...m, hata: error.message, yukleniyor: false })); return; }
+      if (error) { setEkleModal((m) => ({ ...m, hata: error.code === "23505" ? "Bu pozisyon zaten var. Adet eklemek için mevcut pozisyonun +/− düğmesini kullanın." : "Pozisyon kaydedilemedi. Tekrar deneyin.", yukleniyor: false })); return; }
       setEkleModal({ open: false, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false });
       await portfoyuYukle();
     } catch (error) { setEkleModal((m) => ({ ...m, yukleniyor: false, hata: error instanceof Error ? error.message : "Pozisyon kaydedilemedi." })); }
@@ -279,43 +271,40 @@ export default function PortfoyPage() {
 
   const lotGüncelle = async () => {
     setLotHata("");
-    const adet = parseFloat(lotModal.adet);
-    const fiyat = parseFloat(lotModal.fiyat);
-    if (!adet || adet <= 0 || !fiyat || fiyat <= 0) { setLotHata("Gecerli adet ve fiyat girin."); return; }
-    if (lotModal.islem === "cikar" && adet > lotModal.mevcutAdet) { setLotHata("Mevcut adetten fazla cikarilamaz."); return; }
+    if (lotYükleniyor) return;
+    let adjusted: { adet: number; maliyet: number };
+    try {
+      adjusted = adjustPosition({ adet: lotModal.mevcutAdet, maliyet: lotModal.mevcutMaliyet }, lotModal.adet, lotModal.fiyat, lotModal.islem);
+    } catch (error) { setLotHata(error instanceof Error ? error.message : "İşlem yapılamadı."); return; }
     setLotYükleniyor(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      let yeniAdet: number;
-      let yeniMaliyet: number;
-      if (lotModal.islem === "ekle") {
-        yeniAdet = lotModal.mevcutAdet + adet;
-        yeniMaliyet = ((lotModal.mevcutAdet * lotModal.mevcutMaliyet) + (adet * fiyat)) / yeniAdet;
-      } else {
-        yeniAdet = lotModal.mevcutAdet - adet;
-        yeniMaliyet = lotModal.mevcutMaliyet;
-      }
-      if (yeniAdet <= 0) {
-        const { error } = await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", lotModal.ticker);
-        if (error) { setLotHata("Islem basarisiz oldu."); return; }
-      } else {
-        const { error } = await supabase.from("portfoy").update({ adet: yeniAdet, maliyet: parseFloat(yeniMaliyet.toFixed(4)) })
-          .eq("user_id", session.user.id).eq("ticker", lotModal.ticker);
-        if (error) { setLotHata("Islem basarisiz oldu."); return; }
-      }
+      const query = adjusted.adet === 0
+        ? supabase.from("portfoy").delete()
+        : supabase.from("portfoy").update(adjusted);
+      const { data, error } = await query.eq("user_id", session.user.id).eq("ticker", lotModal.ticker)
+        .eq("adet", lotModal.mevcutAdet).eq("maliyet", lotModal.mevcutMaliyet).select("id");
+      if (error) { setLotHata("İşlem kaydedilemedi. Tekrar deneyin."); return; }
+      if (!data?.length) { setLotHata("Pozisyon başka bir işlemde değişti. Pencereyi kapatıp portföyü yenileyin."); return; }
       setLotModal({ open: false, ticker: "", mevcutAdet: 0, mevcutMaliyet: 0, islem: "ekle", adet: "", fiyat: "" });
       await portfoyuYukle();
     } catch { setLotHata("Beklenmeyen bir hata olustu."); } finally { setLotYükleniyor(false); }
   };
 
   const hisseSil = async (ticker: string) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const { error } = await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", ticker);
-    if (error) { console.error("Silme hatasi:", error.message); return; }
-    setSilModal({ open: false, ticker: "" });
-    await portfoyuYukle();
+    if (siliniyor) return;
+    setSiliniyor(true);
+    setSilHata("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { router.push("/login"); return; }
+      const { error } = await supabase.from("portfoy").delete().eq("user_id", session.user.id).eq("ticker", ticker);
+      if (error) { setSilHata("Pozisyon silinemedi. Tekrar deneyin."); return; }
+      setSilModal({ open: false, ticker: "" });
+      await portfoyuYukle();
+    } catch { setSilHata("Pozisyon silinemedi. Bağlantınızı kontrol edin."); }
+    finally { setSiliniyor(false); }
   };
 
   const plHesapla = (item: PortfoyItem) => {
@@ -474,10 +463,11 @@ export default function PortfoyPage() {
           }
         `}</style>
 
+        {portfoyHata && <p role="alert" className="mb-4 text-sm text-amber-400">{portfoyHata}</p>}
         <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Portföy Takibi</h1>
-            <p className="text-slate-400 text-sm mt-1">BIST pozisyonlarınızı takip edin, her hisse için AI risk skoru alın</p>
+            <p className="text-slate-400 text-sm mt-1">Hisse, fon, döviz ve kıymetli maden pozisyonlarınızı bir arada takip edin</p>
           </div>
           <button
             onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
@@ -800,7 +790,7 @@ export default function PortfoyPage() {
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>💼</div>
             <div>
               <p style={{ fontSize: 18, fontWeight: 700, color: "#E2E8F0", marginBottom: 8 }}>Portföyünüz boş</p>
-              <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.6, maxWidth: 280 }}>Pozisyonlarınızı ekleyin; maliyetinizi, kâr/zararınızı ve dağılımınızı bir arada görün. Fiyatlar 15 dakika gecikmelidir.</p>
+              <p style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.6, maxWidth: 280 }}>Pozisyonlarınızı ekleyin; maliyetinizi, kâr/zararınızı ve dağılımınızı bir arada görün. Hisse fiyatları 15 dakika gecikmelidir. Fon fiyatları günlük açıklanır.</p>
             </div>
             <button
               onClick={() => setEkleModal({ open: true, ticker: "", adet: "", maliyet: "", hata: "", yukleniyor: false })}
@@ -836,12 +826,13 @@ export default function PortfoyPage() {
                   <div className="cursor-pointer px-4 py-3" onClick={() => setAcikHisse(acik ? null : item.ticker)}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Link href={pozisyonLink(item)} onClick={e => e.stopPropagation()} className="font-bold text-white hover:text-blue-400 text-[15px]">{pozisyonAd(item)}</Link>
+                          {fonPozisyonMu(item) && <span className="text-[10px] text-slate-400">Fiyat tarihi: {fiyatlar[item.ticker]?.veriTarihi ?? "Belirtilmedi"}</span>}
                           {fiyat && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyatDegisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"}{formatPercent(Math.abs(fiyatDegisim), { signDisplay: "never" })}</span>}
                         </div>
                         <p className="mt-0.5 text-xs text-slate-500">
-                          {fiyat ? formatCurrency(fiyat.fiyat) : "—"} · {formatQuantity(item.adet, "lot")}
+                          {fiyat ? formatCurrency(fiyat.fiyat, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 }) : "—"} · {formatQuantity(item.adet, fonPozisyonMu(item) ? "pay" : enstrumanPozisyonMu(item) ? undefined : "lot")}
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
@@ -854,7 +845,7 @@ export default function PortfoyPage() {
                     </div>
                     <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] text-slate-400">Maliyet {formatCurrency(item.maliyet)}</span>
+                        <span className="text-[10px] text-slate-400">Maliyet {formatCurrency(item.maliyet, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 })}</span>
                         {(() => {
                           const gunluk = gunlukHesapla(item);
                           if (!gunluk) return null;
@@ -870,8 +861,8 @@ export default function PortfoyPage() {
                       <div className="my-3 grid grid-cols-2 gap-2">
                         {[
                           { label: "Lot", value: formatQuantity(item.adet), cls: "text-white" },
-                          { label: "Ort. Maliyet", value: formatCurrency(item.maliyet), cls: "text-white" },
-                          { label: "Güncel Fiyat", value: fiyat ? formatCurrency(fiyat.fiyat) : "—", cls: "text-white" },
+                          { label: "Ort. Maliyet", value: formatCurrency(item.maliyet, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 }), cls: "text-white" },
+                          { label: "Güncel Fiyat", value: fiyat ? formatCurrency(fiyat.fiyat, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 }) : "—", cls: "text-white" },
                           { label: "K/Z %", value: pl ? formatPercent(pl.plYuzde, { signDisplay: "always" }) : "—", cls: isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400" },
                           { label: "Ana Para", value: formatCurrency(item.adet * item.maliyet, { maximumFractionDigits: 0, minimumFractionDigits: 0 }), cls: "text-slate-300" },
                           { label: "Güncel Değer", value: pl ? formatCurrency(pl.guncel_toplam) : "—", cls: "text-white" },
@@ -972,7 +963,7 @@ export default function PortfoyPage() {
                     const flash = flashTickers[item.ticker];
                     const sirketAdi = enstrumanPozisyonMu(item)
                       ? (() => { const t = pozisyonTanim(item.ticker); return t?.tur === "doviz" ? t.aciklama : t?.birim === "gram" ? "Gram · TL (türetilmiş)" : undefined; })()
-                      : BIST_HISSELER.find(h => h.ticker === item.ticker)?.ad;
+                      : hisseListesi.find(h => h.ticker === item.ticker)?.ad;
                     return (
                       <React.Fragment key={item.id}>
                         <tr
@@ -999,6 +990,7 @@ export default function PortfoyPage() {
                                 </span>
                               )}
                             </div>
+                            {fonPozisyonMu(item) && <p className="mt-1 text-[10px] text-slate-400">Fiyat tarihi: {fiyat?.veriTarihi ?? "Belirtilmedi"}</p>}
                             {sirketAdi && <p className="text-[10px] text-slate-400 mt-0.5 leading-none truncate max-w-[140px]">{sirketAdi}</p>}
                             {risk?.skor && !risk.yukleniyor && (
                               <button
@@ -1013,9 +1005,9 @@ export default function PortfoyPage() {
                             )}
                           </td>
                           <td className="portfolio-number px-3 py-2.5 text-right text-slate-300 text-sm hidden sm:table-cell">{formatQuantity(item.adet)}</td>
-                          <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm">{formatCurrency(item.maliyet)}</td>
+                          <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm">{formatCurrency(item.maliyet, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 })}</td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-sm" style={{ transition: "background 0.7s ease", background: flash === "up" ? "rgba(16,185,129,0.12)" : flash === "down" ? "rgba(239,68,68,0.12)" : "transparent" }}>
-                            {fiyat ? <span className="text-white font-semibold">{formatCurrency(fiyat.fiyat)}</span> : <span className="text-slate-400">—</span>}
+                            {fiyat ? <span className="text-white font-semibold">{formatCurrency(fiyat.fiyat, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 })}</span> : <span className="text-slate-400">—</span>}
                           </td>
                           <td className="portfolio-number px-4 py-2.5 text-right text-slate-500 text-sm hidden sm:table-cell">
                             {formatCurrency(item.adet * item.maliyet)}
@@ -1229,7 +1221,7 @@ export default function PortfoyPage() {
                       (e.tur === "doviz" && e.aciklama.toUpperCase().includes(q))
                     ).slice(0, 3);
                     const fonlar = fonListesi.filter(f => f.kod.startsWith(q) || f.unvan.toUpperCase().includes(q)).slice(0, 3);
-                    const matches = BIST_HISSELER.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6 - enstrumanlar.length - fonlar.length);
+                    const matches = hisseListesi.filter(h => h.ticker.startsWith(q) || (h.ad && h.ad.toUpperCase().includes(q))).slice(0, 6 - enstrumanlar.length - fonlar.length);
                     return matches.length > 0 || enstrumanlar.length > 0 || fonlar.length > 0 ? (
                       <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "#0F1C2E", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 8, zIndex: 100, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
                         {enstrumanlar.map(en => (
@@ -1382,7 +1374,8 @@ export default function PortfoyPage() {
           <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl" style={{ position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
-            <h2 className="text-white font-semibold text-lg mb-2">Hisseyi Sil</h2>
+            <h2 className="text-white font-semibold text-lg mb-2">Pozisyonu Sil</h2>
+            {silHata && <p role="alert" className="text-sm text-red-400 mb-3">{silHata}</p>}
             <p className="text-slate-400 text-sm mb-6">
               <span className="text-white font-bold">{silModal.ticker}</span> portföyden kalıcı olarak silinecek. Emin misiniz?
             </p>
@@ -1391,9 +1384,9 @@ export default function PortfoyPage() {
                 className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm transition-colors">
                 Vazgeç
               </button>
-              <button onClick={() => hisseSil(silModal.ticker)}
+              <button disabled={siliniyor} onClick={() => hisseSil(silModal.ticker)}
                 className="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg text-sm font-medium transition-colors">
-                Sil
+                {siliniyor ? "Siliniyor..." : "Sil"}
               </button>
             </div>
           </div>

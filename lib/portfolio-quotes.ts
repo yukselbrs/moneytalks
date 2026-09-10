@@ -1,7 +1,5 @@
-import { supabase } from "@/components/lib/supabase";
-
 export type PortfolioAsset = { ticker: string; tur?: string };
-export type PortfolioQuote = { fiyat: number; degisim: number };
+export type PortfolioQuote = { fiyat: number; degisim: number; veriTarihi?: string };
 
 export function marketNumber(value: unknown): number | null {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
@@ -22,10 +20,10 @@ export async function portfolioQuotes(items: PortfolioAsset[]): Promise<Record<s
   const funds = items.filter(p => p.tur === "fon").map(p => p.ticker.trim());
   const hasInstruments = items.some(p => p.tur === "maden" || p.tur === "doviz");
   const map: Record<string, PortfolioQuote> = {};
-  const add = (key: string, price: unknown, change: unknown) => {
+  const add = (key: string, price: unknown, change: unknown, date?: unknown) => {
     const fiyat = marketNumber(price);
     const degisim = marketNumber(change);
-    if (fiyat !== null && fiyat > 0 && degisim !== null) map[key] = { fiyat, degisim };
+    if (fiyat !== null && fiyat > 0 && degisim !== null && degisim > -100) map[key] = { fiyat, degisim, ...(typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date) ? { veriTarihi: date } : {}) };
   };
   const tasks: Promise<void>[] = [];
   for (let i = 0; i < stocks.length; i += 50) {
@@ -35,11 +33,13 @@ export async function portfolioQuotes(items: PortfolioAsset[]): Promise<Record<s
       for (const ticker of tickers) add(ticker, json[ticker]?.fiyat, json[ticker]?.degisim);
     })());
   }
-  if (funds.length) tasks.push((async () => {
-    const { data, error } = await supabase.from("fon_snapshots").select("kod, fiyat, gunluk_getiri").in("kod", funds);
-    if (error) throw error;
-    for (const fund of data ?? []) add(fund.kod, fund.fiyat, fund.gunluk_getiri);
-  })());
+  for (let i = 0; i < funds.length; i += 25) {
+    const codes = funds.slice(i, i + 25);
+    tasks.push((async () => {
+      const json = await getJson(`/api/fonlar?kodlar=${encodeURIComponent(codes.join(","))}`);
+      for (const fund of json.items ?? []) add(fund.kod, fund.fiyat, fund.gunluk_getiri, fund.veri_tarihi);
+    })());
+  }
   if (hasInstruments) tasks.push((async () => {
     const json = await getJson("/api/doviz-maden");
     for (const item of json.items ?? []) add(item.kod, item.fiyat, item.degisim_yuzde);
