@@ -25,6 +25,13 @@ function pozisyonTanim(ticker: string) {
   return ENSTRUMANLAR.find(e => e.kod === ticker);
 }
 
+function pozisyonBirim(item?: Pick<PortfoyItem, "tur">): string {
+  if (item?.tur === "fon") return "pay";
+  if (item?.tur === "maden") return "gram";
+  if (item?.tur === "doviz") return "adet";
+  return "lot";
+}
+
 function pozisyonAd(item: Pick<PortfoyItem, "ticker" | "tur">): string {
   if (enstrumanPozisyonMu(item)) return pozisyonTanim(item.ticker)?.ad ?? item.ticker.toUpperCase();
   return item.ticker; // fon: kod gosterilir (detay sayfasi tam unvani gosterir); hisse: ticker
@@ -149,6 +156,7 @@ export default function PortfoyPage() {
     open: false, ticker: "", mevcutAdet: 0, mevcutMaliyet: 0,
     islem: "ekle", adet: "", fiyat: "",
   });
+  const modalBirim = pozisyonBirim(portfoy.find(item => item.ticker === lotModal.ticker));
   const [lotHata, setLotHata] = useState("");
   const [lotYükleniyor, setLotYükleniyor] = useState(false);
 
@@ -832,7 +840,7 @@ export default function PortfoyPage() {
                           {fiyat && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${fiyatDegisim >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"}`}>{fiyatDegisim >= 0 ? "▲" : "▼"}{formatPercent(Math.abs(fiyatDegisim), { signDisplay: "never" })}</span>}
                         </div>
                         <p className="mt-0.5 text-xs text-slate-500">
-                          {fiyat ? formatCurrency(fiyat.fiyat, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 }) : "—"} · {formatQuantity(item.adet, fonPozisyonMu(item) ? "pay" : enstrumanPozisyonMu(item) ? undefined : "lot")}
+                          {fiyat ? formatCurrency(fiyat.fiyat, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 }) : "—"} · {formatQuantity(item.adet, pozisyonBirim(item))}
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
@@ -860,7 +868,7 @@ export default function PortfoyPage() {
                     <div className="px-4 pb-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
                       <div className="my-3 grid grid-cols-2 gap-2">
                         {[
-                          { label: "Lot", value: formatQuantity(item.adet), cls: "text-white" },
+                          { label: fonPozisyonMu(item) ? "Pay" : "Adet", value: formatQuantity(item.adet), cls: "text-white" },
                           { label: "Ort. Maliyet", value: formatCurrency(item.maliyet, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 }), cls: "text-white" },
                           { label: "Güncel Fiyat", value: fiyat ? formatCurrency(fiyat.fiyat, { maximumFractionDigits: fonPozisyonMu(item) ? 6 : 2 }) : "—", cls: "text-white" },
                           { label: "K/Z %", value: pl ? formatPercent(pl.plYuzde, { signDisplay: "always" }) : "—", cls: isPos === null ? "text-slate-500" : isPos ? "text-emerald-400" : "text-red-400" },
@@ -917,7 +925,7 @@ export default function PortfoyPage() {
                       <div className="flex gap-2">
                         <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
                           className="flex-1 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition-colors"
-                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>± Lot</button>
+                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>± Adet</button>
                         <Link href={pozisyonLink(item)} className="flex-1 py-2 rounded-lg text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors text-center"
                           style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)" }}>Analiz →</Link>
                         <button onClick={() => setSilModal({ open: true, ticker: item.ticker })}
@@ -939,7 +947,7 @@ export default function PortfoyPage() {
                 <thead>
                   <tr style={{ background: "linear-gradient(90deg, rgba(59,130,246,0.07) 0%, rgba(139,92,246,0.04) 100%)", borderBottom: "1px solid rgba(59,130,246,0.12)" }}>
                     <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Hisse</th>
-                    <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Lot</th>
+                    <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Adet</th>
                     <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Maliyet</th>
                     <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Fiyat</th>
                     <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Ana Para</th>
@@ -1034,7 +1042,7 @@ export default function PortfoyPage() {
                               {!risk?.skor && !risk?.yukleniyor && !hisseHarici(item) && (
                                 <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">⚡</button>
                               )}
-                              <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Lot Ekle/Çıkar" className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
+                              <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Adet ekle / çıkar" aria-label="Adet ekle / çıkar" className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
                               <Link href={pozisyonLink(item)} title="Analiz" className="p-1.5 rounded text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-sm">→</Link>
                               <button onClick={() => setSilModal({ open: true, ticker: item.ticker })} title="Sil" className="p-1.5 rounded text-slate-400 hover:text-red-400 hover:bg-red-900/20 transition-colors text-xs">✕</button>
                             </div>
@@ -1293,17 +1301,17 @@ export default function PortfoyPage() {
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-white font-semibold text-lg">{lotModal.ticker} — Lot Güncelle</h2>
+              <h2 className="text-white font-semibold text-lg">{lotModal.ticker} — Adet ekle / çıkar</h2>
               <button onClick={() => setLotModal((m) => ({ ...m, open: false }))} className="text-slate-400 hover:text-white text-xl leading-none">×</button>
             </div>
             <p className="text-slate-400 text-xs mb-5">
-              Mevcut: {formatQuantity(lotModal.mevcutAdet, "lot")} · Ort. maliyet: {formatCurrency(lotModal.mevcutMaliyet)}
+              Mevcut: {formatQuantity(lotModal.mevcutAdet, modalBirim)} · Ort. maliyet: {formatCurrency(lotModal.mevcutMaliyet)}
             </p>
             <div className="flex bg-slate-900 rounded-lg p-1 mb-5">
               {(["ekle", "cikar"] as const).map((i) => (
                 <button key={i} onClick={() => setLotModal((m) => ({ ...m, islem: i, adet: "", fiyat: "" }))}
                   className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-colors ${lotModal.islem === i ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}>
-                  {i === "ekle" ? "+ Lot Ekle" : "- Lot Çıkar"}
+                  {i === "ekle" ? "+ Adet ekle" : "- Adet çıkar"}
                 </button>
               ))}
             </div>
@@ -1326,7 +1334,7 @@ export default function PortfoyPage() {
                   <span className="text-white font-medium">
                     {formatCurrency(((lotModal.mevcutAdet * lotModal.mevcutMaliyet) + (parseFloat(lotModal.adet) * parseFloat(lotModal.fiyat))) / (lotModal.mevcutAdet + parseFloat(lotModal.adet)))}
                   </span>
-                  {" · Toplam lot: "}
+                  {` · Toplam ${modalBirim}: `}
                   <span className="text-white font-medium">{formatQuantity(lotModal.mevcutAdet + parseFloat(lotModal.adet))}</span>
                 </div>
               )}
@@ -1345,9 +1353,9 @@ export default function PortfoyPage() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Getiri oranı · Kalan lot</span>
+                      <span className="text-slate-500">Getiri oranı · Kalan {modalBirim}</span>
                       <span className={`${kazanc >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                        {formatPercent(kazancYuzde, { signDisplay: "always" })} · {formatQuantity(kalanAdet, "lot")}
+                        {formatPercent(kazancYuzde, { signDisplay: "always" })} · {formatQuantity(kalanAdet, modalBirim)}
                       </span>
                     </div>
                   </div>
