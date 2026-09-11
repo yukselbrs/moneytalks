@@ -38,3 +38,17 @@ export function adjustPosition(current: { adet: number; maliyet: number }, quant
     maliyet: operation === "ekle" ? (current.adet * current.maliyet + adet * fiyat) / yeniAdet : current.maliyet,
   };
 }
+
+export function portfolioComposition<T extends { ticker?: string; tur?: string }>(positions: T[]) {
+  const labels: Record<string, string> = { hisse: "hisse", fon: "fon", doviz: "döviz", maden: "maden" };
+  const counts = new Map<string, number>();
+  for (const item of positions) {
+    const type = item.tur ?? "hisse";
+    counts.set(type, (counts.get(type) ?? 0) + 1);
+  }
+  return {
+    stocks: positions.filter(item => !item.tur || item.tur === "hisse"),
+    hasFunds: counts.has("fon"),
+    label: [...counts].map(([type, count]) => `${count} ${labels[type] ?? "pozisyon"}`).join(" · "),
+  };
+}

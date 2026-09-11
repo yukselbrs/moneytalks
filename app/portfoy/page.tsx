@@ -1,6 +1,6 @@
 "use client";
 
-import { adjustPosition, positivePortfolioNumber } from "@/lib/portfolio-math";
+import { portfolioComposition, adjustPosition, positivePortfolioNumber } from "@/lib/portfolio-math";
 import { loadFundCatalog } from "@/lib/fund-catalog";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { yeniKotasyonOverlay } from "@/lib/hisse-evren";
@@ -139,6 +139,7 @@ export default function PortfoyPage() {
     fiyatlariYenile,
     portfoyuYukle,
   } = usePortfolioData();
+  const { stocks: hissePozisyonlari, hasFunds: fonVar, label: pozisyonOzeti } = portfolioComposition(portfoy);
   const [riskler, setRiskler] = useState<RiskMap>(() => {
     try {
       const raw = typeof window !== "undefined" ? localStorage.getItem("portfoy_riskler") : null;
@@ -523,13 +524,13 @@ export default function PortfoyPage() {
                   <div className="w-px h-5 bg-slate-800" />
                   <div>
                     <p className="text-slate-400 text-[10px] font-medium mb-0.5">Pozisyon</p>
-                    <p className="text-slate-300 text-sm font-semibold">{portfoy.length} hisse</p>
+                    <p className="text-slate-300 text-sm font-semibold">{pozisyonOzeti}</p>
                   </div>
                   {portfoyRiskSkor && !portfoyRiskSkor.yukleniyor && (
                     <>
                       <div className="w-px h-5 bg-slate-800" />
                       <div>
-                        <p className="text-slate-400 text-[10px] font-medium mb-0.5">Portföy Riski</p>
+                        <p className="text-slate-400 text-[10px] font-medium mb-0.5">Hisse Pozisyonlarının Riski</p>
                         <p className={`text-sm font-bold ${portfoyRiskSkor.seviye === "Yüksek" ? "text-red-400" : portfoyRiskSkor.seviye === "Orta" ? "text-yellow-400" : "text-emerald-400"}`}>
                           {portfoyRiskSkor.seviye} · {portfoyRiskSkor.skor}/100
                         </p>
@@ -541,9 +542,9 @@ export default function PortfoyPage() {
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mt-3">
-                  <button
+                  {hissePozisyonlari.length > 0 && <button
                     onClick={() => {
-                      portfoy.forEach(item => {
+                      hissePozisyonlari.forEach(item => {
                         if (!riskler[item.ticker] || !riskler[item.ticker].skor) {
                           setRiskler(prev => ({ ...prev, [item.ticker]: { skor: "", ozet: "", yukleniyor: true, acik: false } }));
                           fetch(`/api/risk?ticker=${item.ticker}`)
@@ -559,9 +560,9 @@ export default function PortfoyPage() {
                     }}
                     className="flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-700/60"
                   >
-                    ⚡ Portföy Riskini Hesapla
-                  </button>
-                  {sonRiskHesaplama && (
+                    ⚡ Hisse Risklerini Hesapla
+                  </button>}
+                  {hissePozisyonlari.length > 0 && sonRiskHesaplama && (
                     <span className="text-[11px] text-slate-500">
                       Son hesaplama: {sonRiskHesaplama.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                     </span>
@@ -576,7 +577,7 @@ export default function PortfoyPage() {
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/8 px-2.5 py-1 text-[10px] font-semibold text-orange-400 ml-auto">
                     <span className="h-1.5 w-1.5 rounded-full bg-orange-400 live-dot text-orange-400" />
                     {fiyatlarYenileniyor ? "Güncelleniyor..." : sonVeriZamaniLabel(sonFiyatGuncelleme)}
-                    <span className="text-orange-400/50 font-normal">· ~15dk gecikmeli</span>
+                    <span className="text-orange-400/50 font-normal">{fonVar ? (hissePozisyonlari.length ? "· Hisseler 15 dk gecikmeli; fonlar günlük" : "· Fon fiyatları günlük") : "· Piyasa verileri gecikmeli"}</span>
                   </span>
                 </div>
               </div>
@@ -633,7 +634,7 @@ export default function PortfoyPage() {
               gunlukYuzde: gunluk?.gunlukYuzde ?? fiyat?.degisim ?? 0,
               pl: pl?.pl ?? 0,
               plYuzde: pl?.plYuzde ?? 0,
-              risk: riskler[item.ticker],
+              risk: hisseHarici(item) ? undefined : riskler[item.ticker],
             };
           });
           const insights: { title: string; text: string; tone: "positive" | "negative" | "warning" | "neutral"; value?: string }[] = [];
@@ -681,7 +682,7 @@ export default function PortfoyPage() {
               title: "Dengeli görünüm",
               text: "Bugün portföyde tek başına baskın bir katkı veya risk sinyali öne çıkmıyor.",
               tone: "neutral",
-              value: `${portfoy.length} hisse`,
+              value: `${pozisyonOzeti}`,
             });
           }
           const toneStyle = {
@@ -742,7 +743,7 @@ export default function PortfoyPage() {
                 </p>
                 {grafikAcik && (
                   <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                    {(["1d", "1mo", "3mo", "1y"] as const).map(a => (
+                    {(["1d", "1mo", "3mo", "1y"] as const).filter(a => !fonVar || a !== "1d").map(a => (
                       <button key={a} onClick={() => setGrafikAralik(a)}
                         className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${grafikAralik === a ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-300"}`}>
                         {a === "1d" ? "Bugün" : a === "1mo" ? "1A" : a === "3mo" ? "3A" : "1Y"}
@@ -824,7 +825,7 @@ export default function PortfoyPage() {
             {portfoy.map((item) => {
               const pl = plHesapla(item);
               const fiyat = fiyatlar[item.ticker];
-              const risk = riskler[item.ticker];
+              const risk = hisseHarici(item) ? undefined : riskler[item.ticker];
               const isPos = pl ? pl.pl >= 0 : null;
               const acik = acikHisse === item.ticker;
               const fiyatDegisim = fiyat?.degisim ?? 0;
@@ -946,7 +947,7 @@ export default function PortfoyPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ background: "linear-gradient(90deg, rgba(59,130,246,0.07) 0%, rgba(139,92,246,0.04) 100%)", borderBottom: "1px solid rgba(59,130,246,0.12)" }}>
-                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Hisse</th>
+                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Varlık</th>
                     <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em] hidden sm:table-cell" style={{ color: "rgba(96,165,250,0.7)" }}>Adet</th>
                     <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Maliyet</th>
                     <th className="text-right px-3 py-3 text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "rgba(96,165,250,0.7)" }}>Fiyat</th>
@@ -962,7 +963,7 @@ export default function PortfoyPage() {
                   {siraliPortfoy.map((item) => {
                     const pl = plHesapla(item);
                     const fiyat = fiyatlar[item.ticker];
-                    const risk = riskler[item.ticker];
+                    const risk = hisseHarici(item) ? undefined : riskler[item.ticker];
                     const isPos = pl ? pl.pl >= 0 : null;
                     const gunluk = gunlukHesapla(item);
                     const gunlukPozitif = gunluk ? gunluk.gunluk >= 0 : null;
@@ -1081,13 +1082,13 @@ export default function PortfoyPage() {
         )}
 
         {/* ── Senaryo Analizi ── */}
-        {portfoy.length > 0 && (
+        {hissePozisyonlari.length > 0 && (
           <div className="mt-4 mb-6 relative overflow-hidden rounded-2xl" style={{ background: "rgba(8,14,26,0.9)", border: "1px solid rgba(59,130,246,0.1)", boxShadow: "0 0 48px rgba(59,130,246,0.04), inset 0 0 60px rgba(0,0,0,0.2)" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 30%, rgba(139,92,246,0.5) 70%, transparent 100%)" }} />
             <button onClick={() => setSenaryoAcik(v => !v)} className="w-full flex items-center justify-between px-5 py-4 text-left outline-none focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/25">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(96,165,250,0.6)" }}>Senaryo Analizi</p>
-                {senaryoAcik && <span className="text-xs text-slate-500">XU100 değişirse portföy tahmini nasıl etkilenir?</span>}
+                {senaryoAcik && <span className="text-xs text-slate-500">XU100 değişirse hisse pozisyonları nasıl etkilenir?</span>}
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                 className="text-slate-400 transition-transform duration-200" style={{ transform: senaryoAcik ? "rotate(180deg)" : "rotate(0)" }}>
@@ -1138,7 +1139,7 @@ export default function PortfoyPage() {
                     </div>
                   ) : (() => {
                     let totalImpact = 0;
-                    const rows = portfoy.map(p => {
+                    const rows = hissePozisyonlari.map(p => {
                       const betaRaw = betaVerisi[p.ticker]?.beta;
                       const betaVarsayim = betaRaw === null || betaRaw === undefined;
                       const beta = betaRaw ?? 1;
@@ -1158,7 +1159,7 @@ export default function PortfoyPage() {
                       <div>
                         <div className="rounded-xl border border-slate-800/80 bg-slate-950/20 px-4 py-3">
                           <div>
-                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.12em]">Tahmini Etki</p>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.12em]">Hisse Pozisyonlarına Tahmini Etki</p>
                             <p className={`portfolio-number mt-0.5 text-lg font-extrabold ${totalImpact >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                               {formatSignedCurrency(totalImpact, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
                               <span className="ml-2 text-xs font-semibold opacity-70">

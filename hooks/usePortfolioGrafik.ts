@@ -11,7 +11,8 @@ type SourcePoint = { timestamp?: number; tarih_iso?: string; tarih: string; fiya
 
 export function usePortfolioGrafik(portfoy: PortfoyItem[]) {
   const [grafik, setGrafik] = useState<GrafikPoint[]>([]);
-  const [grafikAralik, setGrafikAralik] = useState<GrafikAralik>("1d");
+  const [selectedRange, setGrafikAralik] = useState<GrafikAralik>("1d");
+  const grafikAralik = selectedRange === "1d" && portfoy.some(p => p.tur === "fon") ? "1mo" : selectedRange;
   const [grafikYukleniyor, setGrafikYukleniyor] = useState(false);
   const [grafikHata, setGrafikHata] = useState<string | null>(null);
 

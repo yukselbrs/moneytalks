@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { safeRedirectPath } from "@/lib/auth-redirect";
-import { adjustPosition, positivePortfolioNumber, portfolioHistory, weightedRisk } from "@/lib/portfolio-math";
+import { portfolioComposition, adjustPosition, positivePortfolioNumber, portfolioHistory, weightedRisk } from "@/lib/portfolio-math";
 import { safeAnalysis, ANALYSIS_DISCLAIMER } from "@/lib/ai-output";
 import { halkaArzDagitimHesabi } from "@/lib/halka-arz-dagitim";
 
@@ -52,5 +52,19 @@ describe("portfolio position changes", () => {
   it("rejects overselling and excessive combined quantities", () => {
     expect(() => adjustPosition({ adet: 10, maliyet: 100 }, 11, 80, "cikar")).toThrow();
     expect(() => adjustPosition({ adet: 1e9, maliyet: 1 }, 1, 1, "ekle")).toThrow();
+  });
+});
+
+
+describe("mixed portfolio composition", () => {
+  it("does not count a fund as a stock or include it in stock scenarios", () => {
+    expect(portfolioComposition([{ tur: "fon" }])).toEqual({ stocks: [], hasFunds: true, label: "1 fon" });
+  });
+  it("counts asset types separately and preserves legacy stock positions", () => {
+    const stock = { ticker: "THYAO" };
+    const result = portfolioComposition([stock, { tur: "fon" }, { tur: "fon" }, { tur: "maden" }, { tur: "doviz" }]);
+    expect(result.stocks).toEqual([stock]);
+    expect(result.label).toBe("1 hisse · 2 fon · 1 maden · 1 döviz");
+    expect(result.hasFunds).toBe(true);
   });
 });

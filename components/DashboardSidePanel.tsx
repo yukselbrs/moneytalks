@@ -160,7 +160,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
                   <text x={cx} y={cy + 7} textAnchor="middle" fontSize="9" fill={hov.renk} fontWeight="700" fontFamily="sans-serif">{formatPercent(hov.yuzde, { fractionDigits: 1, symbolPosition: "prefix", signDisplay: "never" })}</text>
                 </>
               ) : (
-                <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fill="#94A3B8" fontWeight="600" fontFamily="sans-serif">{grafikDilims.length} hisse</text>
+                <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fill="#94A3B8" fontWeight="600" fontFamily="sans-serif">{portfoyOzet.hisseSayisi} pozisyon</text>
               )}
             </svg>
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
@@ -192,7 +192,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
         {[
           { label: "Ana Para", value: formatCurrency(portfoyOzet.toplamMaliyet), color: "#94A3B8" },
           { label: mod === "daily" ? "Günlük K/Z" : "Toplam K/Z", value: formatSignedCurrency(aktifPL), color: aktifPozitif ? "#10B981" : "#EF4444" },
-          { label: "Hisse Sayısı", value: `${portfoyOzet.hisseSayisi} hisse`, color: "#94A3B8" },
+          { label: "Pozisyon Sayısı", value: `${portfoyOzet.hisseSayisi} pozisyon`, color: "#94A3B8" },
           { label: mod === "daily" ? "Günlük" : "Getiri", value: formatPercent(aktifPLYuzde, { signDisplay: "always" }), color: aktifPozitif ? "#10B981" : "#EF4444" },
         ].map((item) => (
           <div key={item.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 7, padding: "7px 10px" }}>
