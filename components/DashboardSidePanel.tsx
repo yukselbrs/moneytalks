@@ -13,6 +13,7 @@ type PortfolioSummary = {
   gunlukPL: number;
   gunlukPLYuzde: number;
   hisseSayisi: number;
+  fonIceriyor?: boolean;
   hisseDagilim?: { ticker: string; deger: number; yuzde: number; renk: string }[];
 };
 
@@ -51,7 +52,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
         </div>
         <div>
           <p style={{ fontSize: 13, fontWeight: 700, color: "#E2E8F0", marginBottom: 4 }}>Portföyünüzü Takip Edin</p>
-          <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>Hisselerinizi ekleyin, kâr/zarar ve dağılımınızı görün. Fiyatlar 15 dakika gecikmelidir.</p>
+          <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>Pozisyonlarınızı ekleyin, kâr/zarar ve dağılımınızı görün. Fon fiyatları günlük, hisse fiyatları 15 dakika gecikmeli sunulur.</p>
         </div>
         <a href="/portfoy" style={{ display: "inline-block", background: "#3B82F6", color: "#fff", fontSize: 12, fontWeight: 600, padding: "8px 18px", borderRadius: 8, textDecoration: "none" }}>Portföy Oluştur →</a>
       </div>
@@ -73,7 +74,7 @@ function PortfolioSummaryCard({ portfoyOzet }: { portfoyOzet: PortfolioSummary |
           <p style={{ fontSize: 12, fontWeight: 700, color: "#93C5FD", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>Portföy Özeti</p>
           <span className="g-tooltip-wrap" style={{ position: "relative", display: "inline-flex" }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 3, padding: "1px 5px", lineHeight: 1.4, cursor: "default" }}>G</span>
-            <span className="g-tooltip" style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }}>15 dk gecikmeli</span>
+            <span className="g-tooltip" style={{ position: "fixed", background: "#1E293B", border: "1px solid rgba(249,115,22,0.3)", color: "#F97316", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", padding: "4px 8px", borderRadius: 5, pointerEvents: "none", opacity: 0, transition: "opacity 0.15s", transform: "translateY(-28px)", zIndex: 9999 }}>{portfoyOzet.fonIceriyor ? "Fonlar günlük; diğer piyasa verileri gecikmeli" : "15 dk gecikmeli"}</span>
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

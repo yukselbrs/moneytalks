@@ -12,6 +12,7 @@ type PortfolioSummary = {
   gunlukPL: number;
   gunlukPLYuzde: number;
   hisseSayisi: number;
+  fonIceriyor?: boolean;
   hisseDagilim?: { ticker: string; deger: number; yuzde: number; renk: string }[];
 };
 
@@ -82,7 +83,7 @@ export function usePortfolioSummary() {
         .sort((a: { deger: number }, b: { deger: number }) => b.deger - a.deger)
         .map((h: { ticker: string; deger: number; yuzde: number; renk: string }) => ({ ...h, yuzde: toplamGuncel > 0 ? (h.deger / toplamGuncel) * 100 : 0 }));
 
-      setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, gunlukPL, gunlukPLYuzde, hisseSayisi: portfoyData.length, hisseDagilim });
+      setPortfoyOzet({ toplamMaliyet, toplamGuncel, toplamPL, toplamPLYuzde, gunlukPL, gunlukPLYuzde, hisseSayisi: portfoyData.length, fonIceriyor: portfoyData.some((p: PortfolioRow) => p.tur === "fon"), hisseDagilim });
       setPollingActive(true);
       setError(null);
     } catch (error) {
