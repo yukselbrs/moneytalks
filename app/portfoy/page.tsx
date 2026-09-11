@@ -158,6 +158,31 @@ export default function PortfoyPage() {
     islem: "ekle", adet: "", fiyat: "",
   });
   const modalBirim = pozisyonBirim(portfoy.find(item => item.ticker === lotModal.ticker));
+  const [duzenle, setDuzenle] = useState<{ item: PortfoyItem; adet: string; maliyet: string; hata: string; saving: boolean } | null>(null);
+  const duzenleAc = (item: PortfoyItem) => setDuzenle({ item, adet: String(item.adet), maliyet: String(item.maliyet), hata: "", saving: false });
+  const duzenleKaydet = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!duzenle || duzenle.saving) return;
+    const adet = positivePortfolioNumber(duzenle.adet, 1_000_000_000);
+    const maliyet = positivePortfolioNumber(duzenle.maliyet, 10_000_000);
+    if (adet === null || maliyet === null) {
+      setDuzenle({ ...duzenle, hata: "Geçerli, sıfırdan büyük miktar ve maliyet girin." }); return;
+    }
+    setDuzenle({ ...duzenle, saving: true, hata: "" });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { router.push("/login"); return; }
+      const { data, error } = await supabase.from("portfoy").update({ adet, maliyet })
+        .eq("id", duzenle.item.id).eq("user_id", session.user.id)
+        .eq("adet", duzenle.item.adet).eq("maliyet", duzenle.item.maliyet).select("id");
+      if (error) throw new Error("Pozisyon kaydedilemedi. Tekrar deneyin.");
+      if (!data?.length) throw new Error("Pozisyon başka bir işlemde değişti. Pencereyi kapatıp portföyü yenileyin.");
+      setDuzenle(null);
+      await portfoyuYukle();
+    } catch (error) {
+      setDuzenle({ ...duzenle, saving: false, hata: error instanceof Error ? error.message : "Bağlantı hatası. Tekrar deneyin." });
+    }
+  };
   const [lotHata, setLotHata] = useState("");
   const [lotYükleniyor, setLotYükleniyor] = useState(false);
 
@@ -924,6 +949,7 @@ export default function PortfoyPage() {
                         )}
                       </div>
                       <div className="flex gap-2">
+                        <button onClick={() => duzenleAc(item)} aria-label={`${item.ticker} pozisyonunu düzenle`} className="rounded-lg px-2 py-1.5 text-xs text-blue-400 hover:bg-blue-500/10">Düzenle</button>
                         <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })}
                           className="flex-1 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition-colors"
                           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>± Adet</button>
@@ -1043,7 +1069,8 @@ export default function PortfoyPage() {
                               {!risk?.skor && !risk?.yukleniyor && !hisseHarici(item) && (
                                 <button onClick={() => riskSkoru(item.ticker)} title="AI Risk Skoru Al" className="p-1.5 rounded text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors text-xs font-bold">⚡</button>
                               )}
-                              <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Adet ekle / çıkar" aria-label="Adet ekle / çıkar" className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
+                              <button onClick={() => duzenleAc(item)} aria-label={`${item.ticker} pozisyonunu düzenle`} className="rounded-lg px-2 py-1.5 text-xs text-blue-400 hover:bg-blue-500/10">Düzenle</button>
+                        <button onClick={() => setLotModal({ open: true, ticker: item.ticker, mevcutAdet: item.adet, mevcutMaliyet: item.maliyet, islem: "ekle", adet: "", fiyat: "" })} title="Adet ekle / çıkar" aria-label="Adet ekle / çıkar" className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-700/80 transition-colors text-sm font-bold">±</button>
                               <Link href={pozisyonLink(item)} title="Analiz" className="p-1.5 rounded text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-sm">→</Link>
                               <button onClick={() => setSilModal({ open: true, ticker: item.ticker })} title="Sil" className="p-1.5 rounded text-slate-400 hover:text-red-400 hover:bg-red-900/20 transition-colors text-xs">✕</button>
                             </div>
@@ -1296,6 +1323,23 @@ export default function PortfoyPage() {
         </div>
       )}
 
+      {duzenle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <form role="dialog" aria-modal="true" aria-labelledby="duzenle-title" onSubmit={duzenleKaydet} className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+            <h2 id="duzenle-title" className="mb-2 text-lg font-semibold text-white">{duzenle.item.ticker} — Pozisyonu düzenle</h2>
+            <p className="mb-4 text-xs text-slate-400">Mevcut toplam miktarını ve birim başına ortalama maliyetini düzelt.</p>
+            <label htmlFor="duzenle-adet" className="mb-1 block text-xs text-slate-400">Miktar ({pozisyonBirim(duzenle.item)})</label>
+            <input id="duzenle-adet" autoFocus type="number" step="any" min="0.000000001" max="1000000000" required disabled={duzenle.saving} className={inputCls} value={duzenle.adet} onChange={e => setDuzenle({ ...duzenle, adet: e.target.value })} />
+            <label htmlFor="duzenle-maliyet" className="mb-1 mt-4 block text-xs text-slate-400">Ortalama maliyet (₺)</label>
+            <input id="duzenle-maliyet" type="number" step="any" min="0.000000001" max="10000000" required disabled={duzenle.saving} className={inputCls} value={duzenle.maliyet} onChange={e => setDuzenle({ ...duzenle, maliyet: e.target.value })} />
+            {duzenle.hata && <p role="alert" className="mt-3 text-xs text-red-400">{duzenle.hata}</p>}
+            <div className="mt-5 flex gap-3">
+              <button type="button" disabled={duzenle.saving} onClick={() => setDuzenle(null)} className="flex-1 rounded-lg bg-slate-700 py-2 text-sm text-white disabled:opacity-50">İptal</button>
+              <button type="submit" disabled={duzenle.saving} className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-medium text-white disabled:opacity-50">{duzenle.saving ? "Kaydediliyor..." : "Değişiklikleri kaydet"}</button>
+            </div>
+          </form>
+        </div>
+      )}
       {lotModal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl" style={{ position: "relative", overflow: "hidden" }}>
